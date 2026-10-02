@@ -8,6 +8,19 @@ Este repositorio contiene gran parte del tramo que antes aparecía como «bus ce
 
 El [mapa de los nueve repositorios](../mapa-repositorios-y-conexiones.md) muestra cada nombre, sus unidades y sus conexiones. En la presentación, el mapa permite seleccionar repositorios y relaciones; los recorridos de sincronización y maestros descomponen después los componentes, endpoints y tablas.
 
+### Qué significa concentrador
+
+Un **concentrador** reúne componentes centrales que reciben mensajes de las sucursales, coordinan su procesamiento hacia el ERP y distribuyen cambios de datos maestros a las cajas. Puede incluir APIs, procesos, mensajería y persistencia; el término no implica un único servidor.
+
+| Nombre | Qué identifica en este proyecto |
+| --- | --- |
+| Concentrador | La función central de reunir, procesar y distribuir información. |
+| `mountain-concentrador` | El repositorio con componentes de integración: WSO2/Synapse, DSS, mediadores Java, API de lectura y consumidor Node. |
+| PostgreSQL del concentrador | El almacenamiento central de mensajes, lotes y estados de procesamiento. |
+| `mountain-implementos/backend-concentrador` | La aplicación que permite consultar estados y solicitar reintentos. |
+
+Por ejemplo, el sincronizador de una sucursal envía una venta a la integración central. **Recibir el mensaje no confirma que AX haya registrado la venta**: el resultado del ERP corresponde a una etapa posterior. Las conexiones concretas y los límites del código revisado se detallan en las secciones siguientes. El concepto también está disponible en el glosario de POS Atlas, accesible con la tecla **G**.
+
 ## 2. Versión y límites de evidencia
 
 | Referencia | Evidencia |

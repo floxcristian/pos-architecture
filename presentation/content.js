@@ -1434,6 +1434,11 @@ window.POS_CONTENT = {
       "example": "La sucursal envía ventas pendientes y descarga un lote de clientes."
     },
     {
+      "term": "Concentrador",
+      "definition": "Conjunto de componentes centrales que recibe mensajes de las sucursales, coordina su procesamiento hacia el ERP y distribuye cambios de datos maestros a las cajas. Puede incluir APIs, procesos, mensajería y una base de datos; no implica un único servidor.",
+      "example": "mountain-concentrador es el repositorio de integración; PostgreSQL concentrador es su almacenamiento central. Recibir una venta en central no confirma que AX la haya registrado."
+    },
+    {
       "term": "Worker",
       "definition": "Proceso que realiza trabajo en segundo plano.",
       "example": "Un worker reintenta enviar la outbox cuando vuelve la conexión."

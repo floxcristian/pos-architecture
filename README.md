@@ -24,6 +24,7 @@ La segunda revisión incorpora **`core`, `devops-platform` e `integration-presen
 | --- | --- |
 | Países, ERPs informados, offline, arquitectura chilena, tecnologías, datos y ofertas | Este README, secciones 1–6. |
 | Imagen y presentación originales | [Referencias](docs/referencias/) y [antecedentes de la presentación](docs/antecedentes-presentacion-chile.md). |
+| Qué es un concentrador y cómo se distingue de su repositorio, base y aplicación de administración | [Definición de concentrador](docs/analisis-repositorios/mountain-concentrador.md#qué-significa-concentrador); también disponible en el glosario de la presentación con **G**. |
 | Cobertura de la presentación respecto de fuentes, apuntes y documentos | [Matriz de cobertura](docs/cobertura-documentacion-presentacion.md): resumen visible, detalle exploratorio, enlaces y vacíos. |
 | Endpoints actuales, repositorios y ubicación de componentes | [Catálogo de integraciones](docs/catalogo-integraciones-actuales.md): declaraciones y llamadas diferenciadas, contratos configurables, fuentes por SHA y despliegue por confirmar. |
 | Quién llama a quién dentro de aplicaciones y bases | [Guía canónica del visor](docs/visor-interacciones-componentes.md): acceso a ocho recorridos, controles y significado de conexiones; implementación interna en las fichas. |
