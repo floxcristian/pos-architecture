@@ -28,7 +28,7 @@
   function componentName(id) { return component(id)?.name || id || 'Destino por confirmar'; }
   function badge(label, proposed=false) { return `<span class="status-badge ${proposed?'proposed':'pending'}">${esc(label || 'Por confirmar')}</span>`; }
   function componentRows(c) {
-    const rows = [['Repositorio',c.repo],['Tecnología',c.runtime],['Puerto observado',c.port],['Ubicación',c.location || zones[c.zone] || c.zone || 'Por confirmar']];
+    const rows = [['Repositorio',c.repo],['Tecnología',c.runtime],['Ubicación',c.location || zones[c.zone] || c.zone || 'Por confirmar']];
     return `<dl class="tech-component-facts">${rows.filter(([,value])=>value).map(([label,value])=>`<div><dt>${label}</dt><dd>${esc(text(value))}</dd></div>`).join('')}</dl>`;
   }
   function componentDetail(c) {
