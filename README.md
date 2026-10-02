@@ -160,6 +160,8 @@ flowchart LR
 
 ### 3.2. Venta, emisión de DTE y registro en AX
 
+**Qué es un DTE en Chile:** un documento tributario electrónico. Es una categoría que incluye **factura electrónica** y **boleta electrónica de ventas y servicios**, además de notas de crédito, notas de débito y guías de despacho electrónicas, entre otros tipos. También existen variantes no afectas o exentas de factura y boleta. Por tanto, emitir una boleta o una factura electrónica es emitir un DTE. Aquí «boleta» se refiere a ventas y servicios. [Tipos de DTE publicados por el SII](https://www.sii.cl/preguntas_frecuentes/factura_electronica/001_003_6625.htm).
+
 **Informado:**
 
 - Emitir el documento tributario electrónico (DTE) y registrar la venta en AX son pasos separados.

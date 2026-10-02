@@ -937,6 +937,10 @@ window.POS_CONTENT = {
         {
           "label": "Fiscalidad en la propuesta",
           "url": "../docs/propuesta-arquitectura.md"
+        },
+        {
+          "label": "SII: tipos de documentos tributarios electrónicos",
+          "url": "https://www.sii.cl/preguntas_frecuentes/factura_electronica/001_003_6625.htm"
         }
       ]
     },
@@ -1420,8 +1424,8 @@ window.POS_CONTENT = {
     },
     {
       "term": "DTE",
-      "definition": "Documento tributario electrónico en el contexto chileno. Su emisión tiene un resultado distinto del registro de la venta en el ERP.",
-      "example": "Una venta puede estar guardada y tener su documento fiscal todavía pendiente."
+      "definition": "Documento tributario electrónico en Chile. Es una categoría que incluye la factura electrónica, la boleta electrónica de ventas y servicios, las notas de crédito y débito electrónicas y la guía de despacho electrónica, entre otros tipos.",
+      "example": "Al emitir una boleta o una factura electrónica se emite un DTE. Su emisión y el registro de la venta en AX tienen resultados separados."
     },
     {
       "term": "Maestros",
