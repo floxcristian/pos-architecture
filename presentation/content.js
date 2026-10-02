@@ -996,11 +996,11 @@ window.POS_CONTENT = {
       "kind": "db",
       "place": "Instancias y ubicación física por confirmar",
       "status": "code",
-      "description": "La API de pagos lee y escribe estado de notas de crédito y usa directorios de sucursales y datos de integración. Hay también consumidores Mongo en precios. El diagrama agrupa el motor, sin acreditar una instancia única ni una función solo de lectura.",
+      "description": "api-pagos-caja guarda estados de notas de crédito en estadoNC y consulta cajaSucursales para localizar las bases PostgreSQL de las tiendas. ApiPrecios también usa MongoDB, con otras colecciones.",
       "responsibilities": [
-        "Conservar estados utilizados en controles de uso o devolución de NC; su protocolo completo debe verificarse.",
-        "Apoyar directorios y datos necesarios para consultas a bases de sucursales.",
-        "Inventariar colecciones, escrituras, precios y demás consumidores antes de migrar o retirar Mongo."
+        "Guardar si una nota de crédito figura como disponible o en uso en estadoNC.",
+        "Mantener en cajaSucursales los datos que la API necesita para consultar PostgreSQL de las tiendas.",
+        "Otros usos: usuariosAX en otra conexión de la API de pagos, y colecciones de precios en ApiPrecios."
       ],
       "offline": "Una copia local del saldo no evita que dos tiendas usen el mismo saldo. Se necesita autoridad o cupo reservado, exclusión verificable y conciliación.",
       "tech": [

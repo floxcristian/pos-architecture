@@ -81,7 +81,7 @@
     if(view==='repositorios') return window.POS_REPOSITORIES_UI?.html() || '';
     if(view==='peticiones') return window.POS_INTERACTIONS_UI?.html('mapa') || '';
     if(view==='evidencia') return window.POS_TECH_UI?.explorerHTML() || '';
-    return `<p class="map-perspective">Cada sucursal tiene backend, base de datos y sincronizador. La integración central conecta con Dynamics AX; la caja no administra el stock. Selecciona una pieza para conocer su función y explorar sus operaciones.</p><div class="stage-layout"><div>${diagram('current','Chile / piezas del POS actual','Selecciona una app o base de datos para ver su detalle')}${nodeList(['devices','payments','centraldb','mongo','readapi','mpos','instacheck'],'Otras piezas y referencias del ecosistema')}</div>${inspector()}</div>`;
+    return `<p class="map-perspective">Cada sucursal tiene backend, base de datos y sincronizador. La integración central conecta con Dynamics AX; la caja no administra el stock. Selecciona una pieza para conocer su función y explorar sus operaciones.</p><div class="stage-layout"><div>${diagram('current','Chile / piezas del POS actual','Selecciona una app o base de datos para ver su detalle')}${nodeList(['devices','centraldb','readapi','mpos','instacheck'],'Otras piezas y referencias del ecosistema')}</div>${inspector()}</div>`;
   }
   function showMapView(view, focus=false) {
     if(!mapViews.some(v=>v.id===view))view='general';

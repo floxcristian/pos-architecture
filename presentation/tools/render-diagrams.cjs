@@ -21,7 +21,7 @@ const presentationDir = path.join(root, 'presentation');
 const vendorPath = path.join(__dirname, 'vendor/mermaid.min.js');
 const bundledPlaywright = require('node:path').join(require('node:os').homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const diagrams = {
-  current: ['ui', 'backend', 'localdb', 'sync', 'bus', 'axapi', 'ax', 'pricing', 'fiscal'],
+  current: ['ui', 'backend', 'localdb', 'sync', 'bus', 'axapi', 'ax', 'pricing', 'fiscal', 'payments', 'mongo'],
   sale: ['ui', 'backend', 'localdb', 'fiscal', 'sync', 'bus', 'ax'],
   masters: ['ax', 'mpos', 'bus', 'readapi', 'sync', 'localdb'],
   customer: ['ui', 'backend', 'clientapi', 'localdb'],
@@ -153,6 +153,61 @@ async function main() {
           nodes.push(nodeId);
         }
         for (const element of svg.querySelectorAll('.edgePaths,.edgeLabels')) element.setAttribute('aria-hidden', 'true');
+        if (key === 'current') {
+          // Keep the overview compact. Reuse Mermaid's actual nodes and labels,
+          // but place them in three columns instead of shrinking a wide graph.
+          const ns = 'http://www.w3.org/2000/svg';
+          const make = (tag, attrs={}, label) => {
+            const el=document.createElementNS(ns,tag);
+            for(const [name,value] of Object.entries(attrs))el.setAttribute(name,String(value));
+            if(label!==undefined)el.textContent=label;
+            return el;
+          };
+          const positions={ui:[160,100],backend:[160,220],localdb:[160,385],sync:[160,550],pricing:[490,95],fiscal:[490,210],payments:[490,355],mongo:[490,465],ax:[815,100],axapi:[815,325],bus:[815,550]};
+          const nodeElements=[...svg.querySelectorAll('g[data-node]')];
+          const svgSourceEdges=[...svg.querySelectorAll('.flowchart-link')].map(edge=>edge.id);
+          const drawnEdges=new Set();
+          if(nodeElements.length!==Object.keys(positions).length)throw new Error('Update the overview layout when adding nodes.');
+          document.body.appendChild(svg);
+          const bounds={};
+          for(const node of nodeElements){
+            const id=node.dataset.node,position=positions[id];
+            if(!position)throw new Error(`Overview position missing: ${id}`);
+            const box=node.getBBox();
+            bounds[id]={x:position[0]+box.x,y:position[1]+box.y,w:box.width,h:box.height,cx:position[0],cy:position[1]};
+            node.setAttribute('transform',`translate(${position.join(',')})`);
+          }
+          svg.remove();
+          svg.querySelector('g').remove();
+          svg.setAttribute('viewBox','0 0 980 625');
+          const canvas=make('g');svg.appendChild(canvas);
+          for(const [x,w,label] of [[8,304,'Sucursal'],[345,290,'Servicios de caja'],[662,310,'Integración central']]){
+            canvas.appendChild(make('rect',{x,y:8,width:w,height:608,rx:10,fill:'#ffffff',stroke:'#c6d8d1'}));
+            canvas.appendChild(make('text',{x:x+16,y:36,fill:'#17302d','font-size':20,'font-weight':600},label));
+          }
+          const marker=make('marker',{id:'current-arrow',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'});
+          marker.appendChild(make('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:'#527a70'}));
+          const defs=make('defs');defs.appendChild(marker);svg.appendChild(defs);
+          const edges=make('g',{'aria-hidden':'true'});canvas.appendChild(edges);
+          const port=(id,side,offset=0)=>{const b=bounds[id];return side==='top'?[b.cx,b.y]:side==='bottom'?[b.cx,b.y+b.h]:side==='left'?[b.x,b.cy+offset]:[b.x+b.w,b.cy+offset];};
+          const route=(from,to,points,both=false,dashed=false)=>{
+            // The source graph remains the connection contract for this layout.
+            const edgeId=svgSourceEdges.find(id=>id.startsWith(`L_${from}_${to}_`)||id.startsWith(`L_${to}_${from}_`));
+            if(!edgeId)throw new Error(`Overview connection missing in Mermaid: ${from} / ${to}`);
+            drawnEdges.add(edgeId);
+            edges.appendChild(make('path',{d:points.map((p,i)=>`${i?'L':'M'} ${p.join(' ')}`).join(' '),fill:'none',stroke:'#527a70','stroke-width':1.8,'marker-end':'url(#current-arrow)',...(both?{'marker-start':'url(#current-arrow)'}:{}),...(dashed?{'stroke-dasharray':'6 5'}:{})}));
+          };
+          for(const [a,b,both] of [['ui','backend',false],['backend','localdb',true],['ax','axapi',true],['axapi','bus',true],['payments','mongo',false]])route(a,b,[port(a,'bottom'),port(b,'top')],both);
+          route('sync','localdb',[port('sync','top'),port('localdb','bottom')],true);
+          route('sync','bus',[port('sync','right'),port('bus','left')],true);
+          for(const [to,x,offset,dashed] of [['pricing',324,-18,false],['fiscal',336,0,false],['payments',324,18,true]]){
+            const a=port('backend','right',offset),b=port(to,'left');route('backend',to,[a,[x,a[1]],[x,b[1]],b],false,dashed);
+          }
+          const a=port('payments','left',18),b=port('localdb','right');route('payments','localdb',[a,[350,a[1]],[350,b[1]],b]);
+          if(drawnEdges.size!==svgSourceEdges.length)throw new Error('Update the overview layout when adding connections.');
+          for(const [x,y,label] of [[349,294,'HTTP'],[326,374,'SQL']])edges.appendChild(make('text',{x,y,'text-anchor':'middle','font-size':16,fill:'#355d48',stroke:'#fff','stroke-width':5,'paint-order':'stroke'},label));
+          for(const node of nodeElements)canvas.appendChild(node);
+        }
         if (svg.querySelector('foreignObject')) throw new Error('Portable SVG must not contain foreignObject.');
         return { svg: new XMLSerializer().serializeToString(svg), nodes, viewBox: svg.getAttribute('viewBox') };
       }, { key, source, interactive: expectedNodes !== null });

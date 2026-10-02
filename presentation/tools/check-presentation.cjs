@@ -31,7 +31,7 @@ async function main() {
     assert.equal(await page.locator('[data-map-view][role="tab"]').count(),4);
     assert.equal(await page.locator('#map-panel-general').isVisible(),true);
     assert.equal(await page.locator('#map-panel-general .ix-context').count(),0);
-    assert.equal(await page.locator('[data-node]').count(),9);
+    assert.equal(await page.locator('[data-node]').count(),11);
     for(const node of await page.locator('[data-node]').all()) {
       await node.click();
       assert.equal(await node.getAttribute('aria-pressed'),'true');

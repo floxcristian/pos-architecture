@@ -1,23 +1,25 @@
-flowchart LR
+flowchart TB
     accTitle: Arquitectura actual de caja en Chile
-    accDescr: La sucursal conserva interfaz, backend, base y sincronizador. Precios y facturación usan servicios configurados. AX recibe el registro por integración posterior.
+    accDescr: La sucursal conserva interfaz, backend, base y sincronizador. La API de pagos usa MongoDB para notas de crédito y el directorio de sucursales, y consulta PostgreSQL de las tiendas. Precios y facturación usan servicios configurados. AX recibe el registro por integración posterior.
     subgraph branch["Sucursal"]
         direction TB
         ui["mountain-implementos<br/>interfaz de caja"] --> backend["mountain-implementos<br/>backend · AdonisJS"]
         backend <--> localdb[("PostgreSQL<br/>de sucursal")]
-        localdb <--> sync["mountain-sync-sucursal<br/>AdonisJS"]
+        sync["mountain-sync-sucursal<br/>AdonisJS"] <--> localdb
     end
-    subgraph remote["Precios y facturación"]
+    subgraph services["Servicios de caja"]
         direction TB
         pricing["Servicio<br/>de precios"]
         fiscal["Proveedor<br/>DTE"]
-        pricing ~~~ fiscal
+        payments["api-pagos-caja"] -->|"Lee y escribe"| mongo[("MongoDB<br/>estadoNC · cajaSucursales")]
     end
     subgraph integration["Integración central"]
         direction TB
-        bus["mountain-concentrador<br/>Synapse / DSS / Java"] <--> axapi["apis-implementos<br/>API / adaptadores .NET"]
-        axapi <--> ax[("Dynamics AX<br/>Chile")]
+        ax[("Dynamics AX<br/>Chile")] <--> axapi["apis-implementos<br/>API / adaptadores .NET"]
+        axapi <--> bus["mountain-concentrador<br/>Synapse / DSS / Java"]
     end
-    branch <-->|"Red / WAN"| integration
-    branch --> remote
-    integration ~~~ remote
+    backend -.->|"HTTP · consultar pagos y NC"| payments
+    payments -->|"SQL · consulta pagos"| localdb
+    sync <--> bus
+    backend --> pricing
+    backend --> fiscal
