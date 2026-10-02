@@ -177,7 +177,7 @@ window.POS_OPERATIONS = {
       "id": "O03",
       "chapter": "venta",
       "title": "Documento emitido y trabajo de impresión",
-      "evidenceNote": "La representación PDF y los canales de impresión se verificaron en Mountain y la API Windows. El comportamiento descrito no acredita versiones instaladas, papel entregado ni capacidades de todos los dispositivos. La app api-pagos-caja sigue separada del agente/terminal Transbank.",
+      "evidenceNote": "La representación PDF y los canales de impresión se verificaron en Mountain y la API Windows. El comportamiento descrito no acredita versiones instaladas, papel entregado ni capacidades de todos los dispositivos. La app api-pagos-caja sigue separada de la aplicación de conexión con Transbank y del terminal.",
       "sources": [
         {
           "label": "Documento PDF según proveedor",
@@ -308,7 +308,7 @@ window.POS_OPERATIONS = {
         "diagram": "operation-delivery-proposed",
         "summary": "Centro y sucursales deben tolerar versiones diferentes durante un periodo acordado. Cada activación local conserva operaciones pendientes y prueba cómo recuperarse si falla el cambio de programa o esquema.",
         "steps": [
-          "Publicar paquete con autenticidad del origen e integridad verificadas y matriz de compatibilidad entre UI, backend/esquema, sincronizador, agente y contratos. No aceptar una identidad de artefacto desconocida.",
+          "Publicar paquete con autenticidad del origen e integridad verificadas y matriz de compatibilidad entre UI, backend/esquema, sincronizador, aplicación local de periféricos y contratos. No aceptar una identidad de artefacto desconocida.",
           "Descargar de forma reanudable, comprobar recursos y activar por grupos de sucursales. La ventana requiere drenaje, checkpoint y continuidad definidos.",
           "Ensayar migración y corte de energía. Volver al binario anterior solo si el esquema y las operaciones nuevas siguen siendo compatibles; de lo contrario recuperar hacia adelante y revalidar el estado antes de operar.",
           "Conservar identidad y versión de eventos durante replay. El centro reconoce duplicados, admite contratos antiguos dentro del horizonte pactado y conserva versiones desconocidas para tratamiento controlado."

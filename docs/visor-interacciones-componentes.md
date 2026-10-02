@@ -61,7 +61,7 @@ Identificador estable: `proposed-sale`. Fuente: [datos de interacciones propuest
 | --- | --- | --- |
 | Validar | Interfaz → fachada de venta → reglas y capacidades | El servicio de sucursal decide con permisos, maestros y recursos válidos. |
 | Preparar | Fachada → intenciones y binding → puertos | La intención se confirma antes del primer efecto externo; todavía no es venta final. |
-| Resolver pago | Puerto → agente → medio externo → observación | La rama no aplica a todos los medios. ACK del agente no demuestra cobro ni liquidación. |
+| Resolver pago | Puerto → aplicación local → medio externo → observación | La rama no aplica a todos los medios. ACK de la aplicación local no demuestra cobro ni liquidación. |
 | Condición fiscal | Puerto → proveedor fiscal → estado | Emisión externa, contingencia y orden dependen del régimen y perfil homologado. |
 | Custodiar evidencia | Observaciones → persistencia de sucursal | Se acusa la observación después de guardarla; un resultado incierto sigue pendiente. |
 | Confirmar | Fachada → negocio + outbox → interfaz | Las dos escrituras SQL forman **un solo commit final**, seguido del estado permitido a la UI. |
@@ -72,7 +72,7 @@ Se distinguen tres fronteras:
 - **Efecto externo:** no comparte transacción con PostgreSQL; puede ocurrir aunque se pierda su respuesta.
 - **Transacción final:** reúne venta, líneas, impuestos, referencias/estado de pago, movimientos aplicables, registros fiscales simultáneos exigidos y evento de salida. Si una de sus escrituras falla, no se confirma parcialmente.
 
-El ejemplo mantiene **un escritor de negocio por sucursal**, con LAN y PostgreSQL operativos. Perder la WAN no exige esperar al ERP; perder el escritor o la LAN puede detener las operaciones en este perfil. El journal del agente permite recuperar comandos y observaciones, no aceptar nuevas ventas como segundo escritor. La caja sigue sin ser dueña del stock.
+El ejemplo mantiene **un escritor de negocio por sucursal**, con LAN y PostgreSQL operativos. Perder la WAN no exige esperar al ERP; perder el escritor o la LAN puede detener las operaciones en este perfil. El journal de la aplicación local permite recuperar comandos y observaciones, no aceptar nuevas ventas como segundo escritor. La caja sigue sin ser dueña del stock.
 
 Si el proveedor cobró y después falla la escritura local, se recupera la misma operación desde la intención, el journal y la consulta soportada. Si el proveedor no permite consultar, se conserva la incertidumbre y se aplica resolución controlada. Cambiar adquirente, generar otra identidad o repetir a ciegas no resuelve la falta de evidencia.
 

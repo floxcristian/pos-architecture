@@ -24,13 +24,13 @@
     'group-sync-app': ['Sincronizador de sucursal', 'mountain-sync-sucursal'],
     'print-angular': ['Mountain · interfaz de caja', 'mountain-implementos/frontend'],
     'print-backend': ['Mountain · backend de sucursal', 'mountain-implementos/backend'],
-    'print-windows': ['Agente Windows de impresión', 'api-impresion-caja'],
+    'print-windows': ['Aplicación local de impresión', 'api-impresion-caja'],
     'credit-angular': ['Mountain · interfaz de caja', 'mountain-implementos/frontend'],
     'credit-backend': ['Mountain · backend de sucursal', 'mountain-implementos/backend'],
     'credit-payments': ['API de consulta de pagos', 'api-pagos-caja'],
     'sale-terminal': ['Interfaz de caja', 'Aplicación propuesta · repositorio por definir'],
     'sale-branch': ['Backend de sucursal', 'Monolito modular propuesto'],
-    'sale-agent': ['Agente de periféricos', 'Aplicación local propuesta'],
+    'sale-agent': ['Aplicación local de periféricos', 'Aplicación local propuesta'],
     'erp-branch': ['Publicador de sucursal', 'Proceso local propuesto'],
     'erp-ingress': ['API de recepción central', 'Aplicación propuesta por país / entidad'],
     'erp-worker': ['Integración con el ERP', 'Aplicación propuesta por país / entidad']
@@ -143,7 +143,7 @@
     customer: 'La interfaz solicita un cliente al backend. El backend consulta la ficha remota y actualiza sus tablas locales; el saldo posterior tiene condiciones y escrituras propias.',
     printing: 'La interfaz puede consultar la representación fiscal y pedir impresión mediante la API Windows o la conexión ePOS. Las dos alternativas tienen contratos y resultados distintos.',
     credit: 'La interfaz consulta notas de crédito, el backend combina consultas locales y remotas, y la API de pagos consulta sucursales y MongoDB. Guardar el pago local y marcar uso remoto no forman una reserva corporativa atómica.',
-    'proposed-sale': 'Propuesta con LAN operativa: el backend valida la venta, guarda intenciones y confirma negocio y eventos de salida juntos. El agente y los proveedores conservan resultados separados de pago y fiscalidad.',
+    'proposed-sale': 'Propuesta con LAN operativa: el backend valida la venta, guarda intenciones y confirma negocio y eventos de salida juntos. La aplicación local y los proveedores conservan resultados separados de pago y fiscalidad.',
     'proposed-erp': 'Propuesta: el publicador entrega eventos locales a una API central. La recepción guarda mensaje y trabajo juntos; la integración registra el resultado ERP o deja la operación para conciliación. El acuse central confirma custodia.'
   };
   const boundaries = {
@@ -221,8 +221,8 @@
     ],
     printing: [
       ['Obtener representación fiscal', 'Si se solicita el PDF o referencia, la interfaz llama al backend, que consulta el documento, sus DTE, estado y facturador.'],
-      ['Elegir el canal API Windows', 'La interfaz envía el contenido y configuración al agente Windows de impresión. Esta alternativa es distinta de la conexión ePOS.'],
-      ['Preparar la impresión', 'El agente prepara el contenido y solicita la impresión al sistema operativo. La implementación queda disponible al inspeccionar la aplicación.'],
+      ['Elegir el canal API Windows', 'La interfaz envía el contenido y configuración a la aplicación local de impresión. Esta alternativa es distinta de la conexión ePOS.'],
+      ['Preparar la impresión', 'La aplicación local prepara el contenido y solicita la impresión al sistema operativo. La implementación queda disponible al inspeccionar la aplicación.'],
       ['Interpretar respuesta e incertidumbre', 'La API puede responder que está imprimiendo. La entrega al driver y esa respuesta no demuestran que el papel haya salido físicamente.'],
       ['Ver la alternativa ePOS', 'En la variante ePOS, la interfaz se conecta al dispositivo configurado. Esa ruta no pasa por la API Windows del otro canal.'],
       ['Conservar la distinción entre estados', 'Solicitud recibida, trabajo entregado al driver y resultado físico son hechos distintos. Reimprimir una representación no debe confundirse con emitir una factura nueva.']
@@ -238,7 +238,7 @@
     'proposed-sale': [
       ['Validar la operación habilitada', 'La interfaz pide la venta al backend. Este valida permisos, vigencia de datos, reglas y capacidades disponibles antes de producir efectos.'],
       ['Guardar antes de producir efectos', 'El backend guarda una intención con identidad y destino estables. Un nuevo intento no autoriza a cambiar de proveedor si el resultado anterior sigue incierto.'],
-      ['Resolver el pago habilitado', 'El backend entrega un comando durable al agente. El agente obtiene y reporta evidencia del medio de pago cuando la operación y su perfil lo permiten.'],
+      ['Resolver el pago habilitado', 'El backend entrega un comando durable a la aplicación local. Esta obtiene y reporta evidencia del medio de pago cuando la operación y su perfil lo permiten.'],
       ['Cumplir la condición fiscal', 'El backend solicita la emisión permitida y conserva su resultado. La viabilidad fiscal offline depende del país, proveedor y perfil autorizados.'],
       ['Conservar evidencia y decidir', 'El backend guarda observaciones y decide según reglas deterministas. Offline y timeout no prueban aprobación de pago ni éxito fiscal.'],
       ['Confirmar negocio y eventos juntos', 'El backend confirma negocio y eventos de salida en la misma transacción PostgreSQL. La respuesta a la interfaz informa el estado local; la entrega al ERP es otro recorrido.']

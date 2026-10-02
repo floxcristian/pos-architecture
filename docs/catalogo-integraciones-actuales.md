@@ -26,7 +26,7 @@ Los paths son relativos al servidor lógico y respetan mayúsculas del código. 
 
 ## 2. Despliegue reconstruido y correspondencia con repositorios
 
-La interfaz web y los agentes locales se utilizan en el PC de caja con Windows. Backend, sincronizador y PostgreSQL pertenecen al ámbito de sucursal; integración, concentrador y adaptación AX, al ámbito corporativo. **Central no es un servidor único.** El segundo PostgreSQL de caja que aparece dentro del bloque central, la ubicación de facturadores y la etiqueta «APIs .NET de integración sucursal» necesitan aclaración. Una biblioteca como DatosAXSql no agrega por sí misma una instancia desplegada.
+La interfaz web y las aplicaciones locales se utilizan en el PC de caja con Windows. Backend, sincronizador y PostgreSQL pertenecen al ámbito de sucursal; integración, concentrador y adaptación AX, al ámbito corporativo. **Central no es un servidor único.** El segundo PostgreSQL de caja que aparece dentro del bloque central, la ubicación de facturadores y la etiqueta «APIs .NET de integración sucursal» necesitan aclaración. Una biblioteca como DatosAXSql no agrega por sí misma una instancia desplegada.
 
 | Componente / alias | Zona lógica | Código / runtime | Puerto o binding conocido | Responsabilidad |
 | --- | --- | --- | --- | --- |
@@ -34,8 +34,8 @@ La interfaz web y los agentes locales se utilizan en el PC de caja con Windows. 
 | **Servidor de sucursal · backend Mountain** · `backend` | branch | mountain-implementos/backend; Node.js / AdonisJS 4.1 | 3333 según diagrama y valor predeterminado del cliente del sync | Venta, persistencia local, precios, clientes y coordinación fiscal. |
 | **PostgreSQL de sucursal** · `localdb` | branch | Modelos Mountain y sincronizador; PostgreSQL; versión instalada pendiente | No publicado en el catálogo | Datos de negocio y mensajes; backend/sync comparten el esquema observado. |
 | **Sincronizador de sucursal** · `sync` | branch | mountain-sync-sucursal; Node.js / AdonisJS 4.1; cron + AMQP | 3344 según diagrama; despliegue por confirmar | Prepara/sube ventas y pagos, descarga maestros y aplica respuestas AX. |
-| **Agente de impresión Windows** · `print` | terminal | api-impresion-caja; Servicio C# .NET Framework 4.7.2 / Web API SelfHost | HTTP localhost:8181 en código | Impresión GDI/RAW/Zebra y lector MICR; no emite fiscalmente ni autoriza tarjetas. |
-| **Agente / terminal Transbank** · `transbank` | terminal | SDK consumidor en Mountain; agente no incluido; SDK web declarado; runtime del agente por confirmar | No confirmado | Acceso al terminal bancario; separado de api-pagos-caja. |
+| **Aplicación local de impresión** · `print` | terminal | api-impresion-caja; Servicio C# .NET Framework 4.7.2 / Web API SelfHost | HTTP localhost:8181 en código | Impresión GDI/RAW/Zebra y lector MICR; no emite fiscalmente ni autoriza tarjetas. |
+| **Aplicación de conexión con Transbank** · `transbank` | terminal | SDK consumidor en Mountain; aplicación de conexión no incluida; SDK web declarado; tecnología de la aplicación local por confirmar | No confirmado | Acceso al terminal bancario; separado de api-pagos-caja. |
 | **mountain-concentrador · WSO2 / Synapse** · `bus` | Central · ámbito lógico | mountain-concentrador / ESBImplementos, DSConcentrador, ClassRegistraMensajeDetalle; XML Synapse / DSS / Java; WSO2 EI 6.6.0 según PPTX | HTTP/JSON según diagrama; listener real pendiente | Recibir sobres, persistir, transformar y despachar a .NET/AX; generar respuestas y reintentos. |
 | **Broker AMQP/JMS · Andes según PPTX** · `broker` | Central · ámbito lógico | Clientes/stores en mountain-concentrador y mountain-sync-sucursal; servidor no auditado; AMQP desde amqplib; producto/versionado servidor por validar | AMQP/JMS según diagrama; puerto real no publicado | Transporte de sobres, avisos y respuestas; separado de transformación y persistencia. |
 | **mountain-concentrador · api-lectura** · `readapi` | Central · ámbito lógico | mountain-concentrador / api-lectura; Node.js / AdonisJS 4.1 / Lucid / PostgreSQL | HTTP; rutas mensajeSalidas/*; prefijo de publicación por validar | Seleccionar lotes, marcar enviado/recibido/procesados y recuperar enviados no procesados. |
@@ -62,7 +62,7 @@ La interfaz web y los agentes locales se utilizan en el PC de caja con Windows. 
 
 ### 2.1. Confianza y evidencia por componente
 
-**Interfaz web de caja (`ui`).** Aplicación web desarrollada con Angular / TypeScript y utilizada en el PC de caja con Windows. Desde ella se consulta el backend y se accede a los agentes de impresión y pagos.
+**Interfaz web de caja (`ui`).** Aplicación web desarrollada con Angular / TypeScript y utilizada en el PC de caja con Windows. Desde ella se consulta el backend y se accede a las aplicaciones locales de impresión y conexión con el terminal de pago.
 
 Fuentes: [mountain-implementos/frontend/package.json:1–103](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/package.json#L1-L103); [mountain-implementos/frontend/src/app/services/punto-de-venta.service.ts:388–399](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/services/punto-de-venta.service.ts#L388-L399); [Arquitectura actual de Chile](../docs/antecedentes-presentacion-chile.md).
 
@@ -78,11 +78,11 @@ Fuentes: [mountain-implementos/backend/app/Controllers/Http/PuntoDeVentaControll
 
 Fuentes: [mountain-sync-sucursal/package.json:1–46](https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/package.json#L1-L46); [mountain-sync-sucursal/start/cronHooks.js:13–217](https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/start/cronHooks.js#L13-L217); [PPTX original: zonas, componentes y versiones declaradas (diap. 5–11)](../docs/antecedentes-presentacion-chile.md).
 
-**Agente de impresión Windows (`print`).** Binding loopback y Windows Service; PPTX lo ubica en PC Windows. Evidencia: Código de binding; instalación/binario pendiente. Pendiente: Servicio vs proyecto MVC alternativo, identidad Windows, drivers, impresoras y origen permitido.
+**Aplicación local de impresión (`print`).** Binding loopback y Windows Service; se ejecuta en el PC de caja con Windows. Evidencia: Código de binding; instalación/binario pendiente. Pendiente: Servicio vs proyecto MVC alternativo, identidad Windows, drivers, impresoras y origen permitido.
 
 Fuentes: [api-impresion-caja/WindowsServiceImpresora/ServiceImpresora.cs:30–60](https://github.com/developer-implementos/api-impresion-caja/blob/2e74b2d64985902f5fdfb52902016a5f65d7b577/WindowsServiceImpresora/ServiceImpresora.cs#L30-L60); [api-impresion-caja/WindowsServiceImpresora/WindowsServiceImpresora.csproj:8–11](https://github.com/developer-implementos/api-impresion-caja/blob/2e74b2d64985902f5fdfb52902016a5f65d7b577/WindowsServiceImpresora/WindowsServiceImpresora.csproj#L8-L11); [PPTX original: zonas, componentes y versiones declaradas (diap. 5–11)](../docs/antecedentes-presentacion-chile.md).
 
-**Agente / terminal Transbank (`transbank`).** PPTX ubica agente y terminal en puesto; package.json incluye SDK. Evidencia: Antecedente + dependencia; modelo y protocolo no auditados. Pendiente: Repositorio/binario del agente, SDK instalado, modelo/firmware y operaciones homologadas.
+**Aplicación de conexión con Transbank (`transbank`).** La aplicación local y el terminal se ubican en el puesto de caja; package.json incluye SDK. Evidencia: Antecedente + dependencia; modelo y protocolo no auditados. Pendiente: Repositorio/binario de la aplicación local, SDK instalado, modelo/firmware y operaciones homologadas.
 
 Fuentes: [mountain-implementos/frontend/package.json:68–76](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/package.json#L68-L76); [PPTX original: zonas, componentes y versiones declaradas (diap. 5–11)](../docs/antecedentes-presentacion-chile.md).
 
@@ -180,7 +180,7 @@ Fuentes: [Presentación original: sistemas externos](../docs/antecedentes-presen
 
 ### 2.2. Diferencias que afectan el inventario
 
-- **Pagos:** el diagrama indica `3386`; el código arranca con `process.env.PORT` y valor predeterminado `3366`. Ninguno acredita el puerto activo. Esta API consulta pagos y estados de NC; no sustituye al agente Transbank.
+- **Pagos:** el diagrama indica `3386`; el código arranca con `process.env.PORT` y valor predeterminado `3366`. Ninguno acredita el puerto activo. Esta API consulta pagos y estados de NC; no sustituye a la aplicación de conexión con Transbank.
 - **Impresión:** el diagrama menciona HTTPS/JSON/JWT en dispositivos, pero el servicio revisado enlaza HTTP en `localhost:8181`, permite llamadas anónimas y CORS amplio. Loopback limita el binding observado; no acredita exposición LAN. Debe confirmarse el binario instalado y su control de orígenes.
 - **MongoDB:** hay escrituras de `estadoNC`, directorio de sucursales y usuarios, además de otros consumidores .NET/precios. No se puede equiparar todo ello con una sola base o instancia dedicada exclusivamente a NC.
 - **PostgreSQL:** la API de pagos se conecta directamente a sucursales. ApiCarro consulta tablas/JSON del concentrador. Estas dependencias deben incluirse en consolidación, permisos, recuperación y migración de esquemas.
@@ -234,7 +234,7 @@ Las flechas representan interacciones descritas en sus fuentes; no son capturas 
 
 ## 4. Endpoints y llamadas prioritarias
 
-Cada ficha conserva origen/destino lógico, tipo de evidencia, sincronía, dependencia offline y una condición de fallo. Las rutas .NET y del agente usan el routing del proyecto; reverse proxies y prefijos productivos siguen pendientes.
+Cada ficha conserva origen/destino lógico, tipo de evidencia, sincronía, dependencia offline y una condición de fallo. Las rutas .NET y de la aplicación local de impresión usan el routing del proyecto; reverse proxies y prefijos productivos siguen pendientes.
 
 ### 4.1. Venta, precios y DTE
 
@@ -594,7 +594,7 @@ API Windows de loopback y efectos físicos; respuesta HTTP no acredita impresió
 
 #### e-print-health · `GET /Impresion/Index`
 
-**Origen → destino:** Consumidor corporativo por identificar (`integration-caller`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; Ruta convencional controller/action observada; llamador no identificado.
+**Origen → destino:** Consumidor corporativo por identificar (`integration-caller`) → Aplicación local de impresión (`print`). **Evidencia:** ruta receptora declarada; Ruta convencional controller/action observada; llamador no identificado.
 
 **Función:** Responder que el servicio HTTP está activo.
 
@@ -606,7 +606,7 @@ API Windows de loopback y efectos físicos; respuesta HTTP no acredita impresió
 
 #### e-print-test · `GET /Impresion/Test`
 
-**Origen → destino:** Consumidor corporativo por identificar (`integration-caller`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; Receptor declarado; uso operativo no observado.
+**Origen → destino:** Consumidor corporativo por identificar (`integration-caller`) → Aplicación local de impresión (`print`). **Evidencia:** ruta receptora declarada; Receptor declarado; uso operativo no observado.
 
 **Función:** Ejecutar una prueba de impresión física.
 
@@ -618,7 +618,7 @@ API Windows de loopback y efectos físicos; respuesta HTTP no acredita impresió
 
 #### e-print-thermal · `POST /Impresion/ImprimirDTE_Termica`
 
-**Origen → destino:** Interfaz web de caja (`ui`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; Receptor y composición de llamada Angular observados; URL de impresora efectiva configurable.
+**Origen → destino:** Interfaz web de caja (`ui`) → Aplicación local de impresión (`print`). **Evidencia:** ruta receptora declarada; Receptor y composición de llamada Angular observados; URL de impresora efectiva configurable.
 
 **Función:** Imprimir representación recibida usando configuración y columnas; no emitir DTE nuevo.
 
@@ -630,7 +630,7 @@ API Windows de loopback y efectos físicos; respuesta HTTP no acredita impresió
 
 #### e-print-pdf · `POST /Impresion/ImprimirDTE_Pdf`
 
-**Origen → destino:** Consumidor corporativo por identificar (`integration-caller`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; Receptor declarado; consumidor no identificado.
+**Origen → destino:** Consumidor corporativo por identificar (`integration-caller`) → Aplicación local de impresión (`print`). **Evidencia:** ruta receptora declarada; Receptor declarado; consumidor no identificado.
 
 **Función:** Ruta de impresión con dataTexto; pese al nombre, devuelve un ApiResponse, no un archivo PDF.
 
@@ -642,7 +642,7 @@ API Windows de loopback y efectos físicos; respuesta HTTP no acredita impresió
 
 #### e-print-zebra · `POST /Impresion/ImprimirZebra`
 
-**Origen → destino:** Consumidor corporativo por identificar (`integration-caller`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; Receptor declarado; llamador y modelo/firmware pendientes.
+**Origen → destino:** Consumidor corporativo por identificar (`integration-caller`) → Aplicación local de impresión (`print`). **Evidencia:** ruta receptora declarada; Receptor declarado; llamador y modelo/firmware pendientes.
 
 **Función:** Enviar contenido RAW a impresora Zebra configurada.
 
@@ -654,7 +654,7 @@ API Windows de loopback y efectos físicos; respuesta HTTP no acredita impresió
 
 #### e-print-micr · `GET / POST /Impresion/LecturaCheque_Termica`
 
-**Origen → destino:** Interfaz web de caja (`ui`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; GET y POST declarados; POST observado por construcción del cliente.
+**Origen → destino:** Interfaz web de caja (`ui`) → Aplicación local de impresión (`print`). **Evidencia:** ruta receptora declarada; GET y POST declarados; POST observado por construcción del cliente.
 
 **Función:** Accionar lector de cheque y devolver lectura MICR; Angular compone llamada POST.
 
@@ -683,7 +683,7 @@ Fuentes: [grupo y middleware Mountain](https://github.com/developer-implementos/
 | API de lectura y procesador de cola central | Versión activa de api-lectura/procesador, variante Synapse, retención, deduplicación de acuses y ensayos de recuperación. | Existe código de relectura; falta demostrar recuperación integrada y seguridad ante ACK repetido o fallo parcial. |
 | AX / MPOS / tablas de intercambio | Código X++/AOS, cuerpos de procedimientos, DDL, jobs AX→MPOS y contratos desplegados. Las APIs y bibliotecas .NET sí están recibidas. | No se acredita idempotencia, unicidad por referencia ni exactamente cuándo el ERP confirma resultado. |
 | Precio, promociones y clientes | Configuración sanitizada que vincule URL_API_PRECIOS, URL_API_CARRO y URL_API_CLIENTES con servicios/rutas desplegados. | Una firma compatible o un nombre de proyecto no demuestra que ese código sea el receptor activo. |
-| Transbank, impresión y fiscal | Agentes/binarios activos, modelos, firmware, drivers, contratos y comportamiento ante timeout por sucursal/país. | No inferir capacidades offline, consulta, cancelación, deduplicación ni confirmación física desde una API HTTP. |
+| Transbank, impresión y fiscal | Aplicaciones locales/binarios activos, modelos, firmware, drivers, contratos y comportamiento ante timeout por sucursal/país. | No inferir capacidades offline, consulta, cancelación, deduplicación ni confirmación física desde una API HTTP. |
 | PostgreSQL / Mongo / SQL Server | Inventario de instancias/bases, índices/constraints efectivos, permisos, retención, backups y restauraciones probadas. | Tres nombres de motores no significan tres instancias. Mongo no contiene solo NC; PostgreSQL del concentrador recibe consultas de ApiCarro. |
 
 Antes de declarar validado un recorrido productivo se necesita una matriz sanitizada **país → sucursal → componente → artefacto/SHA → proceso → binding lógico → propietario**, más trazas correlacionadas de éxito, timeout y recuperación. Para receptores no recibidos se requieren contratos y artefactos, no credenciales. La revisión en producción y pruebas con periféricos deben acordarse en entornos controlados; no fueron ejecutadas en este levantamiento.

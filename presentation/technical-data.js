@@ -143,7 +143,7 @@ window.POS_TECHNICAL = {
     },
     {
       "id": "print",
-      "name": "Agente de impresión Windows",
+      "name": "Aplicación local de impresión",
       "repo": "api-impresion-caja",
       "runtime": "Servicio C# .NET Framework 4.7.2 / Web API SelfHost",
       "port": "HTTP localhost:8181 en código",
@@ -170,15 +170,15 @@ window.POS_TECHNICAL = {
     },
     {
       "id": "transbank",
-      "name": "Agente / terminal Transbank",
-      "repo": "SDK consumidor en Mountain; agente no incluido",
-      "runtime": "SDK web declarado; runtime del agente por confirmar",
+      "name": "Aplicación de conexión con Transbank",
+      "repo": "SDK consumidor en Mountain; aplicación de conexión no incluida",
+      "runtime": "SDK web declarado; tecnología de la aplicación local por confirmar",
       "port": "No confirmado",
       "zone": "terminal",
       "responsibility": "Acceso al terminal bancario; separado de api-pagos-caja.",
-      "locationEvidence": "PPTX ubica agente y terminal en puesto; package.json incluye SDK.",
+      "locationEvidence": "La aplicación de conexión y el terminal se ubican en el puesto de caja; package.json incluye el SDK.",
       "confidence": "Antecedente + dependencia; modelo y protocolo no auditados",
-      "pending": "Repositorio/binario del agente, SDK instalado, modelo/firmware y operaciones homologadas.",
+      "pending": "Repositorio/binario de la aplicación de conexión, SDK instalado, modelo/firmware y operaciones homologadas.",
       "sources": [
         {
           "label": "mountain-implementos/frontend/package.json:68–76",
@@ -1869,7 +1869,7 @@ window.POS_TECHNICAL = {
     {
       "id": "g-peripherals",
       "component": "Transbank, impresión y fiscal",
-      "missing": "Agentes/binarios activos, modelos, firmware, drivers, contratos y comportamiento ante timeout por sucursal/país.",
+      "missing": "Aplicaciones locales/binarios activos, modelos, firmware, drivers, contratos y comportamiento ante timeout por sucursal/país.",
       "effect": "No inferir capacidades offline, consulta, cancelación, deduplicación ni confirmación física desde una API HTTP."
     },
     {

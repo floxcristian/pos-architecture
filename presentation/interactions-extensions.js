@@ -34,7 +34,7 @@ window.POS_INTERACTIONS_EXTENSIONS = [
       },
       {
         "id": "print-windows",
-        "title": "Agente Windows de impresión",
+        "title": "Aplicación local de impresión",
         "repo": "api-impresion-caja",
         "runtime": "C# / .NET Framework 4.7.2 / Web API SelfHost",
         "zone": "terminal",
@@ -466,7 +466,7 @@ window.POS_INTERACTIONS_EXTENSIONS = [
         "label": "Variante epson-epos: conectarImpresora",
         "protocol": "Interno",
         "detail": "Solo al elegir slug_tipo_impresora epson-epos se llama al servicio directo con configuración y contenido.",
-        "effect": "Selecciona un camino distinto del agente Windows.",
+        "effect": "Selecciona un camino distinto de la aplicación local de impresión.",
         "boundary": "Es alternativa de canal, no un paso posterior a la impresión Windows.",
         "certainty": "code",
         "sources": [

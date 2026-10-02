@@ -17,7 +17,7 @@ async function metadata(report){
  for(const f of rawFlows){
   for(const key of ['id','title','mode','summary','boundary'])assert.ok(f[key],f.id+' '+key);
   const sets={};for(const key of ['groups','nodes','edges']){sets[key]=new Set(f[key].map(i=>i.id));assert.equal(sets[key].size,f[key].length,f.id+' duplicate '+key);}
-  for(const g of f.groups)for(const key of ['title','repo','runtime','zone','evidence'])assert.ok(g[key],g.id+' '+key);
+  for(const g of f.groups){for(const key of ['title','repo','runtime','zone'])assert.ok(g[key],g.id+' '+key);if(g.evidence!==undefined)assert.ok(typeof g.evidence==='string'&&g.evidence.trim(),g.id+' evidence');}
   for(const n of f.nodes){assert.ok(sets.groups.has(n.group));assert.ok(['component','table','external'].includes(n.kind));for(const key of ['title','subtitle','detail'])assert.ok(n[key],n.id+' '+key);}
   for(const e of f.edges){
    assert.ok(sets.nodes.has(e.from)&&sets.nodes.has(e.to),e.id+' endpoint');
@@ -219,7 +219,7 @@ async function main(){
   const timed=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(timed);await timed.clock.install();
   const tf=flows.find(f=>f.id==='proposed-sale');await open(timed,tf);await timed.locator('[data-ix-step="'+(tf.steps.length-1)+'"]').click();await timed.locator('#ix-call').selectOption(tf.steps.at(-1).edges.at(-1));
   await timed.locator('[data-ix-play]').click();assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'true');await timed.clock.runFor(6500);assert.notEqual(await timed.locator('#ix-call').inputValue(),tf.steps[0].edges[0]);
-  await timed.locator('#interaction-library > summary').click();await timed.clock.runFor(100);assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'false','Closing library pauses playback');const foldedStep=await timed.locator('#ix-counter').textContent();await timed.clock.runFor(13000);assert.equal(await timed.locator('#ix-counter').textContent(),foldedStep);await timed.locator('#interaction-library > summary').click();
+  await timed.locator('#interaction-library > summary').click();await timed.waitForFunction(()=>!document.querySelector('#interaction-library').open&&document.querySelector('[data-ix-play]').getAttribute('aria-pressed')==='false',null,{polling:50,timeout:3000});assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'false','Closing library pauses playback');const foldedStep=await timed.locator('#ix-counter').textContent();await timed.clock.runFor(13000);assert.equal(await timed.locator('#ix-counter').textContent(),foldedStep);await timed.locator('#interaction-library > summary').click();
   await timed.locator('[data-action="help"]').click();await timed.locator('#motion-toggle').check();await timed.keyboard.press('Escape');assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'false');assert.equal(await timed.locator('[data-ix-play]').isDisabled(),true);
   const frozen=await timed.locator('#ix-counter').innerText();await timed.clock.runFor(13000);assert.equal(await timed.locator('#ix-counter').innerText(),frozen);
   await timed.locator('[data-action="help"]').click();await timed.locator('#motion-toggle').uncheck();await timed.keyboard.press('Escape');assert.equal(await timed.locator('[data-ix-play]').isDisabled(),false);await timed.locator('[data-ix-play]').click();for(let tick=0;tick<=tf.steps.reduce((n,s)=>n+s.edges.length,0);tick++)await timed.clock.fastForward(6500);

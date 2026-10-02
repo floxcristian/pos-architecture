@@ -31,9 +31,9 @@ flowchart TB
         subgraph PC["PC de caja · Windows"]
             UI["Angular / navegador<br/>mountain-implementos / frontend"]
             Print["Servicio de impresión<br/>api-impresion-caja · puerto 8181 documentado"]
-            Card["Agente y terminal Transbank<br/>Proyecto del agente no recibido"]
+            Card["Aplicación local y terminal Transbank<br/>Proyecto de la aplicación no recibido"]
             UI -->|"HTTP local"| Print
-            UI -->|"SDK / agente local"| Card
+            UI -->|"SDK / aplicación local"| Card
         end
         subgraph Branch["Servidor de sucursal · host y runtime efectivos pendientes"]
             API["Backend AdonisJS<br/>mountain-implementos / backend<br/>3333 documentado"]

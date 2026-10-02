@@ -33,7 +33,7 @@ La ACL se justifica por diferencias semánticas; no debe absorber el negocio ni 
 
 ## 3. Ubicación de componentes y perfil offline
 
-La referencia sigue siendo **perfil WAN**: el servidor de sucursal es el escritor autorizado de las ventas y sus intentos; las cajas lo consumen por LAN. El agente de periféricos corre en el PC que controla el dispositivo. Su registro durable de trabajos no lo convierte en un segundo escritor del negocio.
+La referencia sigue siendo **perfil WAN**: el servidor de sucursal es el escritor autorizado de las ventas y sus intentos; las cajas lo consumen por LAN. La aplicación local de periféricos corre en el PC que controla el dispositivo. Su registro durable de trabajos no la convierte en un segundo escritor del negocio.
 
 ```mermaid
 flowchart TB
@@ -42,7 +42,7 @@ flowchart TB
         POS["Servidor: núcleo POS y fachadas"]
         DB[("PostgreSQL local<br/>operaciones, intentos y outbox")]
         Config["Manifiestos y políticas aprobados<br/>copia local versionada"]
-        Agent["PC: agente de periféricos<br/>adaptadores y registro durable de trabajos"]
+        Agent["PC: aplicación local de periféricos<br/>adaptadores y registro durable de trabajos"]
         SDK["Proceso SDK / driver homologado<br/>por ejemplo .NET cuando corresponda"]
         Printer["Impresora asignada"]
         Terminal["Terminal de pago asignado"]
@@ -64,7 +64,7 @@ flowchart TB
     Fleet["Catálogo y distribución de flota"] -.-> Config
 ```
 
-Las dos rutas fiscales representan opciones de despliegue: **la operación lógica fija una ruta y todos sus intentos la conservan**, no se emite simultáneamente por ambas. El canal entre núcleo y agente debe autenticar a ambas partes y puede iniciarlo el agente; el dibujo no obliga a abrir un servicio remoto sin protección en el PC.
+Las dos rutas fiscales representan opciones de despliegue: **la operación lógica fija una ruta y todos sus intentos la conservan**, no se emite simultáneamente por ambas. El canal entre núcleo y aplicación local debe autenticar a ambas partes y puede iniciarlo la aplicación local; el dibujo no obliga a abrir un servicio remoto sin protección en el PC.
 
 La fiscalidad puede ejecutarse localmente, en central o mediante proveedor, según la modalidad homologada. Offline solo permite las capacidades y documentos expresamente autorizados con recursos vigentes. Un terminal conectado, un driver cargado o un documento impreso no prueban aprobación del pago ni emisión fiscal. Ante caída de LAN/servidor, este perfil detiene nuevas operaciones; la autonomía por terminal sigue siendo otra decisión. [Perfiles y fiscalidad de la propuesta](propuesta-arquitectura.md).
 
@@ -72,13 +72,13 @@ La fiscalidad puede ejecutarse localmente, en central o mediante proveedor, seg�
 
 Un perfil aprobado identifica país, entidad legal, sucursal y caja; asigna proveedor, establecimiento/comercio, dispositivo y versiones compatibles por capacidad. La precedencia propuesta es **base corporativa → país/régimen → entidad legal → sucursal → caja**, limitada a campos permitidos. Una excepción de caja puede seleccionar una impresora homologada; no ampliar su autorización fiscal o de crédito.
 
-Resolver y validar la configuración antes de activarla. Conservar localmente un manifiesto completo, versionado, firmado y con hash; una actualización parcial no sustituye al último perfil válido. La matriz de compatibilidad contempla contrato, núcleo, agente, adaptador, SDK, sistema operativo, modelo/firmware y plantilla. Versiones instaladas no equivalen a versiones compatibles.
+Resolver y validar la configuración antes de activarla. Conservar localmente un manifiesto completo, versionado, firmado y con hash; una actualización parcial no sustituye al último perfil válido. La matriz de compatibilidad contempla contrato, núcleo, aplicación local, adaptador, SDK, sistema operativo, modelo/firmware y plantilla. Versiones instaladas no equivalen a versiones compatibles.
 
 **Capacidad declarada**, **disponibilidad actual** y **autorización** son ejes diferentes. La decisión efectiva por operación combina:
 
 - soporte homologado de la combinación y del tipo de operación;
 - política de país/entidad/caja, permisos del operador y vigencias;
-- conectividad real con agente, dispositivo y proveedor necesarios;
+- conectividad real con la aplicación local, el dispositivo y el proveedor necesarios;
 - recursos y estado: papel, certificado, datos locales, espacio, intentos pendientes o dispositivo ocupado.
 
 La UI recibe una decisión explicable —permitida, restringida, pendiente de resolver o no soportada— y el motivo. Debe distinguir «puedo imprimir una copia», «puedo iniciar un pago» y «puedo emitir este documento». Si no se conoce el estado de una dependencia, mostrarlo; un dato de capacidad almacenado no certifica salud actual.
@@ -115,11 +115,11 @@ AttemptObservation:
 
 No existe un `success: true` universal. Pago distingue autorización y liquidación; fiscalidad conserva emisión, recepción y resolución aplicables; impresión distingue aceptado, enviado al spooler, fallo y evidencia física cuando el dispositivo la aporte. `certainty = unknown` conserva la incertidumbre; no se convierte en rechazo ni en permiso para repetir.
 
-El servidor persiste operación, binding y `command_id` antes de despachar. El agente valida identidad/ámbito, deduplica por comando y hash, persiste su recepción y solo entonces confirma un ACK de **recepción durable**. Ese acuse todavía no significa que se ejecutó el efecto. Guarda también el resultado observado y su correlación para reenviarlo tras una caída de LAN.
+El servidor persiste operación, binding y `command_id` antes de despachar. La aplicación local valida identidad/ámbito, deduplica por comando y hash, persiste su recepción y solo entonces confirma un ACK de **recepción durable**. Ese acuse todavía no significa que se ejecutó el efecto. Guarda también el resultado observado y su correlación para reenviarlo tras una caída de LAN.
 
-En el retorno, la sucursal confirma la observación **después de persistirla vinculada a operación e intento**. El agente conserva el resultado hasta ese acuse y después aplica la retención acordada, sin borrado inmediato. Retención y deduplicación deben cubrir reentrega y restauración; probar caída de sucursal después del commit de la observación y antes de devolver el ACK.
+En el retorno, la sucursal confirma la observación **después de persistirla vinculada a operación e intento**. La aplicación local conserva el resultado hasta ese acuse y después aplica la retención acordada, sin borrado inmediato. Retención y deduplicación deben cubrir reentrega y restauración; probar caída de sucursal después del commit de la observación y antes de devolver el ACK.
 
-Si el dispositivo produjo el efecto pero se perdió la comunicación, sucursal y agente recuperan el mismo comando y consultan o concilian su estado; no lo ejecutan otra vez por no haber recibido respuesta. El journal del agente no le concede autoridad para aceptar nuevas ventas durante la caída LAN. La expiración de un lease tampoco demuestra que una llamada al SDK terminó ni autoriza a repetirla.
+Si el dispositivo produjo el efecto pero se perdió la comunicación, sucursal y aplicación local recuperan el mismo comando y consultan o concilian su estado; no lo ejecutan otra vez por no haber recibido respuesta. El journal de la aplicación local no le concede autoridad para aceptar nuevas ventas durante la caída LAN. La expiración de un lease tampoco demuestra que una llamada al SDK terminó ni autoriza a repetirla.
 
 No hay una transacción atómica entre PostgreSQL, spooler, terminal y proveedor: intención previa, journal y consultas de resultado cubren esa separación, con incertidumbre explícita cuando falte evidencia. [Límites actuales de impresión](analisis-repositorios/api-impresion-caja.md), [recuperación de efectos externos](revision-resiliencia-datos-pos.md).
 
@@ -146,21 +146,21 @@ Estas reglas amplían los controles descritos en la [propuesta](propuesta-arquit
 
 ## 7. Seguridad, catálogo y entrega a la flota
 
-El renderer de Angular/Tauri no recibe secretos de proveedor, claves fiscales ni credenciales de dispositivo. Expresa una intención de negocio; núcleo y agente verifican identidad, ámbito, permisos y binding. El agente autentica comandos, limita capacidades, valida contenido y serializa acceso al dispositivo; escuchar en localhost no sustituye autorización. La evidencia actual de autenticación de impresión está delimitada en [IMP-02](analisis-repositorios/api-impresion-caja.md).
+El renderer de Angular/Tauri no recibe secretos de proveedor, claves fiscales ni credenciales de dispositivo. Expresa una intención de negocio; núcleo y aplicación local verifican identidad, ámbito, permisos y binding. La aplicación local autentica comandos, limita capacidades, valida contenido y serializa acceso al dispositivo; escuchar en localhost no sustituye autorización. La evidencia actual de autenticación de impresión está delimitada en [IMP-02](analisis-repositorios/api-impresion-caja.md).
 
-Si varias cajas comparten un periférico, asignar un único agente controlador autorizado y serializar todos sus comandos; dos agentes independientes no coordinan acceso por tener cada uno su cola. El cambio de propietario exige resolver llamadas en curso y excluir al anterior, sin interpretar el vencimiento de un lease como prueba de que dejó de ejecutar.
+Si varias cajas comparten un periférico, asignar una única aplicación local autorizada para controlar el dispositivo y serializar todos sus comandos; dos aplicaciones independientes no coordinan acceso por tener cada una su cola. El cambio de propietario exige resolver llamadas en curso y excluir a la aplicación anterior, sin interpretar el vencimiento de un lease como prueba de que dejó de ejecutar.
 
-Las credenciales se aprovisionan y rotan mediante mecanismos administrativos protegidos; el manifiesto contiene referencias, no valores secretos. El control de acceso local debe funcionar durante la desconexión autorizada, con vigencia y límites. El agente usa los privilegios mínimos compatibles con su driver/SDK.
+Las credenciales se aprovisionan y rotan mediante mecanismos administrativos protegidos; el manifiesto contiene referencias, no valores secretos. El control de acceso local debe funcionar durante la desconexión autorizada, con vigencia y límites. La aplicación local usa los privilegios mínimos compatibles con su driver/SDK.
 
-Si se selecciona Tauri, sus binarios externos por plataforma son una opción de empaquetado, no una obligación de reescribir el SDK. El agente vital y la recuperación de intentos no deben depender de que la ventana del POS permanezca abierta: elegir servicio supervisado o ciclo de vida independiente según la capacidad. [Binarios externos en Tauri](https://v2.tauri.app/develop/sidecar/).
+Si se selecciona Tauri, sus binarios externos por plataforma son una opción de empaquetado, no una obligación de reescribir el SDK. La aplicación local de periféricos y la recuperación de intentos no deben depender de que la ventana del POS permanezca abierta: elegir servicio supervisado o ciclo de vida independiente según la capacidad. [Binarios externos en Tauri](https://v2.tauri.app/develop/sidecar/).
 
 Los adaptadores se distribuyen como paquetes aprobados y firmados, con dueño, contrato, compatibilidad, pruebas y procedencia. **No se descargan ni ejecutan plugins JavaScript remotos arbitrarios por cambiar una configuración.** Cambiar un manifiesto selecciona componentes ya instalados/aprobados o programa su instalación verificada; no convierte configuración en código ejecutable.
 
 El catálogo registra combinaciones concretas y su estado: candidata, en laboratorio, homologada, en piloto, desplegada, retirada. Desplegar por anillos, ejecutar autocomprobaciones sin efectos monetarios/fiscales/impresión sorpresivos y permitir rollback compatible con datos e intentos pendientes. La caída del catálogo central no detiene operaciones que el perfil local vigente permite. [Distribución propuesta](opciones-tecnologicas.md), [límites del DevOps corporativo para tiendas](analisis-repositorios/devops-platform.md).
 
-Separar descubrimiento/salud de pruebas con efecto: el `GET /Test` actual de impresión imprime, por lo que no sirve como sondeo inocuo. Las pruebas de dispositivo con salida física requieren una acción explícita. Además, `api-pagos-caja` es una API de consulta/estado de pagos y NC; no se identifica como agente Transbank ni emisor fiscal. [Impresión, superficie HTTP](analisis-repositorios/api-impresion-caja.md), [papel de la API de pagos](analisis-repositorios/api-pagos-caja.md).
+Separar descubrimiento/salud de pruebas con efecto: el `GET /Test` actual de impresión imprime, por lo que no sirve como sondeo inocuo. Las pruebas de dispositivo con salida física requieren una acción explícita. Además, `api-pagos-caja` es una API de consulta/estado de pagos y NC; no se identifica como aplicación de conexión con Transbank ni como emisor fiscal. [Impresión, superficie HTTP](analisis-repositorios/api-impresion-caja.md), [papel de la API de pagos](analisis-repositorios/api-pagos-caja.md).
 
-Antes de apagar o actualizar un agente, detener nueva admisión, drenar con límite y preservar estados inciertos cuando no sea seguro cancelar el SDK. La versión siguiente y un posible rollback deben poder leer el journal y consultar operaciones anteriores; no borrar trabajos para completar una instalación. Probar ese ciclo también con un dispositivo compartido.
+Antes de apagar o actualizar una aplicación local, detener nueva admisión, drenar con límite y preservar estados inciertos cuando no sea seguro cancelar el SDK. La versión siguiente y un posible rollback deben poder leer el journal y consultar operaciones anteriores; no borrar trabajos para completar una instalación. Probar ese ciclo también con un dispositivo compartido.
 
 ## 8. Escenarios: situación conocida y objetivo
 
@@ -171,13 +171,13 @@ Antes de apagar o actualizar un agente, detener nueva admisión, drenar con lím
 | Instalar otro modelo de terminal Transbank | El modelo, SDK, firmware y operaciones compatibles siguen pendientes de inventario. | Seleccionar una combinación validada; si no existe, desarrollar/homologar adaptador antes de habilitarla. |
 | Operar en Perú o España | No hay evidencia equivalente del conjunto de periféricos y proveedores de esos países. | Aplicar políticas de país y bindings concretos; conservar núcleo común sin suponer equivalencia fiscal o bancaria. |
 | Dos cajas con dispositivos distintos | La granularidad instalada aún requiere inventario. | Configuración por caja, mismo núcleo en sucursal y capacidades visibles por operación. |
-| Se pierde Internet | Datos y agentes locales no prueban disponibilidad del adquirente o facturador. | Continuar únicamente operaciones autorizadas con dependencias disponibles; presentar límites e incertidumbre. |
+| Se pierde Internet | Datos y aplicaciones locales no prueban disponibilidad del adquirente o facturador. | Continuar únicamente operaciones autorizadas con dependencias disponibles; presentar límites e incertidumbre. |
 
 ## 9. Información mínima y aceptación
 
 Pedir una fila por combinación instalada: país/entidad/sucursal/caja, aplicación y versión, fabricante/modelo/firmware, SO/arquitectura, driver/SDK y licencia, modo de conexión, proveedor/comercio/establecimiento, documentos/operaciones habilitados y responsable. No incluir secretos. Añadir contratos, entorno de prueba, procedimiento de homologación, consultas/reversas disponibles, estados de error y política offline aprobada.
 
-Solicitar además ejemplos anonimizados de comprobantes y formatos, tamaños de papel, recursos fiscales administrados, topología núcleo/agente, número de dispositivos compartidos y comportamiento operativo ante timeout, reinicio, falta de papel, cambio de terminal o caída del proveedor. Este paquete amplía la [solicitud al equipo](solicitud-informacion-equipo.md).
+Solicitar además ejemplos anonimizados de comprobantes y formatos, tamaños de papel, recursos fiscales administrados, topología núcleo/aplicación local, número de dispositivos compartidos y comportamiento operativo ante timeout, reinicio, falta de papel, cambio de terminal o caída del proveedor. Este paquete amplía la [solicitud al equipo](solicitud-informacion-equipo.md).
 
 | Criterio de aceptación del piloto | Evidencia requerida |
 | --- | --- |
@@ -185,11 +185,11 @@ Solicitar además ejemplos anonimizados de comprobantes y formatos, tamaños de 
 | Capacidad no soportada o incompatible | Bloqueo explicable antes del efecto; ningún fallback silencioso a otra operación/proveedor. |
 | Timeout y configuración cambiada | La operación y sus intentos conservan binding; ni otro `attempt_id` ni un lease vencido generan otro cobro/documento por failover automático. |
 | Reinicio o LAN caída después del efecto | ACK posterior a persistencia del journal, correlación por `command_id` y recuperación durable; conciliar el efecto sin volver a ejecutarlo a ciegas. |
-| Respuesta de agente persistida, ACK perdido | Reentregar la observación sin repetir su efecto; agente conserva evidencia hasta acuse durable y retención, incluso al restaurar. |
+| Respuesta de la aplicación local persistida, ACK perdido | Reentregar la observación sin repetir su efecto; la aplicación local conserva evidencia hasta acuse durable y retención, incluso al restaurar. |
 | Dispositivo original retirado con operación incierta | Al reemplazar equipo/proveedor, el pendiente no se reenvía al nuevo; consultas y reversas históricas usan origen/referencias, o resolución controlada si no hay capacidad. |
 | Impresión perdida y copia explícita | Diferenciar trabajo repetido de nueva copia; conservar factura/venta/pago originales y motivo de reimpresión. |
 | Caída WAN con LAN disponible | Perfil, autorización y adaptadores locales vigentes; solo se habilitan operaciones realmente permitidas sin dependencias inaccesibles. |
-| Paquete/configuración no aprobado | Rechazo por firma, versión o ámbito; renderer sin acceso a secretos; llamadas al agente autenticadas. |
+| Paquete/configuración no aprobado | Rechazo por firma, versión o ámbito; renderer sin acceso a secretos; llamadas a la aplicación local autenticadas. |
 | Salud y periférico compartido | Descubrimiento sin imprimir/cobrar/emitir; comandos concurrentes serializados por el controlador autorizado. |
 | Rollout y retirada | Drenaje, preservación/compatibilidad del journal y rollback ensayado en hardware real, con consultas de operaciones antiguas disponibles. |
 

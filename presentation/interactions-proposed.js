@@ -33,7 +33,7 @@ window.POS_INTERACTIONS_PROPOSED = [
       },
       {
         "id": "sale-agent",
-        "title": "Caja · agente de periféricos",
+        "title": "Caja · aplicación local de periféricos",
         "repo": "Repositorio de implementación por definir",
         "runtime": "Proceso local; SDK .NET separado cuando lo exija el dispositivo",
         "zone": "terminal",
@@ -178,7 +178,7 @@ window.POS_INTERACTIONS_PROPOSED = [
       {
         "id": "sale-device",
         "group": "sale-agent",
-        "title": "Agente y journal",
+        "title": "Aplicación local y journal",
         "kind": "component",
         "subtitle": "Comando durable · resultado observado",
         "detail": "Valida identidad y ámbito, deduplica command_id + hash y conserva la recepción antes de acusarla. Registra observaciones para reenviarlas tras cortes de LAN. Su ACK no demuestra que se cobró; no puede aceptar nuevas ventas si perdió al escritor de sucursal.",
@@ -321,9 +321,9 @@ window.POS_INTERACTIONS_PROPOSED = [
         "to": "sale-device",
         "label": "ENTREGA comando durable",
         "protocol": "HTTP",
-        "detail": "Contrato autenticado sucursal–agente cuando existe dispositivo local; ruta y transporte TLS definitivos pendientes. El agente devuelve recepción durable y luego observaciones.",
+        "detail": "Comunicación autenticada entre sucursal y aplicación local cuando existe un dispositivo; ruta y transporte TLS definitivos pendientes. La aplicación devuelve recepción durable y luego observaciones.",
         "effect": "Custodia técnica del comando antes de invocar SDK/dispositivo.",
-        "boundary": "Recibido por el agente no significa cobrado; su journal no reemplaza la transacción de sucursal.",
+        "boundary": "Recibido por la aplicación local no significa cobrado; su journal no reemplaza la transacción de sucursal.",
         "certainty": "proposed",
         "sources": [
           {
@@ -340,7 +340,7 @@ window.POS_INTERACTIONS_PROPOSED = [
         "protocol": "Por confirmar",
         "detail": "Llamada al SDK/dispositivo/proveedor de acuerdo con capacidades homologadas y binding original.",
         "effect": "Puede producir un efecto monetario externo a PostgreSQL.",
-        "boundary": "No existe commit atómico entre base, agente y proveedor. Un timeout conserva resultado desconocido.",
+        "boundary": "No existe commit atómico entre base, aplicación local y proveedor. Un timeout conserva resultado desconocido.",
         "certainty": "proposed",
         "sources": [
           {
@@ -378,7 +378,7 @@ window.POS_INTERACTIONS_PROPOSED = [
         "protocol": "HTTP",
         "detail": "Contrato semántico de reporte/reconsulta de observaciones; ruta pendiente. Conserva operation_id, attempt_id, command_id y observation_id.",
         "effect": "Entrega una observación correlacionada al escritor.",
-        "boundary": "La sucursal acusa la observación después de persistirla; la retención del agente cubre restauración y replay.",
+        "boundary": "La sucursal acusa la observación después de persistirla; la retención de la aplicación local cubre restauración y replay.",
         "certainty": "proposed",
         "sources": [
           {
@@ -535,7 +535,7 @@ window.POS_INTERACTIONS_PROPOSED = [
       },
       {
         "title": "3 · Resolver el pago habilitado",
-        "detail": "Esta rama ejemplifica un medio con agente/proveedor. El agente conserva el comando y su evidencia; efectivo u otros medios usan su contrato específico.",
+        "detail": "Esta rama ejemplifica un medio con aplicación local y proveedor. La aplicación conserva el comando y su evidencia; efectivo u otros medios usan su contrato específico.",
         "edges": [
           "sale-agent-command",
           "sale-charge",

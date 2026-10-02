@@ -20,7 +20,7 @@ window.POS_CONTENT = {
       "title": "Lector y adaptador RFID",
       "subtitle": "Observaciones de radio, no líneas de venta",
       "kind": "app",
-      "place": "Zona de lectura y agente local",
+      "place": "Zona de lectura y aplicación local",
       "status": "proposed",
       "description": "El adaptador normaliza observaciones del lector sin exponer su SDK al núcleo. Un perfil aprobado identifica lector, antenas, zona y versiones compatibles para sucursal y puesto.",
       "responsibilities": [
@@ -424,15 +424,15 @@ window.POS_CONTENT = {
       "title": "Adaptador de impresión",
       "subtitle": "El documento es estable; cambia su entrega al dispositivo",
       "kind": "process",
-      "place": "Servicio o agente de impresión",
+      "place": "Aplicación local de impresión",
       "status": "proposed",
       "description": "Recibe un trabajo identificado y lo transforma al formato y transporte de una impresora compatible. Una impresora nueva requiere verificar driver, protocolo, papel y representación del documento.",
       "responsibilities": [
         "Mantener identidad del trabajo, documento y destino al procesar o recuperar.",
         "Traducir al driver o aplicación de impresión elegida sin recrear venta ni documento fiscal.",
-        "Distinguir aceptado por el agente de evidencia disponible sobre impresión física."
+        "Distinguir la recepción de la solicitud de la evidencia sobre la impresión física."
       ],
-      "offline": "Imprimir localmente puede ser posible con agente y dispositivo disponibles. Una reimpresión autorizada genera un trabajo de copia trazable del documento original; no otra venta, factura ni cobro.",
+      "offline": "Imprimir localmente puede ser posible con la aplicación local y el dispositivo disponibles. Una reimpresión autorizada genera un trabajo de copia trazable del documento original; no otra venta, factura ni cobro.",
       "tech": [
         "Trabajo identificado",
         "Driver/protocolo homologado",
@@ -444,13 +444,13 @@ window.POS_CONTENT = {
           "url": "../docs/extensibilidad-proveedores-dispositivos.md"
         },
         {
-          "label": "Agente actual de impresión",
+          "label": "Aplicación actual de impresión",
           "url": "../docs/analisis-repositorios/api-impresion-caja.md"
         }
       ]
     },
     "deviceagent": {
-      "title": "Agente local de periféricos",
+      "title": "Aplicación local de periféricos",
       "subtitle": "Hablar con hardware desde el PC de caja",
       "kind": "app",
       "place": "PC de caja",
@@ -462,7 +462,7 @@ window.POS_CONTENT = {
         "Guardar y reenviar el resultado hasta que la sucursal confirme su persistencia, con retención acordada.",
         "Aislar drivers y SDK; ni un acuse ni un reinicio prueban el efecto externo ni autorizan a repetirlo."
       ],
-      "offline": "La presencia del agente no traslada la autoridad de venta al PC. La sucursal sigue siendo el escritor del perfil WAN; si el agente falla, se aplica el procedimiento de recuperación de la capacidad afectada.",
+      "offline": "La presencia de la aplicación local no traslada la autoridad de venta al PC. La sucursal sigue siendo el escritor del perfil WAN; si la aplicación falla, se aplica el procedimiento de recuperación de la capacidad afectada.",
       "tech": [
         "Proceso local con permisos mínimos",
         ".NET separado si lo exige el SDK",
@@ -470,7 +470,7 @@ window.POS_CONTENT = {
       ],
       "sources": [
         {
-          "label": "Agente local y aislamiento de SDK",
+          "label": "Aplicación local y aislamiento de SDK",
           "url": "../docs/extensibilidad-proveedores-dispositivos.md"
         }
       ]
@@ -651,7 +651,7 @@ window.POS_CONTENT = {
       "responsibilities": [
         "Capturar las acciones del operador y mostrar su resultado.",
         "Pedir al backend local las operaciones de negocio.",
-        "Comunicarse con agentes locales de impresión y terminal de pago."
+        "Comunicarse con las aplicaciones locales de impresión y conexión con el terminal de pago."
       ],
       "offline": "Abrir la pantalla no basta: precios, carga del cliente, pagos y fiscalidad pueden necesitar servicios remotos.",
       "tech": [],
@@ -946,9 +946,9 @@ window.POS_CONTENT = {
       "kind": "app",
       "place": "PC y periféricos de caja",
       "status": "code",
-      "description": "La caja utiliza agentes locales para hablar con Windows, impresoras y el terminal Transbank. Enviar una orden al agente no demuestra por sí solo impresión física ni cobro confirmado.",
+      "description": "La caja usa aplicaciones instaladas en Windows para comunicarse con impresoras y el terminal Transbank. La respuesta de una aplicación puede confirmar que recibió la solicitud; el resultado de impresión o pago se verifica por separado.",
       "responsibilities": [
-        "Imprimir comprobantes a través del agente local.",
+        "Imprimir comprobantes a través de la aplicación local de impresión.",
         "Coordinar la comunicación con el terminal de pago.",
         "Devolver resultados que permitan distinguir aceptación, finalización y fallo."
       ],
@@ -957,7 +957,7 @@ window.POS_CONTENT = {
         "Servicio Windows",
         ".NET Framework",
         "ESC/POS",
-        "Agente / terminal Transbank"
+        "Aplicación de conexión con Transbank"
       ],
       "sources": [
         {
@@ -1419,6 +1419,11 @@ window.POS_CONTENT = {
       "example": "La caja pide a una API la ficha de un cliente."
     },
     {
+      "term": "Aplicación local",
+      "definition": "Programa que se ejecuta en el PC de caja para una tarea concreta, como comunicarse con la impresora o el terminal de pago. Puede funcionar en segundo plano, sin una ventana propia.",
+      "example": "La web de caja envía una solicitud a api-impresion-caja, la aplicación local de impresión en Windows. Aquí hablamos de software de conexión con dispositivos, no de inteligencia artificial."
+    },
+    {
       "term": "Base de datos",
       "definition": "Almacenamiento organizado que conserva información después de cerrar o reiniciar la aplicación.",
       "example": "PostgreSQL local guarda una venta antes de que llegue a AX."
@@ -1754,7 +1759,7 @@ window.POS_CONTENT = {
       "priority": "Complementa al piloto 1",
       "title": "Preparar un diagnóstico que una persona pueda verificar.",
       "purpose": "Resumir síntomas y evidencias sanitizadas para ayudar al soporte, sin acceso autónomo a servicios.",
-      "example": "«El agente de impresión está detenido: prepara un resumen para soporte». No se envía ningún mensaje.",
+      "example": "«La aplicación de impresión está detenida: prepara un resumen para soporte». No se envía ningún mensaje.",
       "online": "Proponer un resumen con observaciones y guías autorizadas. El operador decide qué revisar y compartir.",
       "offline": "Se conservan chequeos deterministas y guías locales autorizadas. El diagnóstico generado por un modelo queda deshabilitado.",
       "local": false,
@@ -1780,7 +1785,7 @@ window.POS_CONTENT = {
       ],
       "available": [
         "Disponible ahora",
-        "El agente comprueba conexión y estado."
+        "La aplicación local comprueba conexión y estado."
       ],
       "steps": [
         "Elegir el perfil y el dispositivo.",
@@ -1817,7 +1822,7 @@ window.POS_CONTENT = {
         "Probar las operaciones disponibles y los límites de recuperación.",
         "Homologar y activar por anillos."
       ],
-      "boundary": "El núcleo conserva su contrato. El adaptador puede ejecutarse en el agente local o en un proceso .NET separado si el SDK lo requiere.",
+      "boundary": "El núcleo conserva su contrato. El adaptador puede ejecutarse en la aplicación local de periféricos o en un proceso .NET separado si el SDK lo requiere.",
       "components": [
         "ports",
         "paymentadapter",

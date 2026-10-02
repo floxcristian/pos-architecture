@@ -191,7 +191,7 @@ flowchart TB
 
 ## O03 · Documento emitido y trabajo de impresión
 
-La representación PDF y los canales de impresión se verificaron en Mountain y la API Windows. El comportamiento descrito no acredita versiones instaladas, papel entregado ni capacidades de todos los dispositivos. La app api-pagos-caja sigue separada del agente/terminal Transbank.
+La representación PDF y los canales de impresión se verificaron en Mountain y la API Windows. El comportamiento descrito no acredita versiones instaladas, papel entregado ni capacidades de todos los dispositivos. La app api-pagos-caja sigue separada de la aplicación de conexión con el terminal Transbank.
 
 ### Actual: código observado
 
@@ -222,7 +222,7 @@ El POS conserva la identidad fiscal existente y crea un trabajo de impresión in
 ```mermaid
 flowchart TB
   DTE["Documento fiscal existente<br/>identidad y representación"] --> JOB[("Trabajo local identificado<br/>intento y binding del adaptador")]
-  JOB --> ADAPTER["Agente local de dispositivos<br/>Enviar trabajo de impresión"]
+  JOB --> ADAPTER["Aplicación local de periféricos<br/>Enviar trabajo de impresión"]
   ADAPTER --> DEVICE["Dispositivo / spooler"]
   DEVICE --> RESULT{"Qué puede confirmar<br/>el contrato"}
   RESULT -->|"Resultado consultable"| KNOWN["Registrar estado conocido"]
@@ -299,7 +299,7 @@ flowchart TB
   RECOVER --> HEALTH
 ```
 
-1. Publicar paquete con autenticidad del origen e integridad verificadas y matriz de compatibilidad entre UI, backend/esquema, sincronizador, agente y contratos. No aceptar una identidad de artefacto desconocida.
+1. Publicar paquete con autenticidad del origen e integridad verificadas y matriz de compatibilidad entre UI, backend/esquema, sincronizador, aplicación local de periféricos y contratos. No aceptar una identidad de artefacto desconocida.
 2. Descargar de forma reanudable, comprobar recursos y activar por grupos de sucursales. La ventana requiere drenaje, checkpoint y continuidad definidos.
 3. Ensayar migración y corte de energía. Volver al binario anterior solo si el esquema y las operaciones nuevas siguen siendo compatibles; de lo contrario recuperar hacia adelante y revalidar el estado antes de operar.
 4. Conservar identidad y versión de eventos durante replay. El centro reconoce duplicados, admite contratos antiguos dentro del horizonte pactado y conserva versiones desconocidas para tratamiento controlado.

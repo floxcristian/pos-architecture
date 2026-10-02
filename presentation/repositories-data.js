@@ -161,7 +161,7 @@ window.POS_REPOSITORIES = {
       ],
       "boundary": "Snapshot main 2e74b2d6… de 2026. HTTP loopback y servicio Windows están en código; modelos, drivers, instalación y versión reales pendientes. Imprimir no emite fiscalmente ni autoriza Transbank.",
       "diagramUnits": [
-        "Agente Windows de impresión",
+        "Aplicación local de impresión",
         "Aplicación web de impresión"
       ]
     },
@@ -191,7 +191,7 @@ window.POS_REPOSITORIES = {
           "url": "https://github.com/developer-implementos/api-pagos-caja/blob/33cd625f029aa78798f0baf307c41e17ebee92e1/models/estadoNC.model.js#L4-L28"
         }
       ],
-      "boundary": "Snapshot main 33cd625f… de 2026. No es el agente Transbank ni procesa toda autorización bancaria. El puerto 3386 del diagrama difiere del valor predeterminado 3366 del código; host, instancia y binding vigentes no verificados."
+      "boundary": "Snapshot main 33cd625f… de 2026. No es la aplicación de conexión con Transbank ni procesa toda autorización bancaria. El puerto 3386 del diagrama difiere del valor predeterminado 3366 del código; host, instancia y binding vigentes no verificados."
     },
     {
       "id": "apis-implementos",

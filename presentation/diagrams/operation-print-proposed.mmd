@@ -1,6 +1,6 @@
 flowchart TB
   DTE["Documento fiscal existente<br/>identidad y representación"] --> JOB[("Trabajo local identificado<br/>intento y binding del adaptador")]
-  JOB --> ADAPTER["Agente local de dispositivos<br/>Enviar trabajo de impresión"]
+  JOB --> ADAPTER["Aplicación local de periféricos<br/>Enviar trabajo de impresión"]
   ADAPTER --> DEVICE["Dispositivo / spooler"]
   DEVICE --> RESULT{"Qué puede confirmar<br/>el contrato"}
   RESULT -->|"Resultado consultable"| KNOWN["Registrar estado conocido"]
