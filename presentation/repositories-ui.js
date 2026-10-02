@@ -20,7 +20,7 @@
     return `<section class="repo-platform-module" aria-labelledby="repo-platform-title"><span class="eyebrow">REUTILIZACIÓN CORPORATIVA / PROPUESTA</span><h2 id="repo-platform-title">Reutilizar core y devops-platform.</h2><p>Adopción selectiva, con adaptación y pruebas. Las ventas habilitadas offline deben continuar sin conexión a los servicios centrales.</p><div class="repo-platform-cards">${data.repositories.filter(r=>r.role==='platform').map(r=>{const reuse=window.POS_CONTENT.reuse.find(x=>x.name===r.id);return `<button data-repository="${esc(r.id)}" aria-haspopup="dialog"><strong>${esc(r.name)}</strong><span>${esc(reuse?.use||r.summary)}</span><small>Ver alcance, componentes y fuentes ↗</small></button>`;}).join('')}</div>${connection?`<details class="repo-platform-connection"><summary>Cómo core usa las automatizaciones de devops-platform</summary><p>${esc(connection.detail)}</p>${sourceHTML(connection.sources)}</details>`:''}<p class="small-note"><a href="../docs/propuesta-arquitectura.md#reutilización-de-core-y-devops-platform" target="_blank" rel="noopener">Qué reutilizar y qué necesita desarrollo propio ↗</a></p></section>`;
   }
   function html() {
-    return `<section class="repo-module" aria-labelledby="repo-title"><div class="repo-heading"><div><span class="eyebrow">LOS REPOSITORIOS Y SU PAPEL</span><h2 id="repo-title">El nombre del código, en el mapa.</h2><p>Un repositorio puede contener varias aplicaciones. Selecciona una conexión para ver qué unidades interactúan y qué evidencia las vincula.</p></div><a class="btn secondary" href="../docs/mapa-repositorios-y-conexiones.md" target="_blank" rel="noopener">Leer análisis ↗</a></div><div class="repo-controls"><label for="repo-connection">Conexión</label><select id="repo-connection"></select><label class="repo-toggle"><input type="checkbox" id="repo-all" checked> Ver todas las conexiones</label><button class="btn secondary small" data-repo-zoom>100 %</button></div><div class="repo-map-caption"><strong>Operación actual · seis repositorios</strong><span>Línea continua: código · discontinua: asociación pendiente</span></div><div class="repo-viewport" tabindex="0" role="region" aria-label="Mapa de repositorios; usa las flechas para desplazar"><div class="repo-map-size"><div class="repo-map"></div></div></div><div class="repo-connection-detail" id="repo-connection-detail" aria-live="polite"></div><p class="repo-limit">Las flechas representan consumo de APIs, datos o artefactos, según su ficha. No prueban despliegue ni tráfico: el concentrador de 2023 se contrasta con otros snapshots de 2026. Broker, PostgreSQL, AX y proveedores externos tienen sus propias fronteras; el detalle por componente se explora más abajo.</p></section>`;
+    return `<section class="repo-module" aria-labelledby="repo-title"><div class="repo-heading"><div><span class="eyebrow">LOS REPOSITORIOS Y SU PAPEL</span><h2 id="repo-title">El nombre del código, en el mapa.</h2><p>Un repositorio puede contener varias aplicaciones. Selecciona una conexión para ver qué unidades interactúan y qué evidencia las vincula.</p></div><a class="btn secondary" href="../docs/mapa-repositorios-y-conexiones.md" target="_blank" rel="noopener">Leer análisis ↗</a></div><div class="repo-controls"><label for="repo-connection">Conexión</label><select id="repo-connection"></select><label class="repo-toggle"><input type="checkbox" id="repo-all" checked> Ver todas las conexiones</label></div><div class="repo-map-caption"><strong>Operación actual · seis repositorios</strong></div><div class="repo-viewport" tabindex="0" role="region" aria-label="Mapa de repositorios; usa las flechas para desplazar"><div class="repo-map-size"><div class="repo-map"></div></div></div><div class="repo-connection-detail" id="repo-connection-detail" aria-live="polite"></div><p class="repo-limit">Las flechas representan consumo de APIs, datos o artefactos, según su ficha. No prueban despliegue ni tráfico: el concentrador de 2023 se contrasta con otros snapshots de 2026. Broker, PostgreSQL, AX y proveedores externos tienen sus propias fronteras; el detalle por componente se explora más abajo.</p></section>`;
   }
   let dispose=()=>{};
   function mount({openModal}) {
@@ -33,14 +33,14 @@
     let width=1240,height=0,compact=false,badgeSize=44,lastViewportWidth=0,rowBottom=0;const box={w:320};
     function layout(){
       const available=$('.repo-viewport').clientWidth;lastViewportWidth=available;compact=available<800;width=compact?400:1240;
-      const scale=zoom?1:Math.min(1,(available-16)/width);badgeSize=44/scale;
+      const scale=Math.min(1,(available-16)/width);badgeSize=44/scale;
       const cards=$$('.repo-node'),heights=cards.map(el=>el.offsetHeight);rowBottom=62+Math.max(...heights.slice(0,3));
       let nextY=28;
       runtime.forEach((r,i)=>{const p=positions[r.id]={x:compact?16:40+(i%3)*420,y:compact?nextY:(i<3?62:rowBottom+116),h:heights[i]};nextY=p.y+p.h+40;cards[i].style.left=p.x+'px';cards[i].style.top=p.y+'px';});
       height=Math.max(...Object.values(positions).map(p=>p.y+p.h))+28;
     }
     const find=id=>data.repositories.find(r=>r.id===id), actual=data.connections.filter(c=>positions[c.from]&&positions[c.to]);
-    let selected=actual.find(c=>c.from==='mountain-sync-sucursal'&&c.to==='mountain-concentrador')?.id||actual[0]?.id,zoom=false;
+    let selected=actual.find(c=>c.from==='mountain-sync-sucursal'&&c.to==='mountain-concentrador')?.id||actual[0]?.id;
     function route(c,i) {
       const a=positions[c.from],b=positions[c.to],sameRow=a.y===b.y,sameCol=a.x===b.x;
       let path,mx,my;
@@ -67,10 +67,9 @@
       if(focusRepo)$(`[data-repository="${focusRepo}"]`)?.focus({preventScroll:true});else if(focusEdge)$(`button[data-repo-edge="${focusEdge}"]`)?.focus({preventScroll:true});
     }
     function resize() {
-      const vp=$('.repo-viewport'),scale=zoom?1:Math.min(1,(vp.clientWidth-16)/width);
+      const vp=$('.repo-viewport'),scale=Math.min(1,(vp.clientWidth-16)/width);
       $('.repo-map').style.cssText=`width:${width}px;height:${height}px;transform:scale(${scale});transform-origin:top left`;
       $('.repo-map-size').style.cssText=`width:${width*scale}px;height:${height*scale}px`;
-      $('[data-repo-zoom]').textContent=zoom?'Ajustar':'100 %';
     }
     $('#repo-connection').innerHTML=actual.map((c,i)=>`<option value="${esc(c.id)}" ${c.id===selected?'selected':''}>${i+1}. ${esc(c.from)} → ${esc(c.to)} · ${esc(c.label)}</option>`).join('');
     $('#repo-connection').addEventListener('change',e=>{selected=e.target.value;render();});$('#repo-all').addEventListener('change',render);
@@ -79,7 +78,6 @@
         openRepository(root,repo,find(repo.dataset.repository),openModal);return;
       }
       const edge=e.target.closest('[data-repo-edge]');if(edge){selected=edge.dataset.repoEdge;$('#repo-connection').value=selected;render();$(`button[data-repo-edge="${selected}"]`)?.focus({preventScroll:true});return;}
-      if(e.target.closest('[data-repo-zoom]')){zoom=!zoom;render();}
     });
     const observer=new ResizeObserver(()=>{if(Math.abs(lastViewportWidth-$('.repo-viewport').clientWidth)>.5)render();else resize();});observer.observe($('.repo-viewport'));dispose=()=>observer.disconnect();render();
   }

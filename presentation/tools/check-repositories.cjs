@@ -16,6 +16,8 @@ async function main(){
   assert.equal(runtime.length,6);assert.equal(platform.length,2);
   assert.equal(await page.locator('.repo-node').count(),6);assert.equal(await page.locator('#repo-references').count(),0);
   assert.equal(await page.locator('.repo-platform-module').count(),0);
+  assert.equal(await page.locator('.repo-module [data-repo-zoom]').count(),0);
+  assert.ok(!(await page.locator('.repo-map-caption').innerText()).includes('Línea continua'));
   for(const repository of platform)assert.equal(await page.locator('[data-repository="'+repository.id+'"]').count(),0);
   assert.equal(await page.locator('#repo-connection option').count(),10);
   const actual=data.connections.filter(c=>[c.from,c.to].every(id=>runtime.some(r=>r.id===id)));
@@ -55,10 +57,9 @@ async function main(){
     report.modalViews++;
    }
    await page.locator('#repo-connection').selectOption('repo-admin');await page.locator('.repo-module').screenshot({path:path.join(qa,'repositories-admin-'+width+'.png')});
-   await page.locator('[data-repo-zoom]').click();assert.equal(await page.locator('[data-repo-zoom]').innerText(),'Ajustar');await geometry('100/'+width);
    await page.locator('.repo-viewport').focus();await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowLeft');assert.ok(page.url().endsWith('#mapa'));
-   await page.locator('.repo-viewport').screenshot({path:path.join(qa,'repositories-100-'+width+'.png')});
-   await page.locator('[data-repo-zoom]').click();assert.equal(await page.locator('[data-repo-zoom]').innerText(),'100 %');
+   assert.equal(await page.locator('.repo-viewport').evaluate(el=>el.scrollLeft),0,'The fitted map must not need horizontal keyboard scrolling');
+   await page.locator('.repo-viewport').screenshot({path:path.join(qa,'repositories-fit-'+width+'.png')});
   }
   report.checks.push('Ecosistema: 20 selecciones de conexiones actuales y 12 fichas por teclado, fuentes exactas, nombres completos y límites; modal Escape devuelve el foco. Plataforma fuera de las fichas y del selector.');
   // Full-map badges must be directly reachable, including the route over the middle top card.
@@ -66,11 +67,14 @@ async function main(){
   for(const connection of actual){const b=page.locator('button[data-repo-edge="'+connection.id+'"]');await b.focus();await page.keyboard.press('Enter');assert.equal(await page.locator('#repo-connection').inputValue(),connection.id);assert.equal(await page.evaluate(()=>document.activeElement.dataset.repoEdge),connection.id);}
   report.checks.push('Los diez números de relaciones operacionales se seleccionan por teclado; precedentes se mantienen fuera del grafo POS.');
   for(const [width,height] of [[1024,768],[768,1024],[375,812],[844,390],[1440,1000],[390,844]]){
-   await page.setViewportSize({width,height});await geometry('resize/'+width+'x'+height);
-   const mapsize=await page.locator('.repo-map').evaluate(el=>({width:parseFloat(el.style.width),count:el.querySelectorAll('.repo-node').length}));assert.equal(mapsize.count,6);
+   await page.setViewportSize({width,height});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));await geometry('resize/'+width+'x'+height);
+   const mapsize=await page.locator('.repo-map').evaluate(el=>{const viewport=el.closest('.repo-viewport');return {width:parseFloat(el.style.width),displayWidth:el.getBoundingClientRect().width,available:viewport.clientWidth,scrollWidth:viewport.scrollWidth,count:el.querySelectorAll('.repo-node').length};});assert.equal(mapsize.count,6);
+   assert.ok(mapsize.displayWidth<=mapsize.available+1,'Map must fit its viewport automatically at '+width+'px');
+   assert.ok(mapsize.scrollWidth<=mapsize.available+1,'Map must not create horizontal overflow at '+width+'px');
+   assert.equal(await page.locator('.repo-module [data-repo-zoom]').count(),0);
    if(width===390)assert.equal(mapsize.width,400);
   }
-  report.checks.push('Fit/100 %, seis tamaños y cambio entre columnas y mapa vertical: nombres, tarjetas, flechas y números sin recortes ni solapes.');
+  report.checks.push('Ajuste automático al ancho en seis tamaños, sin botón de zoom ni leyenda de tipos de línea; teclado y mapa vertical conservados, sin desbordamiento horizontal, recortes ni solapes.');
   await page.setViewportSize({width:1440,height:1000});await page.locator('[data-repository="mountain-concentrador"]').focus();await page.keyboard.press('Enter');
   await page.setViewportSize({width:390,height:844});await page.keyboard.press('Escape');
   assert.equal(await page.evaluate(()=>document.activeElement.dataset.repository),'mountain-concentrador','Resize during modal must preserve a useful return focus');
