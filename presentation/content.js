@@ -1404,8 +1404,8 @@ window.POS_CONTENT = {
     },
     {
       "term": "Frontera transaccional",
-      "definition": "Conjunto de cambios que pertenecen a la misma transacción. Una llamada posterior a otro servicio no queda incluida por ejecutarse en la misma función.",
-      "example": "El commit local de la venta no confirma que el proveedor emitió un DTE ni que AX registró la operación."
+      "definition": "Límite de los cambios que la base de datos confirma o cancela como un grupo. Una operación realizada en otro sistema, como emitir un DTE, tiene su propio resultado.",
+      "example": "La venta puede quedar guardada en PostgreSQL de la sucursal aunque después falle la emisión de su boleta o factura, o el envío de la venta a AX."
     },
     {
       "term": "POS",
@@ -1453,9 +1453,9 @@ window.POS_CONTENT = {
       "example": "Un worker reintenta enviar la outbox cuando vuelve la conexión."
     },
     {
-      "term": "Commit",
-      "definition": "Confirmación de una transacción en una base de datos: sus cambios quedan guardados juntos.",
-      "example": "Guardar la venta y su evento pendiente en el mismo commit evita separar ambos hechos."
+      "term": "Commit de base de datos",
+      "definition": "Paso con el que la base de datos confirma que los cambios de una transacción quedaron guardados. Una transacción reúne cambios que deben aplicarse juntos.",
+      "example": "Ejemplo didáctico: la aplicación guarda una venta y sus líneas de productos en una misma transacción. Al completar el commit, quedan guardadas ambas partes en la base de datos."
     },
     {
       "term": "Outbox",
