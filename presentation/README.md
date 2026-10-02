@@ -38,7 +38,7 @@ Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`.
 
 ## Recorrer la presentación
 
-- **Exponer:** activa «Modo exposición» y usa las notas del presentador. Las flechas cambian de capítulo cuando el foco no está en un control.
+- **Exponer:** activa «Modo exposición». Las flechas cambian de capítulo cuando el foco no está en un control.
 - **Explorar:** sigue el índice o un enlace directo; abre fichas y fuentes cuando necesites detalle. `G` abre el glosario, `P` alterna exposición y `Esc` cierra ventanas.
 
 | Capítulo | Punto de entrada |
