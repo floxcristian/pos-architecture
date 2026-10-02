@@ -20,7 +20,7 @@ El backend guarda documentos y pagos recibidos. Después del commit solicita la 
 
 ```mermaid
 flowchart TB
-  REQ["Angular POS<br/>POST /punto-de-venta"] --> SAVE["Backend Mountain<br/>1 · Guardar con trx"]
+  REQ["Interfaz de caja<br/>POST /punto-de-venta"] --> SAVE["Backend Mountain<br/>1 · Guardar con trx"]
   subgraph PG1["PG sucursal · venta"]
     DOC[("documentos<br/>detalle_documentos")]
     TAX[("documentos_has_impuestos")]

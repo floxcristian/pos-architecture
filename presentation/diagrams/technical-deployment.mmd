@@ -1,7 +1,7 @@
 flowchart TB
     subgraph Store["Sucursal de Chile · distribución declarada"]
         subgraph PC["PC de caja · Windows"]
-            UI["Angular / navegador<br/>mountain-implementos / frontend"]
+            UI["Interfaz de caja<br/>mountain-implementos / frontend"]
             Print["Servicio de impresión<br/>api-impresion-caja · puerto 8181 documentado"]
             Card["Aplicación local y terminal Transbank<br/>Proyecto de la aplicación no recibido"]
             UI -->|"HTTP local"| Print

@@ -1,7 +1,7 @@
 flowchart TB
   PDF["GET /Documentos/pdf/:id"] -->|"LEE"| DOC[("PG: documentos y dtes<br/>estado y facturador")]
   DOC --> REPRESENT["Bytes PDF o referencia<br/>según proveedor"]
-  PRINT["Angular: contenido y configuración"] --> CHANNEL{"Canal de impresión"}
+  PRINT["Interfaz de caja<br/>Contenido y configuración"] --> CHANNEL{"Canal de impresión"}
   CHANNEL -->|"epson-epos"| EPOS["Conexión al dispositivo"]
   CHANNEL -->|"apiImpresion"| API["api-impresion-caja<br/>POST ImprimirDTE_Termica"]
   API --> SPOOL["Windows / controlador de impresión"]

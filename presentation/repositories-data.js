@@ -5,7 +5,7 @@ window.POS_REPOSITORIES = {
       "id": "mountain-implementos",
       "name": "mountain-implementos",
       "role": "runtime",
-      "summary": "Caja Angular, backend transaccional de sucursal y administración central del concentrador: tres aplicaciones en un mismo repositorio.",
+      "summary": "Interfaz de caja, backend transaccional de sucursal y administración central del concentrador: tres aplicaciones en un mismo repositorio.",
       "units": [
         {
           "name": "frontend",

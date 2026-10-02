@@ -29,7 +29,7 @@ Las diapositivas 5 y 6 ubican los componentes por ámbito. **Central es una agru
 flowchart TB
     subgraph Store["Sucursal de Chile · distribución declarada"]
         subgraph PC["PC de caja · Windows"]
-            UI["Angular / navegador<br/>mountain-implementos / frontend"]
+            UI["Interfaz de caja<br/>mountain-implementos / frontend"]
             Print["Servicio de impresión<br/>api-impresion-caja · puerto 8181 documentado"]
             Card["Aplicación local y terminal Transbank<br/>Proyecto de la aplicación no recibido"]
             UI -->|"HTTP local"| Print
@@ -95,7 +95,7 @@ Esta vista une fases de un recorrido representativo para explicar sus dependenci
 ```mermaid
 sequenceDiagram
     actor Op as Operador
-    participant UI as Angular POS
+    participant UI as Interfaz de caja
     participant API as Backend sucursal
     participant Price as API de precios / promociones
     participant DB as PostgreSQL sucursal

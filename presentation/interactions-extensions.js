@@ -10,7 +10,7 @@ window.POS_INTERACTIONS_EXTENSIONS = [
     "groups": [
       {
         "id": "print-angular",
-        "title": "Angular · PC de caja",
+        "title": "Interfaz de caja",
         "repo": "mountain-implementos/frontend",
         "runtime": "Angular / TypeScript",
         "zone": "terminal",
@@ -582,7 +582,7 @@ window.POS_INTERACTIONS_EXTENSIONS = [
     "groups": [
       {
         "id": "credit-angular",
-        "title": "Angular · PC de caja",
+        "title": "Interfaz de caja",
         "repo": "mountain-implementos/frontend",
         "runtime": "Angular / TypeScript",
         "zone": "terminal",
