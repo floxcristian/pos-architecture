@@ -43,11 +43,11 @@ Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`.
 
 | Capítulo | Punto de entrada |
 | --- | --- |
-| [Ecosistema](index.html#mapa) | Mapa de repositorios. Los seis recorridos de aplicaciones y datos se abren bajo demanda; el explorador técnico reúne componentes, endpoints y fuentes. |
+| [Ecosistema](index.html#mapa) | Mapa de los seis repositorios del POS actual. Los seis recorridos de aplicaciones y datos se abren bajo demanda; el explorador técnico reúne componentes, endpoints y fuentes. |
 | [Venta](index.html#venta) | Historia de una venta, con accesos a sus [llamadas](index.html#mapa?flujo=sale), [registro AX](index.html#mapa?flujo=sync) y [tablas](index.html#datos?flujo=D01). |
 | [Datos](index.html#datos) | Comienza por [maestros D03](index.html#datos?flujo=D03). El selector ofrece también venta/DTE, envío AX, cliente y NC; cada recorrido enlaza sus llamadas. |
 | [Offline](index.html#offline) | Laboratorio de pérdida de WAN y casos límite. La LAN y el escritor de sucursal permanecen disponibles en el ejemplo. |
-| [Propuesta](index.html#propuesta) | Decisiones y comparación con lo actual. Abre, cuando haga falta, [venta local](index.html#propuesta?flujo=proposed-sale) o [entrega ERP](index.html#propuesta?flujo=proposed-erp). |
+| [Propuesta](index.html#propuesta) | Decisiones, comparación con lo actual y reutilización de core/devops-platform, con fichas y fuentes. Abre, cuando haga falta, [venta local](index.html#propuesta?flujo=proposed-sale) o [entrega ERP](index.html#propuesta?flujo=proposed-erp). |
 | [Evolución](index.html#evolucion) | Países, migración, proveedores, dispositivos y RFID futuro. |
 | [IA](index.html#ia) | Casos candidatos, alternativas y laboratorio de asistencia con abstención. |
 | [Repaso](index.html#repaso) | Ejercicios y decisiones para conversar con el equipo. |
@@ -122,4 +122,4 @@ Referencias de herramientas: [Mermaid: uso y renderizado](https://mermaid.js.org
 
 ## Mapa de repositorios
 
-El mapa inicial distingue seis repositorios del sistema actual y tres referencias corporativas. Sus relaciones no acreditan tráfico productivo ni despliegues. [Mapa documental y fuentes](../docs/mapa-repositorios-y-conexiones.md). `repositories-data.js` conserva los datos; `repositories-ui.js` y `repositories.css` los presentan.
+El mapa inicial de Ecosistema muestra seis repositorios del POS actual y diez relaciones seleccionadas. Propuesta concentra las fichas de core/devops-platform y la evidencia de su relación de CI/CD; estas tarjetas no aparecen en Ecosistema ni se repiten en Evolución. Sus relaciones no acreditan tráfico productivo ni despliegues. [Mapa documental y fuentes](../docs/mapa-repositorios-y-conexiones.md). `repositories-data.js` conserva los ocho repositorios de software y las once relaciones; `repositories-ui.js` y `repositories.css` los presentan en el capítulo correspondiente.

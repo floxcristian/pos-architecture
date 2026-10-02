@@ -2,7 +2,7 @@
 
 Actualizado: **2 de octubre de 2026**. Inventario estático transversal de los **nueve repositorios entregados**: seis aportan código del ecosistema POS actual y tres son precedentes corporativos o material de formación. El nuevo repositorio `mountain-concentrador` permite localizar piezas antes pendientes: API de lectura, procesador Node de cola, mediadores Java y artefactos WSO2.
 
-La arquitectura y la presentación muestran **ocho repositorios de software**: los seis del POS y core/devops-platform. `integration-presentations` se conserva en este inventario de fuentes solo como material del que se extrajeron ideas; queda fuera de los diagramas, tarjetas y conexiones del tutorial.
+La presentación separa los **ocho repositorios de software** por su papel: Ecosistema muestra los seis del POS actual y diez relaciones seleccionadas; Propuesta concentra las fichas de core/devops-platform y la evidencia de su relación de CI/CD, como apoyo a la reutilización propuesta. `integration-presentations` se conserva en este inventario de fuentes solo como material del que se extrajeron ideas; queda fuera de los diagramas, tarjetas y conexiones del tutorial.
 
 **Repositorio, aplicación, base y servidor no son equivalentes.** Un repositorio puede contener varias aplicaciones y bibliotecas. La evidencia identifica código y contratos compatibles; no determina qué commit, CAR, DLL, script, recurso de registry o configuración está instalado hoy. Los informes anteriores que decían “no localizado” describían el alcance de los cinco repositorios iniciales; este mapa incorpora la nueva fuente sin atribuirle producción.
 
@@ -69,7 +69,7 @@ flowchart TB
         AP -->|"ApiCarro: consulta SQL de URL DTE"| PGC
         MC -.->|"Registry WSO2 a API .NET: compatible"| AP
     end
-    subgraph REF["Plataforma corporativa — uso en el POS actual por confirmar"]
+    subgraph REF["Plataforma corporativa — candidatos a reutilizar en la propuesta"]
         CO["core<br/>Nx / NestJS / Fastify / módulos / workers"]
         DV["devops-platform<br/>acciones de CI/CD"]
         CO -->|"Workflows consumen acciones por SHA"| DV
@@ -131,7 +131,7 @@ El diagrama separa responsabilidades; **no prueba durabilidad por el solo nombre
 | ApiCarro → PostgreSQL central | Lee `mensaje_detalles`, `mensaje_detalle_sucursales`, `tipo_mensajes`, `entidades` y `UrlDte`. | Consulta documental, no registro de venta ni llamada REST a api-lectura. |
 | core → devops-platform | Workflows fijan SHA de acciones. | Dependencia de CI/CD; no tráfico operacional de la caja. |
 
-En el [dataset para la presentación](../presentation/repositories-data.js), `code` significa implementación observada, nunca prueba de producción; `compatible`, encaje estático con binding pendiente; y `reported`, relación informada que requeriría contraste. Se muestran once relaciones entre repositorios de software. **La dependencia CI/CD entre core y devops-platform no debe dibujarse como tráfico de una venta**, aunque sí tiene evidencia de código.
+En el [dataset para la presentación](../presentation/repositories-data.js), `code` significa implementación observada, nunca prueba de producción; `compatible`, encaje estático con binding pendiente; y `reported`, relación informada que requeriría contraste. Se conservan once relaciones entre repositorios de software: diez pertenecen al mapa actual de Ecosistema y la relación core → devops-platform se consulta en Propuesta, junto a sus fichas y fuentes. **La dependencia CI/CD entre core y devops-platform no debe dibujarse como tráfico de una venta**, aunque sí tiene evidencia de código.
 
 ## 5. Qué cambia para la arquitectura propuesta
 

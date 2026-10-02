@@ -2017,13 +2017,13 @@ window.POS_CONTENT = {
   "reuse": [
     {
       "name": "core",
-      "use": "Convenciones Nx, módulos, contratos, observabilidad y ejemplos transaccionales concretos.",
+      "use": "Bibliotecas y convenciones de Nx/NestJS/Fastify, contratos y observabilidad; integración de capacidades centrales por API.",
       "limit": "Tiene dependencias centrales y precios remotos. Idempotencia, orden y efectos externos deben verificarse para uso financiero offline.",
       "status": "Código revisado; adopción selectiva propuesta"
     },
     {
       "name": "devops-platform",
-      "use": "Acciones reutilizables para construir, verificar y desplegar servicios centrales.",
+      "use": "Acciones reutilizables para probar, construir y desplegar servicios centrales.",
       "limit": "Corregir y verificar las brechas encontradas. Actualizar cajas Windows, firmar y recuperar una instalación exige un flujo específico.",
       "status": "Código y consumo revisados; no homologado para tiendas"
     }
