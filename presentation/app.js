@@ -53,7 +53,7 @@
   function diagram(key, title, info='Selecciona una app o una base de datos') {
     const d = D?.[key];
     if (!d) return '<div class="notice warning">No se pudo cargar el diagrama. Revisa que diagrams.js esté junto a index.html.</div>';
-    return `<div class="diagram-card"><div class="diagram-toolbar"><div><strong>${title}</strong><small>${info}</small></div></div><p class="diagram-scroll-hint">Desliza el mapa para explorarlo o usa la lista de componentes.</p><div class="diagram-canvas diagram" data-diagram="${key}">${d.svg}</div>${nodeList(d.nodes,'Lista de componentes del mapa')}</div>`;
+    return `<div class="diagram-card"><div class="diagram-toolbar"><div><strong>${title}</strong><small>${info}</small></div></div><p class="diagram-scroll-hint">Desliza el mapa y selecciona un componente.</p><div class="diagram-canvas diagram" data-diagram="${key}">${d.svg}</div></div>`;
   }
   function inspector() { return '<aside class="inspector" id="inspector" aria-label="Detalle del componente"></aside>'; }
   function nodeList(ids, title='Más piezas del ecosistema') { return `<details class="node-list"><summary>${title}</summary><div class="tag-list">${ids.map(id=>`<button class="tag" data-component="${id}">${esc(C.components[id]?.title || id)}</button>`).join('')}</div></details>`; }

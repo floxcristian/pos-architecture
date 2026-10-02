@@ -287,7 +287,6 @@ details.node-list { display: block; padding: 10px 2px 2px; color: var(--muted); 
 details.node-list summary { width: fit-content; max-width: 100%; font-size: 12px; line-height: 1.5; padding: 4px 0; text-underline-offset: 3px; }
 details.node-list summary:hover { color: var(--teal-dark); }
 details.node-list .tag-list { margin-top: 10px; }
-.diagram-card > details.node-list { padding: 10px 20px 16px; }
 .inspector { scroll-margin-top: 90px; }
 .inspector-subtitle { color: var(--teal-dark); margin: -4px 0 14px; font-size: 12px; font-weight: 600; line-height: 1.5; }
 .inspector-kind span { margin-inline: 4px; color: #87988c; }
