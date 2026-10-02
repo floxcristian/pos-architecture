@@ -583,7 +583,7 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
 .tech-component-facts dt { color: #5f7767; font-size: 10px; font-weight: 600; line-height: 1.65; }
 .tech-component-facts dd { margin: 0; color: #2d5139; font-size: 11px; line-height: 1.65; overflow-wrap: anywhere; }
 .tech-detail-intro { margin-top: 17px; }
-.technical-evidence { margin: 20px 0; padding: 11px 0; border-block: 1px solid var(--line); }
+.technical-evidence { margin: 20px 0 0; padding: 11px 0 0; border-top: 1px solid var(--line); }
 .technical-evidence > summary { min-height: 35px; padding: 7px 0; color: var(--teal-dark); font-size: 12px; font-weight: 650; }
 .tech-inline-component { margin: 15px 0; }
 .tech-inline-component > strong { display: block; font-size: 13px; line-height: 1.6; }
@@ -1219,7 +1219,7 @@ select:not([multiple]):not([size]) {
 .map-panel { min-width:0; scroll-margin-top:90px; }
 .map-perspective { max-width:960px; margin-bottom:24px; color:var(--muted); font-size:15px; line-height:1.7; }
 .map-panel > .repo-module, .map-panel > .ix-viewer, .map-panel > .technical-explorer { border:0; padding:0; margin:0; background:transparent; }
-.component-connections { display:flex; flex-wrap:wrap; gap:8px 16px; padding:15px 0; margin:15px 0; border-block:1px solid var(--line); font-size:13px; line-height:1.6; }
+.component-connections { display:flex; flex-wrap:wrap; gap:8px 16px; padding:15px 0 0; margin:15px 0 0; border-top:1px solid var(--line); font-size:13px; line-height:1.6; }
 .component-connections strong { flex-basis:100%; color:var(--ink); }
 .component-connections a { overflow-wrap:anywhere; }
 @media (max-width:600px) {
