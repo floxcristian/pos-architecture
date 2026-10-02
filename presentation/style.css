@@ -129,9 +129,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
 .diagram .edgeLabel { color: var(--muted); }
 .diagram-caption { margin: 0; padding: 0 20px 18px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .diagram-empty { padding: 40px 22px; text-align: center; color: var(--muted); }
-.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 9px 15px; padding: 14px 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
-.legend > span, .legend-item { display: inline-flex; align-items: center; gap: 6px; }
-.legend-swatch { width: 9px; height: 9px; border: 1px solid currentColor; border-radius: 2px; }
 .node-list { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 20px 18px; }
 .node-list button { display: inline-flex; align-items: center; gap: 5px; min-height: 35px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); background: white; font-size: 11px; font-weight: 550; transition: background var(--motion-fast), border-color var(--motion-fast); }
 .node-list button:hover, .node-list button[aria-pressed="true"] { color: var(--teal-dark); border-color: #8ab9a6; background: var(--teal-soft); }
@@ -293,9 +290,6 @@ dialog.modal::backdrop { background: rgb(13 32 25 / 50%); }
 .key-hint { padding: 1px 5px; border: 1px solid #cfdbd2; border-radius: 4px; color: #5c7264; font-size: 10px; font-weight: 500; }
 .diagram-toolbar strong { display: block; font-size: 14px; font-weight: 650; }
 .diagram-toolbar small { display: block; margin-top: 4px; max-width: 65ch; color: var(--muted); font-size: 11px; }
-.diagram-card + .legend { border-top: 0; padding: 13px 2px; font-size: 10px; }
-.legend-line { display: inline-block; width: 21px; border-top: 1px solid #577469; }
-.legend-line.dashed { border-top-style: dashed; border-top-color: var(--amber); }
 details.node-list { display: block; padding: 10px 2px 2px; color: var(--muted); }
 details.node-list summary { width: fit-content; max-width: 100%; font-size: 12px; line-height: 1.5; padding: 4px 0; text-underline-offset: 3px; }
 details.node-list summary:hover { color: var(--teal-dark); }
@@ -952,7 +946,6 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
   .diagram-toolbar h2, .diagram-toolbar h3 { font-size: 14px; }
   .diagram-canvas, .presenting .diagram-canvas { min-height: 260px; padding: 18px 10px; }
   .diagram-caption { padding: 0 16px 16px; }
-  .legend { padding: 13px 16px; gap: 8px 12px; }
   .node-list { padding: 0 16px 16px; }
   .node-list button { min-height: 40px; padding: 8px 10px; font-size: 11px; }
   .inspector { display: block; padding: 21px; }
