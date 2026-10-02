@@ -114,7 +114,7 @@ Cada fila remite a evidencias fijadas al commit en el documento indicado. Esta m
 
 ## 6. Ampliaciones y ubicación de consulta
 
-Las siguientes piezas añaden profundidad sin agregar una lámina por componente. La ubicación indicada corresponde a la navegación implementada; V01 ofrece ampliación y fuente Mermaid desde un único acceso, y V02–V06 se consultan en el documento. El nivel **detalle** describe contenido específico, no exhaustividad ni validación productiva.
+Las siguientes piezas añaden profundidad sin agregar una lámina por componente. La ubicación indicada corresponde a la navegación implementada; V01 ofrece ampliación y fichas de componentes desde un único acceso. Sus fuentes y las vistas V02–V06 se consultan en el documento. El nivel **detalle** describe contenido específico, no exhaustividad ni validación productiva.
 
 | Ampliación | Contenido y límite | Ubicación y grado |
 | --- | --- | --- |

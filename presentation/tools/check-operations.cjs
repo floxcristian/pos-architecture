@@ -77,11 +77,7 @@ async function main() {
         assert.equal(await page.locator('#ops-challenge-answer').isVisible(),true,'Opening the explanation persists when toggling modes');
         assert.ok(normalize(await page.locator('#ops-challenge-answer').innerText()).includes(normalize(c.challenge[mode])));
         assert.ok(normalize(await page.locator('#ops-challenge-answer').innerText()).includes(normalize(c.challenge.test)));
-        await page.locator('[data-ops-source]').focus();await page.keyboard.press('Enter');
-        assert.equal(await page.locator('#modal-title').innerText(),'Mermaid · '+c.id);
-        assert.equal(normalize(await page.locator('.source-code').innerText()),normalize(diagrams.find(d=>d.key===c[mode].diagram).source));
-        await page.keyboard.press('Escape');assert.equal(await page.locator('#modal').evaluate(modal=>modal.open),false);
-        assert.equal(await page.evaluate(()=>document.activeElement.hasAttribute('data-ops-source')),true);
+        assert.equal(await page.locator('[data-ops-source]').count(),0);
         await page.locator('[data-ops-zoom="100"]').click();assert.equal(await page.locator('[data-ops-zoom="100"]').getAttribute('aria-pressed'),'true');
         await page.locator('.ops-map-scroll').focus();await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowLeft');
         assert.ok(page.url().endsWith('#'+c.chapter),'Diagram arrows must not change the chapter');
@@ -93,7 +89,7 @@ async function main() {
       assert.equal(await page.locator('.ops-evidence .source-list a').count(),c.sources.length);
       assert.equal(await page.locator('.ops-evidence a[target="_blank"]:not([rel~="noopener"])').count(),0);
     }
-    checks.push('Actual/propuesto, explicación del desafío persistente al alternar, fuentes, Mermaid con cierre Escape y restauración de foco, zoom y flechas internas.');
+    checks.push('Actual/propuesto, explicación del desafío persistente al alternar, fuentes, ausencia de controles de código del diagrama, zoom y flechas internas.');
     const saleCases=cases.filter(c=>c.chapter==='venta');
     const concepts=await page.evaluate(()=>window.POS_OPERATIONS.concepts);
     assert.equal(concepts.length,4);

@@ -84,7 +84,7 @@ En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos,
 - `app.js`: capítulos, pasos narrativos y comportamiento de la simulación.
 - `style.css`: diseño, adaptación a pantallas y accesibilidad visual.
 - `diagrams/*.mmd`: fuentes conceptuales y copias documentales; las familias generadas se editan en su documento de origen, indicado abajo.
-- `diagrams.js`: SVG previamente generados; la presentación no carga Mermaid en ejecución.
+- `diagrams.js`: SVG previamente generados; la presentación no carga Mermaid en ejecución. La interfaz muestra los diagramas y sus fichas, sin botones para ver o descargar su código; las fuentes `.mmd` se conservan para mantenimiento.
 
 Para regenerar diagramas, se necesita Playwright con Chromium instalado. Configura `PLAYWRIGHT_MODULE_PATH` si no está disponible como módulo local:
 

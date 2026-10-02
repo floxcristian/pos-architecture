@@ -77,7 +77,7 @@ async function main() {
     assert.equal(await page.locator('#tech-diagram-render svg').count(),1);
     assert.equal(await page.locator('#tech-diagram-render').getAttribute('data-tech-diagram'),'technical-deployment');
     assert.equal(await page.locator('#tech-diagram-select').count(),0);
-    await page.locator('[data-tech-source]').click();assert.ok((await page.locator('.source-code').innerText()).length>300);await page.keyboard.press('Escape');
+    assert.equal(await page.locator('[data-tech-source]').count(),0);
     await page.locator('[data-tech-view="coverage"]').click();assert.match(await page.locator('.tech-coverage-limit').innerText(),/no porcentajes/);
     assert.equal(await page.locator('details.tech-audited-components').evaluate(el=>el.open),false);
     await page.locator('details.tech-audited-components > summary').click();
@@ -142,7 +142,7 @@ async function main() {
         await page.keyboard.press('Escape');
         assert.equal(await page.evaluate(()=>document.activeElement.dataset.dfNode),id);
       }
-      await page.locator('[data-df-source]').click();assert.ok((await page.locator('.source-code').innerText()).length>300);await page.keyboard.press('Escape');
+      assert.equal(await page.locator('[data-df-source]').count(),0);
       await page.locator('[data-df-zoom="100"]').click();await page.locator('.df-map-scroll').focus();await page.keyboard.press('ArrowRight');assert.ok(page.url().endsWith('#datos'));
       await page.locator('[data-df-zoom="fit"]').click();
     }
@@ -165,7 +165,7 @@ async function main() {
     for(const tab of await page.locator('[data-compare]').all()){await tab.click();assert.equal(await tab.getAttribute('aria-pressed'),'true');assert.ok((await page.locator('#comparison-detail').innerText()).length>80);}
     for(const id of ['mediation','rabbitmq','bullmq','dataplatform']){await page.locator(`[data-component-id="${id}"]`).click();assert.equal(await page.locator('#modal').evaluate(el=>el.open),true);assert.ok((await page.locator('#modal-body').innerText()).length>250);await page.keyboard.press('Escape');}
     await page.locator('[data-node="outbox"]').click();assert.match(await page.locator('.inspector-title:visible').innerText(),/Outbox/);
-    await click('mermaid');assert.match(await page.locator('.source-code').innerText(),/flowchart/);await page.keyboard.press('Escape');
+    assert.equal(await page.locator('[data-action="mermaid"]').count(),0);
     await goto('evolucion');await page.locator('[data-country="ES"]').click();assert.match(await page.locator('#country-detail').innerText(),/Gira/);
     await page.locator('[data-country="PE"]').click();assert.match(await page.locator('#country-detail').innerText(),/custom/);
     assert.match(await page.locator('#country-detail').innerText(),/12 entradas/);
@@ -223,7 +223,7 @@ async function main() {
     }
     logs.push('RFID: tres escenarios; 5 observaciones, 3 tags, 2 SKU y carrito 0 hasta revisión; repetición sin duplicar candidatos, dos unidades del mismo SKU, selección fijada sin pago, reinicio y siete fichas accesibles.');
     await goto('datos');await page.locator('[data-component-id="syncpolicy"]').click();assert.match(await page.locator('#modal-body').innerText(),/07:00 a 22:00/);assert.match(await page.locator('#modal-body').innerText(),/domingos/);await page.keyboard.press('Escape');
-    logs.push('Propuesta: comparaciones, Mermaid y países.');
+    logs.push('Propuesta: comparaciones, diagramas sin controles de código fuente y países.');
     await goto('ia');
     assert.equal(await page.locator('#chapter-nav .chapter-button').count(),8);
     assert.match(await page.locator('#chapter-counter').innerText(),/07.*08/s);
@@ -252,7 +252,7 @@ async function main() {
       assert.match(await page.locator('#modal-body').innerText(),/Propuesta/);
       await page.keyboard.press('Escape');assert.equal(await node.evaluate(el=>el===document.activeElement),true);
     }
-    await page.locator('.ai-map [data-action="mermaid"]').click();assert.match(await page.locator('.source-code').innerText(),/aicore/);await page.keyboard.press('Escape');
+    assert.equal(await page.locator('.ai-map [data-action="mermaid"]').count(),0);
     await page.locator('.ai-services > summary').click();assert.equal(await page.locator('.ai-service-list article').count(),3);
     assert.match(await page.locator('.ai-services').innerText(),/ONNX.*preview/s);
     assert.match(await page.locator('.ai-services').innerText(),/No entrenar.*no retenerlos/s);

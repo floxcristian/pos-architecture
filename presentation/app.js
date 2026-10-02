@@ -54,7 +54,7 @@
   function diagram(key, title, info='Selecciona una app o una base de datos') {
     const d = D?.[key];
     if (!d) return '<div class="notice warning">No se pudo cargar el diagrama. Revisa que diagrams.js esté junto a index.html.</div>';
-    return `<div class="diagram-card"><div class="diagram-toolbar"><div><strong>${title}</strong><small>${info}</small></div>${button('Ver Mermaid','mermaid',`data-diagram="${key}"`,'secondary small')}</div><p class="diagram-scroll-hint">Desliza el mapa para explorarlo o usa la lista de componentes.</p><div class="diagram-canvas diagram" data-diagram="${key}">${d.svg}</div>${nodeList(d.nodes,'Lista de componentes del mapa')}</div>`;
+    return `<div class="diagram-card"><div class="diagram-toolbar"><div><strong>${title}</strong><small>${info}</small></div></div><p class="diagram-scroll-hint">Desliza el mapa para explorarlo o usa la lista de componentes.</p><div class="diagram-canvas diagram" data-diagram="${key}">${d.svg}</div>${nodeList(d.nodes,'Lista de componentes del mapa')}</div>`;
   }
   function inspector() { return '<aside class="inspector" id="inspector" aria-label="Detalle del componente"></aside>'; }
   function nodeList(ids, title='Más piezas del ecosistema') { return `<details class="node-list"><summary>${title}</summary><div class="tag-list">${ids.map(id=>`<button class="tag" data-component="${id}">${esc(C.components[id]?.title || id)}</button>`).join('')}</div></details>`; }
@@ -334,7 +334,6 @@
       case 'close-modal':$('#modal').close();break;
       case 'present':togglePresent();break;
       case 'fullscreen':try {if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else notify('Pantalla completa no disponible en este navegador. Puedes usar F11.');}catch{notify('El navegador no permitió pantalla completa. Puedes usar F11.');}break;
-      case 'mermaid': {const key=el.dataset.diagram;openModal('Diagrama Mermaid / '+key,`<p>Esta es la fuente editable del diagrama. Las fichas interactivas se agregan al SVG generado.</p><pre class="source-code"><code>${esc(D[key].source)}</code></pre><a class="btn secondary" href="diagrams/${key}.mmd" download>Descargar .mmd</a>`);break;}
       case 'flow-play':toggleFlow();break;
       case 'flow-next':stopFlow();nextFlow();break;
       case 'flow-reset':stopFlow();state.flowStep=0;updateFlow();break;
