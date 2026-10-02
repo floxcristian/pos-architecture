@@ -311,10 +311,22 @@ window.POS_REPOSITORIES = {
       "id": "repo-print",
       "from": "mountain-implementos",
       "to": "api-impresion-caja",
-      "label": "HTTP local · imprimir documento",
-      "detail": "El frontend declara una llamada al servicio local de impresión y el receptor expone el contrato térmico. La relación está en código; no demuestra hardware ni binario instalado. No hay emisión fiscal en esta conexión.",
+      "label": "HTTP local · imprimir boletas, facturas y comprobantes",
+      "detail": "Permite imprimir en papel boletas y facturas electrónicas, o comprobantes de pago y cobranza, según la operación. La interfaz prepara el contenido y lo envía a POST /Impresion/ImprimirDTE_Termica cuando se usa el canal apiImpresion. Esta llamada solicita la impresión; no emite un nuevo DTE. El código revisado no confirma qué impresora está instalada ni que el papel haya salido.",
       "certainty": "code",
       "sources": [
+        {
+          "label": "Tipos de documento: Boleta y Factura",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/database/seeds/TipoDocumentoSeeder.js#L95-L129"
+        },
+        {
+          "label": "mountain-implementos/frontend/src/app/services/documentos.service.ts:1342-1411",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/services/documentos.service.ts#L1342-L1411"
+        },
+        {
+          "label": "mountain-implementos/frontend/src/app/modules/cobranzas/components/cobranza-detalle-pago/cobranza-detalle-pago.component.ts:108-115",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/modules/cobranzas/components/cobranza-detalle-pago/cobranza-detalle-pago.component.ts#L108-L115"
+        },
         {
           "label": "mountain-implementos/frontend/src/app/services/impresion.service.ts:107-145",
           "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/services/impresion.service.ts#L107-L145"

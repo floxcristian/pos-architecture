@@ -1685,7 +1685,7 @@ window.POS_TECHNICAL = {
       "method": "POST",
       "path": "/Impresion/ImprimirDTE_Termica",
       "evidenceType": "route",
-      "purpose": "Imprimir representación recibida usando configuración y columnas; no emitir DTE nuevo.",
+      "purpose": "Imprimir en papel boletas, facturas y comprobantes de pago o cobranza a partir del contenido recibido; no emitir un nuevo DTE.",
       "execution": "HTTP local desde Angular; PrintDocument/driver gobierna ejecución física.",
       "offline": "Salto local independiente de WAN; obtener antes los datos a imprimir puede depender de otro servicio.",
       "failure": "Excepciones se registran y aun así devuelve 200/error=false. Angular no valida cuerpo de error en el recorrido revisado; falta identidad/estado durable de trabajo para reintentos.",

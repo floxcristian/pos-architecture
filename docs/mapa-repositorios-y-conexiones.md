@@ -119,7 +119,7 @@ El diagrama separa responsabilidades; **no prueba durabilidad por el solo nombre
 
 | Relación | Evidencia útil | Límite |
 | --- | --- | --- |
-| Mountain → impresión | Caller Angular + contrato térmico del servicio Windows. | No certifica driver, impresora, papel entregado ni emisión fiscal. |
+| Mountain → impresión | Angular envía contenido de boletas, facturas y comprobantes de pago o cobranza al contrato térmico del servicio Windows. | Solicita impresión en papel; no emite un nuevo DTE ni confirma que el papel haya salido. Canal y periférico dependen de configuración. |
 | Mountain → API pagos/NC | Controller consumidor y rutas Express compatibles. | No equivale a cobrar con Transbank; configuración/fallback vigentes pendientes. |
 | API pagos → PostgreSQL de sucursales | SQL de documentos/pagos y resolución de conexión. | Dependencia de datos; no atraviesa necesariamente el backend de caja. |
 | Mountain → APIs .NET de precio | Parámetros de consulta y receptor ApiPrecios candidato. | No asignar URL_API_CARRO o URL_API_CLIENTES por semejanza de nombre. |
