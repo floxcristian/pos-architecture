@@ -53,7 +53,7 @@ async function main() {
       assert.ok(endpoint.path&&endpoint.method&&endpoint.sources.length);
       assert.match(endpoint.commit,/^[a-f0-9]{40}$/);
     }
-    await page.locator('.inspector .technical-evidence > summary').click();assert.match(await page.locator('.inspector .technical-evidence').innerText(),/Ubicación lógica/);
+    await page.locator('.inspector .technical-evidence > summary').click();assert.match(await page.locator('.inspector .technical-evidence').innerText(),/Ubicación/);
     await page.locator('[data-map-view="evidencia"]').click();
     assert.equal(await page.locator('details#technical-explorer').count(),0);
     assert.equal(await page.locator('[data-tech-view="endpoints"]').getAttribute('aria-pressed'),'true');

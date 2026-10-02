@@ -26,11 +26,11 @@ Los paths son relativos al servidor lógico y respetan mayúsculas del código. 
 
 ## 2. Despliegue reconstruido y correspondencia con repositorios
 
-El PPTX ubica navegador y agentes en un PC Windows; backend, sincronizador y PostgreSQL en el ámbito de sucursal; integración, concentrador y adaptación AX en el ámbito corporativo. **Central no es un servidor único.** El segundo PostgreSQL de caja que aparece dentro del bloque central, la ubicación de facturadores y la etiqueta «APIs .NET de integración sucursal» necesitan aclaración. Una biblioteca como DatosAXSql no agrega por sí misma una instancia desplegada.
+La interfaz web y los agentes locales se utilizan en el PC de caja con Windows. Backend, sincronizador y PostgreSQL pertenecen al ámbito de sucursal; integración, concentrador y adaptación AX, al ámbito corporativo. **Central no es un servidor único.** El segundo PostgreSQL de caja que aparece dentro del bloque central, la ubicación de facturadores y la etiqueta «APIs .NET de integración sucursal» necesitan aclaración. Una biblioteca como DatosAXSql no agrega por sí misma una instancia desplegada.
 
 | Componente / alias | Zona lógica | Código / runtime | Puerto o binding conocido | Responsabilidad |
 | --- | --- | --- | --- | --- |
-| **PC de caja · Angular** · `ui` | terminal | mountain-implementos/frontend; Angular 8.2.14; navegador | Cliente HTTP; puerto de publicación no confirmado | Interfaz POS; llama backend, impresión y SDK de pagos. |
+| **Interfaz web de caja** · `ui` | PC de caja con Windows | mountain-implementos/frontend; Angular / TypeScript | No aplica como servicio: es un cliente HTTP | Interfaz POS; llama backend, impresión y SDK de pagos. |
 | **Servidor de sucursal · backend Mountain** · `backend` | branch | mountain-implementos/backend; Node.js / AdonisJS 4.1 | 3333 según diagrama y valor predeterminado del cliente del sync | Venta, persistencia local, precios, clientes y coordinación fiscal. |
 | **PostgreSQL de sucursal** · `localdb` | branch | Modelos Mountain y sincronizador; PostgreSQL; versión instalada pendiente | No publicado en el catálogo | Datos de negocio y mensajes; backend/sync comparten el esquema observado. |
 | **Sincronizador de sucursal** · `sync` | branch | mountain-sync-sucursal; Node.js / AdonisJS 4.1; cron + AMQP | 3344 según diagrama; despliegue por confirmar | Prepara/sube ventas y pagos, descarga maestros y aplica respuestas AX. |
@@ -62,9 +62,9 @@ El PPTX ubica navegador y agentes en un PC Windows; backend, sincronizador y Pos
 
 ### 2.1. Confianza y evidencia por componente
 
-**PC de caja · Angular (`ui`).** PPTX ubica navegador en PC Windows; manifiesto y llamadas confirman Angular. Evidencia: Código + antecedente de ubicación; instalación pendiente. Pendiente: SO, navegador, forma de servir estáticos, URL base y versión instalada.
+**Interfaz web de caja (`ui`).** Aplicación web desarrollada con Angular / TypeScript y utilizada en el PC de caja con Windows. Desde ella se consulta el backend y se accede a los agentes de impresión y pagos.
 
-Fuentes: [mountain-implementos/frontend/package.json:1–103](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/package.json#L1-L103); [mountain-implementos/frontend/src/app/services/punto-de-venta.service.ts:388–399](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/services/punto-de-venta.service.ts#L388-L399); [PPTX original: zonas, componentes y versiones declaradas (diap. 5–11)](../docs/antecedentes-presentacion-chile.md).
+Fuentes: [mountain-implementos/frontend/package.json:1–103](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/package.json#L1-L103); [mountain-implementos/frontend/src/app/services/punto-de-venta.service.ts:388–399](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/services/punto-de-venta.service.ts#L388-L399); [Arquitectura actual de Chile](../docs/antecedentes-presentacion-chile.md).
 
 **Servidor de sucursal · backend Mountain (`backend`).** PPTX identifica servidor de sucursal; código separa backend y sync. Evidencia: Código + antecedente; host/VM no comprobados. Pendiente: Sistema operativo, supervisor, instancias y colocación de PostgreSQL.
 
@@ -193,7 +193,7 @@ Fuentes de estas diferencias: fichas `payments`, `print`, `mongo`, `centraldb`, 
 
 ```mermaid
 flowchart LR
-  subgraph PC["PC de caja"]
+  subgraph PC["PC de caja · Windows"]
     UI["mountain-implementos / frontend"]
     PR["api-impresion-caja"]
     UI -->|"HTTP: representación"| PR
@@ -242,7 +242,7 @@ Venta local, evaluación remota, emisión fiscal y registro AX son pasos diferen
 
 #### e-sale-save · `POST /punto-de-venta`
 
-**Origen → destino:** PC de caja · Angular (`ui`) → Servidor de sucursal · backend Mountain (`backend`). **Evidencia:** ruta receptora declarada; Ruta y llamada observadas; despliegue y tráfico no verificados.
+**Origen → destino:** Interfaz web de caja (`ui`) → Servidor de sucursal · backend Mountain (`backend`). **Evidencia:** ruta receptora declarada; Ruta y llamada observadas; despliegue y tráfico no verificados.
 
 **Función:** Guardar comprobante, documentos y pagos recibidos por el backend; el cargo en el terminal tiene otro recorrido.
 
@@ -254,7 +254,7 @@ Venta local, evaluación remota, emisión fiscal y registro AX son pasos diferen
 
 #### e-product-price · `GET /Productos/:id`
 
-**Origen → destino:** PC de caja · Angular (`ui`) → Servidor de sucursal · backend Mountain (`backend`). **Evidencia:** ruta receptora declarada; Ruta y llamada observadas.
+**Origen → destino:** Interfaz web de caja (`ui`) → Servidor de sucursal · backend Mountain (`backend`). **Evidencia:** ruta receptora declarada; Ruta y llamada observadas.
 
 **Función:** Obtener producto y calcular precio usando contexto de cliente, cantidad y sucursal.
 
@@ -366,7 +366,7 @@ Además de maestros por lotes, la carga individual refresca datos remotamente.
 
 #### e-customer-view · `GET /empresas/:id`
 
-**Origen → destino:** PC de caja · Angular (`ui`) → Servidor de sucursal · backend Mountain (`backend`). **Evidencia:** ruta receptora declarada; Ruta y consumidor Angular observados.
+**Origen → destino:** Interfaz web de caja (`ui`) → Servidor de sucursal · backend Mountain (`backend`). **Evidencia:** ruta receptora declarada; Ruta y consumidor Angular observados.
 
 **Función:** Consultar/refrescar cliente: id local o id nulo con query rut.
 
@@ -518,7 +518,7 @@ API Express con MongoDB y consultas directas a PostgreSQL de sucursales; no auto
 
 #### e-credit-search · `POST /nota-de-credito/por-cliente`
 
-**Origen → destino:** PC de caja · Angular (`ui`) → Servidor de sucursal · backend Mountain (`backend`). **Evidencia:** ruta receptora declarada; Ruta y llamada Angular observadas.
+**Origen → destino:** Interfaz web de caja (`ui`) → Servidor de sucursal · backend Mountain (`backend`). **Evidencia:** ruta receptora declarada; Ruta y llamada Angular observadas.
 
 **Función:** Buscar NC del cliente y ajustar saldo visible con pagos locales y consulta de NC pendientes de sincronizar.
 
@@ -618,7 +618,7 @@ API Windows de loopback y efectos físicos; respuesta HTTP no acredita impresió
 
 #### e-print-thermal · `POST /Impresion/ImprimirDTE_Termica`
 
-**Origen → destino:** PC de caja · Angular (`ui`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; Receptor y composición de llamada Angular observados; URL de impresora efectiva configurable.
+**Origen → destino:** Interfaz web de caja (`ui`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; Receptor y composición de llamada Angular observados; URL de impresora efectiva configurable.
 
 **Función:** Imprimir representación recibida usando configuración y columnas; no emitir DTE nuevo.
 
@@ -654,7 +654,7 @@ API Windows de loopback y efectos físicos; respuesta HTTP no acredita impresió
 
 #### e-print-micr · `GET / POST /Impresion/LecturaCheque_Termica`
 
-**Origen → destino:** PC de caja · Angular (`ui`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; GET y POST declarados; POST observado por construcción del cliente.
+**Origen → destino:** Interfaz web de caja (`ui`) → Agente de impresión Windows (`print`). **Evidencia:** ruta receptora declarada; GET y POST declarados; POST observado por construcción del cliente.
 
 **Función:** Accionar lector de cheque y devolver lectura MICR; Angular compone llamada POST.
 

@@ -12,7 +12,7 @@ window.POS_INTERACTIONS_CURRENT = [
         "title": "Mountain · interfaz de caja",
         "repo": "mountain-implementos/frontend",
         "runtime": "Angular 8 / TypeScript",
-        "zone": "PC del operador · navegador"
+        "zone": "PC de caja · Windows"
       },
       {
         "id": "group-backend",
@@ -3245,7 +3245,7 @@ window.POS_INTERACTIONS_CURRENT = [
         "title": "Mountain · interfaz de caja",
         "repo": "mountain-implementos/frontend",
         "runtime": "Angular 8 / TypeScript",
-        "zone": "PC del operador · navegador",
+        "zone": "PC de caja · Windows",
         "evidence": "Servicio de empresas y consumidor POS revisados; no petición por cada pulsación."
       },
       {

@@ -10,7 +10,7 @@ window.POS_REPOSITORIES = {
         {
           "name": "frontend",
           "runtime": "Angular 8; caja y pantallas de administración",
-          "zone": "Puesto de caja / interfaz"
+          "zone": "PC de caja · Windows"
         },
         {
           "name": "backend",

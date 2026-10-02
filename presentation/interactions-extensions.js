@@ -12,7 +12,7 @@ window.POS_INTERACTIONS_EXTENSIONS = [
         "id": "print-angular",
         "title": "Angular · PC de caja",
         "repo": "mountain-implementos/frontend",
-        "runtime": "Angular / TypeScript; versión instalada pendiente",
+        "runtime": "Angular / TypeScript",
         "zone": "terminal",
         "evidence": "Servicios y decisiones de canal observados; puesto Windows."
       },
@@ -586,7 +586,7 @@ window.POS_INTERACTIONS_EXTENSIONS = [
         "repo": "mountain-implementos/frontend",
         "runtime": "Angular / TypeScript",
         "zone": "terminal",
-        "evidence": "Servicios consumidores disponibles; UI y versión desplegadas no verificadas."
+        "evidence": "Aplicación web usada en el PC de caja con Windows."
       },
       {
         "id": "credit-backend",

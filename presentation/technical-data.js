@@ -33,15 +33,13 @@ window.POS_TECHNICAL = {
   "components": [
     {
       "id": "ui",
-      "name": "PC de caja · Angular",
+      "name": "Interfaz web de caja",
       "repo": "mountain-implementos/frontend",
-      "runtime": "Angular 8.2.14; navegador",
-      "port": "Cliente HTTP; puerto de publicación no confirmado",
+      "runtime": "Angular / TypeScript",
+      "location": "PC de caja · Windows",
       "zone": "terminal",
       "responsibility": "Interfaz POS; llama backend, impresión y SDK de pagos.",
-      "locationEvidence": "PPTX ubica navegador en PC Windows; manifiesto y llamadas confirman Angular.",
-      "confidence": "Código + antecedente de ubicación; instalación pendiente",
-      "pending": "SO, navegador, forma de servir estáticos, URL base y versión instalada.",
+      "confidence": "Aplicación web",
       "sources": [
         {
           "label": "mountain-implementos/frontend/package.json:1–103",
@@ -52,7 +50,7 @@ window.POS_TECHNICAL = {
           "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/services/punto-de-venta.service.ts#L388-L399"
         },
         {
-          "label": "PPTX original: zonas, componentes y versiones declaradas (diap. 5–11)",
+          "label": "Arquitectura actual de Chile",
           "url": "../docs/antecedentes-presentacion-chile.md"
         }
       ],

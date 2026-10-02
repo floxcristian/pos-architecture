@@ -647,25 +647,21 @@ window.POS_CONTENT = {
       "kind": "app",
       "place": "PC de caja",
       "status": "code",
-      "description": "La aplicación Angular se abre en el navegador. Permite preparar ventas, cobrar, gestionar turnos y consultar información de caja.",
+      "description": "Aplicación web para preparar ventas, cobrar, gestionar turnos y consultar información de caja.",
       "responsibilities": [
         "Capturar las acciones del operador y mostrar su resultado.",
         "Pedir al backend local las operaciones de negocio.",
         "Comunicarse con agentes locales de impresión y terminal de pago."
       ],
       "offline": "Abrir la pantalla no basta: precios, carga del cliente, pagos y fiscalidad pueden necesitar servicios remotos.",
-      "tech": [
-        "Angular",
-        "TypeScript",
-        "Navegador"
-      ],
+      "tech": [],
       "sources": [
         {
           "label": "Código de Mountain",
           "url": "../docs/analisis-repositorios/mountain-implementos.md"
         },
         {
-          "label": "Módulos de la presentación",
+          "label": "Módulos del POS",
           "url": "../docs/antecedentes-presentacion-chile.md"
         }
       ]
