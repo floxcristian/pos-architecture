@@ -264,8 +264,8 @@ dialog.modal::backdrop { background: rgb(13 32 25 / 50%); }
 .modal-header { position: sticky; top: 0; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 24px 28px; border-bottom: 1px solid var(--line); background: white; }
 .modal-header h2 { font-size: 27px; }
 .modal-header p { color: var(--muted); font-size: 13px; margin-top: 7px; }
-.btn.modal-close { flex: 0 0 auto; width: 48px; height: 48px; min-width: 48px; min-height: 48px; display: flex; justify-content: center; align-items: center; padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: white; }
-.modal-close svg { width: 28px; height: 28px; }
+.btn.modal-close { flex: 0 0 auto; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: flex; justify-content: center; align-items: center; padding: 11px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+.modal-close svg { width: 20px; height: 20px; }
 .modal-close:hover { background: var(--teal-soft); border-color: #9bbeac; }
 .modal-body { padding: 25px 28px 30px; }
 .modal-body > p { color: var(--muted); font-size: 14px; }
