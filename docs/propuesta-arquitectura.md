@@ -54,6 +54,21 @@ El desfase informado entre reserva de inventario, emisión de DTE y registro pos
 
 La revisión de código refuerza tres prioridades antes de sustituir componentes: eliminar la dependencia de precios online para operaciones habilitadas offline, establecer confirmaciones posteriores a persistencia durable y corregir la semántica de pendientes de pago/NC. También identifica rutas sin autorización aplicada, SQL interpolado y secretos versionados cuyo alcance debe verificarse y corregirse de forma coordinada. Los informes por repositorio delimitan las condiciones; no se presupone exposición pública ni un incidente ocurrido.
 
+## Reutilización de core y devops-platform
+
+**Se propone reutilización concreta de ambos repositorios**, mediante componentes seleccionados, adaptados y probados para el POS. Esta recomendación recoge el [análisis de la plataforma corporativa](analisis-repositorios/aportes-plataforma-corporativa.md); no implica una adopción aprobada ni que ya existan paquetes publicados para el POS.
+
+| Origen y forma de uso | Qué se propone aprovechar | Condición para incorporarlo |
+| --- | --- | --- |
+| `core`: código compartido | Convenciones y controles de Nx; componentes de logs, correlación y configuración; contratos y utilidades de país/moneda. Seleccionar bibliotecas y publicarlas con versiones para incluirlas en el software POS. | Revisar dependencias y propietarios; adaptar observabilidad y configuración para arrancar y operar sin servicios centrales. Validar moneda y reglas por operación. |
+| `core`: capacidades centrales por API | Evaluar servicios existentes de catálogo, clientes e integración ERP como parte de la plataforma central del POS; distribuir a sucursales los datos necesarios para las operaciones offline autorizadas. | Confirmar qué servicio es responsable de cada dato, qué contratos ofrece y sus garantías. El cliente remoto de precios actual no sustituye al motor local de ofertas. |
+| `devops-platform`: construcción y entrega | Consumir acciones corporativas para comprobar código, construir artefactos y desplegar servicios centrales, fijando la versión de cada acción. | Corregir o cubrir las brechas de validación y despliegue antes de adoptarlas. Cloud Run solo aplica si se aprueba ese destino; las acciones revisadas no acreditan una entrega completa a tiendas. |
+| Producto POS: desarrollo específico | Núcleo local de caja, motor local de precios/ofertas, protocolo sucursal–central, adaptadores de dispositivos y actualización de la flota. | Reutilizar piezas compatibles donde existan y desarrollar lo faltante; demostrar continuidad, recuperación y compatibilidad con los datos locales. |
+
+La recomendación inicial es un **monorepo POS con versiones de producto independientes**, que consume bibliotecas corporativas y acciones de entrega. La alternativa de alojarlo dentro de `core` requiere acordar propiedad, permisos y ciclos de publicación. El [inventario detallado de reutilización](analisis-repositorios/aportes-plataforma-corporativa.md#3-qué-reutilizar-qué-adaptar-y-qué-desarrollar) conserva candidatos y evidencias; evita duplicar una implementación corporativa que sí cumpla los requisitos.
+
+Las bibliotecas incluidas en el software de la sucursal se ejecutan localmente. Las APIs de `core` participan en intercambios con la plataforma central; `devops-platform` prepara y entrega versiones. **Ningún servicio central de estos repositorios debe ser requisito de cada venta habilitada offline.** La reutilización de inbox/outbox, reintentos y adaptadores ERP exige validar cada flujo, especialmente cuando el ERP aplica un cambio y se pierde su respuesta. Los [criterios CORP-01 a CORP-08](validacion-y-decisiones.md#validación-de-componentes-corporativos-candidatos) definen las pruebas pendientes.
+
 ## Arquitectura de referencia: perfil WAN preferente
 
 ```mermaid
