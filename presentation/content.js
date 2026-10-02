@@ -682,7 +682,11 @@ window.POS_CONTENT = {
         "Consultar servicios de precios y clientes.",
         "Invocar facturación después del commit de la venta en el flujo revisado."
       ],
-      "offline": "Ya existe procesamiento local, pero algunas rutas siguen dependiendo de respuestas externas. Debemos eliminar esas dependencias solo para operaciones autorizadas offline.",
+      "offline": [
+        "En PostgreSQL local: buscar clientes, guardar documentos y pagos, y comprobar el cupo con el estado de cuenta almacenado.",
+        "Por API: obtener precios, actualizar la ficha y el saldo del cliente, y consultar notas de crédito. Un error al actualizar la ficha puede interrumpir su carga; el saldo admite lectura local.",
+        "Con el facturador: emitir boletas o facturas. Falta confirmar su instalación y capacidad de operar sin Internet."
+      ],
       "tech": [
         "Node.js",
         "AdonisJS",
@@ -692,6 +696,10 @@ window.POS_CONTENT = {
         {
           "label": "Venta, precios y facturación",
           "url": "../docs/analisis-repositorios/mountain-implementos.md"
+        },
+        {
+          "label": "Operaciones locales y consultas a otros servicios",
+          "url": "../docs/contraste-apuntes-operacion-chile.md#9-datos-locales-y-conexiones-de-clientes-pagos-y-facturación"
         }
       ]
     },
