@@ -1434,8 +1434,8 @@ window.POS_CONTENT = {
     },
     {
       "term": "Maestros",
-      "definition": "Datos de referencia que muchas operaciones necesitan consultar.",
-      "example": "Clientes, direcciones, artículos y reglas de precio."
+      "definition": "Son datos que la caja reutiliza en muchas ventas, por ejemplo las fichas de productos y clientes y sus direcciones. Permiten identificar qué producto se vende y a qué cliente.",
+      "example": "Ejemplo didáctico: la ficha de Ana con su RUT y dirección es un dato maestro; su compra de dos filtros es una venta. «Descargar maestros» significa traer a la caja las actualizaciones de esos listados."
     },
     {
       "term": "Sincronización",
