@@ -58,7 +58,7 @@ La interfaz web y las aplicaciones locales se utilizan en el PC de caja con Wind
 | **Facturador Ingydev** · `fiscal-ingydev` | external | Caller Mountain; implementación proveedor no incluida; HTTP POST SOAP/XML | Ruta /WSFactElect/?wsdl en fuente; origen omitido | Emisión y consulta fiscal por servicio SOAP. |
 | **QLIKTAIL (texto literal del diagrama)** · `qliktail` | external | No localizado; No confirmado | No confirmado | Sistema externo dibujado; función y uso POS pendientes. |
 | **Consumidor corporativo por identificar** · `integration-caller` | Ubicación por confirmar | Por identificar; No confirmado | No aplica | Origen no comprobado de rutas declaradas en APIs corporativas. |
-| **Instacheck · fuera de uso según el equipo** · `instacheck` | external | Contrato y despliegue no identificados; No confirmado | No confirmado | Integración histórica de cheques; el equipo confirmó que Instacheck ya no se utiliza. El estado de ORSAN es independiente. |
+| **Orsan · verificación de cheques** · `orsan` | external | Caller en mountain-implementos/backend; API HTTP / JSON | Destino configurable; configuración por sucursal pendiente | Proveedor vigente de verificación de cheques, informado por el usuario el 2026-10-02. Instacheck dejó de utilizarse. |
 
 ### 2.1. Confianza y evidencia por componente
 
@@ -174,9 +174,9 @@ Fuentes: [PPTX original: zonas, componentes y versiones declaradas (diap. 5–11
 
 Sin fuente de implementación: placeholder deliberado para un consumidor aún no identificado.
 
-**Instacheck · fuera de uso según el equipo (`instacheck`).** La presentación agrupa ORSAN / Instacheck; el apunte posterior confirma la retirada de Instacheck, sin determinar la vigencia de ORSAN. Evidencia: Histórico; retirada de Instacheck informada por el equipo. Pendiente: Confirmar únicamente la vigencia y el contrato residual de ORSAN, además de datos/históricos que deban conservarse.
+**Orsan · verificación de cheques (`orsan`).** Orsan es el proveedor vigente, según la confirmación del usuario del 2026-10-02. Mountain recibe la solicitud de verificación y su integración con Orsan realiza una petición HTTP POST con JSON para evaluar el cheque. Instacheck fue retirado; su aparición junto a Orsan en la presentación original se conserva como antecedente histórico. Pendiente: Obtener contrato y configuración de Orsan por sucursal, procedimiento ante fallos y configuraciones residuales de Instacheck que deban retirarse.
 
-Fuentes: [Presentación original: sistemas externos](../docs/antecedentes-presentacion-chile.md); [Contraste con apuntes operativos](../docs/contraste-apuntes-operacion-chile.md).
+Fuentes: [OrsanService.js:234–283](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Services/Cheque/OrsanService.js#L234-L283); [ChequeVerificacionService.js:58–98](https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Services/Cheque/ChequeVerificacionService.js#L58-L98); [Presentación original: sistemas externos](../docs/antecedentes-presentacion-chile.md); [Contraste con apuntes operativos](../docs/contraste-apuntes-operacion-chile.md).
 
 ### 2.2. Diferencias que afectan el inventario
 

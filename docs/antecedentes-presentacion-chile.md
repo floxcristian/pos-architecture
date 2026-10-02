@@ -8,7 +8,7 @@ Este documento organiza lo que la presentación **declara sobre el sistema actua
 
 **Complemento posterior:** el usuario entregó cinco repositorios, analizados por separado en el [informe de código](analisis-repositorios/README.md). Allí se contrastan estados, calendario, precios, MongoDB, ofertas y dispositivos con evidencia por commit. Este anexo mantiene la interpretación de la presentación para distinguir lo declarado por la fuente de lo observado después en código.
 
-**Apuntes posteriores del usuario:** la caja no maneja stock e Instacheck ya no funciona como integrador. Las menciones de Instacheck y sus impactos en las tablas siguientes se conservan como contenido histórico de las diapositivas, no como dependencia vigente. Los apuntes sobre MPOS SQL, cadencias y refresco por RUT se registran con su grado de confirmación en el [contraste de operación de Chile](contraste-apuntes-operacion-chile.md).
+**Apuntes posteriores del usuario:** la caja no maneja stock. El 2026-10-02 confirmó que Instacheck ya no funciona como integrador y Orsan continúa vigente. Las menciones de Instacheck y sus impactos en las tablas siguientes se conservan como contenido histórico de las diapositivas, no como dependencia vigente. Los apuntes sobre MPOS SQL, cadencias y refresco por RUT se registran con su grado de confirmación en el [contraste de operación de Chile](contraste-apuntes-operacion-chile.md).
 
 Las instrucciones para exponer las láminas se consideran notas de la fuente. No se convierten en tareas del proyecto ni sustituyen el requisito del usuario de preparar una arquitectura para Chile, Perú y España con operación offline y un módulo de ofertas local.
 

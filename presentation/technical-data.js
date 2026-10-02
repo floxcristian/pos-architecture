@@ -699,27 +699,29 @@ window.POS_TECHNICAL = {
       "currentId": ""
     },
     {
-      "id": "instacheck",
-      "name": "Instacheck · fuera de uso según el equipo",
-      "repo": "Contrato y despliegue no identificados",
-      "runtime": "No confirmado",
-      "port": "No confirmado",
+      "id": "orsan",
+      "name": "Orsan · verificación de cheques",
+      "repo": "mountain-implementos/backend",
+      "runtime": "API HTTP / JSON",
       "zone": "external",
-      "responsibility": "Integración histórica de cheques; el equipo confirmó que Instacheck ya no se utiliza. El estado de ORSAN es independiente.",
-      "locationEvidence": "La presentación agrupa ORSAN / Instacheck; el apunte posterior confirma la retirada de Instacheck, sin determinar la vigencia de ORSAN.",
-      "confidence": "Histórico; retirada de Instacheck informada por el equipo",
-      "pending": "Confirmar únicamente la vigencia y el contrato residual de ORSAN, además de datos/históricos que deban conservarse.",
+      "responsibility": "Proveedor vigente para verificar cheques; el backend consulta su API y registra el resultado.",
+      "confidence": "Vigente según el equipo; integración observada en código",
+      "pending": "Configuración por sucursal, contrato de verificación y procedimiento cuando la consulta no está disponible.",
       "sources": [
         {
-          "label": "Presentación original: sistemas externos",
-          "url": "../docs/antecedentes-presentacion-chile.md"
+          "label": "mountain-implementos/backend/app/Services/Cheque/OrsanService.js:234–283",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Services/Cheque/OrsanService.js#L234-L283"
+        },
+        {
+          "label": "mountain-implementos/backend/app/Services/Cheque/ChequeVerificacionService.js:185–240",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Services/Cheque/ChequeVerificacionService.js#L185-L240"
         },
         {
           "label": "Contraste con apuntes operativos",
           "url": "../docs/contraste-apuntes-operacion-chile.md"
         }
       ],
-      "currentId": "instacheck"
+      "currentId": "orsan"
     }
   ],
   "endpoints": [

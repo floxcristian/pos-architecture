@@ -1378,21 +1378,20 @@ window.POS_CONTENT = {
         }
       ]
     },
-    "instacheck": {
-      "title": "Instacheck",
-      "subtitle": "Componente histórico de la diapositiva",
+    "orsan": {
+      "title": "Orsan",
+      "subtitle": "Verificación de cheques",
       "kind": "external",
-      "place": "Integración histórica",
-      "status": "historical",
-      "description": "El usuario aclaró que ya no funciona como integrador. Persisten referencias en el código; eso no demuestra que siga operativo.",
+      "place": "Proveedor externo",
+      "status": "reported",
+      "description": "Proveedor vigente para verificar cheques. El backend de Mountain consulta la API de Orsan y guarda el resultado de la verificación.",
       "responsibilities": [
-        "Conservar el contexto de la arquitectura original.",
-        "Identificar configuración residual que el equipo debe revisar.",
-        "Confirmar el proveedor o procedimiento vigente sin asumir el estado de Orsan."
+        "Evaluar los datos del cheque enviados desde caja.",
+        "Devolver el resultado y el código que el backend registra junto al cheque."
       ],
-      "offline": "No se incluye como dependencia operativa vigente de la propuesta.",
+      "offline": "La verificación necesita consultar la API de Orsan. El procedimiento de caja cuando esa consulta no está disponible queda por confirmar.",
       "tech": [
-        "Fuera de uso según el usuario"
+        "HTTP / JSON"
       ],
       "sources": [
         {
