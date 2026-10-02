@@ -179,13 +179,11 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
 .segmented button:hover { background: #f3f7f4; }
 .segmented button[aria-pressed="true"], .segmented button[aria-selected="true"] { color: var(--ink); background: white; border-color: #ccd9d0; box-shadow: 0 2px 3px rgb(21 45 43 / 4%); }
 .flow-controller { margin: 18px 0 22px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: white; }
-.flow-controls, .flow-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-.flow-controller > .btn { margin-right: 5px; margin-bottom: 7px; }
 .step-story { padding: 20px 0 2px; }
 .step-count { display: block; color: var(--teal-dark); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 7px; font-variant-numeric: tabular-nums; }
 .step-title { font-size: 19px; line-height: 1.3; letter-spacing: -.025em; margin: 0 0 8px; }
 .step-description { max-width: 85ch; color: var(--muted); font-size: 14px; line-height: 1.65; }
-.step-track { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 17px; }
+.step-track { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
 .step-dot { display: block; width: 25px; height: 5px; border: 0; border-radius: 3px; padding: 0; background: #d9e3dc; transition: background var(--motion-fast); }
 button.step-dot { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid #d0ddd4; border-radius: 8px; background: #f4f7f4; color: #4d6659; font: 12px "Cascadia Code", Consolas, monospace; }
 button.step-dot:hover { background: #e6eee7; border-color: #95b5a2; }
@@ -300,7 +298,6 @@ details.node-list .tag-list { margin-top: 10px; }
 .fact-strip > div > span { display: block; margin-bottom: 10px; color: #60786a; font-size: 9px; font-weight: 750; letter-spacing: .1em; }
 .fact-strip strong { font-size: 20px; }
 .fact-strip p { font-size: 12px; }
-.motion-hint { color: var(--muted); font-size: 11px; margin-left: auto; }
 .step-story { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 18px; padding-top: 20px; }
 .step-count { padding-top: 5px; letter-spacing: .02em; font-family: "Cascadia Code", Consolas, monospace; white-space: nowrap; }
 .step-description { max-width: none; }
@@ -444,11 +441,8 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
   .chapter-header { margin-bottom: 25px; }
   .chapter-intro { max-width: 89ch; margin-top: 12px; }
   .flow-controller { display: grid; grid-template-columns: 380px minmax(0, 1fr); column-gap: 26px; padding: 21px 22px; }
-  .flow-controller .flow-actions { grid-column: 1; align-content: flex-start; }
-  .flow-controller .flow-actions .btn { padding-inline: 12px; font-size: 12px; }
-  .flow-controller .motion-hint { flex-basis: 100%; margin: 2px 0 0; }
-  .flow-controller .step-track { grid-column: 1; grid-row: 2; align-self: end; }
-  .flow-controller .step-story { grid-column: 2; grid-row: 1 / span 2; padding: 0; grid-template-columns: 1fr; align-content: start; gap: 2px; }
+  .flow-controller .step-track { grid-column: 1; grid-row: 1; align-self: start; }
+  .flow-controller .step-story { grid-column: 2; grid-row: 1; padding: 0; grid-template-columns: 1fr; align-content: start; gap: 2px; }
   .flow-controller .step-story .step-count { padding-top: 0; }
   .flow-controller .state-strip { grid-column: 1 / -1; }
   .chapter-venta .diagram-canvas, .chapter-datos .diagram-canvas { min-height: 250px; }
@@ -457,10 +451,7 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
 
 .stage-layout.flow-stage { grid-template-columns: minmax(0, 1fr) 330px; }
 .flow-stage .flow-controller { display: block; margin-top: 0; padding: 21px; }
-.flow-stage .flow-controller .flow-actions { display: flex; gap: 7px; }
-.flow-stage .flow-controller .flow-actions .btn { min-height: 40px; padding-inline: 10px; font-size: 11px; }
-.flow-stage .flow-controller .motion-hint { flex-basis: 100%; margin: 4px 0 0; font-size: 10px; }
-.flow-stage .flow-controller .step-track { gap: 4px; margin-top: 16px; }
+.flow-stage .flow-controller .step-track { gap: 4px; }
 .flow-stage .flow-controller .step-story { display: block; padding-top: 20px; }
 .flow-stage .step-description { font-size: 13px; line-height: 1.7; }
 .flow-stage .step-title { font-size: 19px; margin-bottom: 10px; }
@@ -910,7 +901,6 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
   .migration-story h2 { max-width: 26ch; }
   .reuse-grid > article { padding: 20px 0; }
   .reuse-grid > article + article { border-left: 0; border-top: 1px solid var(--line); }
-  .motion-hint { flex-basis: 100%; margin: 2px 0 0; }
   .offline-grid h2, .question-card h2 { min-height: 0; }
   .offline-grid .comparison-card > p:not(.small-note) { min-height: 0; }
   .stage-layout.flow-stage { grid-template-columns: minmax(0, 1fr); }
@@ -957,9 +947,6 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
   .phase { padding: 21px; }
   .phase-number, .phase > small:first-child { margin-bottom: 11px; }
   .flow-controller { padding: 17px; }
-  .flow-controls, .flow-actions { gap: 7px; }
-  .flow-controller .btn { min-height: 44px; padding: 10px 12px; font-size: 12px; }
-  .flow-controller .btn.primary { flex-grow: 1; }
   .step-story { padding-top: 17px; }
   .step-description { font-size: 13px; }
   .scenario-switch { align-items: stretch; }
@@ -1128,7 +1115,7 @@ body.reduce-motion *, body.reduced-motion *, body.motion-reduced * { animation: 
 @media print {
   body { background: white; color: #111; font-size: 11pt; }
   .app-shell { display: block; }
-  .sidebar, .topbar, .footer-nav, .flow-controls, .flow-actions, .toolbar, .node-list, dialog { display: none !important; }
+  .sidebar, .topbar, .footer-nav, .toolbar, .node-list, dialog { display: none !important; }
   .chapter { padding: 0; max-width: none; }
   .chapter-title { font-size: 26pt; }
   .stage-layout { grid-template-columns: minmax(0, 1fr) 220px; }

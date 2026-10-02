@@ -44,7 +44,7 @@ Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`.
 | Capítulo | Punto de entrada |
 | --- | --- |
 | [Ecosistema](index.html#mapa) | Comienza en Vista general. Las pestañas Repositorios, Peticiones y Evidencia permiten cambiar de perspectiva; solo se muestra un panel a la vez. |
-| [Venta](index.html#venta) | Historia de una venta, con accesos a sus [llamadas](index.html#mapa?flujo=sale), [registro AX](index.html#mapa?flujo=sync) y [tablas](index.html#datos?flujo=D01). |
+| [Venta](index.html#venta) | Historia de una venta: los botones numerados permiten elegir cada paso. Incluye accesos a sus [llamadas](index.html#mapa?flujo=sale), [registro AX](index.html#mapa?flujo=sync) y [tablas](index.html#datos?flujo=D01). |
 | [Datos](index.html#datos) | Comienza por [maestros D03](index.html#datos?flujo=D03). El selector ofrece también venta/DTE, envío AX, cliente y NC; cada recorrido enlaza sus llamadas. |
 | [Offline](index.html#offline) | Laboratorio de pérdida de WAN y casos límite. La LAN y el escritor de sucursal permanecen disponibles en el ejemplo. |
 | [Propuesta](index.html#propuesta) | Decisiones, comparación con lo actual y reutilización de core/devops-platform, con fichas y fuentes. Abre, cuando haga falta, [venta local](index.html#propuesta?flujo=proposed-sale) o [entrega ERP](index.html#propuesta?flujo=proposed-erp). |

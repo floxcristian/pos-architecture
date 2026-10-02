@@ -18,7 +18,7 @@
   ];
   const mapViews = [{id:'general',label:'Vista general'},{id:'repositorios',label:'Repositorios'},{id:'peticiones',label:'Peticiones'},{id:'evidencia',label:'Evidencia'}];
   const mediaMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const state = {chapter:'mapa', mapView:'general', selected:'localdb', dataMode:'masters', compare:0, country:'CL', providerCase:'printer', providerChanged:false, rfidCase:'checkout', rfidReads:0, rfidSeen:[], rfidConfirmed:false, aiCase:'procedures', aiNetwork:'online', aiEvidence:true, flowStep:0, running:false, timer:null, presenting:false, reduced:mediaMotion.matches, offline:0, replay:false, answers:{}};
+  const state = {chapter:'mapa', mapView:'general', selected:'localdb', dataMode:'masters', compare:0, country:'CL', providerCase:'printer', providerChanged:false, rfidCase:'checkout', rfidReads:0, rfidSeen:[], rfidConfirmed:false, aiCase:'procedures', aiNetwork:'online', aiEvidence:true, flowStep:0, presenting:false, reduced:mediaMotion.matches, offline:0, replay:false, answers:{}};
   const flowDefs = {
     sale: [
       {title:'La persona prepara la venta', text:'La interfaz recoge el cliente, los productos y el medio de pago. En el flujo actual hay consultas remotas: preparar una venta no prueba autonomía offline.', nodes:['ui','backend'], states:['En preparación','Sin resultado','Pendiente de envío']},
@@ -59,7 +59,7 @@
   function nodeList(ids, title='Más piezas del ecosistema') { return `<details class="node-list"><summary>${title}</summary><div class="tag-list">${ids.map(id=>`<button class="tag" data-component="${id}">${esc(C.components[id]?.title || id)}</button>`).join('')}</div></details>`; }
   function flowBlock(key) {
     const def = flowDefs[key];
-    return `<section class="flow-controller" aria-label="Control del recorrido"><div class="flow-actions">${button('▶ Reproducir','flow-play','','primary')}${button('Siguiente paso →','flow-next')}${button('Reiniciar','flow-reset','','secondary small')}<span class="motion-hint">${state.reduced?'Movimiento reducido · avance manual disponible':'La animación avanza cada 6 segundos'}</span></div><div class="step-track" aria-label="Elegir paso">${def.map((s,i)=>`<button class="step-dot" data-flow-step="${i}" aria-label="Paso ${i+1}: ${esc(s.title)}" aria-pressed="false">${i+1}</button>`).join('')}</div><div class="step-story" aria-live="polite" aria-atomic="true"><span class="step-count" id="step-count"></span><div><h2 class="step-title" id="step-title"></h2><p class="step-description" id="step-description"></p></div></div>${key==='sale'?'<div class="state-strip" id="flow-states"></div>':''}</section>`;
+    return `<section class="flow-controller" aria-label="Control del recorrido"><div class="step-track" role="group" aria-label="Elegir paso">${def.map((s,i)=>`<button class="step-dot" data-flow-step="${i}" aria-label="Paso ${i+1}: ${esc(s.title)}" aria-pressed="false">${i+1}</button>`).join('')}</div><div class="step-story" aria-live="polite" aria-atomic="true"><span class="step-count" id="step-count"></span><div><h2 class="step-title" id="step-title"></h2><p class="step-description" id="step-description"></p></div></div>${key==='sale'?'<div class="state-strip" id="flow-states"></div>':''}</section>`;
   }
   function providerModule() {
     return `<section class="provider-module" aria-labelledby="provider-title"><div class="section-heading"><span class="eyebrow">PROVEEDORES Y DISPOSITIVOS / PROPUESTA</span><h2 id="provider-title">Cambiar una pieza sin rehacer el POS.</h2><p>Distintas aplicaciones de facturación, impresoras y terminales pueden compartir contratos del producto. El esfuerzo depende de lo que ya esté probado.</p></div><div class="provider-scenarios" role="group" aria-label="Ejemplo de cambio de proveedor o dispositivo">${C.providerScenarios.map(c=>`<button data-provider-case="${c.id}" aria-pressed="${state.providerCase===c.id}" aria-controls="provider-case"><span>${c.number}</span>${esc(c.label)}</button>`).join('')}</div><div id="provider-case" class="provider-case" role="region" aria-labelledby="provider-case-title"></div><details class="provider-map"><summary>Ver cómo se conectan los contratos, perfiles y adaptadores</summary>${diagram('providers','Extensibilidad / responsabilidades','Propuesta · selecciona una pieza para entender su límite')}<p class="small-note">La sucursal sigue siendo el escritor del negocio. La aplicación local del PC accede al hardware; no crea una segunda autoridad de venta. El adaptador fiscal puede operar local o remotamente según su integración.</p></details><p class="provider-scope">Ejemplos hipotéticos: no acreditan modelos homologados ni compatibilidad universal. ${sourceLink({label:'Criterios y matriz por proveedor',url:'../docs/extensibilidad-proveedores-dispositivos.md'})}</p></section>`;
@@ -154,7 +154,7 @@
       if(state.mapView==='repositorios')openLinkedRepository(params.get('repo'));
       return;
     }
-    stopFlow();state.chapter=chapter.id;state.flowStep=0;state.mapView=mapView;
+    state.chapter=chapter.id;state.flowStep=0;state.mapView=mapView;
     state.selected=({mapa:'ui',venta:'backend',datos:state.dataMode==='masters'?'mpos':'clientapi',propuesta:'edge'})[state.chapter] || null;
     render();
     if(focus){$('.chapter-title').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
@@ -203,7 +203,6 @@
   }
   function selectComponent(id, user = false) {
     if (!C.components[id]) return;
-    if (user && state.running) { stopFlow(); updateFlow(); }
     state.selected=id;
     if ($('#inspector')) {
       $('#inspector').innerHTML=componentHTML(id);
@@ -228,30 +227,18 @@
     });
   }
   function activeFlow() { return state.chapter==='venta'?'sale':state.chapter==='datos'?state.dataMode:null; }
-  function stopFlow() { clearInterval(state.timer); state.timer=null; state.running=false; }
   function updateFlow() {
     const key=activeFlow(); if(!key||!$('#step-title')) return;
-    $('.motion-hint').textContent=state.reduced?'Movimiento reducido · avance manual disponible':'La animación avanza cada 6 segundos';
     const steps=flowDefs[key],step=steps[state.flowStep];
     $('#step-count').textContent=`${String(state.flowStep+1).padStart(2,'0')} / ${String(steps.length).padStart(2,'0')}`;
     $('#step-title').textContent=step.title; $('#step-description').textContent=step.text;
     $$('[data-flow-step]').forEach(el=>el.setAttribute('aria-pressed',String(Number(el.dataset.flowStep)===state.flowStep)));
-    const play=$('[data-action="flow-play"]'); play.textContent=state.running?'Ⅱ Pausar':state.flowStep===steps.length-1?'↻ Volver a reproducir':'▶ Reproducir';play.setAttribute('aria-pressed',String(state.running));
-    $('[data-action="flow-next"]').disabled=state.flowStep===steps.length-1;
     $$('.diagram-canvas [data-node]').forEach(el=>{el.classList.toggle('is-active',step.nodes.includes(el.dataset.node));el.classList.toggle('is-dimmed',!step.nodes.includes(el.dataset.node));});
     const pairs=[step.nodes];
     if(key==='sale'&&state.flowStep===3)pairs.push(['branch','posting']);
     if(key==='masters'&&state.flowStep===1)pairs.push(['upstream','download']);
     $$('.diagram-canvas .flowchart-link').forEach(el=>el.classList.toggle('is-active',pairs.some(([a,b])=>el.id.startsWith(`L_${a}_${b}_`)||el.id.startsWith(`L_${b}_${a}_`))));
-    $$('.diagram-canvas').forEach(el=>el.classList.toggle('is-running',state.running&&!state.reduced));
     if (step.states) $('#flow-states').innerHTML=['Venta local','Documento fiscal','Integración ERP'].map((label,i)=>`<div><span>${label}</span><strong>${esc(step.states[i])}</strong></div>`).join('');
-  }
-  function nextFlow() { const flow=flowDefs[activeFlow()]; if(!flow)return; if(state.flowStep<flow.length-1)state.flowStep++; if(state.flowStep===flow.length-1)stopFlow();updateFlow(); }
-  function toggleFlow() {
-    if(state.running){stopFlow();updateFlow();return;}
-    const flow=flowDefs[activeFlow()]; if(!flow)return;
-    if(state.flowStep===flow.length-1)state.flowStep=0;
-    state.running=true;updateFlow();state.timer=setInterval(nextFlow,6000);
   }
   const labSteps=[
     {title:'Todo comienza conectado.',desc:'Corta la conexión con el centro. La red local y la base de la sucursal seguirán disponibles en este ejemplo.',action:'1. Cortar Internet'},
@@ -312,7 +299,7 @@
     });
     $('#quiz-score').textContent=`${correct} de ${C.questions.length} resueltas`;
   }
-  function openModal(title, html) { stopFlow();updateFlow();$('#modal-title').textContent=title;$('#modal-body').innerHTML=html;const modal=$('#modal');if(!modal.open)modal.showModal();$('#modal-body').scrollTop=0; }
+  function openModal(title, html) { updateFlow();$('#modal-title').textContent=title;$('#modal-body').innerHTML=html;const modal=$('#modal');if(!modal.open)modal.showModal();$('#modal-body').scrollTop=0; }
   function renderGlossary(query='') {
     const norm=v=>v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const terms=C.glossary.filter(t=>norm(t.term+' '+t.definition).includes(norm(query)));
     $('#glossary-results').innerHTML=terms.length?terms.map(t=>`<article class="glossary-item"><h3 class="term">${esc(t.term)}</h3><p>${esc(t.definition)}</p><p class="term-example">${esc(t.example)}</p></article>`).join(''):'<p>No hay coincidencias. Prueba con otra palabra.</p>';
@@ -320,7 +307,7 @@
   }
   function glossary(query='') {openModal('Un glosario para seguir la conversación',`<label class="search-label" for="glossary-search">Buscar un concepto</label><input id="glossary-search" type="search" placeholder="Por ejemplo: outbox, ERP, ACL…" autocomplete="off" value="${esc(query)}"><p id="glossary-count" class="small-note" role="status"></p><div class="glossary-list" id="glossary-results"></div>`);renderGlossary(query);$('#glossary-search').focus();}
   function sources() {openModal('Fuentes, evidencia y alcance',`<p>${esc(C.meta.scope)}</p><p>${esc(C.meta.evidenceNote)}</p><h3>Cómo leer las etiquetas</h3><div class="evidence-list">${Object.entries(C.statusLabels).map(([s,t])=>`<div>${badge(s)}<span>${esc({code:'Revisión de versiones concretas de los repositorios.',reported:'Antecedente proporcionado por el equipo o presentación.',proposed:'Diseño objetivo o candidato, todavía por validar.',pending:'Falta evidencia suficiente para afirmarlo.',historical:'Referencia conservada, sin asumir que siga operativa.'}[s])}</span></div>`).join('')}</div><h3>Documentación del proyecto</h3><ul class="source-list">${C.sourceIndex.map(s=>`<li>${sourceLink(s)}</li>`).join('')}</ul><p class="small-note">Los documentos se abren en una nueva pestaña. Las fuentes del repositorio contienen referencias por commit. No se ejecutaron servicios corporativos para construir este tutorial.</p><h3>Imagen original de Chile</h3><a href="../docs/referencias/arquitectura-actual-chile.png" target="_blank" rel="noopener"><img class="source-image" src="../docs/referencias/arquitectura-actual-chile.png" alt="Imagen histórica de la arquitectura de caja en Chile, con presentación, servicios, integración y ERP"></a><p class="small-note">Se conserva como antecedente. Instacheck ya no opera según la aclaración del equipo.</p>`);}
-  function help() {openModal('Cómo usar POS Atlas',`<div class="help-grid"><div><h3>Para presentar</h3><p>Activa <strong>Modo exposición</strong> para ampliar el contenido. La pantalla completa se activa por separado. Usa las flechas del teclado para cambiar de capítulo.</p><h3>Para explorar</h3><p>Selecciona una aplicación o base para abrir su ficha. Los controles permiten pausar, reiniciar o elegir cualquier paso de los recorridos.</p></div><div><h3>Teclado</h3><dl class="shortcuts"><dt>← / →</dt><dd>Capítulo anterior / siguiente</dd><dt>G</dt><dd>Glosario</dd><dt>P</dt><dd>Modo exposición</dd><dt>Espacio</dt><dd>Reproducir / pausar un recorrido, fuera de controles</dd><dt>Esc</dt><dd>Cerrar la ventana de ayuda o salir del modo exposición</dd></dl></div></div><label class="motion-toggle"><input type="checkbox" id="motion-toggle" ${state.reduced?'checked':''}> Reducir movimiento de los diagramas</label><p class="small-note">Se respeta la preferencia del sistema. Nada avanza automáticamente al abrir un capítulo; la reproducción siempre la inicias tú.</p><div class="notice">El laboratorio es una explicación interactiva, no una prueba del POS. No envía información ni ejecuta ventas reales.</div>`);}
+  function help() {openModal('Cómo usar POS Atlas',`<div class="help-grid"><div><h3>Para presentar</h3><p>Activa <strong>Modo exposición</strong> para ampliar el contenido. La pantalla completa se activa por separado. Usa las flechas del teclado para cambiar de capítulo.</p><h3>Para explorar</h3><p>Selecciona una aplicación o base para abrir su ficha. Los controles permiten pausar, reiniciar o elegir cualquier paso de los recorridos.</p></div><div><h3>Teclado</h3><dl class="shortcuts"><dt>← / →</dt><dd>Capítulo anterior / siguiente</dd><dt>G</dt><dd>Glosario</dd><dt>P</dt><dd>Modo exposición</dd><dt>Esc</dt><dd>Cerrar la ventana de ayuda o salir del modo exposición</dd></dl></div></div><label class="motion-toggle"><input type="checkbox" id="motion-toggle" ${state.reduced?'checked':''}> Reducir movimiento de los diagramas</label><p class="small-note">Se respeta la preferencia del sistema. Nada avanza automáticamente al abrir un capítulo; la reproducción siempre la inicias tú.</p><div class="notice">El laboratorio es una explicación interactiva, no una prueba del POS. No envía información ni ejecuta ventas reales.</div>`);}
   function togglePresent() {state.presenting=!state.presenting;document.body.classList.toggle('presenting',state.presenting);const b=$('[data-action="present"]');b.setAttribute('aria-pressed',String(state.presenting));b.textContent=state.presenting?'Salir de exposición':'Modo exposición';notify(state.presenting?'Modo exposición: usa ← y → para navegar. P vuelve al modo exploración.':'Modo exploración activado.');}
   function chapterOffset(n) {const idx=chapters.findIndex(c=>c.id===state.chapter);if(chapters[idx+n])setHash(chapters[idx+n].id);}
   async function action(name,el) {
@@ -335,9 +322,6 @@
       case 'close-modal':$('#modal').close();break;
       case 'present':togglePresent();break;
       case 'fullscreen':try {if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else notify('Pantalla completa no disponible en este navegador. Puedes usar F11.');}catch{notify('El navegador no permitió pantalla completa. Puedes usar F11.');}break;
-      case 'flow-play':toggleFlow();break;
-      case 'flow-next':stopFlow();nextFlow();break;
-      case 'flow-reset':stopFlow();state.flowStep=0;updateFlow();break;
       case 'offline-next':state.offline=(state.offline+1)%6;state.replay=false;updateOffline();break;
       case 'offline-reset':state.offline=0;state.replay=false;updateOffline();break;
       case 'offline-replay':state.replay=true;updateOffline();announce('Reenvío reconocido: un solo registro central.');break;
@@ -355,8 +339,8 @@
     else if(el.dataset.action) action(el.dataset.action,el);
     else if(el.dataset.chapter) setHash(el.dataset.chapter);
     else if(el.dataset.component) selectComponent(el.dataset.component,true);
-    else if(el.dataset.flowStep!==undefined){stopFlow();state.flowStep=Number(el.dataset.flowStep);updateFlow();}
-    else if(el.dataset.dataMode){stopFlow();state.dataMode=el.dataset.dataMode;state.flowStep=0;state.selected=state.dataMode==='masters'?'mpos':'clientapi';render();$('.df-original-context').open=true;$(`[data-data-mode="${state.dataMode}"]`).focus({preventScroll:true});}
+    else if(el.dataset.flowStep!==undefined){state.flowStep=Number(el.dataset.flowStep);updateFlow();}
+    else if(el.dataset.dataMode){state.dataMode=el.dataset.dataMode;state.flowStep=0;state.selected=state.dataMode==='masters'?'mpos':'clientapi';render();$('.df-original-context').open=true;$(`[data-data-mode="${state.dataMode}"]`).focus({preventScroll:true});}
     else if(el.dataset.compare!==undefined){state.compare=Number(el.dataset.compare);updateComparison();}
     else if(el.dataset.country){state.country=el.dataset.country;updateCountry();}
     else if(el.dataset.providerCase){state.providerCase=el.dataset.providerCase;updateProviderCase();announce(C.providerScenarios.find(c=>c.id===state.providerCase).title);}
@@ -390,10 +374,7 @@
     if(e.target.closest('button,a,[role="button"],summary'))return;
     if(e.key==='ArrowRight'){e.preventDefault();chapterOffset(1);}
     if(e.key==='ArrowLeft'){e.preventDefault();chapterOffset(-1);}
-    if(e.key===' '&&activeFlow()&&(state.chapter!=='datos'||$('.df-original-context')?.open)){e.preventDefault();toggleFlow();}
   });
-  document.addEventListener('toggle',e=>{if(e.target.matches('.df-original-context')&&!e.target.open){stopFlow();updateFlow();}},true);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){stopFlow();updateFlow();}});
   document.addEventListener('fullscreenchange',()=>{$('[data-action="fullscreen"]').setAttribute('aria-label',document.fullscreenElement?'Salir de pantalla completa':'Pantalla completa');});
   window.addEventListener('hashchange',()=>navigate(location.hash.slice(1)));
   mediaMotion.addEventListener('change',e=>{state.reduced=e.matches;document.body.classList.toggle('reduce-motion',state.reduced);updateFlow();});
