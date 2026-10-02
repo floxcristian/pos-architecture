@@ -43,11 +43,11 @@ window.POS_CONTENT = {
     },
     "rfidsession": {
       "title": "Sesión de lectura RFID",
-      "subtitle": "Distinguir observaciones, tags y candidatos",
+      "subtitle": "Agrupar lecturas y reconocer etiquetas repetidas",
       "kind": "process",
       "place": "Aplicación de captura",
       "status": "proposed",
-      "description": "Agrupa las observaciones de una sesión y reconoce la repetición del mismo identificador. Conserva candidatos para revisión, sin añadir cada observación directamente al carrito.",
+      "description": "Reúne las lecturas de una revisión de productos, desde su inicio hasta su cierre. Si el lector detecta varias veces la misma etiqueta, la reconoce por su código y la muestra una sola vez para revisar qué producto o empaque identifica antes de añadirlo al carrito.",
       "responsibilities": [
         "Deduplicar por identidad en la sesión, no por SKU; conciliar revisiones del conjunto sin volver a sumar lo ya vinculado.",
         "Separar lecturas desconocidas, inconsistentes o fuera de zona para resolución.",
@@ -1558,9 +1558,9 @@ window.POS_CONTENT = {
       "example": "Dos tags asociados a SKU-A pueden representar dos unidades, si ese mapeo está validado; no se deduplican por el SKU."
     },
     {
-      "term": "Sesión de lectura",
-      "definition": "Ámbito identificado que reúne observaciones de una zona y permite resolver repeticiones y excepciones antes de proponer una acción.",
-      "example": "Cinco observaciones pueden corresponder a tres etiquetas únicas; aún falta validar su mapeo y revisar la selección."
+      "term": "Sesión de lectura RFID",
+      "definition": "Es un período con inicio y fin durante el que se agrupan las lecturas de un lector RFID, por ejemplo al revisar productos en caja o contar existencias en una zona. Una misma etiqueta puede ser detectada varias veces durante ese período.",
+      "example": "Ejemplo didáctico: el lector detecta A, B, A, C y B. Son cinco detecciones de tres etiquetas distintas. Antes de usarlas en una venta o conteo, se revisa qué producto o empaque identifica cada etiqueta."
     },
     {
       "term": "RAG",
