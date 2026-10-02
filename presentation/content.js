@@ -653,9 +653,13 @@ window.POS_CONTENT = {
         "Pedir al backend local las operaciones de negocio.",
         "Comunicarse con las aplicaciones locales de impresión y conexión con el terminal de pago."
       ],
-      "offline": "Abrir la pantalla no basta: precios, carga del cliente, pagos y fiscalidad pueden necesitar servicios remotos.",
+      "offline": "Los clientes están en PostgreSQL de la sucursal y la búsqueda usa esa copia. Al cargar su ficha se intenta actualizarla en línea; un fallo puede interrumpir la carga. El precio también se consulta en línea.",
       "tech": [],
       "sources": [
+        {
+          "label": "Datos locales y conexiones: clientes, pagos y facturación",
+          "url": "../docs/contraste-apuntes-operacion-chile.md#9-datos-locales-y-conexiones-de-clientes-pagos-y-facturación"
+        },
         {
           "label": "Código de Mountain",
           "url": "../docs/analisis-repositorios/mountain-implementos.md"
@@ -697,7 +701,7 @@ window.POS_CONTENT = {
       "kind": "db",
       "place": "Sucursal",
       "status": "code",
-      "description": "Conserva ventas, pagos, turnos, copias de maestros y datos del sincronizador. La existencia de esta base es una ventaja de la arquitectura actual.",
+      "description": "Conserva clientes sincronizados, ventas, pagos, turnos y otros datos de consulta de la sucursal, además de los mensajes del sincronizador.",
       "responsibilities": [
         "Guardar las operaciones locales aunque AX todavía no las registre.",
         "Mantener datos de consulta y trabajo de la sucursal.",
@@ -919,13 +923,17 @@ window.POS_CONTENT = {
         "Conservar el resultado y la referencia del documento.",
         "Resolver reintentos sin crear otro documento para la misma operación."
       ],
-      "offline": "La posibilidad de emitir en contingencia depende del país, proveedor y modalidad autorizada. La arquitectura no concede automáticamente permiso fiscal offline.",
+      "offline": "El backend llama al facturador por HTTP o SOAP. Si se pierde la respuesta, la venta puede quedar guardada sin confirmación del DTE. Falta confirmar dónde opera el facturador de cada tienda y qué admite cuando se corta Internet.",
       "tech": [
         "DTE en Chile",
         "Acepta / Ingydev según antecedentes",
         "Adaptador fiscal por país propuesto"
       ],
       "sources": [
+        {
+          "label": "Datos locales y conexiones: clientes, pagos y facturación",
+          "url": "../docs/contraste-apuntes-operacion-chile.md#9-datos-locales-y-conexiones-de-clientes-pagos-y-facturación"
+        },
         {
           "label": "Orden de commit y DTE",
           "url": "../docs/analisis-repositorios/mountain-implementos.md"
@@ -952,7 +960,7 @@ window.POS_CONTENT = {
         "Coordinar la comunicación con el terminal de pago.",
         "Devolver resultados que permitan distinguir aceptación, finalización y fallo."
       ],
-      "offline": "Imprimir localmente puede ser posible; cobrar con tarjeta depende de lo permitido por el adquirente. Un timeout de pago requiere verificar el intento antes de cobrar otra vez.",
+      "offline": "La aplicación solicita el cobro al terminal y espera su autorización. Falta confirmar si el terminal usa la red de la tienda o una conexión propia, y cómo se comporta cuando se corta Internet. Si no llega la respuesta, hay que verificar el cobro antes de repetirlo.",
       "tech": [
         "Servicio Windows",
         ".NET Framework",
@@ -960,6 +968,10 @@ window.POS_CONTENT = {
         "Aplicación de conexión con Transbank"
       ],
       "sources": [
+        {
+          "label": "Datos locales y conexiones: clientes, pagos y facturación",
+          "url": "../docs/contraste-apuntes-operacion-chile.md#9-datos-locales-y-conexiones-de-clientes-pagos-y-facturación"
+        },
         {
           "label": "API de impresión",
           "url": "../docs/analisis-repositorios/api-impresion-caja.md"
