@@ -235,7 +235,7 @@ button.step-dot:hover { background: #e6eee7; border-color: #95b5a2; }
 .phase-number, .phase > small:first-child { display: block; color: var(--teal-dark); font: 12px "Cascadia Code", Consolas, monospace; margin-bottom: 17px; }
 .phase h3 { font-size: 16px; margin-bottom: 9px; }
 .phase p { color: var(--muted); font-size: 12px; line-height: 1.65; }
-.reuse-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+.reuse-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
 .reuse-grid > * { min-width: 0; padding: 22px; border: 1px solid var(--line); border-radius: 13px; background: white; }
 .reuse-grid h3 { margin-bottom: 12px; font-size: 17px; }
 .reuse-grid p, .reuse-grid ul { color: var(--muted); font-size: 13px; }

@@ -1,4 +1,4 @@
-/* Offline UI QA for the nine-repository map; never contacts corporate services. */
+/* Offline UI QA for the eight-repository map; never contacts corporate services. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),{pathToFileURL}=require('node:url');
 const root=path.resolve(__dirname,'..'),qa=path.join(root,'qa'),url=pathToFileURL(path.join(root,'index.html')).href+'#mapa';
@@ -11,9 +11,9 @@ async function main(){
   const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce',offline:true});
   page.on('pageerror',e=>report.errors.push(e.message));page.on('request',r=>{if(!r.url().startsWith('file:')&&!r.url().startsWith('data:'))report.external.push(r.url());});
   await page.goto(url);const data=await page.evaluate(()=>window.POS_REPOSITORIES);
-  assert.equal(data.repositories.length,9);assert.equal(data.connections.length,13);
-  assert.equal(await page.locator('.repo-node').count(),6);assert.equal(await page.locator('#repo-references [data-repository]').count(),3);
-  assert.equal(await page.locator('#repo-connection option').count(),13);
+  assert.equal(data.repositories.length,8);assert.equal(data.connections.length,11);
+  assert.equal(await page.locator('.repo-node').count(),6);assert.equal(await page.locator('#repo-references [data-repository]').count(),2);
+  assert.equal(await page.locator('#repo-connection option').count(),11);
   const actual=data.connections.filter(c=>[c.from,c.to].every(id=>data.repositories.find(r=>r.id===id).role==='runtime'));
   async function geometry(context){
    const out=await page.evaluate(()=>{
@@ -55,7 +55,7 @@ async function main(){
    await page.locator('.repo-viewport').screenshot({path:path.join(qa,'repositories-100-'+width+'.png')});
    await page.locator('[data-repo-zoom]').click();assert.equal(await page.locator('[data-repo-zoom]').innerText(),'100 %');
   }
-  report.checks.push('26 selecciones de conexión y 18 fichas por teclado, fuentes exactas, nombres completos y límites; modal Escape devuelve el foco.');
+  report.checks.push('22 selecciones de conexión y 16 fichas por teclado, fuentes exactas, nombres completos y límites; modal Escape devuelve el foco.');
   // Full-map badges must be directly reachable, including the route over the middle top card.
   await page.setViewportSize({width:1440,height:1000});
   for(const connection of actual){const b=page.locator('button[data-repo-edge="'+connection.id+'"]');await b.focus();await page.keyboard.press('Enter');assert.equal(await page.locator('#repo-connection').inputValue(),connection.id);assert.equal(await page.evaluate(()=>document.activeElement.dataset.repoEdge),connection.id);}

@@ -360,4 +360,4 @@ En este checkout de análisis, `node tools/check-source-evidence.cjs` verifica l
 
 ## Ampliación: repositorios y concentrador central
 
-El [mapa de nueve repositorios](docs/mapa-repositorios-y-conexiones.md) incorpora **mountain-concentrador** con nombre y unidades internas. La presentación permite inspeccionar cada repositorio y conexión; los recorridos de subida y maestros incluyen endpoints, tablas y fuentes centrales. [Auditoría y consecuencias para la arquitectura](docs/analisis-repositorios/mountain-concentrador.md).
+El [mapa de repositorios de software](docs/mapa-repositorios-y-conexiones.md) incorpora **mountain-concentrador** con nombre y unidades internas. La presentación permite inspeccionar cada repositorio y conexión; los recorridos de subida y maestros incluyen endpoints, tablas y fuentes centrales. [Auditoría y consecuencias para la arquitectura](docs/analisis-repositorios/mountain-concentrador.md).

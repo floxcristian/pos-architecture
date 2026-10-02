@@ -826,7 +826,7 @@ window.POS_CONTENT = {
           "url": "../docs/analisis-repositorios/mountain-concentrador.md"
         },
         {
-          "label": "Mapa de los nueve repositorios",
+          "label": "Mapa de repositorios del POS y la plataforma",
           "url": "../docs/mapa-repositorios-y-conexiones.md"
         }
       ]
@@ -2026,12 +2026,6 @@ window.POS_CONTENT = {
       "use": "Acciones reutilizables para construir, verificar y desplegar servicios centrales.",
       "limit": "Corregir y verificar las brechas encontradas. Actualizar cajas Windows, firmar y recuperar una instalación exige un flujo específico.",
       "status": "Código y consumo revisados; no homologado para tiendas"
-    },
-    {
-      "name": "integration-presentations",
-      "use": "Vocabulario corporativo, intención arquitectónica y material formativo.",
-      "limit": "Una lámina no demuestra una garantía. Sus ejemplos y promesas deben contrastarse con contratos, implementación y pruebas.",
-      "status": "Documentación de referencia"
     }
   ],
   "sourceIndex": [

@@ -6,7 +6,7 @@ Revisión estática: **2 de octubre de 2026**. Se cruzó este repositorio con lo
 
 Este repositorio contiene gran parte del tramo que antes aparecía como «bus central»: APIs y secuencias WSO2/Synapse, servicios de datos DSS, mediadores Java, una API Node de lectura de maestros y un consumidor Node del broker. **No es la aplicación `backend-concentrador` de `mountain-implementos`**: esa aplicación administra mensajes y solicita reintentos. El broker tampoco equivale a todos estos procesos.
 
-El [mapa de los nueve repositorios](../mapa-repositorios-y-conexiones.md) muestra cada nombre, sus unidades y sus conexiones. En la presentación, el mapa permite seleccionar repositorios y relaciones; los recorridos de sincronización y maestros descomponen después los componentes, endpoints y tablas.
+El [mapa de repositorios de software](../mapa-repositorios-y-conexiones.md) muestra cada nombre, sus unidades y sus conexiones. En la presentación, el mapa permite seleccionar repositorios y relaciones; los recorridos de sincronización y maestros descomponen después los componentes, endpoints y tablas.
 
 ### Qué significa concentrador
 

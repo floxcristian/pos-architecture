@@ -119,7 +119,7 @@ Ocho recorridos separan seis casos actuales de dos contratos propuestos. El mapa
 
 Se aplicó la búsqueda específica de ui-ux-pro-max «keyboard focus zoom diagrams», que devolvió guías de foco visible y no oculto. Se conserva el sistema visual existente, sin añadir dependencias remotas. La reproducción es voluntaria, se pausa al navegar/inspeccionar y respeta movimiento reducido. Los recuentos de piezas y relaciones describen el material del visor, no exhaustividad del sistema ni topología productiva.
 
-El mapa de repositorios usa `repositories-data.js` y muestra nueve nombres: seis repositorios operativos y tres antecedentes corporativos. No se inventan vínculos de ejecución para core, devops-platform o integration-presentations. La fuente central predeterminada Pablo es de 2023; los contratos compatibles con clientes de 2026 no prueban despliegue.
+El mapa de repositorios usa `repositories-data.js` y muestra ocho nombres: seis repositorios operativos y dos de plataforma corporativa, core y devops-platform. No se inventan vínculos de ejecución de la caja hacia ellos. integration-presentations se conserva únicamente como fuente de ideas en la documentación de análisis; queda fuera de las tarjetas, conexiones y explicaciones del tutorial. La fuente central predeterminada Pablo es de 2023; los contratos compatibles con clientes de 2026 no prueban despliegue.
 
 ## Nivel visible: aplicaciones, llamadas y datos
 

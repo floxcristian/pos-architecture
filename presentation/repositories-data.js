@@ -304,34 +304,6 @@ window.POS_REPOSITORIES = {
         }
       ],
       "boundary": "Referencia principal main fd423a6f… de 2026; core también usa pins distintos según workflow. No acredita un actualizador Windows/sucursal, distribución offline o rollback de esquema. No es un intermediario entre una venta y AX."
-    },
-    {
-      "id": "integration-presentations",
-      "name": "integration-presentations",
-      "role": "documentation",
-      "summary": "Material de formación sobre plataforma de integración, módulos, ACL, mensajería y entrega; sirve para explicar y contrastar decisiones.",
-      "units": [
-        {
-          "name": "Presentaciones, SVG y generadores",
-          "runtime": "Markdown / Mermaid / Reveal y scripts de documentación",
-          "zone": "Documentación; no runtime POS"
-        }
-      ],
-      "sources": [
-        {
-          "label": "integration-presentations/README.md:1-58",
-          "url": "https://github.com/developer-implementos/integration-presentations/blob/f96fd2d810b528517af75acea048b339beb2c284/README.md#L1-L58"
-        },
-        {
-          "label": "integration-presentations/presentations/architecture/enterprise-integration-platform-detailed.md:846-876",
-          "url": "https://github.com/developer-implementos/integration-presentations/blob/f96fd2d810b528517af75acea048b339beb2c284/presentations/architecture/enterprise-integration-platform-detailed.md#L846-L876"
-        },
-        {
-          "label": "Contraste de láminas con core y devops-platform",
-          "url": "../docs/analisis-repositorios/integration-presentations.md"
-        }
-      ],
-      "boundary": "Snapshot main f96fd2d8… de 2026. Las láminas describen y proponen; no prueban que lo dibujado esté instalado ni que el POS ya tenga sus garantías. No se cuenta como séptima aplicación operacional."
     }
   ],
   "connections": [
@@ -546,46 +518,6 @@ window.POS_REPOSITORIES = {
         {
           "label": "core/.github/workflows/deploy.yml:1684-1684",
           "url": "https://github.com/developer-implementos/core/blob/f43688abeda81d9935744c74994691df28dd6b1a/.github/workflows/deploy.yml#L1684-L1684"
-        }
-      ]
-    },
-    {
-      "id": "repo-doc-core",
-      "from": "integration-presentations",
-      "to": "core",
-      "label": "Referencia · arquitectura y módulos",
-      "detail": "Las láminas sirven para contrastar monolito modular, fachadas/ACL y contratos con código posterior de core. La flecha es documental: no conecta cajas a core ni certifica las garantías presentadas.",
-      "certainty": "reference",
-      "sources": [
-        {
-          "label": "integration-presentations/presentations/architecture/enterprise-integration-platform-detailed.md:846-876",
-          "url": "https://github.com/developer-implementos/integration-presentations/blob/f96fd2d810b528517af75acea048b339beb2c284/presentations/architecture/enterprise-integration-platform-detailed.md#L846-L876"
-        },
-        {
-          "label": "core/apps/sync-worker/src/erp-adapters/erp-adapters.module.ts:150-199",
-          "url": "https://github.com/developer-implementos/core/blob/f43688abeda81d9935744c74994691df28dd6b1a/apps/sync-worker/src/erp-adapters/erp-adapters.module.ts#L150-L199"
-        },
-        {
-          "label": "Naturaleza formativa y contraste selectivo",
-          "url": "../docs/analisis-repositorios/integration-presentations.md"
-        }
-      ]
-    },
-    {
-      "id": "repo-doc-delivery",
-      "from": "integration-presentations",
-      "to": "devops-platform",
-      "label": "Referencia · entrega corporativa",
-      "detail": "Se contrastan ideas de CI/CD y operación con acciones reales de la plataforma. El material de capacitación no es un paquete de instalación del POS ni demuestra entrega/rollback offline en sucursales.",
-      "certainty": "reference",
-      "sources": [
-        {
-          "label": "Lectura de CI/CD, resiliencia y límites",
-          "url": "../docs/analisis-repositorios/integration-presentations.md"
-        },
-        {
-          "label": "devops-platform/.github/actions/deploy-cloud-run/action.yml:375-533",
-          "url": "https://github.com/developer-implementos/devops-platform/blob/fd423a6f2f4955bd650ee6aebba154d93c0425b8/.github/actions/deploy-cloud-run/action.yml#L375-L533"
         }
       ]
     }

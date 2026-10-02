@@ -2,6 +2,8 @@
 
 Actualizado: **2 de octubre de 2026**. Inventario estático transversal de los **nueve repositorios entregados**: seis aportan código del ecosistema POS actual y tres son precedentes corporativos o material de formación. El nuevo repositorio `mountain-concentrador` permite localizar piezas antes pendientes: API de lectura, procesador Node de cola, mediadores Java y artefactos WSO2.
 
+La arquitectura y la presentación muestran **ocho repositorios de software**: los seis del POS y core/devops-platform. `integration-presentations` se conserva en este inventario de fuentes solo como material del que se extrajeron ideas; queda fuera de los diagramas, tarjetas y conexiones del tutorial.
+
 **Repositorio, aplicación, base y servidor no son equivalentes.** Un repositorio puede contener varias aplicaciones y bibliotecas. La evidencia identifica código y contratos compatibles; no determina qué commit, CAR, DLL, script, recurso de registry o configuración está instalado hoy. Los informes anteriores que decían “no localizado” describían el alcance de los cinco repositorios iniciales; este mapa incorpora la nueva fuente sin atribuirle producción.
 
 No se ejecutaron aplicaciones, scripts de los repositorios, migraciones ni pruebas corporativas. No se accedió a bases, ERPs, periféricos ni endpoints privados. Las fuentes se fijan por SHA/rango y no se reproducen credenciales ni orígenes de servicios.
@@ -67,13 +69,10 @@ flowchart TB
         AP -->|"ApiCarro: consulta SQL de URL DTE"| PGC
         MC -.->|"Registry WSO2 a API .NET: compatible"| AP
     end
-    subgraph REF["Tres precedentes — no insertar en el camino de venta actual"]
+    subgraph REF["Plataforma corporativa — uso en el POS actual por confirmar"]
         CO["core<br/>Nx / NestJS / Fastify / módulos / workers"]
         DV["devops-platform<br/>acciones de CI/CD"]
-        IP["integration-presentations<br/>formación y arquitectura"]
         CO -->|"Workflows consumen acciones por SHA"| DV
-        IP -.->|"Referencia documental"| CO
-        IP -.->|"Referencia documental"| DV
     end
 ```
 
@@ -131,9 +130,8 @@ El diagrama separa responsabilidades; **no prueba durabilidad por el solo nombre
 | WSO2 → API .NET → AX | Secuencia de venta → endpoint de registry → receptor `creaFacturaOvFromPos`. | El recurso localizado es de QA; prefijo, despliegue activo y ejecución AX no se presumen. |
 | ApiCarro → PostgreSQL central | Lee `mensaje_detalles`, `mensaje_detalle_sucursales`, `tipo_mensajes`, `entidades` y `UrlDte`. | Consulta documental, no registro de venta ni llamada REST a api-lectura. |
 | core → devops-platform | Workflows fijan SHA de acciones. | Dependencia de CI/CD; no tráfico operacional de la caja. |
-| integration-presentations → precedentes | Láminas contrastadas con código de core/devops. | Relación documental; no llamada entre aplicaciones. |
 
-En el [dataset para la presentación](../presentation/repositories-data.js), `code` significa implementación observada, nunca prueba de producción; `compatible`, encaje estático con binding pendiente; `reported`, relación informada que requeriría contraste; y `reference`, vínculo conceptual/documental. La versión inicial contiene 13 relaciones: dos de código, nueve compatibles y dos de referencia. **Los vínculos de la franja de precedentes no deben dibujarse como tráfico POS**, incluso el de CI que sí tiene evidencia de código.
+En el [dataset para la presentación](../presentation/repositories-data.js), `code` significa implementación observada, nunca prueba de producción; `compatible`, encaje estático con binding pendiente; y `reported`, relación informada que requeriría contraste. Se muestran once relaciones entre repositorios de software. **La dependencia CI/CD entre core y devops-platform no debe dibujarse como tráfico de una venta**, aunque sí tiene evidencia de código.
 
 ## 5. Qué cambia para la arquitectura propuesta
 

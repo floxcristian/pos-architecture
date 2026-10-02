@@ -99,7 +99,7 @@ Cada fila remite a evidencias fijadas al commit en el documento indicado. Esta m
 | [APIs corporativas](analisis-repositorios/apis-implementos.md): nueve proyectos web/tres bibliotecas; WCF/SQL; precios Mongo/AX; ApiCarro→concentrador; respuestas parciales. | `axapi`/`pricing`: **resumen**; V01 y rutas seleccionadas: **detalle**; inventario completo por **enlace**. | Contrato parecido no demuestra el binding productivo del consumidor. Conservar proyectos ajenos al POS y despliegues no confirmados. |
 | [Core](analisis-repositorios/core.md): Nx/Nest/Fastify, módulos/workers, outbox transaccional acotada, fallos de retry/identidad, precios remotos y recomendaciones. | Cap. 5/6/7: **resumen**. Pruebas por ruta y límites: **enlace**. | Conservar qué se reutiliza y qué debe adaptarse; no declarar offline ni atomicidad universal porque exista una biblioteca. |
 | [DevOps](analisis-repositorios/devops-platform.md): SHAs consumidos, canary, escaneo, caché, secretos, artefactos y límites para Windows. | Tarjeta `devops-platform`: **resumen**; hallazgos y gates: **enlace**. | Acceso directo al informe y a criterios de adopción; distinguir entrega central de instalación/rollback en tiendas. |
-| [Presentaciones corporativas](analisis-repositorios/integration-presentations.md): intención DDD/ACL/eventos; promesas de exactly-once, cero cambios y métricas no demostradas. | Tarjeta: **resumen**. Contraste detallado: **enlace**. | Identificar este repositorio como documentación, no implementación. Evitar presentar sus cifras como objetivos acordados. |
+| [Presentaciones corporativas](analisis-repositorios/integration-presentations.md): fuente de ideas y contraste documental. | **Fuera de la presentación**, por indicación del usuario. El informe se conserva como antecedente del análisis. | No mostrarlo como componente, candidato a reutilización ni conexión de la arquitectura. Sus cifras tampoco son objetivos acordados. |
 
 ### Casos técnicos que no deben reducirse a una flecha
 
@@ -200,7 +200,7 @@ El [manual de mantenimiento](../presentation/README.md#verificar) reúne comando
 
 | Evidencia nueva | Documento | Presentación | Límite |
 | --- | --- | --- | --- |
-| Nueve repositorios y trece relaciones | [Mapa cruzado](mapa-repositorios-y-conexiones.md) | Mapa interactivo inicial de Ecosistema; fichas con unidades y fuentes. | Seis repos operativos y tres precedentes; no es inventario físico. |
+| Ocho repositorios de software y once relaciones | [Mapa cruzado](mapa-repositorios-y-conexiones.md) | Mapa interactivo inicial de Ecosistema; fichas con unidades y fuentes. | Seis repos operativos y dos de plataforma corporativa; no es inventario físico. Las fuentes de ideas se conservan aparte en la documentación. |
 | Ingreso, cola, Java, .NET y respuesta AX | [Auditoría de ingreso](analisis-repositorios/mountain-concentrador-ingreso.md) | Recorrido sync, V03 y D02 ampliados. | Consumidores alternativos y commits separados; despliegue sin validar. |
 | MPOS, lotes, acuses y recuperación | [Auditoría de maestros](analisis-repositorios/mountain-concentrador-maestros.md) | Recorrido masters, D03, fichas y endpoints actualizados. | Productor AX→MPOS, SP/DDL y job diario pendientes. |
 | Decisión de evolución WSO2 | [Síntesis central](analisis-repositorios/mountain-concentrador.md) | Fuentes enlazadas desde mapa y componentes. | El inventario exhaustivo de SQL/mediadores permanece en los informes. |

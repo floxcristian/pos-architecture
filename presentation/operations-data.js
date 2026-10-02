@@ -242,7 +242,7 @@ window.POS_OPERATIONS = {
       "id": "O04",
       "chapter": "evolucion",
       "title": "Actualizar sin perder operaciones pendientes",
-      "evidenceNote": "Se releyeron core, devops-platform e integration-presentations en sus snapshots auditados. El despliegue observado de Cloud Run no acredita un instalador de sucursal. Las garantías objetivo son criterios de adopción para POS; no nuevos incidentes ni reapertura de decisiones del repositorio core.",
+      "evidenceNote": "Se releyeron core y devops-platform en sus snapshots auditados. El despliegue observado de Cloud Run no acredita un instalador de sucursal. Las garantías objetivo son criterios de adopción para POS; no nuevos incidentes ni reapertura de decisiones del repositorio core.",
       "sources": [
         {
           "label": "Nest con adaptador Fastify",
