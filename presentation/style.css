@@ -1202,3 +1202,21 @@ body.reduce-motion *, body.reduced-motion *, body.motion-reduced * { animation: 
 .related-reading > strong { font-size:14px; }
 .related-reading > div { display:flex; flex-wrap:wrap; gap:8px; }
 #dataflow-explorer { scroll-margin-top:85px; }
+
+/* Keep native select behavior, with a consistent inset for the chevron. */
+select:not([multiple]):not([size]) {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2317302d' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 7.5 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px 16px;
+}
+@media (forced-colors: active) {
+  select:not([multiple]):not([size]) {
+    -webkit-appearance: auto;
+    appearance: auto;
+    background-image: none;
+  }
+}
