@@ -95,19 +95,78 @@ async function main(){
   async function geometry(p,context){
    const errors=await p.evaluate(()=>{
     const out=[];if(document.documentElement.scrollWidth>innerWidth+1)out.push('document overflow');
-    for(const el of document.querySelectorAll('.ix-node,.ix-group-head,.ix-seq-node,.ix-seq-group,.ix-edge-label'))if(el.scrollHeight>el.clientHeight+3)out.push((el.dataset.ixNode||el.dataset.ixEdge||el.textContent.trim().slice(0,45))+' content '+el.scrollHeight+'/'+el.clientHeight);
-    const sequenceNodes=[...document.querySelectorAll('.ix-seq-node')],flow=window.POS_INTERACTIONS_VIEW.all().find(f=>f.id===document.querySelector('#ix-flow').value);
+    for(const el of document.querySelectorAll('.ix-node,.ix-group-head,.ix-seq-group,.ix-edge-label,.ix-seq-tables'))if(el.scrollHeight>el.clientHeight+3)out.push((el.dataset.ixNode||el.dataset.ixEdge||el.textContent.trim().slice(0,45))+' content '+el.scrollHeight+'/'+el.clientHeight);
+    const sequence=document.querySelector('[data-ix-mode="sequence"]').getAttribute('aria-pressed')==='true',flow=window.POS_INTERACTIONS_VIEW.all().find(f=>f.id===document.querySelector('#ix-flow').value);
     for(const el of document.querySelectorAll('.ix-node strong,.ix-node-subtitle,.ix-group-head,.ix-seq-node strong,.ix-seq-group')){const names=el.textContent.match(/\b(?:[A-Za-z_$][\w$]*(?:Controller|Services?|Repository|Mediator)|Class[A-Z]\w*|(?:SEQ|TP|MS|MP)_[A-Za-z0-9_]+)\b/g);if(names)out.push('implementation identifier on canvas: '+names.join(', '));}
     const intersects=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1;
-    [...document.querySelectorAll('.ix-wire-line')].forEach((el,i)=>{
+    const participant=id=>{const node=flow.nodes.find(n=>n.id===id);return node.kind==='table'?'tables:'+node.group:node.id;};
+    const headers=[...document.querySelectorAll('.ix-seq-group[data-ix-participant]')],lifelines=[...document.querySelectorAll('.ix-lifeline[data-ix-participant]')];
+    if(sequence){
+     const band=document.querySelector('.ix-seq-headers'),viewport=document.querySelector('.ix-viewport'),surface=document.querySelector('.ix-surface');
+     let headerOffset=0;
+     if(!band)out.push('sequence header band missing');
+     else{
+      const transform=new DOMMatrixReadOnly(getComputedStyle(band).transform),scale=new DOMMatrixReadOnly(getComputedStyle(surface).transform).a;
+      headerOffset=transform.m42*scale;
+      const bandHeight=band.getBoundingClientRect().height,pinned=bandHeight<=Math.min(viewport.clientHeight/2,viewport.clientHeight-100);
+      if(pinned&&Math.abs(band.getBoundingClientRect().top-viewport.getBoundingClientRect().top-viewport.clientTop)>2)out.push('sequence headers must remain at viewport top when room permits');
+      if(!pinned&&Math.abs(headerOffset)>1)out.push('oversized sequence headers must scroll normally');
+      if(headerOffset+bandHeight>surface.getBoundingClientRect().height+1)out.push('sequence header translation extends beyond diagram');
+     }
+     // Sticky headers intentionally cover past rows. Check the original layout,
+     // before the header-band translation, for unintended label/header overlap.
+     const originalHeaderRect=header=>{const r=header.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top-headerOffset,bottom:r.bottom-headerOffset};};
+     if(document.querySelector('.ix-seq-node'))out.push('sequence repeats participant cards');
+     const expected=new Set(flow.nodes.map(n=>participant(n.id)));
+     if(headers.length!==expected.size||lifelines.length!==expected.size)out.push('sequence participant/header/lifeline count differs');
+     for(const id of expected){if(headers.filter(h=>h.dataset.ixParticipant===id).length!==1)out.push(id+' must have one header');if(lifelines.filter(l=>l.dataset.ixParticipant===id).length!==1)out.push(id+' must have one lifeline');}
+     for(let i=0;i<headers.length;i++)for(let j=i+1;j<headers.length;j++)if(intersects(headers[i].getBoundingClientRect(),headers[j].getBoundingClientRect()))out.push('sequence headers overlap');
+     const labels=[...document.querySelectorAll('.ix-surface .ix-edge-label')];
+     for(let i=0;i<labels.length;i++){
+      const r=labels[i].getBoundingClientRect();
+      for(const header of headers)if(intersects(r,originalHeaderRect(header)))out.push(labels[i].dataset.ixEdge+' sequence label overlaps header');
+      for(let j=i+1;j<labels.length;j++)if(intersects(r,labels[j].getBoundingClientRect()))out.push(labels[i].dataset.ixEdge+' sequence labels overlap');
+     }
+    }
+    [...document.querySelectorAll('.ix-wire-line')].forEach(el=>{
      const d=el.getAttribute('d'),b=el.getBBox(),s=el.ownerSVGElement;
      if(/NaN|undefined/.test(d)||b.x<-1||b.y<-1||b.x+b.width>Number(s.getAttribute('width'))+1||b.y+b.height>Number(s.getAttribute('height'))+1)out.push('invalid/outside path '+d);
-     const wire=el.closest('[data-ix-wire]'),edge=flow.edges.find(e=>e.id===wire.dataset.ixWire),target=sequenceNodes.length?sequenceNodes[i*2+1]:document.querySelector('.ix-surface [data-ix-node="'+edge.to+'"]');
-     if(target){const pt=el.getPointAtLength(el.getTotalLength()),ctm=el.getScreenCTM(),p=new DOMPoint(pt.x,pt.y).matrixTransform(ctm),r=target.getBoundingClientRect(),dx=Math.max(r.left-p.x,0,p.x-r.right),dy=Math.max(r.top-p.y,0,p.y-r.bottom);if(dx>15*Math.abs(ctm.a)+1||dy>2)out.push(edge.id+' arrow misses receiving component ('+dx.toFixed(1)+','+dy.toFixed(1)+')');}
-     if(sequenceNodes.length){const from=sequenceNodes[i*2].getBoundingClientRect(),to=sequenceNodes[i*2+1].getBoundingClientRect(),label=wire.querySelector('button').getBoundingClientRect();if(intersects(from,to))out.push(edge.id+' sequence participants overlap');if(intersects(from,label)||intersects(to,label))out.push(edge.id+' sequence label overlaps participant');}
+     const wire=el.closest('[data-ix-wire]'),edge=flow.edges.find(e=>e.id===wire.dataset.ixWire);
+     if(sequence){
+      const fromId=participant(edge.from),toId=participant(edge.to),start=el.getPointAtLength(0),end=el.getPointAtLength(el.getTotalLength());
+      for(const [id,pt,side] of [[fromId,start,'source'],[toId,end,'target']]){
+       const line=lifelines.find(l=>l.dataset.ixParticipant===id);
+       if(!line){out.push(edge.id+' missing '+side+' lifeline');continue;}
+       const a=line.getPointAtLength(0),z=line.getPointAtLength(line.getTotalLength());
+       if(Math.abs(pt.x-a.x)>1||pt.y<a.y-1||pt.y>z.y+1)out.push(edge.id+' '+side+' misses participant lifeline');
+      }
+      if(fromId===toId){if(end.y<=start.y+1||b.width<=1)out.push(edge.id+' self-call must return lower on its lifeline');}
+      else if(Math.abs(start.y-end.y)>1||Math.abs(start.x-end.x)<=1)out.push(edge.id+' distinct participants must have a horizontal connector');
+     }else{
+      const target=document.querySelector('.ix-surface [data-ix-node="'+edge.to+'"]');
+      if(target){const pt=el.getPointAtLength(el.getTotalLength()),ctm=el.getScreenCTM(),p=new DOMPoint(pt.x,pt.y).matrixTransform(ctm),r=target.getBoundingClientRect(),dx=Math.max(r.left-p.x,0,p.x-r.right),dy=Math.max(r.top-p.y,0,p.y-r.bottom);if(dx>15*Math.abs(ctm.a)+1||dy>2)out.push(edge.id+' arrow misses receiving component ('+dx.toFixed(1)+','+dy.toFixed(1)+')');}
+     }
     });
     return out;
    });for(const e of errors)report.layoutProblems.push(context+': '+e);
+  }
+  async function sequenceCenter(p,context){
+   await p.locator('[data-ix-center]').click();
+   await p.waitForFunction(()=>{
+    const band=document.querySelector('.ix-seq-headers'),viewport=document.querySelector('.ix-viewport');
+    if(!band)return false;
+    const pinned=band.getBoundingClientRect().height<=Math.min(viewport.clientHeight/2,viewport.clientHeight-100);
+    return pinned?Math.abs(band.getBoundingClientRect().top-viewport.getBoundingClientRect().top-viewport.clientTop)<=2:Math.abs(new DOMMatrixReadOnly(getComputedStyle(band).transform).m42)<=1;
+   });
+   const result=await p.evaluate(()=>{
+    const viewport=document.querySelector('.ix-viewport'),band=document.querySelector('.ix-seq-headers'),step=document.querySelector('[data-ix-step][aria-pressed="true"]').dataset.ixStep;
+    const selected=document.querySelector('[data-ix-seq-step="'+step+'"] .ix-edge-label[aria-pressed="true"]');
+    const maxScroll=viewport.scrollHeight-viewport.clientHeight;
+    const bandRect=band.getBoundingClientRect(),viewTop=viewport.getBoundingClientRect().top+viewport.clientTop,pinned=bandRect.height<=Math.min(viewport.clientHeight/2,viewport.clientHeight-100);
+    return {exists:Boolean(selected),clamped:maxScroll-viewport.scrollTop<=2,labelTop:selected?.getBoundingClientRect().top,contentTop:pinned?bandRect.bottom:viewTop};
+   });
+   assert.ok(result.exists,context+' selected sequence label missing');
+   if(!result.clamped)assert.ok(result.labelTop>=result.contentTop-2,context+' centering must place selected call in the readable area');
   }
   for(const f of flows){
    await open(page,f);assert.equal(await page.locator('[data-ix-step]').count(),f.steps.length);assert.equal(await page.locator('[data-ix-play]').isDisabled(),true);
@@ -131,12 +190,28 @@ async function main(){
    }
    await page.locator('[data-ix-mode="all"]').click();assert.equal(await page.locator('.ix-surface [data-ix-node]').count(),f.nodes.length);await geometry(page,f.id+'/all');
    for(const n of f.nodes){const button=page.locator('.ix-surface [data-ix-node="'+n.id+'"]');await button.focus();await page.keyboard.press('Enter');assert.equal(await page.locator('#ix-detail h3').innerText(),n.title);await implementation(page,n,true);await sources(page,n.sources);}
-   await page.locator('[data-ix-mode="sequence"]').click();assert.equal(await page.locator('.ix-surface .ix-edge-label').count(),f.steps.reduce((n,s)=>n+s.edges.length,0));await geometry(page,f.id+'/sequence');
+   await page.locator('[data-ix-mode="sequence"]').click();assert.equal(await page.locator('.ix-surface .ix-edge-label').count(),f.steps.reduce((n,s)=>n+s.edges.length,0));await sequenceCenter(page,f.id+'/sequence');await geometry(page,f.id+'/sequence');
+   const header=page.locator('.ix-seq-group[data-ix-node]').first(),headerId=await header.getAttribute('data-ix-node'),headerNode=f.nodes.find(n=>n.id===headerId);
+   const beforeHeaderFocus=await page.locator('.ix-viewport').evaluate(el=>({top:el.scrollTop,pinned:document.querySelector('.ix-seq-headers').getBoundingClientRect().height<=Math.min(el.clientHeight/2,el.clientHeight-100)}));
+   await header.focus();
+   if(beforeHeaderFocus.pinned)assert.ok(Math.abs(await page.locator('.ix-viewport').evaluate(el=>el.scrollTop)-beforeHeaderFocus.top)<=1,f.id+' focusing pinned header must preserve vertical position');
+   await page.keyboard.press('Enter');assert.equal(await page.locator('#ix-detail h3').innerText(),headerNode.title);await sources(page,headerNode.sources);
+   assert.ok(await header.evaluate(el=>getComputedStyle(el).outlineStyle!=='none'&&parseFloat(getComputedStyle(el).outlineWidth)>0),'Sequence header focus must be visible');
+   await page.locator('[data-ix-return]').click();
+   const tableEdge=f.edges.find(e=>[e.from,e.to].some(id=>f.nodes.find(n=>n.id===id).kind==='table'));
+   if(tableEdge){
+    const stepIndex=f.steps.findIndex(s=>s.edges.includes(tableEdge.id));await page.locator('[data-ix-step="'+stepIndex+'"]').click();
+    const edgeButton=page.locator('.ix-surface button[data-ix-edge="'+tableEdge.id+'"]').first();await edgeButton.focus();await page.keyboard.press('Enter');await detail(page,tableEdge);
+    const tableNode=f.nodes.find(n=>n.kind==='table'&&[tableEdge.from,tableEdge.to].includes(n.id));
+    await page.locator('#ix-detail [data-ix-node="'+tableNode.id+'"]').focus();await page.keyboard.press('Enter');assert.equal(await page.locator('#ix-detail h3').innerText(),tableNode.title);await sources(page,tableNode.sources);
+    await page.locator('[data-ix-return]').click();await detail(page,tableEdge);
+   }
    if(!await page.locator('.ix-relations').evaluate(el=>el.open))await page.locator('.ix-relations > summary').click();const e=f.edges.at(-1);await page.locator('[data-ix-relation="'+e.id+'"]').click();await detail(page,e);
    const flowHash=new URL(page.url()).hash;
    await page.locator('.ix-viewport').focus();await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowLeft');assert.equal(new URL(page.url()).hash,flowHash);
   }
   report.checks.push('Todos los pasos/conexiones: ficha y fuentes, selección de nodos por teclado, relaciones reutilizadas, tres modos y flechas sin cambiar capítulo.');
+  report.checks.push('Secuencia: una cabecera fija y línea de vida por participante, centrado debajo de las cabeceras, tablas agrupadas por base, conectores sobre origen/destino, bucles solo para autollamadas y acceso por teclado a cabeceras y tablas desde la ficha de conexión.');
   await open(page,flows.find(f=>f.id==='proposed-sale'));
   await page.locator('[data-ix-expand]').focus();await page.keyboard.press('Enter');assert.equal(await page.locator('dialog.ix-expanded').evaluate(el=>el.open),true);
   await page.keyboard.press('Escape');await page.locator('dialog.ix-expanded').waitFor({state:'detached'});assert.equal(await page.locator('dialog.ix-expanded').count(),0);assert.equal(await page.evaluate(()=>document.activeElement.hasAttribute('data-ix-expand')),true);
@@ -154,16 +229,42 @@ async function main(){
    for(const f of flows){
     await open(page,f);
     for(const mode of modes){
-     await page.locator('[data-ix-mode="'+mode+'"]').click();await geometry(page,f.id+'/'+mode+'/'+width+'x'+height);report.responsiveViews++;assert.ok((await page.locator('.ix-viewport').boundingBox()).width<=width);
+     await page.locator('[data-ix-mode="'+mode+'"]').click();if(mode==='sequence')await sequenceCenter(page,f.id+'/'+mode+'/'+width+'x'+height);await geometry(page,f.id+'/'+mode+'/'+width+'x'+height);report.responsiveViews++;assert.ok((await page.locator('.ix-viewport').boundingBox()).width<=width);
      if([1440,390].includes(width)&&mode==='step'){
       await page.locator('[data-ix-zoom="fit"]').click();await page.locator('.ix-board').screenshot({path:path.join(qa,'interactions-'+f.id+'-default-'+width+'.png')});
       await page.locator('[data-ix-zoom="100"]').click();await page.locator('.ix-board').screenshot({path:path.join(qa,'interactions-'+f.id+'-100-'+width+'.png')});
      }
      if([1440,390].includes(width)&&mode==='sequence'&&f.id==='proposed-erp')await page.locator('.ix-board').screenshot({path:path.join(qa,'interactions-sequence-'+width+'.png')});
+     if([1440,390].includes(width)&&mode==='sequence'&&['sale','sync'].includes(f.id)){
+      await page.locator('[data-ix-zoom="fit"]').click();await page.locator('.ix-board').screenshot({path:path.join(qa,'interactions-sequence-'+f.id+'-'+width+'.png')});
+      if(f.id==='sync'){
+       const selfEdge=f.edges.find(e=>e.from===e.to),stepIndex=f.steps.findIndex(s=>s.edges.includes(selfEdge.id));await page.locator('[data-ix-step="'+stepIndex+'"]').click();await page.locator('#ix-call').selectOption(selfEdge.id);await page.locator('[data-ix-zoom="100"]').click();await sequenceCenter(page,f.id+'/sequence-self/'+width);await geometry(page,f.id+'/sequence-self/'+width);
+       await page.locator('.ix-board').screenshot({path:path.join(qa,'interactions-sequence-self-'+width+'.png')});
+      }
+     }
     }
    }
   }
   report.checks.push(report.responsiveViews+' vistas responsive: ocho flujos, tres modos, seis tamaños; medidas de texto y geometría SVG.');
+  await page.setViewportSize({width:844,height:390});
+  const shortFlow=flows.find(f=>f.id==='sync');await open(page,shortFlow);await page.locator('[data-ix-mode="sequence"]').click();await page.locator('[data-ix-zoom="100"]').click();
+  for(let i=0;i<5;i++)await page.locator('[data-ix-zoom="in"]').click();
+  assert.equal(norm(await page.locator('#ix-scale').innerText()),'175 %');
+  const shortViewport=await page.locator('.ix-viewport').evaluate(el=>({height:el.clientHeight,scrollHeight:el.scrollHeight,bandHeight:document.querySelector('.ix-seq-headers').getBoundingClientRect().height}));
+  assert.ok(shortViewport.bandHeight>Math.min(shortViewport.height/2,shortViewport.height-100),'Short viewport must exercise non-pinned headers');
+  for(let i=0;i<5;i++){
+   const height=await page.locator('.ix-viewport').evaluate(async el=>{el.scrollTop=el.scrollHeight;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));return el.scrollHeight;});
+   assert.equal(height,shortViewport.scrollHeight,'Repeated scrolling must not increase diagram scroll height');
+  }
+  const shortEdge=shortFlow.edges.find(e=>e.from===e.to),shortStep=shortFlow.steps.findIndex(s=>s.edges.includes(shortEdge.id));
+  await page.locator('[data-ix-step="'+shortStep+'"]').click();await page.locator('#ix-call').selectOption(shortEdge.id);await sequenceCenter(page,'short-viewport-175');await geometry(page,'short-viewport-175');
+  const centeredShort=await page.evaluate(()=>{
+   const viewport=document.querySelector('.ix-viewport'),step=document.querySelector('[data-ix-step][aria-pressed="true"]').dataset.ixStep,label=document.querySelector('[data-ix-seq-step="'+step+'"] .ix-edge-label[aria-pressed="true"]').getBoundingClientRect(),top=viewport.getBoundingClientRect().top+viewport.clientTop;
+   return {fits:label.height<=viewport.clientHeight-24,top:label.top,bottom:label.bottom,viewTop:top,viewBottom:top+viewport.clientHeight};
+  });
+  if(centeredShort.fits)assert.ok(centeredShort.top>=centeredShort.viewTop-2&&centeredShort.bottom<=centeredShort.viewBottom+2,'A fitting selected label must be visible in short viewport at 175%');
+  await page.locator('.ix-board').screenshot({path:path.join(qa,'interactions-sequence-short-175.png')});
+  report.checks.push('Cabeceras con espacio suficiente conservan posición al enfocarlas. En 844×390 al 175 %, las cabeceras grandes dejan espacio a las flechas, el scroll no crece y centrar muestra la etiqueta seleccionada cuando cabe.');
   const navigation=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});record(navigation);
   async function assertMapTab(p,id,focused=false){
    const tab=p.locator('[data-map-view="'+id+'"]');

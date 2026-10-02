@@ -37,9 +37,9 @@
     function groupHead(group) {
       return `<span>${esc(zones[group.zone]||group.zone)}</span><h4>${esc(group.title)}</h4>`;
     }
-    function labelHTML(e,i,maxWidth) {
+    function labelHTML(e,i,maxWidth,tableContext='') {
       const uncertain=e.certainty==='unknown'||e.certainty==='reported';
-      return `<button xmlns="http://www.w3.org/1999/xhtml" class="ix-edge-label" data-ix-edge="${esc(e.id)}" aria-pressed="${state.edge===e.id}" style="max-width:${maxWidth}px"><span>${i+1} · ${esc(e.protocol)}</span><strong>${esc(e.label)}</strong>${uncertain?'<em>POR CONFIRMAR</em>':''}</button>`;
+      return `<button xmlns="http://www.w3.org/1999/xhtml" class="ix-edge-label" data-ix-edge="${esc(e.id)}" aria-pressed="${state.edge===e.id}" aria-label="${esc(`${i+1} · ${e.protocol} · ${e.label}. ${nodeName(e.from)} → ${nodeName(e.to)}`)}" style="max-width:${maxWidth}px"><span>${i+1} · ${esc(e.protocol)}</span><strong>${esc(e.label)}</strong>${tableContext?`<small class="ix-seq-tables">${esc(tableContext)}</small>`:''}${uncertain?'<em>POR CONFIRMAR</em>':''}</button>`;
     }
     // Measure the actual styled text in one hidden batch before routing arrows.
     // Widths remain bounded for reading; heights are never guessed from a line count.
@@ -92,40 +92,50 @@
       }).join('');
       return {width,height,boxes,html:groupHTML+svg(paths,width,height)+nodes.map(node=>nodeHTML(node,boxes[node.id])).join(''),stepY:0};
     }
-    function wire(e,path,x,y,label,i) {
+    function wire(e,path,x,y,label,i,tableContext='') {
       const selected=state.edge===e.id, uncertain=e.certainty==='unknown'||e.certainty==='reported';
-      return `<g class="ix-wire ${selected?'ix-selected':''} ${uncertain?'ix-uncertain':''}" data-ix-wire="${esc(e.id)}"><path class="ix-wire-line" d="${path}" marker-end="url(#ix-arrow)"/><path class="ix-wire-hit" d="${path}" data-ix-edge="${esc(e.id)}"/><foreignObject x="${x-label.w/2}" y="${y-label.h/2}" width="${label.w}" height="${label.h+1}">${labelHTML(e,i,label.w)}</foreignObject></g>`;
+      return `<g class="ix-wire ${selected?'ix-selected':''} ${uncertain?'ix-uncertain':''}" data-ix-wire="${esc(e.id)}"><path class="ix-wire-line" d="${path}" marker-end="url(#ix-arrow)"/><path class="ix-wire-hit" d="${path}" data-ix-edge="${esc(e.id)}"/><foreignObject x="${x-label.w/2}" y="${y-label.h/2}" width="${label.w}" height="${label.h+1}">${labelHTML(e,i,label.w,tableContext)}</foreignObject></g>`;
     }
     function svg(paths,width,height) { return `<svg class="ix-wires" width="${width}" height="${height}" aria-label="Conexiones entre aplicaciones y datos"><defs><marker id="ix-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#087f70"/></marker></defs>${paths}</svg>`; }
     function sequenceLayout() {
-      const groups=state.flow.groups, col=312, width=48+groups.length*col, positions=Object.fromEntries(groups.map((g,i)=>[g.id,24+i*col+col/2]));
+      // Applications get their own lifeline; tables share their database's column.
+      const participantId=node=>node.kind==='table'?'tables:'+node.group:node.id;
+      const participants=state.flow.groups.flatMap(group=>{
+        const nodes=state.flow.nodes.filter(node=>node.group===group.id),tables=nodes.filter(node=>node.kind==='table');
+        return nodes.flatMap(node=>node.kind==='table'?(node===tables[0]?[{id:participantId(node),group,nodes:tables,title:group.title}]:[]):[{id:node.id,group,nodes:[node],title:node.title}]);
+      });
+      const col=312,width=48+participants.length*col,positions=Object.fromEntries(participants.map((p,i)=>[p.id,24+i*col+col/2]));
       const rows=state.flow.steps.flatMap((s,si)=>s.edges.map(id=>({edge:edge(id),step:si}))).filter(row=>row.edge);
-      const header=group=>`<span>${esc(zones[group.zone]||group.zone)}</span><h4>${esc(group.title)}</h4><small>${esc(group.repo)}</small>`;
-      const rowBox=(node,x,y,active=false)=>`<button class="ix-seq-node ${node.kind==='table'?'ix-table':''} ${active?'ix-active':''}" data-ix-node="${esc(node.id)}" aria-pressed="${state.node===node.id}" style="left:${x-120}px;top:${y}px;width:240px"><span>${esc(node.kind==='component'?'Aplicación':g(node.group).title)}</span><strong>${esc(node.title)}</strong></button>`;
+      const header=(p,height)=>{
+        const node=p.nodes.length===1?p.nodes[0]:null,tag=node?'button':'div';
+        return `<${tag} class="ix-seq-group" data-ix-participant="${esc(p.id)}" ${node?`data-ix-node="${esc(node.id)}" aria-pressed="${state.node===node.id}"`:''} style="left:${positions[p.id]-144}px;top:16px;width:288px;${height?'height:'+height+'px;':''}"><span>${esc(zones[p.group.zone]||p.group.zone)}</span><strong class="ix-seq-title">${esc(p.title)}</strong><small>${esc(p.group.repo)}</small></${tag}>`;
+      };
+      const tableContext=e=>{
+        const query=e.label.toLowerCase().replace(/[`"']/g,'');
+        return [...new Set([n(e.from),n(e.to)].filter(node=>node.kind==='table'&&!node.title.split(' · ').every(name=>query.includes(name.toLowerCase().replace(/\bpublic\./g,'')))).map(node=>node.title))].join(' → ');
+      };
+      const labelMax=e=>Math.min(520,Math.max(280,Math.abs(positions[participantId(n(e.from))]-positions[participantId(n(e.to))])-32));
       const measured=measure([
-        ...groups.map(group=>({id:'g:'+group.id,html:`<div class="ix-seq-group" style="width:288px">${header(group)}</div>`})),
-        ...state.flow.nodes.map(node=>({id:'n:'+node.id,html:rowBox(node,120,0)})),
-        ...rows.map((r,i)=>({id:'e:'+i,html:labelHTML(r.edge,i,n(r.edge.from).group===n(r.edge.to).group?300:520)}))
+        ...participants.map(p=>({id:'g:'+p.id,html:header(p)})),
+        ...rows.map((r,i)=>({id:'e:'+i,html:labelHTML(r.edge,i,labelMax(r.edge),tableContext(r.edge))}))
       ]);
-      const headerBottom=16+Math.max(...groups.map(group=>measured['g:'+group.id].h)), boxes={};
-      let nextY=headerBottom+20,stepY=nextY;
-      let html=groups.map(group=>`<div class="ix-seq-group" style="left:${positions[group.id]-144}px;top:16px;width:288px">${header(group)}</div>`).join('');
+      const headerHeight=Math.max(...participants.map(p=>measured['g:'+p.id].h)),headerBottom=16+headerHeight,boxes={};
+      let nextY=headerBottom+28,stepY=nextY;
+      const headerBand=headerBottom+12;
+      let html=`<div class="ix-seq-headers" style="height:${headerBand}px">${participants.map(p=>header(p,headerHeight)).join('')}</div>`;
       let paths='';
       rows.forEach((row,i)=>{
-        const e=row.edge,from=n(e.from),to=n(e.to),sx=positions[from.group],tx=positions[to.group],same=sx===tx;
-        const sign=tx>sx?1:-1,active=row.step===state.step,label=measured['e:'+i],a=measured['n:'+from.id],b=measured['n:'+to.id];
-        const y=nextY,nodeTop=y+label.h+12,rowH=Math.max(a.h,b.h);
-        const ay=same?nodeTop:nodeTop+(rowH-a.h)/2,by=same?ay+a.h+16:nodeTop+(rowH-b.h)/2;
-        const cy=ay+a.h/2,ty=by+b.h/2;
-        const route=same?`M ${sx+124} ${cy} H ${sx+148} V ${ty} H ${tx+124}`:`M ${sx+sign*124} ${cy} H ${tx-sign*124}`;
-        paths+=`<g data-ix-seq-step="${row.step}" class="${active?'ix-seq-active':'ix-seq-muted'}">${wire(e,route,same?sx:(sx+tx)/2,y+label.h/2,label,i)}</g>`;
-        html+=`<span class="ix-seq-number" style="top:${cy-8}px">${row.step+1}</span>`+rowBox(from,sx,ay,active)+rowBox(to,tx,by,active);
-        nextY=Math.max(ay+a.h,by+b.h)+24;
-        if(active){boxes[e.id]={x:Math.min(sx,tx)-130,y,w:Math.abs(tx-sx)+260,h:nextY-y};stepY=y;}
+        const e=row.edge,sx=positions[participantId(n(e.from))],tx=positions[participantId(n(e.to))],same=sx===tx;
+        const active=row.step===state.step,label=measured['e:'+i],y=nextY,cy=y+label.h+12,ty=cy+(same?24:0);
+        const route=same?`M ${sx} ${cy} H ${sx+96} V ${ty} H ${tx}`:`M ${sx} ${cy} H ${tx}`;
+        paths+=`<g data-ix-seq-step="${row.step}" class="${active?'ix-seq-active':'ix-seq-muted'}"><circle class="ix-seq-origin" cx="${sx}" cy="${cy}" r="3"/>${wire(e,route,same?sx:(sx+tx)/2,y+label.h/2,label,i,tableContext(e))}</g>`;
+        if(i===0||rows[i-1].step!==row.step)html+=`<span class="ix-seq-number" style="top:${cy-8}px">${row.step+1}</span>`;
+        nextY=ty+28;
+        if(active){if(!Object.keys(boxes).length)stepY=y;boxes[e.id]={x:Math.min(sx,tx)-144,y,w:Math.abs(tx-sx)+288,h:nextY-y};}
       });
       const height=nextY;
-      const lines=groups.map(group=>`<path class="ix-lifeline" d="M ${positions[group.id]} ${16+measured['g:'+group.id].h} V ${height-12}"/>`).join('');
-      return {width,height,boxes,html:html+svg(lines+paths,width,height),stepY};
+      const lines=participants.map(p=>`<path class="ix-lifeline" data-ix-participant="${esc(p.id)}" d="M ${positions[p.id]} ${headerBottom} V ${height-12}"/>`).join('');
+      return {width,height,boxes,html:html+svg(lines+paths,width,height),stepY,headerBand};
     }
     function renderDiagram() {
       if(!root.isConnected||!viewport.clientWidth)return;
@@ -140,14 +150,27 @@
       state.scale=state.zoom==='fit'?Math.min(1,available/dimensions.width):Number(state.zoom);
       surface.style.transform=`scale(${state.scale})`;size.style.width=dimensions.width*state.scale+'px';size.style.height=dimensions.height*state.scale+'px';
       viewport.style.setProperty('--ix-content-height',Math.ceil(dimensions.height*state.scale)+'px');
+      viewport.style.scrollPaddingTop='0px';
       $('#ix-scale').textContent=Math.round(state.scale*100)+' %';
       $$('[data-ix-zoom]').forEach(b=>{if(['fit','100'].includes(b.dataset.ixZoom))b.setAttribute('aria-pressed',String(b.dataset.ixZoom==='fit'?state.zoom==='fit':state.zoom===1));});
       if(center) centerStep();
+      pinSequenceHeaders();
+    }
+    function sequenceHeaderOffset() {
+      const height=(currentLayout.headerBand||0)*state.scale;
+      return height<=Math.min(viewport.clientHeight/2,viewport.clientHeight-100)?height:0;
+    }
+    function pinSequenceHeaders() {
+      const headers=$('.ix-seq-headers');
+      if(headers){
+        const offset=sequenceHeaderOffset()?Math.min(viewport.scrollTop/state.scale,dimensions.height-currentLayout.headerBand):0;
+        headers.style.transform=`translateY(${Math.max(0,offset)}px)`;
+      }
     }
     function centerStep() {
       if(state.mode==='sequence') {
         const selected=currentLayout.boxes[state.edge]||Object.values(currentLayout.boxes)[0];
-        viewport.scrollTop=state.step===0?0:Math.max(0,(selected?.y||currentLayout.stepY)*state.scale-80);
+        viewport.scrollTop=state.step===0?0:Math.max(0,(selected?.y||currentLayout.stepY)*state.scale-sequenceHeaderOffset()-24);
         viewport.scrollLeft=Math.max(0,((selected?.x||0)+(selected?.w||0)/2)*state.scale-viewport.clientWidth/2);
       } else if(state.mode==='all' && state.edge) {
         const e=edge(state.edge),a=currentLayout.boxes[e.from],b=currentLayout.boxes[e.to];
@@ -155,6 +178,7 @@
         viewport.scrollTop=bottom*state.scale<=viewport.clientHeight?0:Math.max(0,(top+bottom)/2*state.scale-viewport.clientHeight/2);
         viewport.scrollLeft=Math.max(0,(left+right)/2*state.scale-viewport.clientWidth/2);
       } else {viewport.scrollTop=0;viewport.scrollLeft=Math.max(0,(dimensions.width*state.scale-viewport.clientWidth)/2);}
+      pinSequenceHeaders();
     }
     function implementationHTML(nodes=[],edges=[],visible=null) {
       if(!nodes.length&&!edges.length)return '';
@@ -247,6 +271,7 @@
       }
     };
     root.addEventListener('click',onClick);
+    viewport.addEventListener('scroll',pinSequenceHeaders,{passive:true});
     $('#ix-flow').addEventListener('change',e=>{state.flow=flows.find(f=>f.id===e.target.value);renderFlow();});
     $('#ix-call').addEventListener('change',e=>{stop();state.edge=e.target.value;renderStep();$('#ix-call').focus({preventScroll:true});});
     const motion=()=>{if(reduced())stop();$('[data-ix-play]').disabled=reduced();$('[data-ix-play]').title=reduced()?'Movimiento reducido activo; usa los pasos manuales':'Avanza una conexión cada 6,5 segundos';};
@@ -276,7 +301,19 @@
     viewport.addEventListener('pointerdown',e=>{if(e.target.closest('button,a,[data-ix-edge]')||e.pointerType==='touch'||e.button!==0)return;drag={x:e.clientX,y:e.clientY,left:viewport.scrollLeft,top:viewport.scrollTop};viewport.setPointerCapture(e.pointerId);viewport.classList.add('ix-dragging');});
     viewport.addEventListener('pointermove',e=>{if(!drag)return;viewport.scrollLeft=drag.left-(e.clientX-drag.x);viewport.scrollTop=drag.top-(e.clientY-drag.y);});
     const release=()=>{drag=null;viewport.classList.remove('ix-dragging');};viewport.addEventListener('pointerup',release);viewport.addEventListener('pointercancel',release);
-    root.addEventListener('focusin',e=>{if(e.target.closest('.ix-surface')) e.target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});});
+    root.addEventListener('focusin',e=>{
+      const header=e.target.closest('.ix-seq-group');
+      if(header){
+        const bounds=header.getBoundingClientRect(),view=viewport.getBoundingClientRect();
+        if(bounds.left<view.left+12)viewport.scrollLeft-=view.left+12-bounds.left;
+        else if(bounds.right>view.right-12)viewport.scrollLeft+=bounds.right-view.right+12;
+      }else if(e.target.closest('.ix-surface')){
+        e.target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+        const bounds=e.target.getBoundingClientRect(),visibleTop=viewport.getBoundingClientRect().top+sequenceHeaderOffset()+16;
+        if(bounds.top<visibleTop)viewport.scrollTop-=visibleTop-bounds.top;
+        pinSequenceHeaders();
+      }
+    });
     dispose=()=>{stop();observer.disconnect();motionObserver.disconnect();cancelAnimationFrame(resizeFrame);library?.removeEventListener('toggle',onLibraryToggle);document.removeEventListener('pos:map-view',onMapView);document.removeEventListener('visibilitychange',onVisibility);media.removeEventListener('change',motion);if(dialog){dialog.removeEventListener('close',restoreExpanded);placeholder?.remove();dialog.remove();dialog=null;}};
     $$('[data-ix-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ixMode===state.mode)));
     renderFlow();motion();
