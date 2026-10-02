@@ -251,7 +251,6 @@ button.step-dot:hover { background: #e6eee7; border-color: #95b5a2; }
 /* Optional reading lives behind explicit controls. */
 .footer-nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
 .footer-nav .nav-progress, .footer-nav > p { color: var(--muted); font-size: 12px; text-align: center; }
-.bottom-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px; margin-top: 22px; color: var(--muted); font-size: 10px; line-height: 1.6; }
 dialog.modal { width: min(840px, calc(100vw - 40px)); max-height: calc(100dvh - 64px); padding: 0; border: 1px solid var(--line); border-radius: 18px; background: white; color: var(--ink); box-shadow: 0 24px 100px rgb(10 28 22 / 25%); overflow: auto; }
 dialog.modal::backdrop { background: rgb(13 32 25 / 50%); }
 .modal-header { position: sticky; top: 0; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 24px 28px; border-bottom: 1px solid var(--line); background: white; }
@@ -399,7 +398,6 @@ button.tag:hover { background: #dcecdf; border-color: #94b9a0; }
 .next-decisions li strong { color: var(--ink); }
 .next-decisions .tag-list { margin-top: 26px; gap: 10px; }
 .footer-nav > span { color: var(--muted); font-size: 11px; }
-.workspace > .bottom-bar { max-width: 1550px; margin: 0 auto; padding: 0 32px 24px; font-size: 10px; }
 .modal-body > h3 { margin: 28px 0 15px; font-size: 18px; }
 .evidence-list { display: grid; gap: 12px; margin: 19px 0 25px; }
 .evidence-list > div { display: grid; grid-template-columns: 155px minmax(0, 1fr); align-items: center; gap: 15px; }
@@ -971,7 +969,6 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
   .footer-nav { gap: 10px; flex-wrap: wrap; margin-top: 25px; padding-top: 19px; }
   .footer-nav .btn { font-size: 12px; min-height: 44px; }
   .footer-nav .nav-progress, .footer-nav > p { order: 3; width: 100%; margin: 5px 0 0; }
-  .bottom-bar { font-size: 10px; }
   dialog.modal { width: calc(100vw - 24px); max-height: calc(100dvh - 28px); border-radius: 14px; }
   .modal-header { padding: 20px; gap: 12px; }
   .modal-header h2 { font-size: 24px; }
@@ -1020,7 +1017,6 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
   .next-decisions .tag-list .btn { width: 100%; }
   .footer-nav > span { font-size: 10px; }
   .footer-nav > .btn { max-width: calc(50% - 16px); }
-  .workspace > .bottom-bar { padding-inline: 17px; }
   .help-grid, .modal-body > .source-list { grid-template-columns: 1fr; gap: 20px; }
   .evidence-list > div { grid-template-columns: 1fr; gap: 6px; }
   .toast { font-size: 12px; }
