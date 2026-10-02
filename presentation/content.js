@@ -1389,13 +1389,18 @@ window.POS_CONTENT = {
   "glossary": [
     {
       "term": "Esquema de base de datos",
-      "definition": "Espacio de nombres que permite distinguir tablas dentro de una base. El código puede nombrarlo explícitamente o depender de la configuración de conexión.",
-      "example": "Si una consulta usa documentos sin prefijo, no podemos añadir public. sin verificar cómo se resuelve ese nombre."
+      "definition": "En PostgreSQL, un esquema agrupa tablas dentro de una base de datos, parecido a una carpeta que agrupa archivos. Una base puede tener varios esquemas.",
+      "example": "Ejemplo didáctico: public.ventas significa «tabla ventas dentro del esquema public». public es el nombre del esquema y ventas es el nombre de la tabla."
     },
     {
       "term": "Tabla y colección",
-      "definition": "Una tabla organiza registros en una base relacional; una colección agrupa documentos en MongoDB. El nombre de un modelo de código no siempre identifica por sí solo el nombre físico.",
-      "example": "estadoNC es una colección declarada explícitamente en el modelo revisado; el alias de conexión no acredita el servidor productivo."
+      "definition": "Una tabla SQL, como las de PostgreSQL, organiza datos en filas y columnas. En MongoDB, una colección agrupa documentos: cada documento contiene campos y valores, y puede incluir listas y otros objetos.",
+      "example": "Una tabla SQL llamada documentos sigue teniendo filas y columnas: documentos es solo su nombre. Un documento de MongoDB es una entrada dentro de una colección."
+    },
+    {
+      "term": "Fila o registro",
+      "definition": "Una fila es una entrada de una tabla SQL, también llamada registro. Contiene los valores de las columnas de esa tabla.",
+      "example": "Ejemplo didáctico: en una tabla clientes, una fila podría tener id 7, nombre Ana y ciudad Santiago. id, nombre y ciudad son columnas; otra persona tendría otra fila."
     },
     {
       "term": "Frontera transaccional",

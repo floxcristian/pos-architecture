@@ -30,6 +30,8 @@ Los nombres, cabeceras y rótulos de diagramas se escriben directamente: «Servi
 
 ## Alcance del material didáctico
 
+El glosario se dirige a personas junior: cada entrada explica el concepto con palabras sencillas y un ejemplo concreto. Los ejemplos inventados se identifican como didácticos. Si se menciona un nombre como `documentos`, se aclara que es una tabla SQL; no se presupone que el lector conoce la diferencia entre tabla, fila, colección y documento MongoDB. Los detalles de auditoría —como comprobar el esquema o el servidor real— se mantienen en las fuentes técnicas, sin sustituir la explicación básica del término.
+
 Las preguntas son ejercicios de comprensión con respuesta explicada; no certifican preparación productiva. Las comparaciones preservan las ventajas existentes: base local, backend por sucursal y sincronización en segundo plano. Las propuestas muestran cambios de responsabilidad y garantías, no una sustitución tecnológica total por defecto.
 
 No se han ejecutado aplicaciones ni servicios de la empresa para producir este contenido. Las fuentes originales siguen intactas.
