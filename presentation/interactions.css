@@ -12,7 +12,7 @@
 .ix-overview > summary { width:fit-content; padding:10px 0; font-size:14px; font-weight:600; }
 .ix-summary { margin:4px 0 10px; font-size:15px; line-height:1.6; }
 .ix-overview-boundary { margin:0 0 12px; font-size:13px; line-height:1.65; color:var(--muted); }
-.ix-controls { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:16px 0; border-top:1px solid var(--line); }
+.ix-controls { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:0 0 12px; }
 .ix-modes,.ix-zoom { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
 .ix-modes button,.ix-zoom button { padding:9px 12px; min-height:44px; border:1px solid var(--line); background:white; border-radius:7px; font-size:13px; font-weight:600; }
 .ix-modes button[aria-pressed=true],.ix-zoom button[aria-pressed=true] { color:var(--teal-dark); background:var(--teal-soft); border-color:var(--teal); }
