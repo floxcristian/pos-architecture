@@ -679,8 +679,7 @@ window.POS_INTERACTIONS_CURRENT = [
           "sale-request",
           "save-documents",
           "save-taxes"
-        ],
-        "boundary": "No se está ejecutando el cargo al terminal."
+        ]
       },
       {
         "title": "3 · Guardar comprobante y pagos",

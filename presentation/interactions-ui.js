@@ -194,7 +194,8 @@
       $('#ix-call').innerHTML=step().edges.map((id,i)=>`<option value="${esc(id)}" ${id===state.edge?'selected':''}>${i+1}. ${esc(edge(id).label)}</option>`).join('');
       $('#ix-counter').textContent=`PASO ${state.step+1} / ${state.flow.steps.length} · CONEXIÓN ${step().edges.indexOf(state.edge)+1} / ${step().edges.length}`;
       $('#ix-step-title').textContent=step().title;$('#ix-step-text').textContent=step().detail;
-      $('#ix-limit').textContent=step().boundary||state.flow.boundary;
+      $('#ix-limit').textContent=step().boundary||'';
+      $('#ix-limit').hidden=!step().boundary;
       $('#ix-steps').innerHTML=state.flow.steps.map((s,i)=>`<button data-ix-step="${i}" aria-pressed="${i===state.step}" aria-label="Paso ${i+1}: ${esc(s.title)}"><span>${String(i+1).padStart(2,'0')}</span>${esc(s.title)}</button>`).join('');
       $('[data-ix-prev]').disabled=state.step===0&&state.edge===step().edges[0];$('[data-ix-next]').disabled=state.step===state.flow.steps.length-1&&state.edge===step().edges.at(-1);
       renderDiagram();renderDetail();

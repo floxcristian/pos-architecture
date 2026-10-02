@@ -26,7 +26,7 @@ async function metadata(report){
    if(f.mode==='proposed')assert.equal(e.certainty,'proposed');
    for(const key of ['label','detail','effect','boundary'])assert.ok(e[key],e.id+' '+key);
   }
-  const used=new Set();for(const s of f.steps){assert.ok(s.title&&s.detail&&s.boundary&&s.edges.length);for(const id of s.edges){assert.ok(sets.edges.has(id));used.add(id);}}
+  const used=new Set();for(const s of f.steps){assert.ok(s.title&&s.detail&&s.edges.length);if(s.boundary!==undefined)assert.ok(typeof s.boundary==='string'&&s.boundary.trim());for(const id of s.edges){assert.ok(sets.edges.has(id));used.add(id);}}
   assert.equal(used.size,f.edges.length,f.id+' unreferenced edge');
   for(const i of [...f.nodes,...f.edges]){assert.ok(i.sources.length);for(const s of i.sources){assert.ok(s.label);urls.add(s.url);}}
  }
