@@ -167,7 +167,7 @@
     $('#chapter-counter').innerHTML=`<span>${String(idx+1).padStart(2,'0')} <span class="counter-total">/ ${String(chapters.length).padStart(2,'0')}</span></span><strong>${ch.label}</strong>`;
     $('#mobile-chapter').innerHTML=chapters.map(c=>`<option value="${c.id}" ${c.id===ch.id?'selected':''}>${c.label}</option>`).join('');
     window.POS_INTERACTIONS_UI?.destroy();
-    $('#main').innerHTML=`<article class="chapter chapter-${ch.id}">${header(ch)}${pages[ch.id]()}${researchSupplement()}${window.POS_OPERATIONS_UI?.html(ch.id)||''}<div class="footer-nav">${idx>0?button('← '+chapters[idx-1].label,'previous'):'<span>Comienza explorando el mapa.</span>'}<span>${idx+1} / ${chapters.length}</span>${idx<chapters.length-1?button(chapters[idx+1].label+' →','next','','primary'):button('Volver al mapa ↗','home','','primary')}</div></article>`;
+    $('#main').innerHTML=`<article class="chapter chapter-${ch.id}">${header(ch)}${pages[ch.id]()}${researchSupplement()}${window.POS_OPERATIONS_UI?.html(ch.id)||''}<div class="footer-nav">${idx>0?button('← '+chapters[idx-1].label,'previous'):''}<span>${idx+1} / ${chapters.length}</span>${idx<chapters.length-1?button(chapters[idx+1].label+' →','next','','primary'):button('Volver al mapa ↗','home','','primary')}</div></article>`;
     wireDiagrams();
     if ($('#inspector')) selectComponent(state.selected);
     if (state.chapter==='venta'||state.chapter==='datos') updateFlow();
