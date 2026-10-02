@@ -1,0 +1,8 @@
+flowchart TB
+  OPEN["POST /cajas-usuario<br/>consulta ocupación"] -->|"ESCRIBE apertura"| SESSION[("PostgreSQL: cajas_usuarios<br/>usuario, caja y monto inicial")]
+  SESSION --> OPERATE["Movimientos de la sesión"]
+  OPERATE --> PRE["Información / validar-cierre<br/>comparar montos"]
+  PRE -->|"Intenta liberar OV pausadas"| REMOTE["Servicio remoto<br/>error puede quedar absorbido"]
+  PRE --> CLOSE["POST cerrar-caja<br/>recalcular antes de BEGIN"]
+  CLOSE -->|"ESCRIBE con trx y COMMIT"| RESULT[("Sesión cerrada + movimiento<br/>formas de pago y detalle")]
+  RESULT --> STATES["Cuadre separado de cerrada<br/>integración ERP posterior"]

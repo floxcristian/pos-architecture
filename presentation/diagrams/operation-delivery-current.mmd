@@ -1,0 +1,7 @@
+flowchart TB
+  REPO["core / Nx<br/>módulos y contratos"] --> BUILD["Artefacto central<br/>CI corporativa"]
+  BUILD --> DEPLOY["devops-platform<br/>despliegue Cloud Run"]
+  DEPLOY --> SMOKE["Smoke HTTP<br/>alcance funcional limitado"]
+  EVENT["Ejemplo core: proyección y outbox<br/>misma transacción"] --> RELAY["Publicar, después marcar<br/>posible reentrega"]
+  SMOKE -.->|"No acredita este ciclo"| EDGE["Instalación de sucursal<br/>protocolo no recibido"]
+  RELAY -.->|"Compatibilidad por diseñar"| EDGE

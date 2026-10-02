@@ -1,0 +1,23 @@
+flowchart LR
+    accTitle: Arquitectura actual de caja en Chile
+    accDescr: La sucursal conserva interfaz, backend, base y sincronizador. Precios y fiscalidad tienen dependencias externas. AX recibe el registro por integración posterior.
+    subgraph branch["Sucursal"]
+        direction TB
+        ui["mountain-implementos<br/>frontend · Angular"] --> backend["mountain-implementos<br/>backend · AdonisJS"]
+        backend <--> localdb[("PostgreSQL<br/>de sucursal")]
+        localdb <--> sync["mountain-sync-sucursal<br/>AdonisJS"]
+    end
+    subgraph remote["Servicios remotos"]
+        direction TB
+        pricing["Servicio<br/>de precios"]
+        fiscal["Proveedor<br/>DTE"]
+        pricing ~~~ fiscal
+    end
+    subgraph integration["Integración central"]
+        direction TB
+        bus["mountain-concentrador<br/>Synapse / DSS / Java"] <--> axapi["apis-implementos<br/>API / adaptadores .NET"]
+        axapi <--> ax[("Dynamics AX<br/>Chile")]
+    end
+    branch <-->|"Red / WAN"| integration
+    branch --> remote
+    integration ~~~ remote

@@ -1,0 +1,6 @@
+flowchart LR
+    accTitle: Consulta actual de cliente con persistencia local
+    accDescr: La interfaz solicita el cliente al backend por GET. El backend consulta una API remota y persiste el resultado local. Este recorrido no representa un alta de cliente en AX.
+    ui["Caja<br/>consulta cliente"] -->|"GET"| backend["Backend<br/>de sucursal"]
+    backend <-->|"Consulta / respuesta"| clientapi["API remota<br/>de clientes"]
+    backend -->|"Persiste resultado"| localdb[("Cliente local<br/>PostgreSQL")]

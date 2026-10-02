@@ -1,0 +1,23 @@
+flowchart TB
+  ORIGIN["AX: productor pendiente"] -.-> MPOS[("MPOS.dbo.CustTableSync")]
+  DSS["mountain-concentrador / WSO2<br/>Detección de cambios"] -->|"COUNT Procesado=0"| MPOS
+  DSS -->|"Si count > 0"| JAVA["Generar lotes<br/>por sucursal"]
+  JAVA -->|"JDBC: paginar y EXEC SP"| MPOS
+  JAVA -->|"1 · INSERT entrada y detalles"| CENTRALDATA[("public.mensaje_entrada<br/>public.mensaje_detalles")]
+  JAVA -->|"2 · Marca origen procesado tras detalles"| MPOS
+  JAVA -->|"3 · Cabeceras y salidas posteriores"| CENTRALOUT[("public.mensaje_cabeceras<br/>public.mensaje_salida<br/>public.mensaje_detalle_sucursales")]
+  API["mountain-concentrador / api-lectura<br/>Lotes y acuses"] -->|"LEE y marca enviado"| CENTRALOUT
+  SYNC["mountain-sync-sucursal<br/>Aplicación de maestros"] <-->|"4 · GET mensajeSalidas/cambios"| API
+  SYNC -->|"5 · POST recibido antes de guardar"| RECEIPT["Acuse central<br/>no es commit local"]
+  RECEIPT -->|"UPDATE recibido_sucursal"| CENTRALOUT
+  RECEIPT -->|"Si acuse sin error, INSERT y COMMIT local"| MSG[("sincronizador.mensajes<br/>sincronizador.mensaje_detalles")]
+  MSG -->|"6 · LEE un detalle"| APPLY["Aplicar según tipo<br/>una trx por detalle"]
+  APPLY -->|"Cliente: LEE / ESCRIBE"| CLIENT[("personas<br/>empresas + auxiliares")]
+  APPLY -->|"Dirección: LEE / ESCRIBE"| ADDRESS[("direccion_empresas<br/>direcciones")]
+  APPLY --> RESULT["COMMIT o ROLLBACK<br/>después actualiza metadata"]
+  RESULT -->|"ESCRIBE procesado / error"| MSG
+  RESULT -.->|"Cliente: recálculo posterior"| ACCOUNT[("estado_cuentas<br/>vía backend local")]
+  RESULT -->|"7 · POST procesados, con éxitos y errores"| DONE["API lectura y cierre local"]
+  DONE -->|"Estados y contadores centrales"| CENTRALOUT
+  DONE -->|"Después: mensajes.procesado"| MSG
+  SYNC -.->|"Alternativa: GET sin-procesar<br/>incluye recibidos no procesados"| API

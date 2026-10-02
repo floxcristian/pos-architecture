@@ -1,0 +1,8 @@
+flowchart TB
+  PUBLISH["Publicación aprobada<br/>reglas, datos y vigencia"] --> VERIFY["Descargar, verificar y activar<br/>versión completa"]
+  VERIFY --> LOCAL[("Paquete local vigente")]
+  CONTEXT["SKU, cantidad, cliente<br/>sucursal, vendedor y fecha"] --> ENGINE["POS de sucursal<br/>Evaluar precio local"]
+  LOCAL -->|"LEE versión activa"| ENGINE
+  ENGINE --> RESULT{"Datos y política admiten cálculo"}
+  RESULT -->|"Sí"| SALE[("Venta: precio + versión<br/>contexto y explicación")]
+  RESULT -->|"No"| HOLD["Restricción o excepción<br/>según política aprobada"]

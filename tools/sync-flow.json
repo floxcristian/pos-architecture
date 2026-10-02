@@ -1,0 +1,1159 @@
+{
+  "id": "sync",
+  "title": "Subida de venta: sucursal, concentrador y AX",
+  "mode": "current",
+  "summary": "El sincronizador prepara la venta; WSO2 recibe; Node ingesta a SQL; Java registra en AX; la respuesta se aplica después en sucursal.",
+  "boundary": "Snapshots de código, no despliegue. Se dibuja la vía Node→cola SQL→Java con binding y activación pendientes. MP_ProcesaRegistro es otra configuración versionada. Un ACK técnico no confirma DTE ni ERP.",
+  "groups": [
+    {
+      "id": "g-sync",
+      "title": "Sincronizador de sucursal",
+      "repo": "mountain-sync-sucursal",
+      "runtime": "Node / AdonisJS",
+      "zone": "Sucursal",
+      "evidence": "master 540ab9a; despliegue pendiente"
+    },
+    {
+      "id": "g-local",
+      "title": "PostgreSQL de sucursal",
+      "repo": "mountain-sync-sucursal",
+      "runtime": "PostgreSQL",
+      "zone": "Sucursal",
+      "evidence": "Schema sincronizador explícito; negocio no siempre calificado"
+    },
+    {
+      "id": "g-esb",
+      "title": "WSO2 / Synapse / mediadores",
+      "repo": "mountain-concentrador",
+      "runtime": "Synapse XML + DSS + Java",
+      "zone": "Central lógica",
+      "evidence": "Pablo b2fd1ec; CAR/JAR y activación pendientes"
+    },
+    {
+      "id": "g-central",
+      "title": "PostgreSQL concentrador",
+      "repo": "mountain-concentrador",
+      "runtime": "PostgreSQL",
+      "zone": "Central lógica",
+      "evidence": "SQL explícito; instancia/search_path Node pendientes"
+    },
+    {
+      "id": "g-broker",
+      "title": "Broker y stores",
+      "repo": "mountain-concentrador",
+      "runtime": "Stores JMS / clientes AMQP",
+      "zone": "Central lógica",
+      "evidence": "Destinos versionados; binding efectivo pendiente"
+    },
+    {
+      "id": "g-node",
+      "title": "Consumidor de ingreso",
+      "repo": "mountain-concentrador / procesador-cola-bus",
+      "runtime": "Node / AdonisJS",
+      "zone": "Central lógica",
+      "evidence": "Ingesta cola→SQL; cron limpia, no envía AX"
+    },
+    {
+      "id": "g-erp",
+      "title": "Adaptador .NET y servicio AX",
+      "repo": "apis-implementos / AX externo",
+      "runtime": "ASP.NET / cliente WCF / AX",
+      "zone": "Ubicación física pendiente",
+      "evidence": "8fbe2f1; receptor compatible; implementación AX ausente"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "s-upload",
+      "group": "g-sync",
+      "title": "VentasSyncUploadService",
+      "kind": "component",
+      "subtitle": "Prepara documentos",
+      "detail": "Selecciona elegibles y crea el sobre. Sincronizado=true de preparación no confirma AX.",
+      "sources": [
+        {
+          "label": "Elegibilidad y marcado local preparado",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/SyncUpload/VentasSyncUploadService.js#L20-L150"
+        },
+        {
+          "label": "Creación local del sobre y detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeService.js#L15-L81"
+        }
+      ]
+    },
+    {
+      "id": "s-documents",
+      "group": "g-local",
+      "title": "documentos + dtes",
+      "kind": "table",
+      "subtitle": "Negocio y elegibilidad",
+      "detail": "Condiciones de selección fiscal y entorno. Este recorrido no vuelve a emitir DTE.",
+      "sources": [
+        {
+          "label": "Elegibilidad y marcado local preparado",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/SyncUpload/VentasSyncUploadService.js#L20-L150"
+        },
+        {
+          "label": "Aplicación local de respuesta AX",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L366-L591"
+        }
+      ]
+    },
+    {
+      "id": "s-messages",
+      "group": "g-local",
+      "title": "sincronizador.mensajes / mensaje_detalles",
+      "kind": "table",
+      "subtitle": "Mensajes locales",
+      "detail": "Sobre y detalles locales en transacción; conservar ID de origen para respuesta.",
+      "sources": [
+        {
+          "label": "Creación local del sobre y detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeService.js#L15-L81"
+        },
+        {
+          "label": "Schema sincronizador.mensajes",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/Mensaje.js#L6-L21"
+        },
+        {
+          "label": "Schema sincronizador.mensaje_detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/MensajeDetalle.js#L6-L14"
+        }
+      ]
+    },
+    {
+      "id": "s-http-client",
+      "group": "g-sync",
+      "title": "CambiosConcentradorService",
+      "kind": "component",
+      "subtitle": "Ingreso / existente",
+      "detail": "Envía sobres y consulta resultados. Respuesta ausente no demuestra ausencia de efecto AX.",
+      "sources": [
+        {
+          "label": "Sucursal: ingreso y consulta existente",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L289-L363"
+        }
+      ]
+    },
+    {
+      "id": "s-ingress-api",
+      "group": "g-esb",
+      "title": "API_mensajeEntradas",
+      "kind": "component",
+      "subtitle": "POST /ingresar",
+      "detail": "Registra consulta y sobre, deposita en store y devuelve procesado=true como recepción técnica.",
+      "sources": [
+        {
+          "label": "Recepción HTTP, sobre y ACK técnico",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/api/API_mensajeEntradas.xml#L18-L246"
+        }
+      ]
+    },
+    {
+      "id": "s-dss",
+      "group": "g-esb",
+      "title": "DSS_RegistroConsultas / DSS_MensajeEntrada",
+      "kind": "component",
+      "subtitle": "SOAP / SQL",
+      "detail": "Función de registro y posterior INSERT de mensaje; función SQL interna no disponible.",
+      "sources": [
+        {
+          "label": "DSS invoca fn_crea_registro_consulta",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/DSConcentrador/dataservice/DSS_RegistroConsultas.dbs#L1-L30"
+        },
+        {
+          "label": "INSERT public.mensaje_entrada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/DSConcentrador/dataservice/DSS_MensajeEntrada.dbs#L1-L30"
+        },
+        {
+          "label": "SOAP op_insertMensajeEntrada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/templates/TP_DSS_MensajeEntrada.xml#L1-L19"
+        }
+      ]
+    },
+    {
+      "id": "s-central-entry",
+      "group": "g-central",
+      "title": "public.mensaje_entrada / consulta",
+      "kind": "table",
+      "subtitle": "Recepción central",
+      "detail": "INSERT explícito de sobre; registro mediante public.fn_crea_registro_consulta. No hay commit global con JMS.",
+      "sources": [
+        {
+          "label": "DSS invoca fn_crea_registro_consulta",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/DSConcentrador/dataservice/DSS_RegistroConsultas.dbs#L1-L30"
+        },
+        {
+          "label": "INSERT public.mensaje_entrada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/DSConcentrador/dataservice/DSS_MensajeEntrada.dbs#L1-L30"
+        }
+      ]
+    },
+    {
+      "id": "s-in-queue",
+      "group": "g-broker",
+      "title": "MS_ProcesaRegistro",
+      "kind": "component",
+      "subtitle": "qlProcesaRegistro",
+      "detail": "Store JMS; guaranteed.delivery.enable=false. Cotejar cola real del consumidor Node.",
+      "sources": [
+        {
+          "label": "Store JMS qlProcesaRegistro",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-stores/MS_ProcesaRegistro.xml#L1-L9"
+        },
+        {
+          "label": "Nombre de cola y broker por configuración",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/start/queueHooks.js#L4-L13"
+        }
+      ]
+    },
+    {
+      "id": "s-node-consumer",
+      "group": "g-node",
+      "title": "queueHooks / ColaMensajeService",
+      "kind": "component",
+      "subtitle": "AMQP→SQL",
+      "detail": "Decodifica XML, llama crear sin await y hace ACK; el callback no espera INSERT.",
+      "sources": [
+        {
+          "label": "Consumidor AMQP: crear sin await y ACK",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/start/queueHooks.js#L30-L60"
+        },
+        {
+          "label": "INSERT por modelo y eliminación de procesados",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/app/Services/ColaMensajeService.js#L8-L25"
+        }
+      ]
+    },
+    {
+      "id": "s-central-queue",
+      "group": "g-central",
+      "title": "public.cola_mensajes",
+      "kind": "table",
+      "subtitle": "en_proceso / procesado / error",
+      "detail": "Java usa public; Node usa cola_mensajes sin schema explícito. Confirmar instancia/search_path.",
+      "sources": [
+        {
+          "label": "Claim SQL y marcar procesado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassProcesaCola/src/main/java/cl/implementos/BO/BOColaMensaje.java#L18-L81"
+        },
+        {
+          "label": "Tabla cola_mensajes sin schema explícito",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/app/Models/ColaMensaje.js#L6-L10"
+        },
+        {
+          "label": "Columnas y valores iniciales de cola",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/database/migrations/1640028044697_cola_mensajes_schema.js#L7-L19"
+        }
+      ]
+    },
+    {
+      "id": "s-worker",
+      "group": "g-esb",
+      "title": "Task_LeeMensajesCola / ProcesaCola",
+      "kind": "component",
+      "subtitle": "Claim hasta2 pendientes",
+      "detail": "Trigger count=0 interval=5; Java UPDATE…RETURNING reclama trabajo y secuencia itera. Runtime pendiente.",
+      "sources": [
+        {
+          "label": "Trigger declarado y secuencia",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/tasks/Task_LeeMensajesCola.xml#L1-L9"
+        },
+        {
+          "label": "Java leer-cambios e iteración",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_ColaMensajes_Leer.xml#L1-L31"
+        },
+        {
+          "label": "Claim SQL y marcar procesado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassProcesaCola/src/main/java/cl/implementos/BO/BOColaMensaje.java#L18-L81"
+        }
+      ]
+    },
+    {
+      "id": "s-normalize",
+      "group": "g-esb",
+      "title": "RegistraMensajeDetalle / SEQ_AX_Inserciones",
+      "kind": "component",
+      "subtitle": "Identidad, destino y tipo",
+      "detail": "Consulta ID de detalle+sucursal, crea relaciones, reutiliza respuesta exitosa o llama la secuencia del tipo.",
+      "sources": [
+        {
+          "label": "Detalle, cabecera, relación y estaProcesado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L353-L497"
+        },
+        {
+          "label": "Destino AX, respuesta previa e iteración",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_ProcesaRegistroDetalle.xml#L45-L147"
+        },
+        {
+          "label": "Selección por once tipos",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_AX_Inserciones.xml#L1-L52"
+        }
+      ]
+    },
+    {
+      "id": "s-central-details",
+      "group": "g-central",
+      "title": "mensaje_detalles / mensaje_cabeceras",
+      "kind": "table",
+      "subtitle": "Escrituras public",
+      "detail": "Métodos/commits separados. ID central distinto del ID de detalle original dentro del JSON.",
+      "sources": [
+        {
+          "label": "Bulk con commits parciales",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalle.java#L133-L170"
+        },
+        {
+          "label": "Identidad de origen y búsqueda de resultado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalle.java#L328-L416"
+        },
+        {
+          "label": "INSERT cabecera y UPDATE contadores",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeCabecera.java#L43-L85"
+        }
+      ]
+    },
+    {
+      "id": "s-central-result",
+      "group": "g-central",
+      "title": "mensaje_detalle_sucursales / errores",
+      "kind": "table",
+      "subtitle": "Escrituras public",
+      "detail": "Relación, data_respuesta, procesado/error/reintento; historial mensaje_detalle_sucursal_errores. Procesado puede coexistir con error.",
+      "sources": [
+        {
+          "label": "Bulk de relación y UPDATE respuesta AX",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalleSucursal.java#L59-L158"
+        },
+        {
+          "label": "Inspección de errores e INSERT historial",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalleSucursalErrores.java#L26-L146"
+        },
+        {
+          "label": "Respuesta central y estados por destino",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L763-L861"
+        }
+      ]
+    },
+    {
+      "id": "s-net",
+      "group": "g-erp",
+      "title": "CajaController / NotaVenta",
+      "kind": "component",
+      "subtitle": "apiMountainPosCaja",
+      "detail": "Receptor compatible con EP_Ventas; adapta VentaContract y tablasAx. Prefijo/despliegue pendientes.",
+      "sources": [
+        {
+          "label": "POST ruta apiMountainPOS; configuración, no despliegue",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/QARegistryResource/EP_Ventas.xml#L1-L18"
+        },
+        {
+          "label": "Receptor .NET compatible",
+          "url": "https://github.com/developer-implementos/apis-implementos/blob/8fbe2f1b4d4e464a403aa3daca63ffe712a9dd70/apiMountainPosCaja/Controllers/CajaController.cs#L24-L49"
+        },
+        {
+          "label": "Adaptación y proxy CreateSalesOrderwithDetailsV4",
+          "url": "https://github.com/developer-implementos/apis-implementos/blob/8fbe2f1b4d4e464a403aa3daca63ffe712a9dd70/ServiciosAX/mountainPosCajaServices/NotaVenta.cs#L46-L245"
+        }
+      ]
+    },
+    {
+      "id": "s-ax",
+      "group": "g-erp",
+      "title": "Servicio AX de venta",
+      "kind": "external",
+      "subtitle": "CreateSalesOrderwithDetailsV4",
+      "detail": "Proxy invocado por .NET; código y transacciones internas AX no incluidos.",
+      "sources": [
+        {
+          "label": "Adaptación y proxy CreateSalesOrderwithDetailsV4",
+          "url": "https://github.com/developer-implementos/apis-implementos/blob/8fbe2f1b4d4e464a403aa3daca63ffe712a9dd70/ServiciosAX/mountainPosCajaServices/NotaVenta.cs#L46-L245"
+        }
+      ]
+    },
+    {
+      "id": "s-response",
+      "group": "g-esb",
+      "title": "SEQ_Q_RespuestaAxASucursal",
+      "kind": "component",
+      "subtitle": "Resultado y retorno",
+      "detail": "Llama actualizarCambioIngresadoAX y luego arma axRespuesta, tipoMovimiento entrada e ID original.",
+      "sources": [
+        {
+          "label": "Persistir resultado y notificar sucursal",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_RespuestaAxASucursal.xml#L1-L44"
+        },
+        {
+          "label": "Respuesta central y estados por destino",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L763-L861"
+        }
+      ]
+    },
+    {
+      "id": "s-out-queue",
+      "group": "g-broker",
+      "title": "SEQ_OrquestaColaSucursal / store",
+      "kind": "component",
+      "subtitle": "JMS por entidad",
+      "detail": "Store por origen; default no soportado solo registra log aquí. Binding por sucursal pendiente.",
+      "sources": [
+        {
+          "label": "Store por entidad y caso no soportado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_OrquestaColaSucursal.xml#L1-L156"
+        },
+        {
+          "label": "Ejemplo de store JMS por sucursal",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-stores/MS_QL_OUT_ARICA.xml#L1-L9"
+        }
+      ]
+    },
+    {
+      "id": "s-branch-consumer",
+      "group": "g-sync",
+      "title": "queueHooks / ColaMensajeService",
+      "kind": "component",
+      "subtitle": "Respuesta AMQP",
+      "detail": "Solicita crear cola local y ACK sin esperar; aplicación ocurre posteriormente.",
+      "sources": [
+        {
+          "label": "Receptor AMQP de sucursal y ACK",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/start/queueHooks.js#L36-L76"
+        }
+      ]
+    },
+    {
+      "id": "s-local-queue",
+      "group": "g-local",
+      "title": "sincronizador.cola_mensajes",
+      "kind": "table",
+      "subtitle": "Respuesta pendiente",
+      "detail": "Cola local distinta de public.cola_mensajes del concentrador.",
+      "sources": [
+        {
+          "label": "Schema sincronizador.cola_mensajes",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/ColaMensaje.js#L6-L10"
+        },
+        {
+          "label": "Receptor AMQP de sucursal y ACK",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/start/queueHooks.js#L36-L76"
+        }
+      ]
+    },
+    {
+      "id": "s-apply",
+      "group": "g-sync",
+      "title": "ColaMensajeService / MensajeDetalleService",
+      "kind": "component",
+      "subtitle": "Aplica respuesta AX",
+      "detail": "Valida error y tablas; ramas CustInvoiceJour/LedgerJournalTable; negocio commit antes de metadata.",
+      "sources": [
+        {
+          "label": "Aplicación local de respuesta AX",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L366-L591"
+        },
+        {
+          "label": "Commit de negocio antes de metadata",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L768-L780"
+        },
+        {
+          "label": "Cola local: lectura, aplicación y estado",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/ColaMensajeService.js#L17-L140"
+        }
+      ]
+    },
+    {
+      "id": "s-sampler",
+      "group": "g-esb",
+      "title": "MP_ProcesaRegistro",
+      "kind": "component",
+      "subtitle": "Configuración alternativa",
+      "detail": "SamplingProcessor de MS_ProcesaRegistro, interval1000, activo=true, concurrencia1; coexistencia no confirmada.",
+      "sources": [
+        {
+          "label": "Consumidor Synapse alternativo versionado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-processors/MP_ProcesaRegistro.xml#L1-L7"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "se-select",
+      "from": "s-upload",
+      "to": "s-documents",
+      "label": "SELECT documentos + dtes",
+      "protocol": "SQL",
+      "detail": "Selecciona elegibles con condiciones fiscales.",
+      "effect": "Candidatos",
+      "boundary": "Preparado no es confirmado",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Elegibilidad y marcado local preparado",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/SyncUpload/VentasSyncUploadService.js#L20-L150"
+        }
+      ]
+    },
+    {
+      "id": "se-prepare",
+      "from": "s-upload",
+      "to": "s-messages",
+      "label": "INSERT mensajes / mensaje_detalles",
+      "protocol": "SQL",
+      "detail": "Transacción de mensaje; marcado documento separado.",
+      "effect": "Sobre local",
+      "boundary": "No transacción común con HTTP",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Creación local del sobre y detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeService.js#L15-L81"
+        },
+        {
+          "label": "Elegibilidad y marcado local preparado",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/SyncUpload/VentasSyncUploadService.js#L20-L150"
+        }
+      ]
+    },
+    {
+      "id": "se-send",
+      "from": "s-http-client",
+      "to": "s-ingress-api",
+      "label": "POST /api/mensajeEntradas/ingresar",
+      "protocol": "HTTP",
+      "detail": "Envía el sobre preparado.",
+      "effect": "Recepción central",
+      "boundary": "Binding desplegado pendiente",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Sucursal: ingreso y consulta existente",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L289-L363"
+        },
+        {
+          "label": "Recepción HTTP, sobre y ACK técnico",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/api/API_mensajeEntradas.xml#L18-L246"
+        }
+      ]
+    },
+    {
+      "id": "se-dss-call",
+      "from": "s-ingress-api",
+      "to": "s-dss",
+      "label": "op_insertRegistroConsulta / op_insertMensajeEntrada",
+      "protocol": "SOAP",
+      "detail": "Templates y DSS consecutivos.",
+      "effect": "Registro técnico",
+      "boundary": "Función SQL interna no disponible",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Recepción HTTP, sobre y ACK técnico",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/api/API_mensajeEntradas.xml#L18-L246"
+        },
+        {
+          "label": "SOAP op_insertMensajeEntrada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/templates/TP_DSS_MensajeEntrada.xml#L1-L19"
+        },
+        {
+          "label": "Endpoint SOAP /services/DSS_MensajeEntrada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/endpoints/EP_DSS_MensajeEntrada.xml#L1-L18"
+        }
+      ]
+    },
+    {
+      "id": "se-dss-write",
+      "from": "s-dss",
+      "to": "s-central-entry",
+      "label": "SELECT fn_crea_registro_consulta; INSERT mensaje_entrada",
+      "protocol": "SQL",
+      "detail": "Datasource PG_Sincronizador; public explícito.",
+      "effect": "Registro de sobre",
+      "boundary": "No cubre publicación JMS",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "DSS invoca fn_crea_registro_consulta",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/DSConcentrador/dataservice/DSS_RegistroConsultas.dbs#L1-L30"
+        },
+        {
+          "label": "INSERT public.mensaje_entrada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/DSConcentrador/dataservice/DSS_MensajeEntrada.dbs#L1-L30"
+        }
+      ]
+    },
+    {
+      "id": "se-store",
+      "from": "s-ingress-api",
+      "to": "s-in-queue",
+      "label": "store MS_ProcesaRegistro",
+      "protocol": "Interno",
+      "detail": "Mediador store hacia JMS qlProcesaRegistro.",
+      "effect": "Encolar sobre",
+      "boundary": "Store JMS distinto de cliente AMQP",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Recepción HTTP, sobre y ACK técnico",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/api/API_mensajeEntradas.xml#L18-L246"
+        },
+        {
+          "label": "Store JMS qlProcesaRegistro",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-stores/MS_ProcesaRegistro.xml#L1-L9"
+        }
+      ]
+    },
+    {
+      "id": "se-http-ack",
+      "from": "s-ingress-api",
+      "to": "s-http-client",
+      "label": "Respuesta HTTP procesado=true",
+      "protocol": "HTTP",
+      "detail": "Propiedad true antes de procesamiento AX.",
+      "effect": "ACK técnico",
+      "boundary": "No confirma AX ni DTE",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Recepción HTTP, sobre y ACK técnico",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/api/API_mensajeEntradas.xml#L18-L246"
+        }
+      ]
+    },
+    {
+      "id": "se-amqp-in",
+      "from": "s-in-queue",
+      "to": "s-node-consumer",
+      "label": "Entrega AMQP a ESB_BROKER_QUEUE",
+      "protocol": "AMQP",
+      "detail": "Nombre de cola viene por configuración.",
+      "effect": "Ingesta Node",
+      "boundary": "Cotejar binding y activación; no desplegado verificado",
+      "certainty": "unknown",
+      "sources": [
+        {
+          "label": "Nombre de cola y broker por configuración",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/start/queueHooks.js#L4-L13"
+        },
+        {
+          "label": "Consumidor AMQP: crear sin await y ACK",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/start/queueHooks.js#L30-L60"
+        },
+        {
+          "label": "Store JMS qlProcesaRegistro",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-stores/MS_ProcesaRegistro.xml#L1-L9"
+        }
+      ]
+    },
+    {
+      "id": "se-node-write",
+      "from": "s-node-consumer",
+      "to": "s-central-queue",
+      "label": "INSERT cola_mensajes",
+      "protocol": "SQL",
+      "detail": "ColaMensaje.create; schema no explícito.",
+      "effect": "Persistencia solicitada",
+      "boundary": "Callback no espera promesa; search_path pendiente",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "INSERT por modelo y eliminación de procesados",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/app/Services/ColaMensajeService.js#L8-L25"
+        },
+        {
+          "label": "Tabla cola_mensajes sin schema explícito",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/app/Models/ColaMensaje.js#L6-L10"
+        }
+      ]
+    },
+    {
+      "id": "se-node-ack",
+      "from": "s-node-consumer",
+      "to": "s-in-queue",
+      "label": "ch.ack(msg)",
+      "protocol": "AMQP",
+      "detail": "Después de llamar crear sin await.",
+      "effect": "ACK al broker",
+      "boundary": "No acredita INSERT completado",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Consumidor AMQP: crear sin await y ACK",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/procesador-cola-bus/start/queueHooks.js#L30-L60"
+        }
+      ]
+    },
+    {
+      "id": "se-claim",
+      "from": "s-worker",
+      "to": "s-central-queue",
+      "label": "UPDATE en_proceso=true … RETURNING *",
+      "protocol": "SQL",
+      "detail": "Hasta2 filas no procesadas/no en proceso.",
+      "effect": "Reclamar trabajo",
+      "boundary": "Sin lease/reclaim explícito en método",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Claim SQL y marcar procesado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassProcesaCola/src/main/java/cl/implementos/BO/BOColaMensaje.java#L18-L81"
+        },
+        {
+          "label": "Trigger declarado y secuencia",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/tasks/Task_LeeMensajesCola.xml#L1-L9"
+        }
+      ]
+    },
+    {
+      "id": "se-dispatch",
+      "from": "s-worker",
+      "to": "s-normalize",
+      "label": "SEQ_Q_LeerColaBus → SEQ_ProcesaRegistroDetalle",
+      "protocol": "Interno",
+      "detail": "Origen sucursal y destino AX.",
+      "effect": "Enrutar detalle",
+      "boundary": "Otras ramas no equivalen a ventas",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Desempaquetado y rama origen sucursal",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_LeerColaBus.xml#L3-L57"
+        },
+        {
+          "label": "Destino AX, respuesta previa e iteración",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_ProcesaRegistroDetalle.xml#L45-L147"
+        }
+      ]
+    },
+    {
+      "id": "se-details",
+      "from": "s-normalize",
+      "to": "s-central-details",
+      "label": "SELECT existente; INSERT detalles/cabecera",
+      "protocol": "SQL",
+      "detail": "Identidad origen+sucursal; commits separados.",
+      "effect": "Identidad central",
+      "boundary": "No prueba unicidad concurrente",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Detalle, cabecera, relación y estaProcesado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L353-L497"
+        },
+        {
+          "label": "Bulk con commits parciales",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalle.java#L133-L170"
+        },
+        {
+          "label": "Identidad de origen y búsqueda de resultado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalle.java#L328-L416"
+        },
+        {
+          "label": "INSERT cabecera y UPDATE contadores",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeCabecera.java#L43-L85"
+        }
+      ]
+    },
+    {
+      "id": "se-relation",
+      "from": "s-normalize",
+      "to": "s-central-result",
+      "label": "INSERT mensaje_detalle_sucursales",
+      "protocol": "SQL",
+      "detail": "Relación por destino con commits propios.",
+      "effect": "Seguimiento destino",
+      "boundary": "Procesados exitosos pueden reutilizar respuesta",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Detalle, cabecera, relación y estaProcesado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L353-L497"
+        },
+        {
+          "label": "Bulk de relación y UPDATE respuesta AX",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalleSucursal.java#L59-L158"
+        }
+      ]
+    },
+    {
+      "id": "se-post-net",
+      "from": "s-normalize",
+      "to": "s-net",
+      "label": "POST /apiMountainPOS/api/caja/mountainpos/creaFacturaOvFromPos",
+      "protocol": "HTTP",
+      "detail": "DTO extraído; EP_Ventas blocking=true.",
+      "effect": "Solicita registro AX",
+      "boundary": "Timeout120000/fault; publicación real pendiente",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Extracción del DTO y call blocking",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_AX_Insert_ventas.xml#L1-L33"
+        },
+        {
+          "label": "POST ruta apiMountainPOS; configuración, no despliegue",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/QARegistryResource/EP_Ventas.xml#L1-L18"
+        },
+        {
+          "label": "Receptor .NET compatible",
+          "url": "https://github.com/developer-implementos/apis-implementos/blob/8fbe2f1b4d4e464a403aa3daca63ffe712a9dd70/apiMountainPosCaja/Controllers/CajaController.cs#L24-L49"
+        }
+      ]
+    },
+    {
+      "id": "se-net-ax",
+      "from": "s-net",
+      "to": "s-ax",
+      "label": "CreateSalesOrderwithDetailsV4(venta)",
+      "protocol": "Por confirmar",
+      "detail": "Llamada proxy WCF verificada; transporte runtime pendiente.",
+      "effect": "Operación AX",
+      "boundary": "Servidor AX no auditado",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Adaptación y proxy CreateSalesOrderwithDetailsV4",
+          "url": "https://github.com/developer-implementos/apis-implementos/blob/8fbe2f1b4d4e464a403aa3daca63ffe712a9dd70/ServiciosAX/mountainPosCajaServices/NotaVenta.cs#L46-L245"
+        }
+      ]
+    },
+    {
+      "id": "se-ax-return",
+      "from": "s-ax",
+      "to": "s-net",
+      "label": "Resultado de servicio AX",
+      "protocol": "Por confirmar",
+      "detail": "NotaVenta interpreta lista y arma tablasAx.",
+      "effect": "Respuesta reportada",
+      "boundary": "Transacciones AX no visibles",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Adaptación y proxy CreateSalesOrderwithDetailsV4",
+          "url": "https://github.com/developer-implementos/apis-implementos/blob/8fbe2f1b4d4e464a403aa3daca63ffe712a9dd70/ServiciosAX/mountainPosCajaServices/NotaVenta.cs#L46-L245"
+        }
+      ]
+    },
+    {
+      "id": "se-http-return",
+      "from": "s-net",
+      "to": "s-response",
+      "label": "Respuesta HTTP error / data.tablasAx",
+      "protocol": "HTTP",
+      "detail": "Secuencia de respuesta tras llamada.",
+      "effect": "Resultado a clasificar",
+      "boundary": "error=false exterior no elimina errores por tabla",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Receptor .NET compatible",
+          "url": "https://github.com/developer-implementos/apis-implementos/blob/8fbe2f1b4d4e464a403aa3daca63ffe712a9dd70/apiMountainPosCaja/Controllers/CajaController.cs#L24-L49"
+        },
+        {
+          "label": "Extracción del DTO y call blocking",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_AX_Insert_ventas.xml#L1-L33"
+        },
+        {
+          "label": "Persistir resultado y notificar sucursal",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_RespuestaAxASucursal.xml#L1-L44"
+        },
+        {
+          "label": "Inspección de errores e INSERT historial",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalleSucursalErrores.java#L26-L146"
+        }
+      ]
+    },
+    {
+      "id": "se-result-write",
+      "from": "s-response",
+      "to": "s-central-result",
+      "label": "UPDATE respuesta/estado; INSERT error",
+      "protocol": "SQL",
+      "detail": "Guarda resultado, contadores y errores.",
+      "effect": "Resultado central",
+      "boundary": "Conexiones separadas; excepciones capturadas",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Respuesta central y estados por destino",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L763-L861"
+        },
+        {
+          "label": "Bulk de relación y UPDATE respuesta AX",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalleSucursal.java#L59-L158"
+        },
+        {
+          "label": "Inspección de errores e INSERT historial",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalleSucursalErrores.java#L26-L146"
+        }
+      ]
+    },
+    {
+      "id": "se-result-store",
+      "from": "s-response",
+      "to": "s-out-queue",
+      "label": "store JMS por entidad origen",
+      "protocol": "Interno",
+      "detail": "Retorna ID de detalle original.",
+      "effect": "Publicar respuesta",
+      "boundary": "Persistencia y store no atómicos",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Persistir resultado y notificar sucursal",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_RespuestaAxASucursal.xml#L1-L44"
+        },
+        {
+          "label": "Store por entidad y caso no soportado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_OrquestaColaSucursal.xml#L1-L156"
+        },
+        {
+          "label": "Ejemplo de store JMS por sucursal",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-stores/MS_QL_OUT_ARICA.xml#L1-L9"
+        }
+      ]
+    },
+    {
+      "id": "se-amqp-out",
+      "from": "s-out-queue",
+      "to": "s-branch-consumer",
+      "label": "Entrega AMQP de respuesta",
+      "protocol": "AMQP",
+      "detail": "Formas productor/consumidor compatibles.",
+      "effect": "Retorno sucursal",
+      "boundary": "Binding por configuración pendiente",
+      "certainty": "unknown",
+      "sources": [
+        {
+          "label": "Ejemplo de store JMS por sucursal",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-stores/MS_QL_OUT_ARICA.xml#L1-L9"
+        },
+        {
+          "label": "Receptor AMQP de sucursal y ACK",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/start/queueHooks.js#L36-L76"
+        }
+      ]
+    },
+    {
+      "id": "se-branch-write",
+      "from": "s-branch-consumer",
+      "to": "s-local-queue",
+      "label": "INSERT sincronizador.cola_mensajes",
+      "protocol": "SQL",
+      "detail": "Cola local para aplicación posterior.",
+      "effect": "Custodia solicitada",
+      "boundary": "ACK no espera promesa de creación",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Receptor AMQP de sucursal y ACK",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/start/queueHooks.js#L36-L76"
+        },
+        {
+          "label": "Schema sincronizador.cola_mensajes",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/ColaMensaje.js#L6-L10"
+        }
+      ]
+    },
+    {
+      "id": "se-apply-read",
+      "from": "s-apply",
+      "to": "s-local-queue",
+      "label": "LEE respuesta pendiente",
+      "protocol": "SQL",
+      "detail": "ColaMensajeService lee pendientes y dirige el mensaje a MensajeDetalleService.",
+      "effect": "Procesar retorno",
+      "boundary": "No sucede durante ACK HTTP",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Aplicación local de respuesta AX",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L366-L591"
+        },
+        {
+          "label": "Receptor AMQP de sucursal y ACK",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/start/queueHooks.js#L36-L76"
+        },
+        {
+          "label": "Cola local: lectura, aplicación y estado",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/ColaMensajeService.js#L17-L140"
+        }
+      ]
+    },
+    {
+      "id": "se-apply-write",
+      "from": "s-apply",
+      "to": "s-documents",
+      "label": "UPDATE documentos / referencias AX",
+      "protocol": "SQL",
+      "detail": "Condiciones de CustInvoiceJour y pagos.",
+      "effect": "Actualiza negocio",
+      "boundary": "Commit negocio antes de metadata",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Aplicación local de respuesta AX",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L366-L591"
+        },
+        {
+          "label": "Commit de negocio antes de metadata",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L768-L780"
+        }
+      ]
+    },
+    {
+      "id": "se-metadata",
+      "from": "s-apply",
+      "to": "s-messages",
+      "label": "UPDATE metadata de sincronización",
+      "protocol": "SQL",
+      "detail": "Registro posterior al commit negocio.",
+      "effect": "Seguimiento local",
+      "boundary": "Frontera de fallo independiente",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Commit de negocio antes de metadata",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L768-L780"
+        }
+      ]
+    },
+    {
+      "id": "se-done",
+      "from": "s-worker",
+      "to": "s-central-queue",
+      "label": "UPDATE procesado=true,en_proceso=false",
+      "protocol": "SQL",
+      "detail": "Marcado en ramas de finalización.",
+      "effect": "Cerrar cola",
+      "boundary": "No certifica éxito financiero de todos los detalles",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Claim SQL y marcar procesado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassProcesaCola/src/main/java/cl/implementos/BO/BOColaMensaje.java#L18-L81"
+        },
+        {
+          "label": "Destino AX, respuesta previa e iteración",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_ProcesaRegistroDetalle.xml#L45-L147"
+        }
+      ]
+    },
+    {
+      "id": "se-alternative",
+      "from": "s-sampler",
+      "to": "s-in-queue",
+      "label": "Consume MS_ProcesaRegistro",
+      "protocol": "Interno",
+      "detail": "SamplingProcessor llama SEQ_Q_LeerColaBus.",
+      "effect": "Ruta alternativa",
+      "boundary": "No asumir coexistencia con Node",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Consumidor Synapse alternativo versionado",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-processors/MP_ProcesaRegistro.xml#L1-L7"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "title": "Preparar venta",
+      "detail": "Se crea el sobre local con detalles elegibles.",
+      "edges": [
+        "se-select",
+        "se-prepare"
+      ],
+      "boundary": "Emisión fiscal separada; preparado no es AX confirmado."
+    },
+    {
+      "title": "Registrar recepción central",
+      "detail": "WSO2 recibe y llama DSS para registrar consulta y sobre.",
+      "edges": [
+        "se-send",
+        "se-dss-call",
+        "se-dss-write"
+      ],
+      "boundary": "Función SQL interna no disponible."
+    },
+    {
+      "title": "Encolar y responder",
+      "detail": "JMS y ACK técnico preceden resultado ERP.",
+      "edges": [
+        "se-store",
+        "se-http-ack"
+      ],
+      "boundary": "Sin commit global SQL+JMS+HTTP demostrado."
+    },
+    {
+      "title": "Node ingesta a SQL",
+      "detail": "El callback consume y solicita persistencia antes de ACK, sin esperar.",
+      "edges": [
+        "se-amqp-in",
+        "se-node-write",
+        "se-node-ack"
+      ],
+      "boundary": "Binding y activación pendientes; existe configuración alternativa."
+    },
+    {
+      "title": "Java reclama y descompone",
+      "detail": "Task/Java reclama hasta2 filas y crea identidad central.",
+      "edges": [
+        "se-claim",
+        "se-dispatch",
+        "se-details"
+      ],
+      "boundary": "Recuperación y concurrencia deben probarse."
+    },
+    {
+      "title": "Invocar adaptador y AX",
+      "detail": "Tipo ventas selecciona .NET y proxy AX.",
+      "edges": [
+        "se-relation",
+        "se-post-net",
+        "se-net-ax"
+      ],
+      "boundary": "Respuesta previa exitosa puede evitar llamada; estados mezclados requieren prueba."
+    },
+    {
+      "title": "Guardar resultado",
+      "detail": "Se interpretan tablasAx y guardan resultado/errores.",
+      "edges": [
+        "se-ax-return",
+        "se-http-return",
+        "se-result-write"
+      ],
+      "boundary": "Procesado=true puede coexistir con error."
+    },
+    {
+      "title": "Retornar a sucursal",
+      "detail": "Publica por entidad y crea cola local.",
+      "edges": [
+        "se-result-store",
+        "se-amqp-out",
+        "se-branch-write"
+      ],
+      "boundary": "Bindings y custodia no se certifican por un ACK."
+    },
+    {
+      "title": "Aplicar negocio y metadata",
+      "detail": "La sucursal aplica resultado y registra seguimiento.",
+      "edges": [
+        "se-apply-read",
+        "se-apply-write",
+        "se-metadata"
+      ],
+      "boundary": "Negocio y metadata tienen fronteras distintas."
+    },
+    {
+      "title": "Finalización y alternativa",
+      "detail": "Se cierra la fila central; sampler es otra configuración.",
+      "edges": [
+        "se-done",
+        "se-alternative"
+      ],
+      "boundary": "Export runtime debe resolver consumidores activos."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+flowchart TB
+    subgraph Store["Sucursal de Chile · distribución declarada"]
+        subgraph PC["PC de caja · Windows"]
+            UI["Angular / navegador<br/>mountain-implementos / frontend"]
+            Print["Servicio de impresión<br/>api-impresion-caja · puerto 8181 documentado"]
+            Card["Agente y terminal Transbank<br/>Proyecto del agente no recibido"]
+            UI -->|"HTTP local"| Print
+            UI -->|"SDK / agente local"| Card
+        end
+        subgraph Branch["Servidor de sucursal · host y runtime efectivos pendientes"]
+            API["Backend AdonisJS<br/>mountain-implementos / backend<br/>3333 documentado"]
+            Sync["Sincronizador AdonisJS<br/>mountain-sync-sucursal<br/>3344 documentado"]
+            PG[("PostgreSQL local<br/>Negocio, maestros y mensajes")]
+            API --> PG
+            Sync --> PG
+            Sync -->|"HTTP: actualizar derivados"| API
+        end
+        UI -->|"HTTP / JSON por LAN"| API
+    end
+    subgraph Central["Central · zona lógica; distribución física por confirmar"]
+        Price["Servicio remoto de precio / promociones<br/>ApiPrecios y ApiCarro son candidatos en apis-implementos<br/>Binding efectivo pendiente"]
+        Bus["mountain-concentrador<br/>Integración WSO2<br/>Broker separado; bindings por confirmar"]
+        Read["mountain-concentrador / api-lectura<br/>AdonisJS · mensajeSalidas/*"]
+        Admin["Administración de concentrador<br/>mountain-implementos / backend-concentrador"]
+        Pay["Consulta de pagos / NC · api-pagos-caja<br/>3386 en imagen / 3366 default del código<br/>Puerto efectivo por confirmar"]
+        CPG[("PostgreSQL concentrador")]
+        Mongo[("MongoDB<br/>NC y otros datos observados")]
+        AXAPI["apis-implementos<br/>APIs .NET de integración con AX"]
+        Carro["ApiCarro · apis-implementos<br/>Consulta de URL DTE en concentrador"]
+        AX["Dynamics AX on-premise<br/>SQL Server y tablas de integración"]
+        MPOS["SQL Server MPOS<br/>CustTableSync<br/>Productor y host pendientes"]
+        Worker["mountain-concentrador / procesador-cola-bus<br/>Recepción de trabajo central"]
+        Worker -->|"INSERT cola_mensajes"| CPG
+        Bus -->|"JDBC: leer cambios / EXEC sp_caja_custTable"| MPOS
+        Read --> CPG
+        Admin --> CPG
+        Bus --> CPG
+        Carro -->|"SQL / Npgsql"| CPG
+        Pay --> Mongo
+        AXAPI --> AX
+        AX -.->|"Cambios informados; detalle pendiente"| MPOS
+    end
+    Fiscal["Facturador externo<br/>Acepta / Ingydev según fuente y configuración"]
+    API -->|"Precio / promociones online"| Price
+    API -->|"Consultas online declaradas<br/>Binding por capacidad pendiente"| AXAPI
+    API -->|"Emisión fiscal"| Fiscal
+    API -->|"Consultas de pagos / NC"| Pay
+    Sync -->|"HTTP de subida"| Bus
+    Bus -->|"AMQP: avisos / resultados"| Sync
+    Sync -->|"HTTP de maestros"| Read
+    Bus --> AXAPI
+    Pay -->|"Consultas a sucursales en el código"| PG

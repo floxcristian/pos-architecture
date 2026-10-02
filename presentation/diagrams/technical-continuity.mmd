@@ -1,0 +1,17 @@
+flowchart TD
+    Start(["Preparar operación"]) --> Writer{"¿LAN y escritor local disponibles?"}
+    Writer -->|"No"| Stop["Restringir la operación afectada<br/>Recuperar servicio; sin escritor alternativo implícito"]
+    Writer -->|"Sí"| Rules{"¿Permisos, maestros y operación vigentes?"}
+    Rules -->|"No"| Explain["Explicar restricción y alternativa autorizada"]
+    Rules -->|"Sí"| Intent["Persistir intención, identidad y destino de pago<br/>Fijar revisión de cesta"]
+    Intent --> Durable{"¿Intención durable confirmada?"}
+    Durable -->|"No"| Stop
+    Durable -->|"Sí"| Execute["Ejecutar el medio permitido<br/>Conservar referencia e intento"]
+    Execute --> Result{"¿Resultado de pago?"}
+    Result -->|"Rechazo conocido"| Reject["Persistir rechazo<br/>Otro medio solo mediante flujo explícito"]
+    Result -->|"Desconocido / timeout"| Unknown["Conservar estado incierto<br/>Consultar origen o conciliar antes de otro cargo"]
+    Result -->|"Resultado aceptado conforme al medio"| Commit["Transacción de venta, pagos y outbox<br/>Fiscalidad según contrato del país"]
+    Commit --> Saved{"¿Commit confirmado?"}
+    Saved -->|"No / respuesta incierta"| Recover["Recuperar por identidad e intención<br/>Resolver persistencia y pago; no repetir cargo"]
+    Saved -->|"Sí"| Receipt["Entregar documento permitido<br/>Resultado fiscal e impresión separados"]
+    Receipt --> Pending["Pendientes durables de integración<br/>Enviar cuando política y capacidad lo permitan"]

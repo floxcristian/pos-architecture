@@ -1,0 +1,15 @@
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> Ready: Dependencias y política autorizadas
+    Ready --> InFlight: Persistir destino e intento antes de enviar
+    InFlight --> Unknown: Timeout, caída o respuesta ambigua
+    InFlight --> Rejected: Rechazo definitivo con evidencia
+    InFlight --> Recorded: Resultado de registro confirmado
+    Unknown --> Recorded: Consulta fiable encuentra el mismo efecto
+    Unknown --> Rejected: Resultado definitivo confirmado
+    Unknown --> Ready: Ausencia verificable y contrato permite reintento seguro
+    Unknown --> Review: No existe consulta fiable o evidencia suficiente
+    Review --> Recorded: Conciliación verifica efecto
+    Review --> Rejected: Resolución autorizada y documentada
+    Recorded --> Posted: Evidencia de contabilización según contrato ERP
+    Posted --> [*]

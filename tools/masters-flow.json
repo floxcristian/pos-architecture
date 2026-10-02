@@ -1,0 +1,1345 @@
+{
+  "id": "masters",
+  "title": "Maestros: MPOS → lotes centrales → sucursal",
+  "mode": "current",
+  "summary": "El concentrador contiene tareas WSO2, count DSS, mediador Java por JDBC, tablas PostgreSQL y API de lectura. El sincronizador descarga lotes y aplica detalles; cliente y dirección son ramas alternativas.",
+  "boundary": "Código en mountain-concentrador @b2fd1ec y sync @540ab9a; no acredita el binario desplegado. El productor AX→MPOS, cuerpos SP, ubicaciones y calendario real siguen pendientes. Las fases centrales, ACK, aplicación local y recálculo no tienen una transacción global.",
+  "groups": [
+    {
+      "id": "origin",
+      "title": "AX · productor de cambios pendiente",
+      "repo": "Productor no recibido",
+      "runtime": "ERP on-premise / proceso por identificar",
+      "zone": "Central · ubicación física pendiente",
+      "evidence": "AX→MPOS es el antecedente informado. El lector Java no demuestra el job que llena MPOS."
+    },
+    {
+      "id": "mpos-sql",
+      "title": "SQL Server · MPOS",
+      "repo": "mountain-concentrador @b2fd1ec",
+      "runtime": "SQL Server / JDBC",
+      "zone": "Central lógico · servidor pendiente",
+      "evidence": "BOAX fija MPOS; BOCliente consulta dbo.CustTableSync y SP. No se recibió DDL ni cuerpo de SP."
+    },
+    {
+      "id": "concentrator-app",
+      "title": "Concentrador · WSO2 / Java",
+      "repo": "mountain-concentrador @b2fd1ec",
+      "runtime": "Synapse + DSS + mediador Java / JDBC",
+      "zone": "Integración central lógica",
+      "evidence": "Fuentes y variantes CAR inspeccionadas; su presencia no prueba que esas tareas estén activas."
+    },
+    {
+      "id": "central-pg",
+      "title": "PostgreSQL · concentrador",
+      "repo": "mountain-concentrador @b2fd1ec",
+      "runtime": "PostgreSQL / JDBC y AdonisJS",
+      "zone": "Concentrador central lógico",
+      "evidence": "Java califica public; API lectura usa nombres sin esquema. Bindings/search_path productivos por validar."
+    },
+    {
+      "id": "read-api",
+      "title": "API de lectura · receptores disponibles",
+      "repo": "mountain-concentrador/api-lectura @b2fd1ec",
+      "runtime": "AdonisJS / Node.js",
+      "zone": "Central · despliegue pendiente",
+      "evidence": "Rutas y SQL compatibles con el consumidor nombreEntidad. La API WSO2 paralela utiliza codigoEntidad; no se presume misma instancia."
+    },
+    {
+      "id": "group-origin",
+      "title": "Origen y preparación central",
+      "repo": "Productores AX/MPOS no recibidos",
+      "runtime": "SQL Server / procesos por confirmar",
+      "zone": "Central · ubicación MPOS pendiente",
+      "evidence": "Apuntes/PPTX; no se deducen tabla, job diario ni servidor físico."
+    },
+    {
+      "id": "group-read-api",
+      "title": "API de lectura de maestros",
+      "repo": "Consumidor en sync; receptor pendiente",
+      "runtime": "Runtime efectivo por confirmar",
+      "zone": "Central",
+      "evidence": "Contrato HTTP consumido; implementación y prefijo desplegado pendientes."
+    },
+    {
+      "id": "group-sync-app",
+      "title": "Sincronizador de sucursal",
+      "repo": "mountain-sync-sucursal @540ab9a",
+      "runtime": "AdonisJS / Node.js",
+      "zone": "Servidor de sucursal",
+      "evidence": "Código del snapshot, no certificación del despliegue ni del tráfico productivo."
+    },
+    {
+      "id": "group-postgres",
+      "title": "PostgreSQL de sucursal",
+      "repo": "Modelos y SQL de sync/backend",
+      "runtime": "PostgreSQL",
+      "zone": "Sucursal",
+      "evidence": "El esquema sincronizador está declarado en los modelos. Comparte la PostgreSQL local; no es una base nueva. Las tablas de negocio no califican esquema."
+    },
+    {
+      "id": "group-backend",
+      "title": "Mountain · backend local",
+      "repo": "mountain-implementos/backend",
+      "runtime": "AdonisJS / Node.js",
+      "zone": "Servidor de sucursal",
+      "evidence": "Recálculo posterior al maestro; no misma trx."
+    }
+  ],
+  "nodes": [
+    {
+      "id": "origin",
+      "group": "origin",
+      "title": "Dynamics AX → productor de cambios",
+      "kind": "external",
+      "subtitle": "Implementación no recibida",
+      "detail": "El usuario describe cambios de AX hacia MPOS. No se demostró job diario, mecanismo, bajas ni servidor compartido.",
+      "sources": [
+        {
+          "label": "MPOS, datasource y estados de origen",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/BOAX.java#L45-L69"
+        },
+        {
+          "label": "Tabla de clientes, SP y lectura JDBC",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/tables/BOCliente.java#L26-L83"
+        }
+      ]
+    },
+    {
+      "id": "mpos",
+      "group": "mpos-sql",
+      "title": "MPOS.dbo.CustTableSync",
+      "kind": "table",
+      "subtitle": "Clientes como ejemplo",
+      "detail": "BOCliente usa Id y sp_caja_custTable. BOAX fija MPOS; la paginación pasa 0→9 y TOP(n) 9→0. Direcciones/contactos tienen tablas distintas.",
+      "sources": [
+        {
+          "label": "MPOS, datasource y estados de origen",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/BOAX.java#L45-L69"
+        },
+        {
+          "label": "Actualización de origen y paginación 0/9",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/BOAX.java#L212-L310"
+        },
+        {
+          "label": "Tabla de clientes, SP y lectura JDBC",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/tables/BOCliente.java#L26-L83"
+        },
+        {
+          "label": "Tabla y SP de contactos",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/tables/BOContacto.java#L26-L33"
+        },
+        {
+          "label": "Tabla y SP de direcciones",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/tables/BODireccion.java#L26-L33"
+        }
+      ]
+    },
+    {
+      "id": "task",
+      "group": "concentrator-app",
+      "title": "Task / SEQ_DSS_AX_Clientes",
+      "kind": "component",
+      "subtitle": "Consultar count de pendientes",
+      "detail": "Task fuente interval=10; solo count>0 registra consulta y encola trabajo. CAR etiquetados PROD/QA/DESA difieren; no es cadencia productiva acreditada.",
+      "sources": [
+        {
+          "label": "Task de clientes",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/tasks/Task_SincronizaClientes.xml#L1-L9"
+        },
+        {
+          "label": "Solo count > 0 dispara registro y cola",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_DSS_AX_Clientes.xml#L1-L18"
+        },
+        {
+          "label": "SOAPAction opGetCountClientesAX",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/templates/TP_DSS_AX_Clientes.xml#L9-L22"
+        }
+      ]
+    },
+    {
+      "id": "dss",
+      "group": "concentrator-app",
+      "title": "DSS_AX_Clientes",
+      "kind": "component",
+      "subtitle": "opGetCountClientesAX",
+      "detail": "El count consulta CustTableSync con Procesado=0. El datasource no califica base/esquema en esa consulta; su binding efectivo se debe contrastar con MPOS usado por Java.",
+      "sources": [
+        {
+          "label": "DSS: count, SP y actualización",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/DSConcentrador/dataservice/DSS_AX_Clientes.dbs#L1-L83"
+        },
+        {
+          "label": "SOAPAction opGetCountClientesAX",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/templates/TP_DSS_AX_Clientes.xml#L9-L22"
+        },
+        {
+          "label": "Endpoint DSS, path y timeout",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/endpoints/EP_DSS_AX_Clientes.xml#L2-L7"
+        }
+      ]
+    },
+    {
+      "id": "queue-reader",
+      "group": "concentrator-app",
+      "title": "MS_ProcesaRegistro / SEQ_Q_LeerColaBus",
+      "kind": "component",
+      "subtitle": "Trabajo de generación de lotes",
+      "detail": "Store JMS/Andes y SamplingProcessor invocan la secuencia. Configura página/límite, llama procesarCambiosAX y luego arma aviso a sucursales; no transporta todo el maestro como aviso.",
+      "sources": [
+        {
+          "label": "Aviso de trabajo a MS_ProcesaRegistro",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_CambioDesdeAx.xml#L27-L45"
+        },
+        {
+          "label": "JMS / Andes y qlProcesaRegistro",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-stores/MS_ProcesaRegistro.xml#L2-L8"
+        },
+        {
+          "label": "SamplingProcessor y concurrencia declarada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-processors/MP_ProcesaRegistro.xml#L2-L6"
+        },
+        {
+          "label": "Página, límite, mediador y aviso",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_LeerColaBus.xml#L3-L55"
+        },
+        {
+          "label": "Aviso por entidad de destino",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_CambiosASucursal.xml#L2-L8"
+        }
+      ]
+    },
+    {
+      "id": "java",
+      "group": "concentrator-app",
+      "title": "RegistraMensajeDetalle → BOCliente / BOGuardarData",
+      "kind": "component",
+      "subtitle": "Consultar MPOS y materializar lotes",
+      "detail": "Lee SQL directamente con JDBC; persiste detalles, marca origen procesado y después inserta cabeceras/salidas por destino. Algunos catches JDBC solo registran el error.",
+      "sources": [
+        {
+          "label": "Procesar cambios AX y seleccionar camino",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L962-L1062"
+        },
+        {
+          "label": "Tabla de clientes, SP y lectura JDBC",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/tables/BOCliente.java#L26-L83"
+        },
+        {
+          "label": "Generar detalles, marcar origen y guardar salidas",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOGuardarData.java#L56-L208"
+        },
+        {
+          "label": "Bulk PostgreSQL de detalles",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalle.java#L133-L170"
+        },
+        {
+          "label": "Bulk de salidas con conexión compartida",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeSalida.java#L47-L96"
+        }
+      ]
+    },
+    {
+      "id": "central-details",
+      "group": "central-pg",
+      "title": "public.mensaje_entrada · public.mensaje_detalles",
+      "kind": "table",
+      "subtitle": "Payload y detalles centrales",
+      "detail": "Java persiste entrada y detalles en fases propias. El bulk de detalles precede a marcar MPOS y a construir las salidas por destino.",
+      "sources": [
+        {
+          "label": "Tabla física public.mensaje_entrada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeEntrada.java#L40-L65"
+        },
+        {
+          "label": "Bulk PostgreSQL de detalles",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalle.java#L133-L170"
+        },
+        {
+          "label": "Generar detalles, marcar origen y guardar salidas",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOGuardarData.java#L56-L208"
+        }
+      ]
+    },
+    {
+      "id": "central-headers",
+      "group": "central-pg",
+      "title": "public.mensaje_cabeceras",
+      "kind": "table",
+      "subtitle": "Cabecera y contadores por destino",
+      "detail": "Java inserta cabeceras después de marcar el origen. API lectura incrementa contadores al recibir procesados; total_sincronizados incluye resultados con error.",
+      "sources": [
+        {
+          "label": "Tabla física public.mensaje_cabeceras",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeCabecera.java#L43-L65"
+        },
+        {
+          "label": "Generar detalles, marcar origen y guardar salidas",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOGuardarData.java#L56-L208"
+        },
+        {
+          "label": "Procesados, contadores y estado de lote",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L194-L277"
+        }
+      ]
+    },
+    {
+      "id": "central-output",
+      "group": "central-pg",
+      "title": "public.mensaje_salida · public.mensaje_detalle_sucursales",
+      "kind": "table",
+      "subtitle": "Entrega, recibido y resultado",
+      "detail": "Java comparte conexión para salida/vínculos de destino. API lectura usa nombres no calificados: enviado, recibido_sucursal y procesado representan fases distintas.",
+      "sources": [
+        {
+          "label": "Bulk de salidas con conexión compartida",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeSalida.java#L47-L96"
+        },
+        {
+          "label": "Detalles de destino con conexión heredada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalleSucursal.java#L59-L120"
+        },
+        {
+          "label": "Elegibilidad, selección, enviado y recuperación",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Services/MensajeSalidaService.js#L9-L134"
+        },
+        {
+          "label": "Procesados, contadores y estado de lote",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L194-L277"
+        }
+      ]
+    },
+    {
+      "id": "read-api",
+      "group": "read-api",
+      "title": "MensajeSalidasController",
+      "kind": "component",
+      "subtitle": "GET cambios / sin-procesar · POST recibido / procesados",
+      "detail": "Receptores AdonisJS disponibles. Cambios confirma marca enviado antes de devolver HTTP. Procesados registra éxitos y errores y marca procesado usando la cabecera del primer ítem.",
+      "sources": [
+        {
+          "label": "Cuatro rutas API lectura",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/start/routes.js#L19-L26"
+        },
+        {
+          "label": "GET cambios modifica estado y confirma trx",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L19-L109"
+        },
+        {
+          "label": "Sin procesar y recibido",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L112-L191"
+        },
+        {
+          "label": "Procesados, contadores y estado de lote",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L194-L277"
+        }
+      ]
+    },
+    {
+      "id": "read-service",
+      "group": "read-api",
+      "title": "MensajeSalidaService",
+      "kind": "component",
+      "subtitle": "Seleccionar y actualizar entregas",
+      "detail": "Cambios selecciona salida y cambia enviado. Sin-procesar filtra enviado=true / procesado=false, sin excluir recibido_sucursal=true. No se observa claim exclusivo con bloqueo de fila.",
+      "sources": [
+        {
+          "label": "Elegibilidad, selección, enviado y recuperación",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Services/MensajeSalidaService.js#L9-L134"
+        },
+        {
+          "label": "Modelo mensaje_salida",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Models/MensajeSalida.js#L6-L33"
+        }
+      ]
+    },
+    {
+      "id": "download",
+      "group": "group-sync-app",
+      "title": "CambiosConcentradorService / MensajeService",
+      "kind": "component",
+      "subtitle": "Pedir, validar y guardar sobre",
+      "detail": "Solicita el lote, valida destino/datos, notifica recibido y crea mensaje/detalles si esa respuesta no declara error.",
+      "sources": [
+        {
+          "label": "Descarga, recibido y procesados",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L77-L318"
+        },
+        {
+          "label": "Transacción de sobre y detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeService.js#L15-L81"
+        }
+      ]
+    },
+    {
+      "id": "apply",
+      "group": "group-sync-app",
+      "title": "MensajeDetalleService",
+      "kind": "component",
+      "subtitle": "Una transacción por detalle",
+      "detail": "Lee detalles, selecciona el servicio por tipo, hace commit/rollback y actualiza metadata después.",
+      "sources": [
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        }
+      ]
+    },
+    {
+      "id": "client-service",
+      "group": "group-sync-app",
+      "title": "ClientesSyncService",
+      "kind": "component",
+      "subtitle": "Aplicar maestro cliente",
+      "detail": "Guarda personas/empresas con auxiliares según payload; algunas lecturas de apoyo quedan fuera de la trx.",
+      "sources": [
+        {
+          "label": "Cliente: personas, empresas y auxiliares",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/Sync/ClientesSyncService.js#L14-L407"
+        },
+        {
+          "label": "Guardado de persona",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/PersonaService.js#L13-L61"
+        }
+      ]
+    },
+    {
+      "id": "address-service",
+      "group": "group-sync-app",
+      "title": "DireccionesSyncService",
+      "kind": "component",
+      "subtitle": "Aplicar maestro dirección",
+      "detail": "Resuelve empresa y valida identidad. Ausencia del cliente puede producir error; respeta condiciones de vigencia/principal.",
+      "sources": [
+        {
+          "label": "Direcciones: resolución de cliente y condiciones",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/Sync/DireccionesSyncService.js#L20-L315"
+        }
+      ]
+    },
+    {
+      "id": "messages",
+      "group": "group-postgres",
+      "title": "sincronizador.mensajes · sincronizador.mensaje_detalles",
+      "kind": "table",
+      "subtitle": "Sobre y seguimiento del lote",
+      "detail": "Creación del sobre con su trx; aplicaciones por detalle y metadata posterior son fases distintas. El esquema sincronizador está declarado en los modelos. Comparte la PostgreSQL local; no es una base nueva.",
+      "sources": [
+        {
+          "label": "Transacción de sobre y detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeService.js#L15-L81"
+        },
+        {
+          "label": "Modelo: sincronizador.mensajes",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/Mensaje.js#L6-L21"
+        },
+        {
+          "label": "Modelo: sincronizador.mensaje_detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/MensajeDetalle.js#L6-L14"
+        },
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        }
+      ]
+    },
+    {
+      "id": "clients",
+      "group": "group-postgres",
+      "title": "personas · empresas y auxiliares",
+      "kind": "table",
+      "subtitle": "Copia local del cliente",
+      "detail": "La aplicación puede resolver clasificación, cartera, segmento, bloqueo y giro. Nombres sin esquema calificado; search_path y DDL productivos pendientes. No añadir public por inferencia.",
+      "sources": [
+        {
+          "label": "Cliente: personas, empresas y auxiliares",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/Sync/ClientesSyncService.js#L14-L407"
+        },
+        {
+          "label": "Guardado de persona",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/PersonaService.js#L13-L61"
+        }
+      ]
+    },
+    {
+      "id": "addresses",
+      "group": "group-postgres",
+      "title": "direccion_empresas · direcciones",
+      "kind": "table",
+      "subtitle": "Dirección y vínculo con empresa",
+      "detail": "Valida referencia de empresa y RUT; aplica condiciones y catálogos auxiliares de comuna/tipo. Nombres sin esquema calificado; search_path y DDL productivos pendientes. No añadir public por inferencia.",
+      "sources": [
+        {
+          "label": "Direcciones: resolución de cliente y condiciones",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/Sync/DireccionesSyncService.js#L20-L315"
+        }
+      ]
+    },
+    {
+      "id": "terms",
+      "group": "group-postgres",
+      "title": "estado_cuenta_plazos",
+      "kind": "table",
+      "subtitle": "Plazo completado si corresponde",
+      "detail": "Tras aplicar cliente, el flujo puede consultar/completar plazo como trabajo posterior. No está dentro del commit ya cerrado del maestro. Nombres sin esquema calificado; search_path y DDL productivos pendientes. No añadir public por inferencia.",
+      "sources": [
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        }
+      ]
+    },
+    {
+      "id": "accounts",
+      "group": "group-postgres",
+      "title": "estado_cuentas",
+      "kind": "table",
+      "subtitle": "Estado de cuenta recalculado",
+      "detail": "El backend puede guardar derivados de deuda/saldo fuera de la trx del maestro. Nombres sin esquema calificado; search_path y DDL productivos pendientes. No añadir public por inferencia.",
+      "sources": [
+        {
+          "label": "Recálculo de estado de cuenta",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Services/Cobranzas/AcuerdoCobranzaService.js#L811-L1166"
+        },
+        {
+          "label": "Migración: estado_cuentas",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/database/migrations/1640016682001_estado_cuentas_schema.js#L6-L17"
+        }
+      ]
+    },
+    {
+      "id": "account-service",
+      "group": "group-backend",
+      "title": "CobranzaController → AcuerdoCobranzaService",
+      "kind": "component",
+      "subtitle": "Recálculo solicitado por LAN",
+      "detail": "Recibe la solicitud local posterior al cliente y recalcula cuenta. Las consultas y condiciones auxiliares se detallan también en el flujo customer.",
+      "sources": [
+        {
+          "label": "Ruta local de recálculo",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/start/routes.js#L527-L535"
+        },
+        {
+          "label": "Controlador de actualización de deuda",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Controllers/Http/CobranzaController.js#L2058-L2102"
+        },
+        {
+          "label": "Recálculo de estado de cuenta",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Services/Cobranzas/AcuerdoCobranzaService.js#L811-L1166"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "ax-mpos",
+      "from": "origin",
+      "to": "mpos",
+      "label": "Alimentar tablas de cambios · productor pendiente",
+      "protocol": "Por confirmar",
+      "detail": "Relación informada; el lector confirma MPOS y tablas de cambio, no el mecanismo de carga desde AX.",
+      "effect": "Cambios disponibles para lectores centrales.",
+      "boundary": "No demuestra job diario, DDL, SP ni servidor compartido.",
+      "certainty": "reported",
+      "sources": [
+        {
+          "label": "MPOS, datasource y estados de origen",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/BOAX.java#L45-L69"
+        },
+        {
+          "label": "Tabla de clientes, SP y lectura JDBC",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/tables/BOCliente.java#L26-L83"
+        }
+      ]
+    },
+    {
+      "id": "count-call",
+      "from": "task",
+      "to": "dss",
+      "label": "SOAP /services/DSS_AX_Clientes?wsdl · opGetCountClientesAX",
+      "protocol": "SOAP",
+      "detail": "TP_DSS_AX_Clientes envía SOAPAction urn:opGetCountClientesAX al endpoint DSS literal configurado.",
+      "effect": "Obtiene count de pendientes.",
+      "boundary": "Se conserva path del XML. Origin, versión instalada y binding efectivo no publicados ni acreditados.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "SOAPAction opGetCountClientesAX",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/templates/TP_DSS_AX_Clientes.xml#L9-L22"
+        },
+        {
+          "label": "Endpoint DSS, path y timeout",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/endpoints/EP_DSS_AX_Clientes.xml#L2-L7"
+        },
+        {
+          "label": "Solo count > 0 dispara registro y cola",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_DSS_AX_Clientes.xml#L1-L18"
+        }
+      ]
+    },
+    {
+      "id": "count-sql",
+      "from": "dss",
+      "to": "mpos",
+      "label": "SELECT COUNT · CustTableSync WHERE Procesado=0",
+      "protocol": "SQL",
+      "detail": "DSS consulta la tabla sin prefijo. Java identifica MPOS para su lector; confirmar datasource DSS en instalación.",
+      "effect": "Mide elegibilidad observada por DSS.",
+      "boundary": "Count no certifica lote disponible ni versión aplicada en sucursal.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "DSS: count, SP y actualización",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/DSConcentrador/dataservice/DSS_AX_Clientes.dbs#L1-L83"
+        },
+        {
+          "label": "MPOS, datasource y estados de origen",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/BOAX.java#L45-L69"
+        }
+      ]
+    },
+    {
+      "id": "enqueue-job",
+      "from": "task",
+      "to": "queue-reader",
+      "label": "count > 0 → MS_ProcesaRegistro → secuencia lectora",
+      "protocol": "Interno",
+      "detail": "La secuencia guarda trabajo en store JMS; SamplingProcessor invoca SEQ_Q_LeerColaBus.",
+      "effect": "Programa generación de lotes con slug/origen/destino/count.",
+      "boundary": "No es todavía persistencia/aplicación local; parámetros fuente/CAR pueden diferir.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Solo count > 0 dispara registro y cola",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_DSS_AX_Clientes.xml#L1-L18"
+        },
+        {
+          "label": "Aviso de trabajo a MS_ProcesaRegistro",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_CambioDesdeAx.xml#L27-L45"
+        },
+        {
+          "label": "JMS / Andes y qlProcesaRegistro",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-stores/MS_ProcesaRegistro.xml#L2-L8"
+        },
+        {
+          "label": "SamplingProcessor y concurrencia declarada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/message-processors/MP_ProcesaRegistro.xml#L2-L6"
+        }
+      ]
+    },
+    {
+      "id": "invoke-java",
+      "from": "queue-reader",
+      "to": "java",
+      "label": "procesarCambiosAX · itemsPorPagina / límite de salida",
+      "protocol": "Interno",
+      "detail": "La secuencia pasa parámetros al mediador Java. Para clientes, valores generales de página 3000 y salida 100.",
+      "effect": "Inicia paginación, transformación y distribución central.",
+      "boundary": "No equivale a un lote atómico; páginas y mensajes de salida son unidades distintas.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Página, límite, mediador y aviso",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ESBImplementos/src/main/synapse-config/sequences/SEQ_Q_LeerColaBus.xml#L3-L55"
+        },
+        {
+          "label": "Procesar cambios AX y seleccionar camino",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L962-L1062"
+        }
+      ]
+    },
+    {
+      "id": "read-mpos",
+      "from": "java",
+      "to": "mpos",
+      "label": "UPDATE 0→9→0; EXEC MPOS.dbo.sp_caja_custTable",
+      "protocol": "SQL",
+      "detail": "Prepara páginas y ejecuta SP por JDBC; el payload no pasa necesariamente por DSS.",
+      "effect": "Recupera detalles de cliente de una página.",
+      "boundary": "No se recibieron cuerpos SP; fila en estado 9 necesita recuperación si se interrumpe la fase.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Actualización de origen y paginación 0/9",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/BOAX.java#L212-L310"
+        },
+        {
+          "label": "Tabla de clientes, SP y lectura JDBC",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/tables/BOCliente.java#L26-L83"
+        },
+        {
+          "label": "Procesar cambios AX y seleccionar camino",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/RegistraMensajeDetalle.java#L962-L1062"
+        }
+      ]
+    },
+    {
+      "id": "central-store-details",
+      "from": "java",
+      "to": "central-details",
+      "label": "INSERT mensaje_entrada / bulk mensaje_detalles",
+      "protocol": "SQL",
+      "detail": "BOCliente registra entrada; BOGuardarData persiste detalles antes de marcar el origen.",
+      "effect": "Conserva payload central en fases de persistencia.",
+      "boundary": "No comparte una transacción con SQL Server ni con toda la distribución posterior.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Tabla de clientes, SP y lectura JDBC",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/tables/BOCliente.java#L26-L83"
+        },
+        {
+          "label": "Tabla física public.mensaje_entrada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeEntrada.java#L40-L65"
+        },
+        {
+          "label": "Generar detalles, marcar origen y guardar salidas",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOGuardarData.java#L56-L208"
+        },
+        {
+          "label": "Bulk PostgreSQL de detalles",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalle.java#L133-L170"
+        }
+      ]
+    },
+    {
+      "id": "mark-origin",
+      "from": "java",
+      "to": "mpos",
+      "label": "UPDATE Procesado=1 antes de cabeceras y salidas",
+      "protocol": "SQL",
+      "detail": "Tras bulk de detalles, se llama actualizarCambiosProcesadosAX antes de generar cabeceras/salidas.",
+      "effect": "Retira origen de la selección normal Procesado=0.",
+      "boundary": "Procesado en MPOS no significa aplicado en todas las sucursales. Conciliar fallos entre fases; incidente no probado.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Generar detalles, marcar origen y guardar salidas",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOGuardarData.java#L56-L208"
+        },
+        {
+          "label": "Actualización de origen y paginación 0/9",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/AX/BOAX.java#L212-L310"
+        }
+      ]
+    },
+    {
+      "id": "central-store-header",
+      "from": "java",
+      "to": "central-headers",
+      "label": "INSERT public.mensaje_cabeceras",
+      "protocol": "SQL",
+      "detail": "Construye cabeceras por tipo y entidad destino después de la marca de origen.",
+      "effect": "Registra cabeceras de distribución.",
+      "boundary": "Una cabecera no demuestra que todas las salidas estén disponibles ni aplicadas.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Generar detalles, marcar origen y guardar salidas",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOGuardarData.java#L56-L208"
+        },
+        {
+          "label": "Tabla física public.mensaje_cabeceras",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeCabecera.java#L43-L65"
+        },
+        {
+          "label": "Función fn_get_entidades",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOEntidades.java#L21-L51"
+        }
+      ]
+    },
+    {
+      "id": "central-store-output",
+      "from": "java",
+      "to": "central-output",
+      "label": "INSERT salidas y vínculos por destino · conexión compartida",
+      "protocol": "SQL",
+      "detail": "BOMensajeSalida usa una conexión para salidas y mensaje_detalle_sucursales y hace commit de esa unidad.",
+      "effect": "Materializa sobres que API lectura puede entregar.",
+      "boundary": "No integra detalles anteriores, cabeceras y MPOS en una trx global; algunos errores se registran sin propagar.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Generar detalles, marcar origen y guardar salidas",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOGuardarData.java#L56-L208"
+        },
+        {
+          "label": "Bulk de salidas con conexión compartida",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeSalida.java#L47-L96"
+        },
+        {
+          "label": "Detalles de destino con conexión heredada",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/ClassRegistraMensajeDetalle/src/main/java/cl/implementos/BO/BOMensajeDetalleSucursal.java#L59-L120"
+        }
+      ]
+    },
+    {
+      "id": "api-select",
+      "from": "read-api",
+      "to": "read-service",
+      "label": "Validar, seleccionar y marcar salida con trx",
+      "protocol": "Interno",
+      "detail": "Controller llama servicios para cambios y recuperación; recibido usa update dentro de su propia trx.",
+      "effect": "Ejecuta la lógica de cada petición.",
+      "boundary": "Cada petición tiene su frontera; no es una trx compartida con sucursal.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "GET cambios modifica estado y confirma trx",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L19-L109"
+        },
+        {
+          "label": "Sin procesar y recibido",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L112-L191"
+        },
+        {
+          "label": "Elegibilidad, selección, enviado y recuperación",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Services/MensajeSalidaService.js#L9-L134"
+        }
+      ]
+    },
+    {
+      "id": "sent-state",
+      "from": "read-service",
+      "to": "central-output",
+      "label": "SELECT salida; UPDATE enviado=true antes de respuesta",
+      "protocol": "SQL",
+      "detail": "Cambios obtiene salida y la marca enviada; controller confirma antes de HTTP. Se permite enviar con hasta 10 previas sin procesar según validación Node.",
+      "effect": "Registra entrega intentada al consumidor.",
+      "boundary": "Enviado no acredita recibido ni aplicado; SELECT/UPDATE no prueban exclusión concurrente.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Elegibilidad, selección, enviado y recuperación",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Services/MensajeSalidaService.js#L9-L134"
+        },
+        {
+          "label": "GET cambios modifica estado y confirma trx",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L19-L109"
+        }
+      ]
+    },
+    {
+      "id": "received-state",
+      "from": "read-service",
+      "to": "central-output",
+      "label": "UPDATE recibido_sucursal=true; fecha_recibido",
+      "protocol": "SQL",
+      "detail": "POST recibido actualiza la salida por mensajeSalidaId y confirma su trx central.",
+      "effect": "Acusa recepción antes de la persistencia local del sync.",
+      "boundary": "Sin-procesar no excluye este estado; ACK temprano no prueba pérdida definitiva.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Sin procesar y recibido",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L112-L191"
+        },
+        {
+          "label": "Elegibilidad, selección, enviado y recuperación",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Services/MensajeSalidaService.js#L9-L134"
+        },
+        {
+          "label": "Sync acusa antes de guardar",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L79-L111"
+        }
+      ]
+    },
+    {
+      "id": "result-state",
+      "from": "read-api",
+      "to": "central-output",
+      "label": "UPDATE detalles procesado/error; salida procesado=true",
+      "protocol": "SQL",
+      "detail": "Procesados escribe resultados por detalle y, mediante el servicio, marca la salida seleccionada por el primer elemento.",
+      "effect": "Registra resultado informado, incluidos fallos de aplicación.",
+      "boundary": "No valida aquí homogeneidad/completitud del lote; procesado no equivale a éxito.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Procesados, contadores y estado de lote",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L194-L277"
+        }
+      ]
+    },
+    {
+      "id": "result-count",
+      "from": "read-api",
+      "to": "central-headers",
+      "label": "UPDATE total_sincronizados / total_errores += resultados",
+      "protocol": "SQL",
+      "detail": "Mediante MensajeCabeceraService incrementa contadores en la trx de procesados.",
+      "effect": "Acumula resultados informados.",
+      "boundary": "Repetir el mismo POST vuelve a sumar; total_sincronizados incluye ítems con error.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Procesados, contadores y estado de lote",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L194-L277"
+        }
+      ]
+    },
+    {
+      "id": "recover-state",
+      "from": "read-service",
+      "to": "central-output",
+      "label": "SELECT enviado=true AND procesado=false",
+      "protocol": "SQL",
+      "detail": "Sin-procesar reconsulta pendientes enviados sin filtrar recibido_sucursal.",
+      "effect": "Permite reofertar también un lote acusado antes de su copia local.",
+      "boundary": "No verifica por sí solo retención, deduplicación local ni recuperación efectiva.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Elegibilidad, selección, enviado y recuperación",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Services/MensajeSalidaService.js#L9-L134"
+        },
+        {
+          "label": "Sin procesar y recibido",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L112-L191"
+        }
+      ]
+    },
+    {
+      "id": "get-changes",
+      "from": "download",
+      "to": "read-api",
+      "label": "GET mensajeSalidas/cambios",
+      "protocol": "HTTP",
+      "detail": "Solicita un lote por nombreEntidad/tipoMensaje; polling o aviso AMQP puede iniciar el recorrido. Controller/Service centrales ahora están disponibles.",
+      "effect": "Obtiene un sobre para validación local.",
+      "boundary": "Contrato relativo compatible; binding de producción y convivencia con API WSO2 codigoEntidad pendientes.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Descarga, recibido y procesados",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L77-L318"
+        },
+        {
+          "label": "Cola local: crear, seleccionar y procesar",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/ColaMensajeService.js#L17-L140"
+        },
+        {
+          "label": "Cuatro rutas API lectura",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/start/routes.js#L19-L26"
+        },
+        {
+          "label": "GET cambios modifica estado y confirma trx",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L19-L109"
+        }
+      ]
+    },
+    {
+      "id": "get-recovery",
+      "from": "download",
+      "to": "read-api",
+      "label": "GET mensajeSalidas/sin-procesar",
+      "protocol": "HTTP",
+      "detail": "Camino alternativo: pide enviados sin procesar. La consulta central no filtra recibido_sucursal; un lote acusado sigue siendo elegible mientras procesado=false.",
+      "effect": "Recupera sobres pendientes según el contrato consumido.",
+      "boundary": "Recuperación disponible en código, condicionada a retención, ejecución y aplicación; no prueba una recuperación exitosa.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Descarga, recibido y procesados",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L77-L318"
+        },
+        {
+          "label": "Elegibilidad, selección, enviado y recuperación",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Services/MensajeSalidaService.js#L9-L134"
+        },
+        {
+          "label": "Sin procesar y recibido",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L112-L191"
+        }
+      ]
+    },
+    {
+      "id": "receipt",
+      "from": "download",
+      "to": "read-api",
+      "label": "POST mensajeSalidas/recibido",
+      "protocol": "HTTP",
+      "detail": "Notifica mensajeSalidaId antes de guardar el sobre local y continúa si la respuesta no declara error.",
+      "effect": "Acusa recepción al servicio central.",
+      "boundary": "Acuse HTTP y persistencia local no son atómicos; existe ventana entre ambos.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Descarga, recibido y procesados",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L77-L318"
+        },
+        {
+          "label": "Sin procesar y recibido",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L112-L191"
+        }
+      ]
+    },
+    {
+      "id": "persist-envelope",
+      "from": "download",
+      "to": "messages",
+      "label": "INSERT mensajes y mensaje_detalles; COMMIT local",
+      "protocol": "SQL",
+      "detail": "MensajeService inserta cabecera/detalles con una trx propia tras el acuse recibido.",
+      "effect": "Conserva sobre y referencia al mensaje del concentrador.",
+      "boundary": "No aplica todavía todos los maestros ni contiene futuras transacciones por detalle.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Transacción de sobre y detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeService.js#L15-L81"
+        },
+        {
+          "label": "Modelo: sincronizador.mensajes",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/Mensaje.js#L6-L21"
+        },
+        {
+          "label": "Modelo: sincronizador.mensaje_detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/MensajeDetalle.js#L6-L14"
+        },
+        {
+          "label": "Descarga, recibido y procesados",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L77-L318"
+        }
+      ]
+    },
+    {
+      "id": "read-detail",
+      "from": "apply",
+      "to": "messages",
+      "label": "SELECT detalles pendientes del mensaje",
+      "protocol": "SQL",
+      "detail": "Carga detalles y procesa cada uno con su transacción según tipo.",
+      "effect": "Obtiene el dato de maestro que se aplicará.",
+      "boundary": "Un lote de clientes y otro de direcciones no constituyen una transacción global.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        }
+      ]
+    },
+    {
+      "id": "dispatch-client",
+      "from": "apply",
+      "to": "client-service",
+      "label": "Aplicar tipo cliente con trx",
+      "protocol": "Interno",
+      "detail": "Rama de aplicación de cliente dentro de la transacción de ese detalle.",
+      "effect": "Invoca su lógica de rematerialización local.",
+      "boundary": "Alternativa de tipo; no obliga a aplicar una dirección en la misma transacción.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        },
+        {
+          "label": "Cliente: personas, empresas y auxiliares",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/Sync/ClientesSyncService.js#L14-L407"
+        }
+      ]
+    },
+    {
+      "id": "write-client",
+      "from": "client-service",
+      "to": "clients",
+      "label": "SELECT / INSERT / UPDATE personas, empresas y auxiliares",
+      "protocol": "SQL",
+      "detail": "Crea/actualiza persona y empresa; resuelve auxiliares según datos recibidos.",
+      "effect": "Actualiza el maestro local.",
+      "boundary": "Lecturas auxiliares no siempre usan trx. Error del detalle requiere tratamiento propio.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Cliente: personas, empresas y auxiliares",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/Sync/ClientesSyncService.js#L14-L407"
+        },
+        {
+          "label": "Guardado de persona",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/PersonaService.js#L13-L61"
+        }
+      ]
+    },
+    {
+      "id": "dispatch-address",
+      "from": "apply",
+      "to": "address-service",
+      "label": "Aplicar tipo dirección con trx",
+      "protocol": "Interno",
+      "detail": "Rama de dirección, diferente de la de cliente.",
+      "effect": "Invoca validación/resolución de empresa y dirección.",
+      "boundary": "Cliente ausente puede hacer fallar este detalle; no se inventa identidad.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        },
+        {
+          "label": "Direcciones: resolución de cliente y condiciones",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/Sync/DireccionesSyncService.js#L20-L315"
+        }
+      ]
+    },
+    {
+      "id": "write-address",
+      "from": "address-service",
+      "to": "addresses",
+      "label": "SELECT / INSERT / UPDATE direccion_empresas y direcciones",
+      "protocol": "SQL",
+      "detail": "Aplica dirección/vínculo según identidad, vigencia y principal; usa catálogos auxiliares.",
+      "effect": "Actualiza direcciones locales admitidas por las condiciones.",
+      "boundary": "No significa reemplazar todas las direcciones ni sincronizar contactos.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Direcciones: resolución de cliente y condiciones",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/Sync/DireccionesSyncService.js#L20-L315"
+        }
+      ]
+    },
+    {
+      "id": "detail-result",
+      "from": "apply",
+      "to": "messages",
+      "label": "COMMIT / ROLLBACK detalle; UPDATE metadata posterior",
+      "protocol": "SQL",
+      "detail": "Primero finaliza la trx del maestro según resultado; después actualiza procesado/error y fechas del detalle sin esa trx.",
+      "effect": "Registra seguimiento tras intentar aplicar el maestro.",
+      "boundary": "La relación resume dos momentos, no una única transacción. Procesado puede coexistir con error.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        },
+        {
+          "label": "Modelo: sincronizador.mensaje_detalles",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/MensajeDetalle.js#L6-L14"
+        }
+      ]
+    },
+    {
+      "id": "complete-term",
+      "from": "apply",
+      "to": "terms",
+      "label": "SELECT / completar estado_cuenta_plazos, condicional",
+      "protocol": "SQL",
+      "detail": "Después de la rama cliente se intenta completar información de plazo.",
+      "effect": "Trabajo auxiliar posterior al maestro ya aplicado.",
+      "boundary": "No forma parte del commit del cliente; puede fallar sin deshacerlo.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        }
+      ]
+    },
+    {
+      "id": "recalculate-request",
+      "from": "apply",
+      "to": "account-service",
+      "label": "GET public/cobranzas/actualizar-estado-cuenta",
+      "protocol": "HTTP",
+      "detail": "Mediante BackendSucursalService solicita al backend de la misma sucursal actualizar cuenta.",
+      "effect": "Dispara recálculo posterior por LAN.",
+      "boundary": "Ruta relativa verificada. El endpoint local tiene efectos; no es un acuse central.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "HTTP posterior hacia backend de sucursal",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/BackendSucursalService.js#L189-L212"
+        },
+        {
+          "label": "Ruta local de recálculo",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/start/routes.js#L527-L535"
+        },
+        {
+          "label": "Controlador de actualización de deuda",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Controllers/Http/CobranzaController.js#L2058-L2102"
+        }
+      ]
+    },
+    {
+      "id": "write-account",
+      "from": "account-service",
+      "to": "accounts",
+      "label": "SELECT derivados; guardar estado_cuentas",
+      "protocol": "SQL",
+      "detail": "AcuerdoCobranzaService recalcula/guarda cuenta bajo sus condiciones; usa operaciones de negocio como insumo.",
+      "effect": "Actualiza derivados locales de deuda/saldo.",
+      "boundary": "Fuera de la trx del maestro; dependencias y consulta de saldo condicional se explican en customer.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Recálculo de estado de cuenta",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Services/Cobranzas/AcuerdoCobranzaService.js#L811-L1166"
+        },
+        {
+          "label": "Migración: estado_cuentas",
+          "url": "https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/database/migrations/1640016682001_estado_cuentas_schema.js#L6-L17"
+        }
+      ]
+    },
+    {
+      "id": "notify-processed",
+      "from": "download",
+      "to": "read-api",
+      "label": "POST mensajeSalidas/procesados",
+      "protocol": "HTTP",
+      "detail": "Devuelve resultados por detalle, incluidos errores.",
+      "effect": "Notifica el resultado de procesamiento al servicio central.",
+      "boundary": "No significa que todos los maestros tuvieron éxito; el fallo HTTP se captura.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Descarga, recibido y procesados",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L77-L318"
+        },
+        {
+          "label": "Transacción por detalle y seguimiento posterior",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/MensajeDetalleService.js#L79-L355"
+        },
+        {
+          "label": "Procesados, contadores y estado de lote",
+          "url": "https://github.com/developer-implementos/mountain-concentrador/blob/b2fd1ec266d131abb54b7076d41acce30f045119/api-lectura/app/Controllers/Http/MensajeSalidasController.js#L194-L277"
+        }
+      ]
+    },
+    {
+      "id": "close-message",
+      "from": "download",
+      "to": "messages",
+      "label": "UPDATE sincronizador.mensajes: procesado",
+      "protocol": "SQL",
+      "detail": "Después de notificar resultados, actualiza la cabecera local mediante otro guardado/transacción.",
+      "effect": "Cierra seguimiento local del sobre.",
+      "boundary": "No fusiona acuse, maestros, metadata, recálculo y notificación en un commit común.",
+      "certainty": "code",
+      "sources": [
+        {
+          "label": "Descarga, recibido y procesados",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Services/LlamadaApis/CambiosConcentradorService.js#L77-L318"
+        },
+        {
+          "label": "Modelo: sincronizador.mensajes",
+          "url": "https://github.com/developer-implementos/mountain-sync-sucursal/blob/540ab9a70e7befbca27a2f7eb88b87b25109e4d1/app/Models/Mensaje.js#L6-L21"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "title": "1 · Detectar cambios centrales",
+      "detail": "El productor AX→MPOS sigue pendiente. La tarea fuente consulta el count DSS, que lee pendientes SQL.",
+      "edges": [
+        "ax-mpos",
+        "count-call",
+        "count-sql"
+      ],
+      "boundary": "Ubicación, jobs reales y binding productivo no se infieren del código."
+    },
+    {
+      "title": "2 · Encolar y generar detalles",
+      "detail": "Si count>0, se encola trabajo. La secuencia invoca Java, que pagina/consulta MPOS directamente y persiste entrada/detalles.",
+      "edges": [
+        "enqueue-job",
+        "invoke-java",
+        "read-mpos",
+        "central-store-details"
+      ],
+      "boundary": "DSS count, JDBC y lotes PostgreSQL son funciones distintas del concentrador."
+    },
+    {
+      "title": "3 · Marcar origen y distribuir",
+      "detail": "Java marca MPOS procesado antes de insertar cabeceras y salidas por destino.",
+      "edges": [
+        "mark-origin",
+        "central-store-header",
+        "central-store-output"
+      ],
+      "boundary": "No hay un commit global MPOS/PostgreSQL; la marca de origen no acredita aplicación en sucursal."
+    },
+    {
+      "title": "4 · Pedir un lote",
+      "detail": "Sync consume cambios; el receptor selecciona y marca enviado antes de la respuesta HTTP.",
+      "edges": [
+        "get-changes",
+        "api-select",
+        "sent-state"
+      ],
+      "boundary": "La variante API WSO2 tiene otro parámetro de entidad; confirmar binding."
+    },
+    {
+      "title": "5 · Acusar antes de persistir",
+      "detail": "Recibido cambia el estado central; después sync conserva el sobre en PostgreSQL local.",
+      "edges": [
+        "receipt",
+        "received-state",
+        "persist-envelope"
+      ],
+      "boundary": "Hay ventana sin custodia local, con reoferta sin-procesar disponible."
+    },
+    {
+      "title": "6 · Elegir el servicio por detalle",
+      "detail": "Lee detalles y despacha a cliente o dirección según tipo.",
+      "edges": [
+        "read-detail",
+        "dispatch-client",
+        "dispatch-address"
+      ],
+      "boundary": "Son alternativas con transacciones por detalle, no una trx de todo el lote."
+    },
+    {
+      "title": "7 · Aplicar tablas de ese maestro",
+      "detail": "Cliente modifica personas/empresas; dirección modifica sus tablas y necesita identificar al cliente.",
+      "edges": [
+        "write-client",
+        "write-address"
+      ],
+      "boundary": "No se sustituyen indiscriminadamente todas las direcciones ni se administran existencias."
+    },
+    {
+      "title": "8 · Finalizar detalle y guardar metadata",
+      "detail": "Commit/rollback de maestro precede al guardado de seguimiento del detalle.",
+      "edges": [
+        "detail-result"
+      ],
+      "boundary": "Procesado no equivale a éxito y metadata queda fuera del commit anterior."
+    },
+    {
+      "title": "9 · Recalcular cuenta cuando corresponde",
+      "detail": "La rama cliente puede completar plazo y pedir recálculo al backend local.",
+      "edges": [
+        "complete-term",
+        "recalculate-request",
+        "write-account"
+      ],
+      "boundary": "Trabajo posterior que puede fallar sin revertir la ficha confirmada."
+    },
+    {
+      "title": "10 · Informar y cerrar",
+      "detail": "Sync informa éxitos y errores; API actualiza detalles/salida y suma contadores. Después sync marca su cabecera local.",
+      "edges": [
+        "notify-processed",
+        "result-state",
+        "result-count",
+        "close-message"
+      ],
+      "boundary": "Repetición de procesados no es idempotente en contadores. No se acredita éxito de todo el lote."
+    },
+    {
+      "title": "11 · Recuperar enviados pendientes",
+      "detail": "Camino alternativo: consultar sin-procesar, incluido recibido_sucursal=true, y reintentar la recepción/aplicación.",
+      "edges": [
+        "get-recovery",
+        "api-select",
+        "recover-state"
+      ],
+      "boundary": "Disponible en código; validar retención, deduplicación, caídas y restore."
+    }
+  ]
+}

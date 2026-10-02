@@ -1,0 +1,13 @@
+flowchart TB
+    accTitle: Maestros desde MPOS a sucursal
+    accDescr: Lectores MPOS, generación central, API lectura y aplicación local revisados; productor AX a MPOS y despliegue pendientes.
+    subgraph upstream["Origen y generación central"]
+        ax[("Dynamics AX")] -. "Productor pendiente" .-> mpos[("SQL Server MPOS<br/>CustTableSync")]
+        mpos -->|"JDBC / Java"| bus["mountain-concentrador<br/>Generador de lotes + PostgreSQL"]
+    end
+    subgraph download["Descarga y aplicación"]
+        readapi["mountain-concentrador<br/>api-lectura / mensajeSalidas"] -->|"Lotes y recuperación"| sync["mountain-sync-sucursal"]
+        sync -->|"Transacciones locales"| localdb[("PostgreSQL sucursal<br/>Maestros y sincronizador")]
+    end
+    bus --> readapi
+    sync -->|"recibido / procesados"| readapi

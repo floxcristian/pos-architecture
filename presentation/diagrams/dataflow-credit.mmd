@@ -1,0 +1,35 @@
+flowchart TB
+  subgraph QUERY["A · Consultar NC de un cliente"]
+    REQ["POST /nota-de-credito/por-cliente<br/>Backend Mountain"]
+    REMOTE["POST buscarNotasCredito<br/>servicio remoto configurado"]
+    LOCAL[("PG local<br/>nota_de_credito_externas + pagos<br/>devoluciones + detalle_devoluciones")]
+    PAYAPI["api-pagos-caja<br/>GET /api/pagos/pagosSinSinc"]
+    DIRECTORY[("Mongo dbCaja<br/>cajaSucursales")]
+    STORES[("PG de sucursales<br/>comprobante_ventas + pagos NC<br/>JOIN con documentos y dtes")]
+    RESULT["Saldo mostrado<br/>respuesta puede ser parcial"]
+    REQ -->|"Consulta remota"| REMOTE
+    REQ -->|"LEE consumo y devoluciones locales"| LOCAL
+    REQ -->|"Consulta otras sucursales"| PAYAPI
+    PAYAPI -->|"1 · LEE destinos activos"| DIRECTORY
+    PAYAPI -->|"2 · LEE JOIN por rut / dv"| STORES
+    REMOTE --> RESULT
+    LOCAL --> RESULT
+    STORES -->|"Datos y errores vía API"| RESULT
+  end
+  subgraph MARKS["B · Marcas de uso: otro recorrido"]
+    CHECK["Backend: folio / devoluciones"]
+    ROUTES["api-pagos-caja / estadoNC<br/>GET / POST / PUT"]
+    CALLER["Aplicación llamadora de POST / PUT<br/>por identificar"]
+    STATE[("Mongo dbCaja<br/>estadoNC")]
+    CHECK -->|"GET por folio"| ROUTES
+    CALLER -.->|"Rutas declaradas"| ROUTES
+    ROUTES -->|"GET LEE / POST y PUT ESCRIBEN"| STATE
+  end
+  subgraph USE["C · Pago con NC en una venta"]
+    SALE["POST /punto-de-venta<br/>payload con notaDeCreditoExterna"]
+    PAYMENT[("PG local<br/>pagos + pago_comprobante_ventas<br/>nota_de_credito_externas")]
+    SALE -->|"ESCRIBE pago y NC por pago_id"| PAYMENT
+  end
+  %% Solo orden visual A / B / C. Estos enlaces invisibles no son llamadas.
+  RESULT ~~~ CHECK
+  STATE ~~~ SALE

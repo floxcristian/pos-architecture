@@ -1,0 +1,8 @@
+flowchart TB
+  OPEN["Apertura con identidad<br/>exclusión e idempotencia"] --> SESSION[("Sesión local abierta")]
+  SESSION --> CUT["En cierre: fijar corte<br/>validar conteo y denominaciones"]
+  CUT --> POLICY{"Diferencias y pendientes<br/>admitidos por política"}
+  POLICY -->|"No"| REVIEW["Corregir o solicitar<br/>aprobación prevista"]
+  POLICY -->|"Sí"| COMMIT[("COMMIT local<br/>cierre + intención de integración")]
+  COMMIT --> WORKER["Enviar por identidad<br/>conciliar cada resultado"]
+  WORKER --> STATUS["Sesión cerrada<br/>estado externo independiente"]

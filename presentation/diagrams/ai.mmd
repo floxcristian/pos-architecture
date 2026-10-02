@@ -1,0 +1,15 @@
+flowchart TB
+    accTitle: Asistencia de IA opcional con fuentes, permisos y revisión
+    accDescr: Las políticas y fuentes autorizadas limitan el servicio de IA. La asistencia puede usar un modelo remoto o búsqueda local; un modelo local es opcional y no se presupone. La persona revisa y el núcleo valida cualquier comando. El modelo no escribe datos de negocio.
+    subgraph Inputs["Evidencia y control"]
+        aievidence["Fuentes autorizadas<br/>versión y vigencia"]
+        aipolicies["Políticas y evaluación<br/>permisos y límites"]
+    end
+    aievidence --> aigateway["Servicio de ayuda IA<br/>puede abstenerse"]
+    aipolicies --> aigateway
+    aigateway --> aimodel["Modelo remoto<br/>candidato"]
+    aievidence --> ailocal["Consulta local<br/>modelo opcional"]
+    aipolicies -.-> ailocal
+    aimodel --> aireview["Sugerencia y revisión<br/>de la persona"]
+    ailocal --> aireview
+    aireview -->|"Comando normal del POS"| aicore["Núcleo determinista<br/>valida las reglas"]

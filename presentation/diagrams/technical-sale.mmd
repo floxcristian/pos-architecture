@@ -1,0 +1,32 @@
+sequenceDiagram
+    actor Op as Operador
+    participant UI as Angular POS
+    participant API as Backend sucursal
+    participant Price as API de precios / promociones
+    participant DB as PostgreSQL sucursal
+    participant Fiscal as Proveedor fiscal configurado
+    Op->>UI: Seleccionar artículo y cantidad
+    UI->>API: GET /Productos/:id con contexto de precio
+    API->>Price: GET URL_API_PRECIOS con rut, sku, cantidad, sucursal y usuario
+    alt Precio remoto no disponible
+        Price--xAPI: Error o timeout
+        API-->>UI: Error de precio
+        Note over UI,API: La interfaz inspeccionada bloquea abrir pago con error_precio
+    else Precio disponible
+        Price-->>API: Precio y datos aplicables
+        API-->>UI: Producto y resultado
+        Note over UI,API: El pago externo tiene su propio flujo, se omite aquí
+        UI->>API: POST /punto-de-venta
+        API->>DB: Transacción: documentos y pagos recibidos
+        DB-->>API: COMMIT
+        opt Estado solicitado vigente
+            API->>Fiscal: Solicitar facturación de comprobante
+            alt Resultado satisfactorio
+                Fiscal-->>API: Resultado de emisión
+            else Fallo posterior al commit
+                Fiscal--xAPI: Error / resultado por resolver
+                Note over API,DB: La venta ya persistida no desaparece por rollback posterior
+            end
+        end
+        API-->>UI: Resultado del recorrido
+    end

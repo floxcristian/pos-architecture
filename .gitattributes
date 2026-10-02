@@ -1,0 +1,16 @@
+* text=auto eol=lf
+*.md text eol=lf
+*.js text eol=lf
+*.cjs text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.mmd text eol=lf
+*.py text eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pptx binary
+*.zip binary
+# Keep upstream vendor files intact, including their original whitespace.
+**/vendor/* linguist-vendored -whitespace

@@ -1,0 +1,9 @@
+flowchart TB
+  RELEASE["Firma verificada + hash<br/>matriz de compatibilidad"] --> DOWNLOAD["Sucursal: descargar y verificar"]
+  DOWNLOAD --> PREFLIGHT["Preflight, drenaje y checkpoint<br/>ventana de activación"]
+  PREFLIGHT --> MIGRATE["Activar versión y esquema<br/>migración recuperable"]
+  MIGRATE --> HEALTH{"Verificación local"}
+  HEALTH -->|"Correcta"| RUN["Operar con backlog preservado<br/>eventos con identidad original"]
+  HEALTH -->|"Falla"| RECOVER["Volver solo si compatible<br/>o recuperar hacia adelante"]
+  RUN --> CENTER["Centro compatible con versiones<br/>deduplicación y cuarentena"]
+  RECOVER --> HEALTH

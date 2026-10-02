@@ -1,0 +1,22 @@
+# Source repositories used for read-only research; not part of this project.
+/repos/
+
+# Local browser captures and verification reports.
+/presentation/qa/
+
+# Dependencies, runtime caches and local configuration.
+node_modules/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+!.env.sample
+*.log
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# The distributable is intentionally versioned; temporary archives are not.
+/dist/*
+!/dist/pos-atlas.zip

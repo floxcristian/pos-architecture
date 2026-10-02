@@ -1,0 +1,25 @@
+flowchart TB
+  PREP["Sync sucursal · prepara"] -->|"LEE elegibles"| DOC[("PG sucursal<br/>documentos + dtes")]
+  PREP -->|"INSERT y COMMIT"| MSG[("sincronizador<br/>mensajes + mensaje_detalles")]
+  PREP -->|"UPDATE separado"| MARK[("documentos<br/>sincronizado=true")]
+  MARK -->|"Aún sin confirmación ERP"| SEND["Sync lee sobre y envía"]
+  SEND -->|"LEE"| MSG
+  SEND -->|"POST /api/mensajeEntradas/ingresar"| CENTRAL["mountain-concentrador / WSO2<br/>Recepción de operaciones"]
+  CENTRAL -->|"Función de consulta + INSERT"| CENTRY[("PG central<br/>public.mensaje_entrada")]
+  CENTRAL -->|"store JMS"| CSTORE["Broker JMS / AMQP<br/>Trabajo de integración"]
+  CENTRAL -.->|"ACK HTTP: recepción, no AX"| SEND
+  CSTORE -.->|"AMQP · binding pendiente"| CNODE["mountain-concentrador<br/>procesador-cola-bus"]
+  CNODE -->|"INSERT sin await antes de ACK"| CQUEUE[("PG central<br/>public.cola_mensajes")]
+  CWORK["Procesar operaciones<br/>en el concentrador"] -->|"UPDATE claim / LEE hasta 2"| CQUEUE
+  CWORK -->|"INSERT / commits separados"| CDETAIL[("public.mensaje_detalles<br/>mensaje_cabeceras<br/>mensaje_detalle_sucursales")]
+  CWORK -->|"HTTP POST creaFacturaOvFromPos"| NET["apis-implementos / apiMountainPosCaja<br/>Adaptación de ventas"]
+  NET -->|"Proxy CreateSalesOrderwithDetailsV4"| AX["Servicio AX<br/>internos no incluidos"]
+  AX -->|"Resultado"| NET
+  NET -->|"Respuesta HTTP"| RETURN["Preparar respuesta<br/>por sucursal"]
+  RETURN -->|"Antes de publicar: UPDATE / errores"| CRESULT[("PG central<br/>resultado por destino")]
+  RETURN -.->|"AMQP · binding pendiente"| RECEIVE["Consumidor sync sucursal"]
+  RECEIVE -->|"INSERT sin esperar"| QUEUE[("sincronizador.cola_mensajes")]
+  RECEIVE -->|"ACK sin esperar INSERT"| ACK["Acuse al broker"]
+  APPLY["Worker aplica respuesta"] -->|"LEE / marca en_proceso"| QUEUE
+  APPLY -->|"CustInvoiceJour sin error / COMMIT"| CONFIRM[("documentos<br/>sincronizacion_confirmada")]
+  CONFIRM -->|"Después del commit de negocio"| META[("sincronizador<br/>mensaje_detalles y cola_mensajes")]

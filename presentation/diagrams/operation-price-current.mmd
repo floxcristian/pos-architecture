@@ -1,0 +1,7 @@
+flowchart TB
+  POS["Mountain: producto y cantidad"] --> API["Backend: contexto de precio"]
+  API -->|"GET URL_API_PRECIOS"| REMOTE["API configurada<br/>dependencia remota"]
+  REMOTE -->|"Error de precio"| STOP["UI impide abrir pago"]
+  CANDIDATE["ApiPrecios .NET<br/>candidato, binding pendiente"] -->|"LEE"| DATA[("Mongo: preciosnew / articulos<br/>clientesGrupos / historicoPrecios<br/>preciosnewliquidacion")]
+  REMOTE -.->|"Contrato compatible por confirmar"| CANDIDATE
+  CANDIDATE -->|"Ruta por lote"| BATCH["Calcula con cantidad 1<br/>y usuario 72"]

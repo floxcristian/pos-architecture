@@ -1,0 +1,16 @@
+flowchart LR
+    accTitle: Venta actual, persistencia local y registro posterior en AX
+    accDescr: La venta se guarda antes de solicitar el DTE. El sincronizador selecciona documentos elegibles y los envía al bus. La confirmación AX es posterior y distinta del guardado local.
+    subgraph branch["Venta en sucursal"]
+        direction TB
+        ui["Caja<br/>confirma venta"] --> backend["Backend<br/>procesa venta"]
+        backend -->|"1 · Commit"| localdb[("Venta local<br/>PostgreSQL")]
+        backend -->|"2 · Tras commit"| fiscal["Solicitud<br/>DTE"]
+        fiscal -->|"Estado DTE"| backend
+    end
+    subgraph posting["Registro posterior"]
+        direction TB
+        sync["Sincronizador<br/>prepara envío"] -->|"Red / WAN"| bus["Bus de<br/>integración"]
+        bus --> ax[("Dynamics AX<br/>Chile")]
+    end
+    branch -->|"3 · Elegible"| posting

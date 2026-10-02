@@ -1,0 +1,23 @@
+flowchart LR
+    accTitle: Propuesta de POS con operación local e integración posterior
+    accDescr: El núcleo local aplica ofertas y persiste operación y outbox en una misma transacción. Con conexión, el outbox entrega al inbox central. La plataforma usa una ACL para integrar el ERP. Es una propuesta, no una implementación existente.
+    subgraph branch["Sucursal · propuesta"]
+        direction TB
+        ui["Cliente candidato<br/>Angular / Tauri"] --> edge["Núcleo local<br/>ventas y caja"]
+        edge <--> offers["Precios y ofertas<br/>evaluación local"]
+        subgraph tx["Una base · un commit"]
+            direction LR
+            edgedb[("Datos de<br/>operación")]
+            outbox["Outbox<br/>pendientes"]
+            edgedb ~~~ outbox
+        end
+        edge --> tx
+        offers ~~~ tx
+    end
+    subgraph central["Integración central"]
+        direction TB
+        inbox["Inbox<br/>recepción durable"] --> platform["Plataforma<br/>y workers"]
+        platform --> acl["ACL<br/>por ERP"]
+        acl --> erp[("ERP<br/>por país")]
+    end
+    branch <-->|"Con conexión"| central

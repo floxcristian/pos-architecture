@@ -1,0 +1,11 @@
+{
+  "name": "pos-atlas-presentation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tutorial interactivo local de arquitectura POS",
+  "scripts": {
+    "start": "node server.cjs",
+    "check": "node tools/check-presentation.cjs",
+    "diagrams": "node tools/render-diagrams.cjs"
+  }
+}

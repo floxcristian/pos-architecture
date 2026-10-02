@@ -1,0 +1,18 @@
+flowchart TB
+  UI["1 · GET /empresas/:id<br/>seleccionar o cargar"] --> LOOKUP["Backend: resolver RUT"]
+  LOOKUP -->|"LEE si hay ID local"| ID[("empresas + personas")]
+  LOOKUP -->|"GET cliente, _rutCliente"| REMOTE["API clientes configurada<br/>receptor por verificar"]
+  REMOTE -->|"2 · Respuesta válida"| SAVE["Guardar ficha con trx"]
+  subgraph PG["PostgreSQL sucursal · actualización local"]
+    CLIENT[("personas + empresas")]
+    ADDRESS[("direccion_empresas<br/>direcciones")]
+    ACCOUNT[("estado_cuentas<br/>cupo y plazo")]
+  end
+  SAVE -->|"LEE / ESCRIBE"| CLIENT
+  SAVE -->|"LEE / ESCRIBE según payload"| ADDRESS
+  SAVE -->|"LEE plazo / ESCRIBE cuenta"| ACCOUNT
+  SAVE -->|"3 · Tras guardados"| COMMIT["COMMIT ficha<br/>releer relaciones locales"]
+  COMMIT -->|"Rama id=null: ID, o sin saldo"| OUT["Respuesta a la interfaz"]
+  COMMIT -->|"4 · Solo cuando corresponde"| SALDO["GET saldo y recálculo<br/>fuera de la trx de ficha"]
+  SALDO -->|"ESCRIBE saldo externo y derivados"| ACCOUNT
+  SALDO --> OUT

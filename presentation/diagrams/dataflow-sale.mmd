@@ -1,0 +1,21 @@
+flowchart TB
+  REQ["Angular POS<br/>POST /punto-de-venta"] --> SAVE["Backend Mountain<br/>1 · Guardar con trx"]
+  subgraph PG1["PG sucursal · venta"]
+    DOC[("documentos<br/>detalle_documentos")]
+    TAX[("documentos_has_impuestos")]
+    PAY[("comprobante_ventas + vínculo<br/>pagos + vínculo")]
+  end
+  SAVE -->|"ESCRIBE cabecera y líneas"| DOC
+  SAVE -->|"LEE detalle, ESCRIBE impuestos"| TAX
+  SAVE -->|"ESCRIBE venta y pagos recibidos"| PAY
+  SAVE -->|"2 · Tras los guardados"| COMMIT["COMMIT de venta"]
+  COMMIT -->|"Solo si estado solicitado vigente"| BILL["3 · Backend Mountain<br/>preparar emisión de DTE"]
+  subgraph PG2["Misma PG · fuera de trx"]
+    DTE[("dtes<br/>preparación y resultado")]
+    STATE[("documentos<br/>comprobante_ventas")]
+  end
+  BILL -->|"4 · Intenta ESCRIBIR en-preparacion"| DTE
+  BILL -->|"5 · Solicitar emisión"| PROVIDER["Acepta / Ingydev<br/>según configuración"]
+  PROVIDER -->|"6 · Respuesta o error"| RESULT["Backend Mountain<br/>procesar resultado fiscal"]
+  RESULT -->|"7 · Intenta ESCRIBIR estado y folio"| DTE
+  RESULT -->|"8 · ESCRIBE estados de negocio"| STATE

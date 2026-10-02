@@ -1,0 +1,9 @@
+flowchart TB
+    accTitle: RFID como captura, sin cambiar la autoridad de negocio
+    accDescr: El perfil configura un lector homologado. Las observaciones se reúnen en una sesión y se resuelven mediante un mapeo gobernado. La revisión usa el comando normal del POS. Un flujo separado propone un conteo al dueño externo del inventario. Lectura, cesta y conteo tienen identidades distintas.
+    capabilities["Perfil de sucursal y puesto<br/>capacidades aprobadas"] -.-> rfidreader["Lector y adaptador<br/>observaciones acotadas"]
+    rfidreader --> rfidsession["Sesión de lectura<br/>deduplicar y resolver"]
+    rfidmapping["Mapeo gobernado<br/>tag, producto y unidad"] --> rfidsession
+    rfidsession --> rfidreview["Revisión de candidatos<br/>versión de cesta"]
+    rfidreview -->|"Comando normal"| edge["Núcleo de sucursal<br/>reglas y persistencia"]
+    rfidsession -->|"Flujo distinto: conteo propuesto"| inventoryowner["Dueño del inventario<br/>revisión y conciliación"]

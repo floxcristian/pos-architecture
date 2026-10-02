@@ -1,0 +1,9 @@
+flowchart LR
+    accTitle: Coexistencia y migración hacia un ERP común
+    accDescr: La plataforma mantiene un contrato propio y una ACL por ERP. Cada operación conserva su destino durante la convivencia entre AX y el ERP futuro, cuyo producto aún debe confirmarse.
+    platform["Plataforma POS<br/>contrato estable"] --> acl["ACL<br/>destino por operación"]
+    acl -->|"Actual / históricos"| ax[("Dynamics AX<br/>Chile")]
+    acl -.->|"Futuro por confirmar"| erpnext[("ERP común<br/>tres países")]
+    classDef unknown fill:#fff8e8,stroke:#bc852c,stroke-width:2px,stroke-dasharray:6 4,color:#69480d;
+    class erpnext unknown;
+    linkStyle 2 stroke:#bc852c,stroke-width:2px,stroke-dasharray:6 4;

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17302d">
+  <meta name="description" content="Recorrido interactivo por el POS actual de Chile y la propuesta de arquitectura para Chile, Perú y España.">
+  <title>POS Atlas · De la sucursal a una plataforma común</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2317302d'/%3E%3Cpath d='M12 32V16h10v16m4 0V16h10v16M9 24h30' fill='none' stroke='%23a9e5cc' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="interactions.css">
+  <link rel="stylesheet" href="repositories.css">
+  <script defer src="content.js"></script>
+  <script defer src="diagrams.js"></script>
+  <script defer src="technical-data.js"></script>
+  <script defer src="technical-ui.js"></script>
+  <script defer src="dataflows-data.js"></script>
+  <script defer src="dataflows-ui.js"></script>
+  <script defer src="operations-data.js"></script>
+  <script defer src="operations-ui.js"></script>
+  <script defer src="interactions-current.js"></script>
+  <script defer src="interactions-extensions.js"></script>
+  <script defer src="interactions-proposed.js"></script>
+  <script defer src="interactions-view-data.js"></script>
+  <script defer src="interactions-ui.js"></script>
+  <script defer src="repositories-data.js"></script>
+  <script defer src="repositories-ui.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Recorrido">
+      <a class="brand" href="#mapa" aria-label="POS Atlas, inicio">
+        <svg viewBox="0 0 40 40" width="38" height="38" aria-hidden="true"><rect width="40" height="40" rx="11" fill="currentColor"/><path d="M10 28V12h8v16m4 0V12h8v16M7 20h26" fill="none" stroke="#c6f2de" stroke-width="2"/></svg>
+        <span>POS <strong>Atlas</strong><small>Arquitectura, paso a paso</small></span>
+      </a>
+      <div class="sidebar-label">EL RECORRIDO</div>
+      <nav id="chapter-nav" aria-label="Capítulos"></nav>
+      <div class="sidebar-footer">
+        <div class="country-codes">CL <span>·</span> PE <span>·</span> ES</div>
+        <p>Una base común.<br>Tres realidades operativas.</p>
+        <button class="btn secondary" data-action="sources">Fuentes y alcance <span aria-hidden="true">↗</span></button>
+        <small>Material de trabajo · octubre 2026</small>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="chapter-counter" id="chapter-counter"></div>
+        <label class="mobile-nav">Capítulo <select id="mobile-chapter" aria-label="Elegir capítulo"></select></label>
+        <div class="toolbar">
+          <button class="btn secondary small" data-action="glossary" title="Abrir glosario (G)">Glosario <span class="key-hint">G</span></button>
+          <button class="btn secondary small" data-action="present" aria-pressed="false" title="Alternar modo exposición (P)">Modo exposición</button>
+          <button class="btn icon" data-action="fullscreen" aria-label="Pantalla completa" title="Pantalla completa">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></svg>
+          </button>
+          <button class="btn icon" data-action="help" aria-label="Ayuda y accesibilidad" title="Ayuda y accesibilidad">?</button>
+        </div>
+      </header>
+      <main id="main" tabindex="-1"></main>
+      <footer class="bottom-bar"><span>Explora los componentes · avanza a tu ritmo</span><span>Chile: evidencia revisada · Perú y España: antecedentes</span></footer>
+    </div>
+  </div>
+  <dialog class="modal" id="modal" aria-labelledby="modal-title">
+    <div class="modal-header"><h2 id="modal-title"></h2><button class="btn icon modal-close" data-action="close-modal" aria-label="Cerrar ventana">×</button></div>
+    <div class="modal-body" id="modal-body"></div>
+  </dialog>
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <noscript>Esta presentación necesita JavaScript. Actívalo o consulta los documentos en la carpeta docs.</noscript>
+</body>
+</html>

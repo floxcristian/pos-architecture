@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant Sync as mountain-sync-sucursal
+    participant Local as PostgreSQL sucursal
+    participant ESB as mountain-concentrador / WSO2
+    participant PG as PostgreSQL central
+    participant MQ as Broker JMS / AMQP
+    participant Node as mountain-concentrador / procesador-cola-bus
+    participant Net as apis-implementos / apiMountainPosCaja
+    participant AX as Dynamics AX
+    Sync->>Local: Preparar mensaje y detalles elegibles
+    Local-->>Sync: Commit local
+    Sync->>ESB: POST /api/mensajeEntradas/ingresar
+    ESB->>PG: Consultar registro e INSERT mensaje_entrada
+    ESB->>MQ: Publicar trabajo en qlProcesaRegistro
+    ESB-->>Sync: procesado=true significa recepción, no AX
+    Note over PG,MQ: Persistencia y publicación son pasos separados
+    alt Ruta Node / PostgreSQL versionada
+        MQ->>Node: Entregar sobre XML
+        Node->>PG: Iniciar INSERT cola_mensajes
+        Node-->>MQ: ACK sin esperar INSERT
+        ESB->>PG: Claim hasta 2 filas, en_proceso=true
+    else Alternativa de consumo directo por WSO2
+        MQ->>ESB: Entregar trabajo para procesamiento central
+    end
+    Note over Node,ESB: Selección y bindings desplegados por confirmar
+    ESB->>PG: INSERT detalles, cabeceras y relaciones con commits separados
+    ESB->>Net: POST creaFacturaOvFromPos
+    Net->>AX: CreateSalesOrderwithDetailsV4
+    AX-->>Net: Resultado por tablas
+    Net-->>ESB: Respuesta del adaptador
+    ESB->>PG: UPDATE data_respuesta, procesado/error y contadores
+    ESB->>MQ: Publicar respuesta al store de sucursal
+    MQ->>Sync: Entregar respuesta
+    Sync->>Local: Iniciar INSERT de cola local
+    Sync-->>MQ: ACK sin esperar INSERT local
+    Sync->>Local: Procesar respuesta y referencias AX
+    Note over Sync,AX: HTTP recibido, persistido, fiscal y ERP son estados distintos

@@ -1,0 +1,12 @@
+flowchart TB
+    accTitle: Extensibilidad del POS por contratos y perfiles
+    accDescr: El núcleo de sucursal conserva la autoridad de negocio. Puertos y fachadas usan perfiles versionados para seleccionar adaptadores de pago, facturación e impresión. El agente local accede a SDK y drivers de periféricos; no reemplaza al escritor de sucursal.
+    subgraph Core["Sucursal · autoridad de negocio"]
+        edge["Núcleo POS<br/>intención durable"] --> ports["Puertos y fachadas<br/>contratos del POS"]
+        capabilities["Perfil versionado<br/>y capacidades"] -.-> ports
+    end
+    ports --> paymentadapter["Adaptador<br/>de pagos"]
+    ports --> fiscaladapter["Adaptador fiscal<br/>local o remoto"]
+    ports --> printadapter["Adaptador<br/>de impresión"]
+    paymentadapter --> deviceagent["Agente de periféricos<br/>PC de caja · SDK / driver"]
+    printadapter --> deviceagent
