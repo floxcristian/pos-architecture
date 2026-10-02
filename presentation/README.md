@@ -16,6 +16,26 @@ Abre `http://127.0.0.1:4173`. El servidor escucha solo en loopback y expone la p
 
 Para compartir, entrega `dist/pos-atlas.zip`, extráelo y abre `pos-atlas/presentation/index.html`. Incluye las fuentes documentales; no incluye los clones corporativos ni las capturas de QA. Se regenera con Python 3: `python presentation/tools/package-presentation.py` desde la raíz del proyecto.
 
+## Desplegar en Vercel
+
+La configuración está en [`vercel.json`](https://github.com/floxcristian/pos-architecture/blob/main/vercel.json). Importa `floxcristian/pos-architecture` desde GitHub en **Add New → Project** y conserva la **raíz del repositorio (`./`)**. No elijas `presentation/` como raíz: también se necesitan los documentos de `docs/`.
+
+| Ajuste | Valor |
+| --- | --- |
+| Framework Preset | Other |
+| Root Directory | `./` |
+| Production Branch | `main` |
+| Build Command | `node presentation/tools/build-vercel.cjs` |
+| Output Directory | `public` |
+| Install Command | Vacío; no requiere instalar dependencias |
+| Variables de entorno | Ninguna |
+
+`vercel.json` define framework, comandos y salida. El build prepara los archivos estáticos, documentos originales y JSON de evidencia enlazados. No publica los clones, QA, herramientas ejecutables ni el servidor local. `/` redirige a `/presentation/index.html`, conservando las rutas relativas y los capítulos por hash. Los documentos Markdown se sirven como archivos de texto, igual que en la previsualización local; no se transforman en páginas HTML.
+
+Tras **Deploy**, Vercel asigna una URL al proyecto; un dominio propio es opcional. La conexión Git permite desplegar nuevas versiones al actualizar `main`. Para uso corporativo, utiliza un plan que admita ese uso: Hobby está limitado a uso personal no comercial. Referencias oficiales: [configuración de build](https://vercel.com/docs/builds/configure-a-build), [integración Git](https://vercel.com/docs/git) y [alcance de Hobby](https://vercel.com/docs/plans/hobby).
+
+Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`. `public/` es una carpeta generada e ignorada por Git; el build solo la reemplaza cuando tiene su marcador de generación. El despliegue real y su URL se verifican después de importar el repositorio en la cuenta de Vercel.
+
 ## Recorrer la presentación
 
 - **Exponer:** activa «Modo exposición» y usa las notas del presentador. Las flechas cambian de capítulo cuando el foco no está en un control.

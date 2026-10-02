@@ -3,6 +3,8 @@
 
 # Local browser captures and verification reports.
 /presentation/qa/
+/public/
+/.vercel/
 
 # Dependencies, runtime caches and local configuration.
 node_modules/
