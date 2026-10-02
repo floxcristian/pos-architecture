@@ -34,10 +34,12 @@
   function componentDetail(c) {
     return `${badge(text(c.confidence))}<p class="tech-detail-intro">${esc(c.responsibility)}</p>${componentRows(c)}${c.locationEvidence?`<h3>Sobre su ubicación</h3><p>${esc(text(c.locationEvidence))}</p>`:''}${c.pending?`<h3>Qué falta confirmar</h3><p>${esc(text(c.pending))}</p>`:''}${sources(c.sources)}`;
   }
-  function componentEvidenceHTML(currentId) {
+  function componentEvidenceHTML(currentId, additionalSources=[]) {
     const matches=list(data().components).filter(c=>(c.currentId||c.id)===currentId);
     if(!matches.length)return '';
-    return `<details class="technical-evidence"><summary>Detalles técnicos</summary>${matches.map(c=>`<div class="tech-inline-component">${matches.length>1?`<strong>${esc(c.name)}</strong>`:''}${componentRows(c)}${c.locationEvidence?`<p>${esc(text(c.locationEvidence))}</p>`:''}${c.pending?`<p class="small-note"><b>Por confirmar:</b> ${esc(text(c.pending))}</p>`:''}${sources(c.sources)}</div>`).join('')}</details>`;
+    const seen = new Set(matches.flatMap(c=>list(c.sources).map(s=>s.url)));
+    const extraSources = list(additionalSources).filter(s=>{if(seen.has(s.url))return false;seen.add(s.url);return true;});
+    return `<details class="technical-evidence"><summary>Detalles técnicos</summary>${matches.map(c=>`<div class="tech-inline-component">${matches.length>1?`<strong>${esc(c.name)}</strong>`:''}${componentRows(c)}${c.locationEvidence?`<p>${esc(text(c.locationEvidence))}</p>`:''}${c.pending?`<p class="small-note"><b>Por confirmar:</b> ${esc(text(c.pending))}</p>`:''}${sources(c.sources)}</div>`).join('')}${extraSources.length?sources(extraSources):''}</details>`;
   }
   function explorerHTML() {
     return `<section class="technical-explorer" aria-label="Evidencia del sistema actual"><div class="tech-view-switch" role="group" aria-label="Vista de la evidencia">${views.map(([id,title])=>`<button data-tech-view="${id}" aria-controls="tech-view" aria-pressed="${state.view===id}">${title}</button>`).join('')}</div><div id="tech-view" class="tech-view" role="region" aria-label="Contenido de la evidencia"></div></section>`;
