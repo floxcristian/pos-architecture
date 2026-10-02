@@ -17,6 +17,7 @@
   function mount(chapter) {
     dispose();
     const root = document.querySelector('#interaction-viewer'); if (!root) return;
+    const isEcosystemViewer=Boolean(root.closest('#map-panel-peticiones'));
     const $ = s => root.querySelector(s), $$ = s => [...root.querySelectorAll(s)];
     const flows = all().filter(f=>f.mode===(chapter==='propuesta'?'proposed':'current')); if (!flows.length) return;
     const state = {flow:flows[0],step:0,mode:innerWidth>=1000?'all':'step',zoom:'fit',scale:1,edge:null,node:null,timer:null,running:false};
@@ -127,12 +128,14 @@
       return {width,height,boxes,html:html+svg(lines+paths,width,height),stepY};
     }
     function renderDiagram() {
+      if(!root.isConnected||!viewport.clientWidth)return;
       currentLayout=state.mode==='sequence'?sequenceLayout():componentLayout(); dimensions=currentLayout;
       surface.innerHTML=currentLayout.html; surface.style.width=dimensions.width+'px';surface.style.height=dimensions.height+'px';
       $('#ix-board-caption').textContent=state.mode==='sequence'?'Secuencia de interacciones · orden didáctico, sin transacción global':state.mode==='all'?'Aplicaciones y datos · conexión seleccionada':'Aplicaciones y datos de esta conexión';
       applyZoom(true);
     }
     function applyZoom(center=false) {
+      if(!root.isConnected||!viewport.clientWidth)return;
       const available=Math.max(240,viewport.clientWidth-24);
       state.scale=state.zoom==='fit'?Math.min(1,available/dimensions.width):Number(state.zoom);
       surface.style.transform=`scale(${state.scale})`;size.style.width=dimensions.width*state.scale+'px';size.style.height=dimensions.height*state.scale+'px';
@@ -208,7 +211,9 @@
     function restoreExpanded() {
       if(!dialog)return;
       placeholder.replaceWith(root);dialog.remove();dialog=null;placeholder=null;
-      $('[data-ix-expand]').textContent='Ampliar visor';$('[data-ix-expand]').focus({preventScroll:true});applyZoom(true);
+      $('[data-ix-expand]').textContent='Ampliar visor';
+      const returnTarget=root.closest('[hidden]')?document.querySelector('[data-map-view][aria-selected="true"]'):$('[data-ix-expand]');
+      returnTarget?.focus({preventScroll:true});applyZoom(true);
     }
     function expand() {
       if(dialog){dialog.close();return;}
@@ -247,7 +252,17 @@
     const motionObserver=new MutationObserver(motion);motionObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
     const media=matchMedia('(prefers-reduced-motion: reduce)');media.addEventListener('change',motion);
     const columnBand=()=>viewport.clientWidth>=950?3:viewport.clientWidth>=600?2:1;let wasCompact=columnBand();
-    const observer=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{const compact=columnBand();if(compact!==wasCompact){wasCompact=compact;renderDiagram();}else applyZoom(false);});});observer.observe(viewport);
+    const observer=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(!viewport.clientWidth)return;const compact=columnBand();if(compact!==wasCompact){wasCompact=compact;renderDiagram();}else applyZoom(false);});});observer.observe(viewport);
+    const onMapView=event=>{
+      if(!isEcosystemViewer)return;
+      if(event.detail.view!=='peticiones'){
+        stop();
+        if(dialog){dialog.removeEventListener('close',restoreExpanded);dialog.close();restoreExpanded();}
+        return;
+      }
+      cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{wasCompact=columnBand();renderDiagram();});
+    };
+    document.addEventListener('pos:map-view',onMapView);
     const library=root.closest('details.journey-library');
     const onLibraryToggle=()=>{
       if(!library.open){stop();return;}
@@ -261,7 +276,7 @@
     viewport.addEventListener('pointermove',e=>{if(!drag)return;viewport.scrollLeft=drag.left-(e.clientX-drag.x);viewport.scrollTop=drag.top-(e.clientY-drag.y);});
     const release=()=>{drag=null;viewport.classList.remove('ix-dragging');};viewport.addEventListener('pointerup',release);viewport.addEventListener('pointercancel',release);
     root.addEventListener('focusin',e=>{if(e.target.closest('.ix-surface')) e.target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});});
-    dispose=()=>{stop();observer.disconnect();motionObserver.disconnect();cancelAnimationFrame(resizeFrame);library?.removeEventListener('toggle',onLibraryToggle);document.removeEventListener('visibilitychange',onVisibility);media.removeEventListener('change',motion);if(dialog){dialog.removeEventListener('close',restoreExpanded);placeholder?.remove();dialog.remove();dialog=null;}};
+    dispose=()=>{stop();observer.disconnect();motionObserver.disconnect();cancelAnimationFrame(resizeFrame);library?.removeEventListener('toggle',onLibraryToggle);document.removeEventListener('pos:map-view',onMapView);document.removeEventListener('visibilitychange',onVisibility);media.removeEventListener('change',motion);if(dialog){dialog.removeEventListener('close',restoreExpanded);placeholder?.remove();dialog.remove();dialog=null;}};
     $$('[data-ix-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ixMode===state.mode)));
     renderFlow();motion();
   }

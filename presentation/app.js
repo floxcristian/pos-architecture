@@ -7,7 +7,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const chapters = [
-    {id:'mapa', label:'El ecosistema actual', hint:'Qué existe hoy', title:'La caja es parte de un ecosistema.', intro:'Ubica los repositorios del POS de Chile y sus conexiones. Para una operación concreta, abre la biblioteca de llamadas; cada ficha conserva sus fuentes.', eyebrow:'01 / Entender el punto de partida'},
+    {id:'mapa', label:'El ecosistema actual', hint:'Qué existe hoy', title:'La caja es parte de un ecosistema.', intro:'Empieza por las piezas del POS de Chile. Después puedes ver su código, seguir una operación o consultar la evidencia desde las pestañas.', eyebrow:'01 / Entender el punto de partida'},
     {id:'venta', label:'El viaje de una venta', hint:'Guardar ≠ registrar en AX', title:'Una venta. Varios momentos.', intro:'En Chile, el DTE de una venta puede ser una boleta o una factura electrónica. Guardar la venta, emitir ese documento y registrarla en el ERP son pasos diferentes.', eyebrow:'02 / Seguir una operación'},
     {id:'datos', label:'Cómo llegan los datos', hint:'Flujos, tablas y estados', title:'Cada operación deja una huella.', intro:'Empieza por los maestros: listados de clientes, direcciones y productos que se actualizan en la sucursal. Sigue sus cambios por las tablas y aplicaciones, o elige otra operación para explorar sus datos.', eyebrow:'03 / Seguir los datos'},
     {id:'offline', label:'Cuando se corta Internet', hint:'Laboratorio interactivo', title:'La conexión cae. ¿Qué puede seguir?', intro:'Prueba la diferencia entre tener una base local y diseñar una operación offline de extremo a extremo. En este ejemplo suponemos una venta permitida; las políticas reales aún deben acordarse.', eyebrow:'04 / Experimentar sin riesgo'},
@@ -16,8 +16,9 @@
     {id:'ia', label:'IA en el POS', hint:'Ayuda opcional, reglas firmes', title:'Ayudar a las personas. Respetar las reglas.', intro:'Siete servicios candidatos, todavía no implementados. La IA puede buscar, proponer o resumir; la venta y sus reglas no dependen de que el modelo esté disponible.', eyebrow:'07 / Explorar una ayuda con límites'},
     {id:'repaso', label:'Comprueba lo aprendido', hint:'Repaso y siguientes decisiones', title:'Ahora, conecta las piezas.', intro:'Cuatro situaciones para comprobar el modelo mental. Puedes volver a intentar cada respuesta y consultar el glosario en cualquier momento.', eyebrow:'08 / Llevarlo a la conversación del equipo'}
   ];
+  const mapViews = [{id:'general',label:'Vista general'},{id:'repositorios',label:'Repositorios'},{id:'peticiones',label:'Peticiones'},{id:'evidencia',label:'Evidencia'}];
   const mediaMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const state = {chapter:'mapa', selected:'localdb', dataMode:'masters', compare:0, country:'CL', providerCase:'printer', providerChanged:false, rfidCase:'checkout', rfidReads:0, rfidSeen:[], rfidConfirmed:false, aiCase:'procedures', aiNetwork:'online', aiEvidence:true, flowStep:0, running:false, timer:null, presenting:false, reduced:mediaMotion.matches, offline:0, replay:false, answers:{}};
+  const state = {chapter:'mapa', mapView:'general', selected:'localdb', dataMode:'masters', compare:0, country:'CL', providerCase:'printer', providerChanged:false, rfidCase:'checkout', rfidReads:0, rfidSeen:[], rfidConfirmed:false, aiCase:'procedures', aiNetwork:'online', aiEvidence:true, flowStep:0, running:false, timer:null, presenting:false, reduced:mediaMotion.matches, offline:0, replay:false, answers:{}};
   const flowDefs = {
     sale: [
       {title:'La persona prepara la venta', text:'La interfaz recoge el cliente, los productos y el medio de pago. En el flujo actual hay consultas remotas: preparar una venta no prueba autonomía offline.', nodes:['ui','backend'], states:['En preparación','Sin resultado','Pendiente de envío']},
@@ -76,7 +77,50 @@
     return `<nav class="related-reading" aria-label="Profundizar en este tema"><strong>Para una pregunta concreta</strong><div>${items.map(([href,label])=>`<a class="btn secondary small" href="${href}">${label} →</a>`).join('')}</div></nav>`;
   }
   function currentPage() {
-    return `${window.POS_REPOSITORIES_UI?.html() || ''}${interactionLibrary('mapa')}<details class="ix-context"><summary>Vista general y fichas del ecosistema</summary><div class="stage-layout"><div>${diagram('current','Chile / arquitectura actual','Vista de responsabilidades · no representa servidores físicos')}${legend()}${nodeList(['devices','payments','centraldb','mongo','readapi','mpos','instacheck'],'Explorar periféricos, otras bases y referencias')}</div>${inspector()}</div></details><div class="fact-strip"><div><span>YA EXISTE</span><strong>Persistencia local</strong><p>Backend, PostgreSQL y sincronizador en la sucursal.</p></div><div><span>LÍMITE ACTUAL</span><strong>Dependencias online</strong><p>Tener datos locales no hace autónomo todo el flujo.</p></div><div><span>ALCANCE ACLARADO</span><strong>Caja no maneja stock</strong><p>La autoridad de la reserva externa está por precisar.</p></div></div>${notes('Empieza por mountain-implementos y mountain-sync-sucursal en el mapa de repositorios. La biblioteca de llamadas es una consulta opcional; en el siguiente capítulo se sigue la historia de una venta. No recorras todos los detalles antes de continuar.')}`;
+    return `<div id="ecosystem-views"><div class="map-tabs" role="tablist" aria-label="Perspectivas del ecosistema">${mapViews.map(v=>`<button id="map-tab-${v.id}" role="tab" data-map-view="${v.id}" aria-controls="map-panel-${v.id}" aria-selected="${state.mapView===v.id}" tabindex="${state.mapView===v.id?0:-1}">${v.label}</button>`).join('')}</div>${mapViews.map(v=>`<section class="map-panel" id="map-panel-${v.id}" role="tabpanel" aria-labelledby="map-tab-${v.id}" tabindex="0" hidden></section>`).join('')}</div>`;
+  }
+  function mapPanelHTML(view) {
+    if(view==='repositorios') return window.POS_REPOSITORIES_UI?.html() || '';
+    if(view==='peticiones') return window.POS_INTERACTIONS_UI?.html('mapa') || '';
+    if(view==='evidencia') return window.POS_TECH_UI?.explorerHTML() || '';
+    return `<p class="map-perspective">Cada sucursal tiene backend, base de datos y sincronizador. La integración central conecta con Dynamics AX; la caja no administra el stock. Selecciona una pieza para conocer su función y explorar sus operaciones.</p><div class="stage-layout"><div>${diagram('current','Chile / piezas del POS actual','Selecciona una app o base de datos para ver su detalle')}${legend()}${nodeList(['devices','payments','centraldb','mongo','readapi','mpos','instacheck'],'Otras piezas y referencias del ecosistema')}</div>${inspector()}</div>${notes('Empieza ubicando la sucursal, la integración central y AX. Repositorios responde dónde está el código; Peticiones sigue una operación. Cada pestaña conserva su selección, pero no filtra las demás. Usa los enlaces de las fichas para pasar a una operación relacionada.')}`;
+  }
+  function showMapView(view, focus=false) {
+    if(!mapViews.some(v=>v.id===view))view='general';
+    state.mapView=view;
+    $$('[data-map-view]').forEach(b=>{const active=b.dataset.mapView===view;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
+    $$('.map-panel').forEach(p=>p.hidden=p.id!=='map-panel-'+view);
+    const panel=$('#map-panel-'+view);if(!panel)return;
+    if(!panel.dataset.mounted){
+      panel.innerHTML=mapPanelHTML(view);panel.dataset.mounted='true';
+      if(view==='general'){wireDiagrams(panel);selectComponent(state.selected||'ui');}
+      if(view==='repositorios')window.POS_REPOSITORIES_UI?.mount({openModal});
+      if(view==='peticiones')window.POS_INTERACTIONS_UI?.mount('mapa');
+      if(view==='evidencia')window.POS_TECH_UI?.mount({openModal});
+    }
+    document.dispatchEvent(new CustomEvent('pos:map-view',{detail:{view}}));
+    if(view==='evidencia')window.POS_TECH_UI?.refresh?.();
+    if(focus)$('#map-tab-'+view).focus({preventScroll:true});
+  }
+  function chooseMapView(view) {
+    showMapView(view,true);
+    const params=new URLSearchParams({vista:view});
+    if(view==='peticiones'&&$('#ix-flow'))params.set('flujo',$('#ix-flow').value);
+    state.linkedFlow=null;
+    const hash='#mapa?'+params;if(location.hash!==hash)history.pushState(null,'',hash);
+  }
+  function openLinkedRepository(id) {
+    if(!id)return;
+    const button=$$('[data-repository]',$('#map-panel-repositorios')).find(b=>b.dataset.repository===id);
+    if(button){button.focus({preventScroll:true});button.click();}
+  }
+  function componentConnections(id) {
+    if(state.chapter!=='mapa')return '';
+    const journeys={ui:['sale'],backend:['sale','customer'],localdb:['sale','masters'],sync:['sync','masters'],bus:['sync','masters'],axapi:['sync'],ax:['sync'],fiscal:['sale'],devices:['printing'],readapi:['masters'],centraldb:['masters'],mpos:['masters'],mongo:['credit'],clientapi:['customer']};
+    const names={sale:'Venta',customer:'Cliente por RUT',sync:'Envío a AX',masters:'Distribución de maestros',printing:'Impresión',credit:'Notas de crédito'};
+    const repos=window.POS_REPOSITORIES?.repositories.filter(r=>r.role==='runtime'&&window.POS_TECHNICAL?.components.some(c=>c.currentId===id&&(c.repo===r.id||c.repo?.startsWith(r.id+'/'))))||[];
+    const links=[...(journeys[id]||[]).map(flow=>`<a href="#mapa?vista=peticiones&flujo=${flow}">${names[flow]} →</a>`),...repos.map(r=>`<a href="#mapa?vista=repositorios&repo=${r.id}">${esc(r.name)} →</a>`)];
+    return links.length?`<nav class="component-connections" aria-label="Explorar esta pieza"><strong>Explorar esta pieza</strong>${links.join('')}</nav>`:'';
   }
   function salePage() { return `<div class="stage-layout flow-stage"><div>${diagram('sale','El recorrido actual de una venta','Selecciona un componente para abrir su ficha')}</div>${flowBlock('sale')}</div>${takeaway('Local, fiscal y ERP tienen estados propios. Un único “sincronizado” oculta información que necesitamos para operar y conciliar.')}${relatedReading([['#mapa?flujo=sale','Llamadas HTTP de la venta'],['#mapa?flujo=sync','Envío y respuesta de AX'],['#datos?flujo=D01','Tablas y estados de la venta']])}${notes('Avanza paso a paso y detente en el commit local. El DTE viene después en la ruta revisada. Los tiempos de AX dependen del sincronizador y sus reintentos; no mostrar el minuto reportado como un SLA.')}`; }
   function dataContext() { return `<div class="segmented" aria-label="Camino de los datos"><button data-data-mode="masters" aria-pressed="${state.dataMode==='masters'}">Distribución por lotes</button><button data-data-mode="customer" aria-pressed="${state.dataMode==='customer'}">Consulta de cliente por RUT</button></div><div class="stage-layout flow-stage"><div>${diagram(state.dataMode,state.dataMode==='masters'?'Maestros / del centro a la sucursal':'Cliente / refresco bajo demanda')}${legend()}</div>${flowBlock(state.dataMode)}</div><div class="notice ${state.dataMode==='masters'?'warning':''}">${state.dataMode==='masters'?'<strong>Falta cerrar el tramo central.</strong> El lector de MPOS y la API central están revisados en mountain-concentrador. El productor AX→MPOS, el job diario y los hosts siguen por confirmar.':'<strong>Una copia no equivale a autorización.</strong> Disponer del estado de cuenta local no concede por sí solo permiso para vender a crédito offline.'}</div>${notes('Compara el lote con una ficha de cliente concreta. Son dos mecanismos complementarios. Tres minutos corresponde a un cron local condicional, no a la cadencia completa desde AX.')}`; }
@@ -93,7 +137,6 @@
   }
   const pages = {mapa:currentPage,venta:salePage,datos:dataPage,offline:offlinePage,propuesta:proposedPage,evolucion:evolutionPage,ia:aiPage,repaso:recapPage};
   function researchSupplement() {
-    if(state.chapter==='mapa') return window.POS_TECH_UI?.explorerHTML() || '';
     if(state.chapter==='offline') return window.POS_TECH_UI?.edgeCasesHTML() || '';
     if(state.chapter==='datos') return `<div class="notice warning"><strong>Horario informado de Chile:</strong> L–V 07:00–22:00; sábado 07:00–16:00. El equipo indica mantenimiento fuera de esa ventana los sábados. El código revisado tiene diferencias: domingo permitido en el cron y otras rutas sin la misma compuerta.<div class="tag-list">${button('Entender horario y mantenimiento','inspect-modal','data-component-id="syncpolicy"','secondary small')}</div></div>`;
     if(state.chapter==='propuesta') return `<section class="tech-panel"><div><span class="eyebrow">REVISIÓN CRÍTICA / INTEGRACIÓN Y DATOS</span><h2>Elegir por responsabilidad.</h2><p>Base preferente para piloto: outbox local, HTTPS con recepción durable y despacho central acotado sobre PostgreSQL. Comparar primero las capacidades corporativas existentes; adoptar un broker nuevo exige evidencia.</p></div><div class="tag-list">${[['mediation','Evolución de WSO2'],['rabbitmq','RabbitMQ central'],['bullmq','BullMQ y sus backends'],['dataplatform','Simplificar bases']].map(([id,label])=>button(label,'inspect-modal',`data-component-id="${id}"`,'secondary small')).join('')}</div></section>`;
@@ -104,17 +147,27 @@
   function navigate(id, focus = true) {
     const [chapterId, query=''] = id.split('?');
     const chapter = chapters.find(ch=>ch.id===chapterId) || chapters[0];
-    state.linkedFlow = new URLSearchParams(query).get('flujo');
-    stopFlow(); state.chapter=chapter.id; state.flowStep=0;
-    state.selected=({mapa:'localdb',venta:'backend',datos:state.dataMode==='masters'?'mpos':'clientapi',propuesta:'edge'})[state.chapter] || null;
+    const params=new URLSearchParams(query);
+    state.linkedFlow=params.get('flujo');
+    const mapView=state.linkedFlow?'peticiones':params.get('vista')||'general';
+    if($('#modal').open)$('#modal').close();
+    if(chapter.id==='mapa'&&state.chapter==='mapa'&&$('#ecosystem-views')){
+      showMapView(mapView);openLinkedFlow();
+      if(state.mapView==='repositorios')openLinkedRepository(params.get('repo'));
+      return;
+    }
+    stopFlow();state.chapter=chapter.id;state.flowStep=0;state.mapView=mapView;
+    state.selected=({mapa:'ui',venta:'backend',datos:state.dataMode==='masters'?'mpos':'clientapi',propuesta:'edge'})[state.chapter] || null;
     render();
-    if (focus) { $('.chapter-title').focus({preventScroll:true}); window.scrollTo({top:0,behavior:'instant'}); }
+    if(focus){$('.chapter-title').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+    if(state.chapter==='mapa'&&state.mapView==='repositorios')openLinkedRepository(params.get('repo'));
   }
   function render() {
     const idx=chapters.findIndex(ch=>ch.id===state.chapter), ch=chapters[idx];
     $('#chapter-nav').innerHTML=navHTML();
     $('#chapter-counter').innerHTML=`<span>${String(idx+1).padStart(2,'0')} <span class="counter-total">/ ${String(chapters.length).padStart(2,'0')}</span></span><strong>${ch.label}</strong>`;
     $('#mobile-chapter').innerHTML=chapters.map(c=>`<option value="${c.id}" ${c.id===ch.id?'selected':''}>${c.label}</option>`).join('');
+    window.POS_INTERACTIONS_UI?.destroy();
     $('#main').innerHTML=`<article class="chapter chapter-${ch.id}">${header(ch)}${pages[ch.id]()}${researchSupplement()}${window.POS_OPERATIONS_UI?.html(ch.id)||''}<div class="footer-nav">${idx>0?button('← '+chapters[idx-1].label,'previous'):'<span>Comienza explorando el mapa.</span>'}<span>${idx+1} / ${chapters.length}</span>${idx<chapters.length-1?button(chapters[idx+1].label+' →','next','','primary'):button('Volver al mapa ↗','home','','primary')}</div></article>`;
     wireDiagrams();
     if ($('#inspector')) selectComponent(state.selected);
@@ -129,6 +182,7 @@
     window.POS_OPERATIONS_UI?.mount(ch.id,{openModal});
     window.POS_INTERACTIONS_UI?.mount(ch.id);
     window.POS_REPOSITORIES_UI?.mount({openModal});
+    if(ch.id==='mapa')showMapView(state.mapView);
     openLinkedFlow();
     document.title=`${ch.label} · POS Atlas`;
   }
@@ -137,14 +191,14 @@
     const select=$(['mapa','propuesta'].includes(state.chapter)?'#ix-flow':state.chapter==='datos'?'#dataflow-select':'#unused-linked-flow');
     if(!select||![...select.options].some(option=>option.value===id))return;
     const library=$('#interaction-library');if(library)library.open=true;
-    select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));
+    if(select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}
     // Opening a disclosure changes the diagram's measured size before scrolling.
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!select.isConnected)return;select.focus({preventScroll:true});(library||$('#dataflow-explorer')).scrollIntoView({block:'start',behavior:'instant'});}));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!select.isConnected)return;select.focus({preventScroll:true});(library||$('#map-panel-peticiones')||$('#dataflow-explorer')).scrollIntoView({block:'start',behavior:'instant'});}));
   }
   function componentHTML(id) {
     const c=C.components[id]; if (!c) return '';
     const proposalOverride = state.chapter==='propuesta' && ['ui','ax'].includes(id) ? '<div class="notice">Este componente aparece como contexto. La ficha describe el sistema actual; su adaptación futura debe validarse.</div>' : '';
-    return `<div class="inspector-kind">${esc(icons[c.kind] || c.kind)} <span>·</span> ${esc(c.place)}</div>${badge(c.status)}<h2 class="inspector-title">${esc(c.title)}</h2><p class="inspector-subtitle">${esc(c.subtitle)}</p><p class="inspector-summary">${esc(c.description)}</p>${window.POS_TECH_UI?.componentEvidenceHTML(id)||""}${proposalOverride}<section class="detail-section"><h3>Qué hace</h3><ul>${c.responsibilities.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></section><section class="detail-section offline-detail"><h3>Si no hay conexión</h3><p>${esc(c.offline)}</p></section><details class="detail-section"><summary>Tecnología y evidencia</summary><div class="tag-list">${c.tech.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div><ul class="source-list">${c.sources.map(s=>`<li>${sourceLink(s)}</li>`).join('')}</ul><small>${esc(C.meta.evidenceNote)}</small></details>`;
+    return `<div class="inspector-kind">${esc(icons[c.kind] || c.kind)} <span>·</span> ${esc(c.place)}</div>${badge(c.status)}<h2 class="inspector-title">${esc(c.title)}</h2><p class="inspector-subtitle">${esc(c.subtitle)}</p><p class="inspector-summary">${esc(c.description)}</p>${componentConnections(id)}${window.POS_TECH_UI?.componentEvidenceHTML(id)||""}${proposalOverride}<section class="detail-section"><h3>Qué hace</h3><ul>${c.responsibilities.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></section><section class="detail-section offline-detail"><h3>Si no hay conexión</h3><p>${esc(c.offline)}</p></section><details class="detail-section"><summary>Tecnología y evidencia</summary><div class="tag-list">${c.tech.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div><ul class="source-list">${c.sources.map(s=>`<li>${sourceLink(s)}</li>`).join('')}</ul><small>${esc(C.meta.evidenceNote)}</small></details>`;
   }
   function selectComponent(id, user = false) {
     if (!C.components[id]) return;
@@ -161,8 +215,8 @@
       }
     } else openModal(C.components[id].title,componentHTML(id));
   }
-  function wireDiagrams() {
-    $$('.diagram-canvas').forEach(canvas=>{
+  function wireDiagrams(root=document) {
+    $$('.diagram-canvas',root).forEach(canvas=>{
       const svg=$('svg',canvas); if (svg) {svg.setAttribute('role','group'); svg.removeAttribute('height'); svg.setAttribute('width','100%');}
       $$('[data-node]',canvas).forEach(el=>{
         el.setAttribute('role','button'); el.setAttribute('tabindex','0'); el.setAttribute('aria-pressed','false');
@@ -297,7 +351,8 @@
   }
   document.addEventListener('click',e=>{
     const el=e.target.closest('button,a[data-action]'); if(!el) return;
-    if(el.dataset.action) action(el.dataset.action,el);
+    if(el.dataset.mapView) chooseMapView(el.dataset.mapView);
+    else if(el.dataset.action) action(el.dataset.action,el);
     else if(el.dataset.chapter) setHash(el.dataset.chapter);
     else if(el.dataset.component) selectComponent(el.dataset.component,true);
     else if(el.dataset.flowStep!==undefined){stopFlow();state.flowStep=Number(el.dataset.flowStep);updateFlow();}
@@ -313,12 +368,19 @@
   document.addEventListener('input',e=>{if(e.target.id==='glossary-search')renderGlossary(e.target.value);});
   document.addEventListener('change',e=>{
     if(e.target.id==='mobile-chapter')setHash(e.target.value);
+    if(e.target.id==='ix-flow'&&state.chapter==='mapa')history.replaceState(null,'','#mapa?vista=peticiones&flujo='+encodeURIComponent(e.target.value));
     if(e.target.id==='motion-toggle'){state.reduced=e.target.checked;document.body.classList.toggle('reduce-motion',state.reduced);updateFlow();}
     if(e.target.id==='ai-evidence'){state.aiEvidence=e.target.checked;updateAiCase();announce($('#ai-outcome-state').textContent);}
   });
   document.addEventListener('keydown',e=>{
     if(e.defaultPrevented || e.ctrlKey||e.altKey||e.metaKey) return;
     if($('#modal').open) { if(e.key==='Escape'){e.preventDefault();$('#modal').close();} return; }
+    const tab=e.target.closest('[data-map-view]');
+    if(tab&&['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){
+      e.preventDefault();const index=mapViews.findIndex(v=>v.id===tab.dataset.mapView);
+      const next=e.key==='Home'?0:e.key==='End'?mapViews.length-1:(index+(e.key==='ArrowRight'?1:-1)+mapViews.length)%mapViews.length;
+      chooseMapView(mapViews[next].id);return;
+    }
     if(e.target.closest('input,textarea,select,[contenteditable="true"]'))return;
     if(e.target.closest('.tech-diagram-scroll,.df-map-scroll, .ops-map-scroll, .ix-viewer, .repo-viewport'))return;
     if(e.key==='Escape'&&state.presenting){togglePresent();return;}

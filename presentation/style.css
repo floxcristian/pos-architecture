@@ -1220,3 +1220,20 @@ select:not([multiple]):not([size]) {
     background-image: none;
   }
 }
+
+/* One independent perspective at a time in the current ecosystem. */
+.map-tabs { display:flex; gap:8px; border-bottom:1px solid var(--line-strong); margin-bottom:24px; }
+.map-tabs [role="tab"] { min-height:48px; padding:12px 20px; border:0; border-bottom:3px solid transparent; background:transparent; color:var(--muted); font-size:15px; font-weight:650; }
+.map-tabs [role="tab"]:hover { color:var(--teal-dark); background:var(--teal-soft); }
+.map-tabs [role="tab"][aria-selected="true"] { color:var(--teal-dark); border-bottom-color:var(--teal); background:var(--teal-soft); }
+.map-panel { min-width:0; scroll-margin-top:90px; }
+.map-perspective { max-width:960px; margin-bottom:24px; color:var(--muted); font-size:15px; line-height:1.7; }
+.map-panel > .repo-module, .map-panel > .ix-viewer, .map-panel > .technical-explorer { border:0; padding:0; margin:0; background:transparent; }
+.component-connections { display:flex; flex-wrap:wrap; gap:8px 16px; padding:15px 0; margin:15px 0; border-block:1px solid var(--line); font-size:13px; line-height:1.6; }
+.component-connections strong { flex-basis:100%; color:var(--ink); }
+.component-connections a { overflow-wrap:anywhere; }
+@media (max-width:600px) {
+  .map-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; }
+  .map-tabs [role="tab"] { padding:12px 8px; font-size:14px; }
+  .map-panel { scroll-margin-top:140px; }
+}

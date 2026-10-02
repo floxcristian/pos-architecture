@@ -43,7 +43,7 @@ Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`.
 
 | Capítulo | Punto de entrada |
 | --- | --- |
-| [Ecosistema](index.html#mapa) | Mapa de los seis repositorios del POS actual. Los seis recorridos de aplicaciones y datos se abren bajo demanda; el explorador técnico reúne componentes, endpoints y fuentes. |
+| [Ecosistema](index.html#mapa) | Comienza en Vista general. Las pestañas Repositorios, Peticiones y Evidencia permiten cambiar de perspectiva; solo se muestra un panel a la vez. |
 | [Venta](index.html#venta) | Historia de una venta, con accesos a sus [llamadas](index.html#mapa?flujo=sale), [registro AX](index.html#mapa?flujo=sync) y [tablas](index.html#datos?flujo=D01). |
 | [Datos](index.html#datos) | Comienza por [maestros D03](index.html#datos?flujo=D03). El selector ofrece también venta/DTE, envío AX, cliente y NC; cada recorrido enlaza sus llamadas. |
 | [Offline](index.html#offline) | Laboratorio de pérdida de WAN y casos límite. La LAN y el escritor de sucursal permanecen disponibles en el ejemplo. |
@@ -62,7 +62,9 @@ Las capacidades de [proveedores y dispositivos](../docs/extensibilidad-proveedor
 
 ## Profundizar sin repetir el recorrido
 
-En Ecosistema, **Explorador técnico** permite buscar componentes y endpoints; su biblioteca incluye V01–V05. V06 se consulta en [vistas técnicas](../docs/vistas-arquitectura-y-flujos.md). Los filtros y contadores describen el catálogo seleccionado, no un inventario completo de producción.
+En Ecosistema, [Vista general](index.html#mapa?vista=general) explica las responsabilidades; [Repositorios](index.html#mapa?vista=repositorios) ubica el código; [Peticiones](index.html#mapa?vista=peticiones) muestra los seis recorridos actuales, sin un acordeón previo; y [Evidencia](index.html#mapa?vista=evidencia) reúne **Rutas**, **Despliegue** y **Fuentes y pendientes**. El inventario completo de componentes se abre bajo demanda en este último modo. Al alternar pestañas dentro del capítulo se conservan sus selecciones; cada selector pertenece a su vista y no filtra automáticamente las demás.
+
+V01 tiene un único acceso en Evidencia → Despliegue. V02–V06 se consultan en [vistas técnicas](../docs/vistas-arquitectura-y-flujos.md), sin repetir otra biblioteca de diagramas en pantalla. Los filtros y contadores describen el catálogo seleccionado, no un inventario completo de producción. Los enlaces anteriores `#mapa?flujo=…` siguen abriendo el recorrido solicitado en Peticiones.
 
 En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos, esquema y fuentes. Los cinco diagramas proceden de [recorridos de datos](../docs/recorridos-datos-tablas.md). Los casos actuales/propuestos de sesión, precio, impresión y actualización se consultan desde Venta, Propuesta y Evolución; su evidencia está en [operación y evolución](../docs/operacion-caja-y-evolucion.md).
 
@@ -70,7 +72,7 @@ En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos,
 
 - `content.js`: fichas, glosario, países, comparaciones, escenarios `providerScenarios`, `rfidScenarios`, `rfidDemo` y `aiCases`, fuentes y ejercicios.
 - `technical-data.js`: componentes, endpoints y vacíos del catálogo revisado, con rutas y referencias por commit.
-- `technical-ui.js`: vistas del explorador, filtros, biblioteca y casos límite; sin llamadas a los endpoints catalogados.
+- `technical-ui.js`: rutas, despliegue, fuentes, pendientes y casos límite; sin llamadas a los endpoints catalogados.
 - `dataflows-data.js`: cinco recorridos actuales, pasos, tablas, campos y evidencia revisada.
 - `dataflows-ui.js`: selector, avance manual, resaltado y fichas del recorrido; no consulta bases reales.
 - `interactions-current.js`: recorridos actuales de venta, sincronización, maestros y cliente, con componentes y llamadas concretos.
@@ -92,7 +94,7 @@ node presentation/tools/render-diagrams.cjs
 
 Se conserva Mermaid 11.12.0 y su licencia MIT en `tools/vendor/`. El generador utiliza ese archivo local, sin CDN. El runtime de la presentación usa HTML, CSS y JavaScript sin dependencias externas.
 
-Las cinco fuentes `diagrams/technical-*.mmd` proceden de V01–V05 en `docs/vistas-arquitectura-y-flujos.md`. El documento contiene seis bloques; V06 conserva consulta documental. `tools/sync-technical-diagrams.cjs` comprueba esa estructura al regenerar.
+Las cinco fuentes `diagrams/technical-*.mmd` proceden de V01–V05 en `docs/vistas-arquitectura-y-flujos.md`. El documento contiene seis bloques; `tools/sync-technical-diagrams.cjs` comprueba esa estructura al regenerar. La navegación expone V01 en Despliegue y enlaza V02–V06 al documento; conservar un recurso generado no implica otra vista en pantalla.
 
 Los cinco `diagrams/dataflow-*.mmd` se copian de D01–D05 en `docs/recorridos-datos-tablas.md`. Edita ese documento para cambiar sus diagramas; `tools/sync-dataflow-diagrams.cjs` comprueba que conserve exactamente cinco bloques. El generador también ejecuta esta importación. Los IDs de nodos deben coincidir con `dataflows-data.js`.
 
@@ -122,4 +124,4 @@ Referencias de herramientas: [Mermaid: uso y renderizado](https://mermaid.js.org
 
 ## Mapa de repositorios
 
-El mapa inicial de Ecosistema muestra seis repositorios del POS actual y diez relaciones seleccionadas. Se ajusta automáticamente al ancho disponible, sin control de zoom manual. Propuesta concentra las fichas de core/devops-platform y la evidencia de su relación de CI/CD; estas tarjetas no aparecen en Ecosistema ni se repiten en Evolución. Sus relaciones no acreditan tráfico productivo ni despliegues. [Mapa documental y fuentes](../docs/mapa-repositorios-y-conexiones.md). `repositories-data.js` conserva los ocho repositorios de software y las once relaciones; `repositories-ui.js` y `repositories.css` los presentan en el capítulo correspondiente.
+La pestaña Repositorios de Ecosistema muestra seis repositorios del POS actual y diez relaciones seleccionadas. Se ajusta automáticamente al ancho disponible, sin control de zoom manual. Propuesta concentra las fichas de core/devops-platform y la evidencia de su relación de CI/CD; estas tarjetas no aparecen en Ecosistema ni se repiten en Evolución. Sus relaciones no acreditan tráfico productivo ni despliegues. [Mapa documental y fuentes](../docs/mapa-repositorios-y-conexiones.md). `repositories-data.js` conserva los ocho repositorios de software y las once relaciones; `repositories-ui.js` y `repositories.css` los presentan en el capítulo correspondiente.

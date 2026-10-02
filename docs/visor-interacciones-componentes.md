@@ -8,7 +8,18 @@ El mapa actual incluye venta/DTE, sincronización con AX, maestros, cliente por 
 
 ## Abrir el detalle adecuado
 
-Ecosistema comienza con el mapa de repositorios; los recorridos se abren bajo demanda. Propuesta comienza con las decisiones y la comparación actual/objetivo. Datos inicia en maestros y permite cambiar de operación. Un enlace directo abre el capítulo y el recorrido solicitados.
+Ecosistema comienza en **Vista general** y ofrece cuatro pestañas. Solo una está visible: cada una responde una pregunta distinta y sus selectores no controlan automáticamente las demás. Al alternar pestañas dentro del capítulo se conservan las selecciones.
+
+| Pestaña | Para qué sirve | Acceso directo |
+| --- | --- | --- |
+| Vista general | Ubicar las responsabilidades y abrir la ficha de una pieza. | [Abrir vista general](../presentation/index.html#mapa?vista=general) |
+| Repositorios | Saber dónde está el código y examinar sus relaciones. | [Abrir repositorios](../presentation/index.html#mapa?vista=repositorios) |
+| Peticiones | Seguir una operación entre aplicaciones, llamadas y datos. El visor está visible sin otro acordeón de entrada. | [Abrir peticiones](../presentation/index.html#mapa?vista=peticiones) |
+| Evidencia | Consultar Rutas, Despliegue o Fuentes y pendientes. El inventario completo de componentes se abre bajo demanda en el último modo. | [Abrir evidencia](../presentation/index.html#mapa?vista=evidencia) |
+
+V01 tiene un único acceso en Evidencia → Despliegue. Los diagramas V02–V06 se consultan en [vistas de arquitectura y flujos](vistas-arquitectura-y-flujos.md). Las fichas conservan implementación, fuentes y límites junto a la pieza consultada.
+
+Propuesta comienza con las decisiones y la comparación actual/objetivo; su visor sigue bajo demanda. Datos inicia en maestros y permite cambiar de operación. Los enlaces anteriores `#mapa?flujo=…` abren Peticiones y seleccionan el recorrido solicitado.
 
 | Recorrido | Acceso directo |
 | --- | --- |
@@ -163,4 +174,4 @@ Estos criterios son de aceptación del tutorial. Las garantías financieras, fis
 
 ## Repositorios y ampliación central
 
-Antes del visor, Ecosistema muestra un [mapa de los seis repositorios del POS actual](mapa-repositorios-y-conexiones.md) con diez relaciones seleccionadas. Las fichas de core/devops-platform y la evidencia de su relación de CI/CD se encuentran en [Propuesta](../presentation/index.html#propuesta), dentro de la reutilización corporativa. Los nombres de repositorio aparecen también en las aplicaciones y sus fichas. Sincronización muestra WSO2, broker, consumidor Node, PostgreSQL central y adaptador AX; el detalle explica Synapse, DSS y Java. Maestros incorpora MPOS, lotes y api-lectura. Las variantes no se presentan como una cadena obligatoria. [Alcance de la auditoría central](analisis-repositorios/mountain-concentrador.md).
+La pestaña Repositorios de Ecosistema muestra un [mapa de los seis repositorios del POS actual](mapa-repositorios-y-conexiones.md) con diez relaciones seleccionadas. Las fichas de core/devops-platform y la evidencia de su relación de CI/CD se encuentran en [Propuesta](../presentation/index.html#propuesta), dentro de la reutilización corporativa. Los nombres de repositorio aparecen también en las aplicaciones y sus fichas. Sincronización muestra WSO2, broker, consumidor Node, PostgreSQL central y adaptador AX; el detalle explica Synapse, DSS y Java. Maestros incorpora MPOS, lotes y api-lectura. Las variantes no se presentan como una cadena obligatoria. [Alcance de la auditoría central](analisis-repositorios/mountain-concentrador.md).

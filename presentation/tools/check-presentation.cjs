@@ -28,7 +28,9 @@ async function main() {
     const goto=async id=>{await page.goto(`${base}/#${id}`);await page.locator('h1').waitFor();};
     const click=action=>page.locator(`[data-action="${action}"]`).first().click();
     await goto('mapa');
-    await page.locator('.ix-context > summary').click();
+    assert.equal(await page.locator('[data-map-view][role="tab"]').count(),4);
+    assert.equal(await page.locator('#map-panel-general').isVisible(),true);
+    assert.equal(await page.locator('#map-panel-general .ix-context').count(),0);
     assert.equal(await page.locator('[data-node]').count(),9);
     for(const node of await page.locator('[data-node]').all()) {
       await node.click();
@@ -52,11 +54,10 @@ async function main() {
       assert.match(endpoint.commit,/^[a-f0-9]{40}$/);
     }
     await page.locator('.inspector .technical-evidence > summary').click();assert.match(await page.locator('.inspector .technical-evidence').innerText(),/Ubicación lógica/);
-    await page.locator('#technical-explorer > summary').click();
-    for(const zone of await page.locator('.tech-zone > summary').all())await zone.click();
-    assert.equal(await page.locator('.tech-component-card').count(),technical.components.length);
-    await page.locator('[data-tech-component="backend"]').click();assert.match(await page.locator('#modal-body').innerText(),/Repositorio/);assert.match(await page.locator('#modal-body').innerText(),/confirmar/);await page.keyboard.press('Escape');
-    await page.locator('[data-tech-view="endpoints"]').focus();await page.keyboard.press('Enter');
+    await page.locator('[data-map-view="evidencia"]').click();
+    assert.equal(await page.locator('details#technical-explorer').count(),0);
+    assert.equal(await page.locator('[data-tech-view="endpoints"]').getAttribute('aria-pressed'),'true');
+    assert.deepEqual(await page.locator('[data-tech-view]').evaluateAll(items=>items.map(el=>el.dataset.techView).sort()),['coverage','deployment','endpoints']);
     assert.equal(await page.locator('.tech-endpoint').count(),6);
     await page.locator('[data-tech-more]').click();assert.equal(await page.locator('.tech-endpoint').count(),12);
     await page.locator('#tech-query').fill('/punto-de-venta');assert.ok(await page.locator('.tech-endpoint').count()>0);assert.match(await page.locator('.tech-endpoint').first().innerText(),/punto-de-venta/);
@@ -71,17 +72,23 @@ async function main() {
     await page.locator('[data-tech-node="PG"]').focus();await page.keyboard.press('Enter');assert.match(await page.locator('#modal-body').innerText(),/PostgreSQL/);
     await page.screenshot({path:path.join(root,'qa','technical-hotspot-1440.png')});await page.keyboard.press('Escape');
     assert.equal(await page.locator('[data-tech-node="PG"]').evaluate(el=>el===document.activeElement),true);
-    await page.locator('[data-tech-zoom="100"]').click();await page.locator('.tech-diagram-scroll').focus();await page.keyboard.press('ArrowRight');assert.ok(page.url().endsWith('#mapa'));
-    await page.locator('[data-tech-view="diagrams"]').click();
-    for(const id of ['V01','V02','V03','V04','V05']) {
-      await page.locator('#tech-diagram-select').selectOption(id);assert.equal(await page.locator('#tech-diagram-render svg').count(),1);
-      await page.locator('[data-tech-source]').click();assert.ok((await page.locator('.source-code').innerText()).length>300);await page.keyboard.press('Escape');
-    }
+    const evidenceHash=new URL(page.url()).hash;
+    await page.locator('[data-tech-zoom="100"]').click();await page.locator('.tech-diagram-scroll').focus();await page.keyboard.press('ArrowRight');assert.equal(new URL(page.url()).hash,evidenceHash);
+    assert.equal(await page.locator('#tech-diagram-render svg').count(),1);
+    assert.equal(await page.locator('#tech-diagram-render').getAttribute('data-tech-diagram'),'technical-deployment');
+    assert.equal(await page.locator('#tech-diagram-select').count(),0);
+    await page.locator('[data-tech-source]').click();assert.ok((await page.locator('.source-code').innerText()).length>300);await page.keyboard.press('Escape');
     await page.locator('[data-tech-view="coverage"]').click();assert.match(await page.locator('.tech-coverage-limit').innerText(),/no porcentajes/);
+    assert.equal(await page.locator('details.tech-audited-components').evaluate(el=>el.open),false);
+    await page.locator('details.tech-audited-components > summary').click();
+    for(const zone of await page.locator('.tech-audited-components .tech-zone > summary').all())await zone.click();
+    assert.equal(await page.locator('.tech-component-card').count(),technical.components.length);
+    await page.locator('.tech-audited-components [data-tech-component="backend"]').click();assert.match(await page.locator('#modal-body').innerText(),/Repositorio/);assert.match(await page.locator('#modal-body').innerText(),/confirmar/);await page.keyboard.press('Escape');
     await page.locator('.tech-functional:not(.tech-snapshots) > summary').click();assert.equal(await page.locator('.tech-functional:not(.tech-snapshots) dt').count(),7);
     await page.locator('.tech-snapshots > summary').click();assert.equal(await page.locator('.tech-snapshots dt').count(),technical.snapshots.length);
     assert.ok(await page.locator('.tech-source-index a[href*="decisiones-de-arquitectura"]').count());
-    logs.push('Explorador técnico: catálogo coherente, fichas de repos/puertos/zonas, filtros/paginación/fuentes, V01–V05 idénticos al documento, nodos accesibles, zoom y cobertura funcional/snapshots.');
+    assert.ok(await page.locator('#map-panel-evidencia a[href*="vistas-arquitectura-y-flujos.md"]').count());
+    logs.push('Ecosistema: Vista general inicial; Evidencia sin otro plegable, catálogo coherente, filtros/paginación/fuentes, V01 de despliegue accesible y fuentes V01–V05 idénticas al documento. Inventario bajo Cobertura y enlace a las vistas documentadas.');
     await goto('venta');
     await page.clock.install();
     await click('flow-next');assert.match(await page.locator('#step-title').innerText(),/guarda/);
@@ -268,18 +275,27 @@ async function main() {
       for(const id of ['mapa','venta','datos','offline','propuesta','evolucion','ia','repaso']) {
         await goto(id);
         if(id==='mapa') {
-          await page.locator('#technical-explorer > summary').click();
-          for(const view of ['components','endpoints','deployment','diagrams','coverage']) {
+          for(const view of ['general','repositorios','peticiones','evidencia']) {
+            await page.locator(`[data-map-view="${view}"]`).click();
+            assert.equal(await page.locator('[role="tabpanel"]:visible').count(),1);
+            assert.equal(await page.locator(`#map-panel-${view}`).isVisible(),true);
+            if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))layoutProblems.push(`ecosystem-${view}: overflow at ${width}x${height}`);
+            if([1440,390].includes(width))await page.locator(`#map-panel-${view}`).screenshot({path:path.join(snapshots,`ecosystem-${view}-${width}.png`)});
+          }
+          for(const view of ['endpoints','deployment','coverage']) {
             await page.locator(`[data-tech-view="${view}"]`).click();
-            if(view==='components')for(const zone of await page.locator('.tech-zone > summary').all())await zone.click();
-            if(view==='deployment'||view==='diagrams')await page.locator('[data-tech-zoom="100"]').click();
+            if(view==='deployment')await page.locator('[data-tech-zoom="100"]').click();
             if(view==='endpoints'){await page.locator('[data-tech-reset]').click();await page.locator('.tech-endpoint details > summary').first().click();}
-            if(view==='coverage')await page.locator('.tech-functional:not(.tech-snapshots) > summary').click();
+            if(view==='coverage'){
+              await page.locator('.tech-functional:not(.tech-snapshots) > summary').click();
+              await page.locator('.tech-audited-components > summary').click();
+              for(const zone of await page.locator('.tech-audited-components .tech-zone > summary').all())await zone.click();
+            }
             if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))layoutProblems.push(`technical-${view}: overflow at ${width}x${height}`);
             if([1440,390].includes(width)&&['endpoints','deployment'].includes(view))await page.locator('#tech-view').screenshot({path:path.join(snapshots,`technical-${view}-${width}.png`)});
             if(width===390&&view==='deployment'){await page.locator('[data-tech-node="UI"]').focus();await page.keyboard.press('Enter');await page.screenshot({path:path.join(snapshots,'technical-hotspot-390.png')});await page.keyboard.press('Escape');}
           }
-          await page.locator('#technical-explorer > summary').click();
+          await page.locator('[data-map-view="general"]').click();
         }
         if(id==='datos') {
           for(const flow of dataflows) {
@@ -318,8 +334,8 @@ async function main() {
       }
     }
     assert.deepEqual(layoutProblems,[]);
-    logs.push('Responsive: 48 vistas, 30 vistas técnicas y 30 recorridos de datos sin desbordamiento horizontal (375–1440 px y paisaje), con diagramas y casos límite desplegados.');
-    await page.setViewportSize({width:390,height:844});await goto('mapa');await page.locator('.ix-context > summary').click();await page.locator('[data-node="localdb"]').click();assert.equal(await page.evaluate(()=>document.activeElement.id),'inspector');
+    logs.push('Responsive: 48 capítulos, 24 pestañas de Ecosistema, 18 vistas técnicas y 30 recorridos de datos sin desbordamiento horizontal (375–1440 px y paisaje), con diagramas y casos límite desplegados.');
+    await page.setViewportSize({width:390,height:844});await goto('mapa');await page.locator('[data-node="localdb"]').click();assert.equal(await page.evaluate(()=>document.activeElement.id),'inspector');
     assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
     const filePage=await browser.newPage({viewport:{width:1440,height:1000},offline:true});
     await filePage.goto(pathToFileURL(path.join(root,'index.html')).href+'#offline');await filePage.locator('[data-action="offline-next"]').click();assert.equal(await filePage.locator('#actual-network').innerText(),'Sin Internet');
@@ -331,9 +347,9 @@ async function main() {
     await filePage.goto(pathToFileURL(path.join(root,'index.html')).href+'#ia');
     await filePage.locator('[data-ai-network="offline"]').click();assert.equal(await filePage.locator('.ai-outcome').getAttribute('data-ai-mode'),'local');
     await filePage.locator('#ai-evidence').uncheck();assert.equal(await filePage.locator('.ai-outcome').getAttribute('data-ai-mode'),'abstain');
-    await filePage.goto(pathToFileURL(path.join(root,'index.html')).href+'#mapa');await filePage.locator('#technical-explorer > summary').click();await filePage.locator('[data-tech-view="endpoints"]').click();
+    await filePage.goto(pathToFileURL(path.join(root,'index.html')).href+'#mapa?vista=evidencia');await filePage.locator('[data-tech-view="endpoints"]').click();
     await filePage.locator('#tech-query').fill('/punto-de-venta');assert.ok(await filePage.locator('.tech-endpoint').count()>0);
-    await filePage.locator('[data-tech-view="diagrams"]').click();await filePage.locator('#tech-diagram-select').selectOption('V03');assert.equal(await filePage.locator('#tech-diagram-render svg').count(),1);
+    await filePage.locator('[data-tech-view="deployment"]').click();assert.equal(await filePage.locator('#tech-diagram-render svg').count(),1);
     const fileErrors=[],fileExternal=[];
     filePage.on('pageerror',error=>fileErrors.push(error.message));
     filePage.on('request',request=>{if(!request.url().startsWith('file:')&&!request.url().startsWith('data:'))fileExternal.push(request.url());});

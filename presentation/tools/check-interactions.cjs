@@ -76,8 +76,9 @@ async function main(){
   browser=await playwright().chromium.launch({headless:true});
   const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});record(page);
   async function open(p,f,file=false){
-   await p.goto((file?pathToFileURL(path.join(root,'index.html')).href:base+'/')+'#'+(f.mode==='proposed'?'propuesta':'mapa'));
-   if(!await p.locator('#interaction-library').evaluate(el=>el.open))await p.locator('#interaction-library > summary').click();
+   await p.goto((file?pathToFileURL(path.join(root,'index.html')).href:base+'/')+'#'+(f.mode==='proposed'?'propuesta':'mapa?flujo='+f.id));
+   if(f.mode==='proposed'&&!await p.locator('#interaction-library').evaluate(el=>el.open))await p.locator('#interaction-library > summary').click();
+   if(f.mode!=='proposed')assert.equal(await p.locator('#map-panel-peticiones').isVisible(),true);
    await p.locator('#ix-flow').selectOption(f.id);await p.locator('[data-ix-mode="step"]').click();await p.locator('[data-ix-zoom="100"]').click();
    assert.equal(await p.locator('#ix-flow').inputValue(),f.id);assert.equal(norm(await p.locator('#ix-summary').textContent()),norm(f.summary));
   }
@@ -132,7 +133,8 @@ async function main(){
    for(const n of f.nodes){const button=page.locator('.ix-surface [data-ix-node="'+n.id+'"]');await button.focus();await page.keyboard.press('Enter');assert.equal(await page.locator('#ix-detail h3').innerText(),n.title);await implementation(page,n,true);await sources(page,n.sources);}
    await page.locator('[data-ix-mode="sequence"]').click();assert.equal(await page.locator('.ix-surface .ix-edge-label').count(),f.steps.reduce((n,s)=>n+s.edges.length,0));await geometry(page,f.id+'/sequence');
    if(!await page.locator('.ix-relations').evaluate(el=>el.open))await page.locator('.ix-relations > summary').click();const e=f.edges.at(-1);await page.locator('[data-ix-relation="'+e.id+'"]').click();await detail(page,e);
-   await page.locator('.ix-viewport').focus();await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowLeft');assert.ok(page.url().endsWith('#'+(f.mode==='proposed'?'propuesta':'mapa')));
+   const flowHash=new URL(page.url()).hash;
+   await page.locator('.ix-viewport').focus();await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowLeft');assert.equal(new URL(page.url()).hash,flowHash);
   }
   report.checks.push('Todos los pasos/conexiones: ficha y fuentes, selección de nodos por teclado, relaciones reutilizadas, tres modos y flechas sin cambiar capítulo.');
   await open(page,flows.find(f=>f.id==='proposed-sale'));
@@ -163,26 +165,57 @@ async function main(){
   }
   report.checks.push(report.responsiveViews+' vistas responsive: ocho flujos, tres modos, seis tamaños; medidas de texto y geometría SVG.');
   const navigation=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});record(navigation);
+  async function assertMapTab(p,id,focused=false){
+   const tab=p.locator('[data-map-view="'+id+'"]');
+   assert.equal(await p.locator('[data-map-view][role="tab"]').count(),4);
+   assert.equal(await p.locator('[data-map-view][aria-selected="true"]').count(),1);
+   assert.equal(await p.locator('[data-map-view][tabindex="0"]').count(),1);
+   assert.equal(await tab.getAttribute('aria-selected'),'true');assert.equal(await tab.getAttribute('tabindex'),'0');
+   assert.equal(await tab.getAttribute('aria-controls'),'map-panel-'+id);
+   assert.equal(await p.locator('#map-panel-'+id).getAttribute('role'),'tabpanel');
+   assert.equal(await p.locator('#map-panel-'+id).getAttribute('aria-labelledby'),await tab.getAttribute('id'));
+   assert.equal(await p.locator('#map-panel-'+id).isVisible(),true);
+   assert.equal(await p.locator('[role="tabpanel"]:visible').count(),1);
+   if(focused)assert.equal(await p.evaluate(()=>document.activeElement.dataset.mapView),id);
+  }
   for(const width of [1440,390]){
    await navigation.setViewportSize({width,height:width===1440?1000:844});
-   for(const chapter of ['mapa','propuesta']){
-    await navigation.goto(base+'/#'+chapter);assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false,'Library starts closed');
-    assert.equal(await navigation.locator('#interaction-viewer').isVisible(),false);
-    const summary=navigation.locator('#interaction-library > summary');await summary.focus();await navigation.keyboard.press('Enter');await navigation.locator('#ix-flow').waitFor();
-    assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),true);await geometry(navigation,'library-open/'+chapter+'/'+width);
-    assert.equal(await navigation.locator('.ix-overview').evaluate(el=>el.open),false);await navigation.locator('.ix-overview > summary').focus();await navigation.keyboard.press('Enter');
-    assert.ok((await navigation.locator('#ix-summary').innerText()).length>30);assert.ok((await navigation.locator('#ix-flow-boundary').innerText()).length>30);
-    await summary.focus();await navigation.keyboard.press('Enter');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false);
+   await navigation.goto(base+'/#mapa');await assertMapTab(navigation,'general');
+   assert.equal(await navigation.locator('#interaction-viewer').isVisible(),false);
+   assert.equal(await navigation.locator('#map-panel-general .ix-context').count(),0);
+   await navigation.locator('[data-map-view="general"]').focus();
+   for(const [key,id] of [['ArrowRight','repositorios'],['ArrowRight','peticiones'],['End','evidencia'],['ArrowRight','general'],['ArrowLeft','evidencia'],['Home','general']]){
+    await navigation.keyboard.press(key);await assertMapTab(navigation,id,true);
    }
-   for(const f of flows){await navigation.goto(base+'/#'+(f.mode==='proposed'?'propuesta':'mapa')+'?flujo='+f.id);await navigation.waitForFunction(id=>document.querySelector('#ix-flow')?.value===id,f.id);assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),true);await geometry(navigation,'deep-link/'+f.id+'/'+width);}
+   await navigation.locator('[data-map-view="peticiones"]').click();await assertMapTab(navigation,'peticiones');
+   assert.equal(await navigation.locator('#interaction-viewer').isVisible(),true);
+   await navigation.locator('#ix-flow').selectOption('sale');await navigation.locator('[data-ix-step="1"]').click();
+   const savedCall=(await navigation.locator('#ix-call option').all()).at(-1);await navigation.locator('#ix-call').selectOption(await savedCall.getAttribute('value'));
+   const selectedCall=await navigation.locator('#ix-call').inputValue(),selectedStep=await navigation.locator('[data-ix-step][aria-pressed="true"]').getAttribute('data-ix-step');
+   await navigation.locator('[data-map-view="repositorios"]').click();await assertMapTab(navigation,'repositorios');
+   await navigation.locator('#repo-connection').selectOption('repo-admin');await navigation.locator('#repo-all').uncheck();
+   assert.equal(new URLSearchParams(new URL(navigation.url()).hash.split('?')[1]).get('vista'),'repositorios');
+   await navigation.locator('[data-map-view="general"]').click();await assertMapTab(navigation,'general');
+   await navigation.locator('[data-map-view="repositorios"]').click();assert.equal(await navigation.locator('#repo-connection').inputValue(),'repo-admin');assert.equal(await navigation.locator('#repo-all').isChecked(),false);
+   await navigation.locator('[data-map-view="peticiones"]').click();await assertMapTab(navigation,'peticiones');
+   assert.equal(await navigation.locator('#ix-flow').inputValue(),'sale');assert.equal(await navigation.locator('#ix-call').inputValue(),selectedCall);assert.equal(await navigation.locator('[data-ix-step][aria-pressed="true"]').getAttribute('data-ix-step'),selectedStep);
+   assert.equal(await navigation.locator('.ix-overview').evaluate(el=>el.open),false);await navigation.locator('.ix-overview > summary').focus();await navigation.keyboard.press('Enter');
+   assert.ok((await navigation.locator('#ix-summary').innerText()).length>30);assert.ok((await navigation.locator('#ix-flow-boundary').innerText()).length>30);
+   await geometry(navigation,'tabs-persist/'+width);
+   for(const id of ['general','repositorios','peticiones','evidencia']){await navigation.goto(base+'/#mapa?vista='+id);await assertMapTab(navigation,id);}
+   await navigation.goto(base+'/#propuesta');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false,'Proposed library starts closed');
+   const summary=navigation.locator('#interaction-library > summary');await summary.focus();await navigation.keyboard.press('Enter');await navigation.locator('#ix-flow').waitFor();
+   assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),true);await geometry(navigation,'library-open/propuesta/'+width);
+   await summary.focus();await navigation.keyboard.press('Enter');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false);
+   for(const f of flows){await navigation.goto(base+'/#'+(f.mode==='proposed'?'propuesta':'mapa')+'?flujo='+f.id);await navigation.waitForFunction(id=>document.querySelector('#ix-flow')?.value===id,f.id);if(f.mode==='proposed')assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),true);else await assertMapTab(navigation,'peticiones');await geometry(navigation,'deep-link/'+f.id+'/'+width);}
    await navigation.goto(base+'/#venta');await navigation.locator('a[href="#mapa?flujo=sync"]').click();await navigation.waitForFunction(()=>document.querySelector('#ix-flow')?.value==='sync');
-   await navigation.goBack();await navigation.locator('.chapter-venta').waitFor();await navigation.goForward();await navigation.waitForFunction(()=>document.querySelector('#ix-flow')?.value==='sync');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),true);
+   await navigation.goBack();await navigation.locator('.chapter-venta').waitFor();await navigation.goForward();await navigation.waitForFunction(()=>document.querySelector('#ix-flow')?.value==='sync');await assertMapTab(navigation,'peticiones');
    const fresh=await browser.newPage({viewport:{width,height:844},reducedMotion:'reduce'});record(fresh);await fresh.goto(base+'/#datos');assert.equal(await fresh.locator('#dataflow-select').inputValue(),'D03','Fresh data chapter begins with masters');await fresh.close();
    await navigation.goto(base+'/#datos?flujo=D01');assert.equal(await navigation.locator('#dataflow-select').inputValue(),'D01');await navigation.locator('a[href="#mapa?flujo=sale"]').click();await navigation.waitForFunction(()=>document.querySelector('#ix-flow')?.value==='sale');
   }
-  await navigation.goto(base+'/#mapa');await navigation.setViewportSize({width:390,height:844});await navigation.locator('#interaction-library > summary').click();await geometry(navigation,'resize-hidden-then-open');
+  await navigation.goto(base+'/#mapa');await navigation.setViewportSize({width:390,height:844});await navigation.locator('[data-map-view="peticiones"]').click();await geometry(navigation,'resize-hidden-then-open');
   await navigation.goto(base+'/#propuesta?flujo=sale');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false,'Wrong-chapter flow must not open unrelated journey');
-  report.checks.push('Biblioteca plegada, apertura por teclado, resumen opcional, ocho enlaces directos en desktop/móvil, historial atrás/adelante y Datos nuevo en D03.');
+  report.checks.push('Ecosistema con cuatro pestañas independientes: selección ARIA, teclado con flechas/Home/End y una vista visible. Conexión/repositorios y flujo/paso/petición persisten al cambiar; URLs de pestañas y ocho enlaces directos, historial atrás/adelante, biblioteca de Propuesta y Datos inicial D03 en desktop/móvil.');
   const timed=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(timed);await timed.clock.install();
   const tf=flows.find(f=>f.id==='proposed-sale');await open(timed,tf);await timed.locator('[data-ix-step="'+(tf.steps.length-1)+'"]').click();await timed.locator('#ix-call').selectOption(tf.steps.at(-1).edges.at(-1));
   await timed.locator('[data-ix-play]').click();assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'true');await timed.clock.runFor(6500);assert.notEqual(await timed.locator('#ix-call').inputValue(),tf.steps[0].edges[0]);
@@ -194,6 +227,27 @@ async function main(){
   await timed.locator('[data-ix-play]').click();await timed.evaluate(()=>{location.hash='venta';});await timed.locator('#interaction-viewer').waitFor({state:'detached'});await timed.clock.runFor(13000);await timed.evaluate(()=>{location.hash='propuesta';});await timed.locator('#ix-flow').waitFor({state:'attached'});assert.equal(await timed.locator('#interaction-library').evaluate(el=>el.open),false);await timed.locator('#interaction-library > summary').click();assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'false');assert.equal(await timed.locator('[data-ix-step="0"]').getAttribute('aria-pressed'),'true');
   await timed.emulateMedia({reducedMotion:'reduce'});await timed.clock.runFor(100);await timed.waitForFunction(()=>document.querySelector('[data-ix-play]').disabled,null,{polling:50,timeout:3000});assert.equal(await timed.locator('[data-ix-play]').isDisabled(),true);
   report.checks.push('Reproducción 6,5 s: avance/reinicio/parada final; detención por capítulo y movimiento reducido del sistema/aplicación.');
+  const tabPlayback=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(tabPlayback);await tabPlayback.clock.install();
+  await open(tabPlayback,flows.find(f=>f.id==='sale'));await tabPlayback.locator('[data-ix-step="1"]').click();
+  await tabPlayback.locator('[data-ix-play]').click();assert.equal(await tabPlayback.locator('[data-ix-play]').getAttribute('aria-pressed'),'true');
+  await tabPlayback.locator('[data-map-view="general"]').click();await tabPlayback.clock.runFor(100);
+  assert.equal(await tabPlayback.locator('[data-ix-play]').getAttribute('aria-pressed'),'false','Leaving Peticiones must pause hidden playback');
+  const tabCounter=await tabPlayback.locator('#ix-counter').textContent(),tabCall=await tabPlayback.locator('#ix-call').inputValue();
+  await tabPlayback.clock.runFor(13000);assert.equal(await tabPlayback.locator('#ix-counter').textContent(),tabCounter);assert.equal(await tabPlayback.locator('#ix-call').inputValue(),tabCall);
+  await tabPlayback.locator('[data-map-view="peticiones"]').click();assert.equal(await tabPlayback.locator('[data-ix-play]').getAttribute('aria-pressed'),'false');assert.equal(await tabPlayback.locator('#ix-call').inputValue(),tabCall);
+  report.checks.push('Ocultar Peticiones pausa la reproducción, conserva el paso y la llamada, y volver no reinicia ni reproduce automáticamente.');
+  const expandedHistory=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(expandedHistory);await expandedHistory.clock.install();
+  await expandedHistory.goto(base+'/#mapa');await expandedHistory.locator('[data-map-view="peticiones"]').click();
+  await expandedHistory.locator('[data-ix-expand]').click();assert.equal(await expandedHistory.locator('dialog.ix-expanded').evaluate(el=>el.open),true);
+  await expandedHistory.locator('[data-ix-play]').click();assert.equal(await expandedHistory.locator('[data-ix-play]').getAttribute('aria-pressed'),'true');
+  await expandedHistory.goBack();await expandedHistory.locator('#map-panel-general').waitFor({state:'visible'});await expandedHistory.locator('dialog.ix-expanded').waitFor({state:'detached'});
+  await assertMapTab(expandedHistory,'general',true);
+  assert.equal(await expandedHistory.locator('dialog.ix-expanded').count(),0);
+  assert.equal(await expandedHistory.locator('#map-panel-peticiones #interaction-viewer').count(),1,'Expanded viewer must return to its original panel');
+  assert.equal(await expandedHistory.locator('[data-ix-play]').getAttribute('aria-pressed'),'false','Back to another perspective must pause an expanded viewer');
+  assert.equal(await expandedHistory.evaluate(()=>document.activeElement.id),'map-tab-general');
+  const historyCounter=await expandedHistory.locator('#ix-counter').textContent();await expandedHistory.clock.runFor(13000);assert.equal(await expandedHistory.locator('#ix-counter').textContent(),historyCounter);
+  report.checks.push('Atrás del navegador desde Peticiones ampliado y reproduciendo cierra el diálogo, devuelve el visor a su panel, pausa y enfoca Vista general sin avance posterior.');
   const off=await browser.newPage({viewport:{width:390,height:844},offline:true,reducedMotion:'reduce'});record(off,true);
   for(const f of flows){await open(off,f,true);for(const mode of modes){await off.locator('[data-ix-mode="'+mode+'"]').click();assert.ok(await off.locator('.ix-surface [data-ix-node]').count());}if(!await off.locator('.ix-relations').evaluate(el=>el.open))await off.locator('.ix-relations > summary').click();const e=f.edges.at(-1);await off.locator('[data-ix-relation="'+e.id+'"]').click();await detail(off,e);}
   await off.goto(pathToFileURL(path.join(root,'index.html')).href+'#propuesta?flujo=proposed-erp');assert.equal(await off.locator('#ix-flow').inputValue(),'proposed-erp');assert.equal(await off.locator('#interaction-library').evaluate(el=>el.open),true);

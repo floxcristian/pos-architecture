@@ -10,7 +10,9 @@ async function main(){
  try{
   const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce',offline:true});
   page.on('pageerror',e=>report.errors.push(e.message));page.on('request',r=>{if(!r.url().startsWith('file:')&&!r.url().startsWith('data:'))report.external.push(r.url());});
-  await page.goto(url);const data=await page.evaluate(()=>window.POS_REPOSITORIES);
+  await page.goto(url+'?vista=repositorios');const data=await page.evaluate(()=>window.POS_REPOSITORIES);
+  assert.equal(await page.locator('[data-map-view="repositorios"]').getAttribute('aria-selected'),'true');
+  assert.equal(await page.locator('#map-panel-repositorios').isVisible(),true);
   assert.equal(data.repositories.length,8);assert.equal(data.connections.length,11);
   const runtime=data.repositories.filter(r=>r.role==='runtime'),platform=data.repositories.filter(r=>r.role==='platform');
   assert.equal(runtime.length,6);assert.equal(platform.length,2);
@@ -57,7 +59,8 @@ async function main(){
     report.modalViews++;
    }
    await page.locator('#repo-connection').selectOption('repo-admin');await page.locator('.repo-module').screenshot({path:path.join(qa,'repositories-admin-'+width+'.png')});
-   await page.locator('.repo-viewport').focus();await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowLeft');assert.ok(page.url().endsWith('#mapa'));
+   const repositoryHash=new URL(page.url()).hash;
+   await page.locator('.repo-viewport').focus();await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowLeft');assert.equal(new URL(page.url()).hash,repositoryHash);
    assert.equal(await page.locator('.repo-viewport').evaluate(el=>el.scrollLeft),0,'The fitted map must not need horizontal keyboard scrolling');
    await page.locator('.repo-viewport').screenshot({path:path.join(qa,'repositories-fit-'+width+'.png')});
   }
@@ -66,6 +69,13 @@ async function main(){
   await page.setViewportSize({width:1440,height:1000});
   for(const connection of actual){const b=page.locator('button[data-repo-edge="'+connection.id+'"]');await b.focus();await page.keyboard.press('Enter');assert.equal(await page.locator('#repo-connection').inputValue(),connection.id);assert.equal(await page.evaluate(()=>document.activeElement.dataset.repoEdge),connection.id);}
   report.checks.push('Los diez números de relaciones operacionales se seleccionan por teclado; precedentes se mantienen fuera del grafo POS.');
+  await page.locator('#repo-connection').selectOption('repo-admin');await page.locator('#repo-all').uncheck();
+  await page.locator('[data-map-view="general"]').click();assert.equal(await page.locator('.repo-module').isVisible(),false);
+  await page.locator('[data-map-view="repositorios"]').click();
+  assert.equal(await page.locator('#repo-connection').inputValue(),'repo-admin');
+  assert.equal(await page.locator('#repo-all').isChecked(),false);assert.equal(await page.locator('.repo-edge-number').count(),1);
+  await page.locator('#repo-all').check();
+  report.checks.push('La pestaña Repositorios conserva conexión y filtro al explorar Vista general y volver.');
   for(const [width,height] of [[1024,768],[768,1024],[375,812],[844,390],[1440,1000],[390,844]]){
    await page.setViewportSize({width,height});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));await geometry('resize/'+width+'x'+height);
    const mapsize=await page.locator('.repo-map').evaluate(el=>{const viewport=el.closest('.repo-viewport');return {width:parseFloat(el.style.width),displayWidth:el.getBoundingClientRect().width,available:viewport.clientWidth,scrollWidth:viewport.scrollWidth,count:el.querySelectorAll('.repo-node').length};});assert.equal(mapsize.count,6);
