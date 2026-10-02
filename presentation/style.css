@@ -633,7 +633,7 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
 .tech-diagram-render [data-tech-node]:focus-visible { outline: none; }
 .tech-diagram-render [data-tech-node]:focus-visible rect, .tech-diagram-render [data-tech-node]:focus-visible path, .tech-diagram-render [data-tech-node]:focus-visible polygon { stroke: #b05f30; stroke-width: 4px; }
 .tech-node-detail + .tech-node-detail { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
-.tech-topology-note, .tech-diagram-reference { margin: 15px 0; font-size: 11px; color: var(--muted); line-height: 1.7; }
+.tech-diagram-reference { margin: 15px 0; font-size: 11px; color: var(--muted); line-height: 1.7; }
 .tech-deployment-links .tag { min-height: 38px; max-width: 100%; white-space: normal; font-size: 10px; }
 .tech-node-list > summary { min-height: 44px; padding: 13px 0; font-size: 12px; color: var(--teal-dark); font-weight: 650; }
 .tech-node-list .tag-list { padding: 9px 0 15px; }

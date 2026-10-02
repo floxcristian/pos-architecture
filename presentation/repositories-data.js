@@ -312,7 +312,7 @@ window.POS_REPOSITORIES = {
       "from": "mountain-implementos",
       "to": "api-impresion-caja",
       "label": "HTTP local · imprimir boletas, facturas y comprobantes",
-      "detail": "Permite imprimir en papel boletas y facturas electrónicas, o comprobantes de pago y cobranza, según la operación. La interfaz prepara el contenido y lo envía a POST /Impresion/ImprimirDTE_Termica cuando se usa el canal apiImpresion. Esta llamada solicita la impresión; no emite un nuevo DTE. El código revisado no confirma qué impresora está instalada ni que el papel haya salido.",
+      "detail": "Permite imprimir en papel boletas y facturas electrónicas, o comprobantes de pago y cobranza, según la operación. La interfaz prepara el contenido y lo envía a POST /Impresion/ImprimirDTE_Termica cuando se usa el canal apiImpresion. Esta llamada solicita la impresión; no emite un nuevo DTE. La respuesta de la API no confirma que el papel haya salido de la impresora.",
       "certainty": "code",
       "sources": [
         {
@@ -342,7 +342,7 @@ window.POS_REPOSITORIES = {
       "from": "mountain-implementos",
       "to": "api-pagos-caja",
       "label": "HTTP · consultar NC y su estado",
-      "detail": "El backend Mountain consume contratos de consulta de NC compatibles con las rutas Express. Mantener como compatible: la configuración efectiva, sus alternativas/fallback y los snapshots desplegados no se comprobaron. Consulta por cliente y marcas estadoNC son ramas distintas.",
+      "detail": "El backend Mountain tiene llamadas de consulta de notas de crédito compatibles con las rutas Express; la configuración que conecta ambas aplicaciones está por confirmar. La consulta por cliente y las marcas estadoNC son ramas distintas.",
       "certainty": "compatible",
       "sources": [
         {
@@ -418,7 +418,7 @@ window.POS_REPOSITORIES = {
       "from": "mountain-sync-sucursal",
       "to": "mountain-concentrador",
       "label": "HTTP · mensajeEntradas/ingresar",
-      "detail": "El consumidor 2026 construye POST /api/mensajeEntradas/ingresar; el artefacto Synapse 2023 expone ese contrato. Se comprobó compatibilidad estática, no que ese CAR/recurso sea el desplegado. La respuesta de recepción no acredita el registro final en AX.",
+      "detail": "El sincronizador llama a POST /api/mensajeEntradas/ingresar, ruta compatible con la API Synapse del concentrador. La respuesta de recepción no confirma el registro final en AX.",
       "certainty": "compatible",
       "sources": [
         {

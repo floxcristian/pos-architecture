@@ -78,7 +78,7 @@ async function main() {
     assert.equal(await page.locator('#tech-diagram-render').getAttribute('data-tech-diagram'),'technical-deployment');
     assert.equal(await page.locator('#tech-diagram-select').count(),0);
     assert.equal(await page.locator('[data-tech-source]').count(),0);
-    await page.locator('[data-tech-view="coverage"]').click();assert.match(await page.locator('.tech-coverage-limit').innerText(),/no porcentajes/);
+    await page.locator('[data-tech-view="coverage"]').click();assert.match(await page.locator('.tech-coverage-limit').innerText(),/Perú y España/);
     assert.equal(await page.locator('details.tech-audited-components').evaluate(el=>el.open),false);
     await page.locator('details.tech-audited-components > summary').click();
     for(const zone of await page.locator('.tech-audited-components .tech-zone > summary').all())await zone.click();

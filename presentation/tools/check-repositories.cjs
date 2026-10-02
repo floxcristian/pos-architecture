@@ -51,7 +51,10 @@ async function main(){
    for(const repository of runtime){
     const target=page.locator('[data-repository="'+repository.id+'"]');await target.focus();await page.keyboard.press('Enter');
     assert.equal(await page.locator('#modal-title').innerText(),repository.name);
-    const text=norm(await page.locator('#modal-body').innerText());assert.ok(text.includes(norm(repository.boundary)));assert.ok(text.includes(norm(repository.summary)));
+    assert.ok(norm(await page.locator('#modal-body').innerText()).includes(norm(repository.summary)));
+    const scope=page.locator('#modal-body details.detail-section');assert.equal(await scope.evaluate(el=>el.open),false);
+    await scope.locator('summary').click();assert.ok(norm(await scope.innerText()).includes(norm(repository.boundary)));
+    await scope.locator('summary').click();
     assert.equal(await page.locator('#modal-body .repo-units dt').count(),repository.units.length);
     assert.deepEqual(await page.locator('#modal-body .repo-sources a').evaluateAll(a=>a.map(a=>a.getAttribute('href'))),repository.sources.map(s=>s.url));
     if(repository.id==='mountain-concentrador')await page.locator('#modal').screenshot({path:path.join(qa,'repositories-concentrador-modal-'+width+'.png')});
@@ -99,7 +102,10 @@ async function main(){
    for(const repository of platform){
     const target=page.locator('.repo-platform-module [data-repository="'+repository.id+'"]');await target.focus();await page.keyboard.press('Enter');
     assert.equal(await page.locator('#modal-title').innerText(),repository.name);
-    const text=norm(await page.locator('#modal-body').innerText());assert.ok(text.includes(norm(repository.boundary)));assert.ok(text.includes(norm(repository.summary)));
+    assert.ok(norm(await page.locator('#modal-body').innerText()).includes(norm(repository.summary)));
+    const scope=page.locator('#modal-body details.detail-section');assert.equal(await scope.evaluate(el=>el.open),false);
+    await scope.locator('summary').click();assert.ok(norm(await scope.innerText()).includes(norm(repository.boundary)));
+    await scope.locator('summary').click();
     assert.equal(await page.locator('#modal-body .repo-units dt').count(),repository.units.length);
     assert.deepEqual(await page.locator('#modal-body .repo-sources a').evaluateAll(links=>links.map(a=>a.getAttribute('href'))),repository.sources.map(s=>s.url));
     await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>document.activeElement.dataset.repository),repository.id);

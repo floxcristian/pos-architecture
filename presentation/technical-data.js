@@ -2,7 +2,7 @@
 window.POS_TECHNICAL = {
   "schemaVersion": 1,
   "reviewedAt": "2026-10-02",
-  "scopeNote": "Reconstrucción estática del POS chileno. Ramas/commits revisados no equivalen a despliegues productivos. Alias lógicos, sin direcciones ni secretos. Una ruta declarada no demuestra que un llamador concreto la use.",
+  "scopeNote": "Catálogo del POS chileno a partir de los repositorios revisados: aplicaciones, rutas de API, conexiones y pendientes específicos de cada pieza.",
   "groups": [
     {
       "id": "sale",

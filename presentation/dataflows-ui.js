@@ -17,8 +17,8 @@
   }
   function nodeModal(id) {
     const flow=current(),node=flow?.nodes?.[id];if(!node)return;
-    const facts=[['Base / frontera',node.db],['Operación observada',node.operation],['Tabla y esquema: alcance de evidencia',node.schemaEvidence],['Campos y estados',node.stateFields]];
-    bridge.openModal?.(node.title,`<span class="status-badge reported">${esc(node.evidence || 'Actual · alcance según fuente')}</span><p class="df-node-description">${esc(node.description)}</p><dl class="df-node-facts">${facts.filter(([,value])=>stringify(value)).map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(stringify(value))}</dd></div>`).join('')}</dl>${sources(node.sources)}<p class="small-note">La ruta revisada no acredita el esquema físico, la configuración o el commit de producción salvo evidencia expresa. La ficha no consulta una base real.</p>`);
+    const facts=[['Base / frontera',node.db],['Operación observada',node.operation],['Tabla y esquema',node.schemaEvidence],['Campos y estados',node.stateFields]];
+    bridge.openModal?.(node.title,`<span class="status-badge reported">${esc(node.evidence || 'Actual · alcance según fuente')}</span><p class="df-node-description">${esc(node.description)}</p><dl class="df-node-facts">${facts.filter(([,value])=>stringify(value)).map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(stringify(value))}</dd></div>`).join('')}</dl>${sources(node.sources)}`);
   }
   function render() {
     const flow=current();if(!$('#dataflow-stage')||!flow)return;

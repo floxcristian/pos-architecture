@@ -4,7 +4,7 @@ window.POS_CONTENT = {
     "title": "Del POS actual a una plataforma que puede operar offline",
     "date": "2026-10-02",
     "scope": "Chile: presentación, apuntes y código revisado. Perú y España: antecedentes iniciales. La arquitectura futura es una propuesta.",
-    "evidenceNote": "Encontrado en código no significa desplegado en producción. Los diagramas representan responsabilidades, no servidores físicos.",
+    "evidenceNote": "El análisis combina versiones de los repositorios y antecedentes del equipo. Los diagramas muestran responsabilidades y conexiones lógicas; las versiones instaladas y los servidores se validarán con el equipo de operación.",
     "stockNote": "Según la aclaración operativa, la caja no maneja stock. La reserva mencionada debe atribuirse al sistema responsable.",
     "offlineNote": "Primero debemos acordar qué desconexión tolerar: Internet, red de la sucursal o ambos. Pagos, crédito y documentos fiscales tienen límites propios."
   },
@@ -760,7 +760,7 @@ window.POS_CONTENT = {
       "kind": "process",
       "place": "Central",
       "status": "code",
-      "description": "El repositorio contiene APIs Synapse, consultas DSS, mediadores Java y artefactos CAR. Orquesta recepción, persistencia, transformación y llamadas .NET/AX; el broker transporta mensajes. La versión desplegada sigue pendiente.",
+      "description": "El repositorio contiene APIs Synapse, consultas DSS, mediadores Java y artefactos CAR. Orquesta recepción, persistencia, transformación y llamadas .NET/AX; el broker transporta mensajes.",
       "responsibilities": [
         "Transportar avisos, solicitudes y respuestas.",
         "Orquestar o mediar integraciones según la configuración central.",
@@ -1529,7 +1529,7 @@ window.POS_CONTENT = {
     },
     {
       "term": "Endpoint",
-      "definition": "Punto de entrada de una API, identificado por método y ruta. Encontrarlo en código no demuestra qué host lo publica ni que se use en producción.",
+      "definition": "Dirección de una API a la que una aplicación envía una petición. Se identifica por un método, como GET o POST, y una ruta.",
       "example": "POST /punto-de-venta es una ruta declarada; un sufijo llamado por otro proceso puede tener todavía un receptor por confirmar."
     },
     {

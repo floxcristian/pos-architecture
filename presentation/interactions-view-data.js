@@ -147,9 +147,11 @@
     'proposed-erp': 'Propuesta: el publicador entrega eventos locales a una API central. La recepción guarda mensaje y trabajo juntos; la integración registra el resultado ERP o deja la operación para conciliación. El acuse central confirma custodia.'
   };
   const boundaries = {
-    sync: 'Código inspeccionado, no despliegue confirmado. Se muestra el consumidor de ingreso que guarda en PostgreSQL y el procesamiento posterior del concentrador; su conexión y activación deben confirmarse. Existe otra configuración de consumo. Un ACK técnico no confirma DTE ni ERP.',
+    sync: 'Se muestra el consumidor de ingreso que guarda en PostgreSQL y el procesamiento posterior del concentrador; su conexión y activación deben confirmarse. Existe otra configuración de consumo. Un ACK técnico no confirma DTE ni ERP.',
+    masters: 'El productor AX→MPOS, cuerpos SP, ubicaciones y calendario real siguen pendientes. Las fases centrales, ACK, aplicación local y recálculo no tienen una transacción global.',
     customer: 'Se muestra principalmente un refresco exitoso. Si falla, el backend puede leer datos locales e intentar saldo sin una nueva confirmación de ficha. No se escribe el cliente en AX ni se actualizan todos sus contactos en este recorrido.',
-    printing: 'Código inspeccionado, sin ejecución ni tráfico productivo. PDF disponible, HTTP 200, entrega al driver y papel entregado no son confirmaciones equivalentes. No se une una descarga PDF a toda impresión térmica.'
+    printing: 'PDF disponible, HTTP 200, entrega al driver y papel entregado no son confirmaciones equivalentes. No se une una descarga PDF a toda impresión térmica.',
+    credit: 'La consulta remota y las consultas a sucursales dependen de conectividad. MongoDB y PostgreSQL no comparten una transacción observada, y guardar consumo local no confirma recepción en AX.'
   };
   const stepBoundaries = {
     sale: {

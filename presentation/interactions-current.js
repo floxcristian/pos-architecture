@@ -12,16 +12,14 @@ window.POS_INTERACTIONS_CURRENT = [
         "title": "Mountain · interfaz de caja",
         "repo": "mountain-implementos/frontend",
         "runtime": "Angular 8 / TypeScript",
-        "zone": "PC del operador · navegador",
-        "evidence": "Código del snapshot, no certificación del despliegue ni del tráfico productivo."
+        "zone": "PC del operador · navegador"
       },
       {
         "id": "group-backend",
         "title": "Mountain · backend de sucursal",
         "repo": "mountain-implementos/backend",
         "runtime": "AdonisJS / Node.js",
-        "zone": "Servidor de sucursal",
-        "evidence": "Código del snapshot, no certificación del despliegue ni del tráfico productivo."
+        "zone": "Servidor de sucursal"
       },
       {
         "id": "group-postgres",
@@ -1959,8 +1957,7 @@ window.POS_INTERACTIONS_CURRENT = [
         "title": "Sincronizador de sucursal",
         "repo": "mountain-sync-sucursal @540ab9a",
         "runtime": "AdonisJS / Node.js",
-        "zone": "Servidor de sucursal",
-        "evidence": "Código del snapshot, no certificación del despliegue ni del tráfico productivo."
+        "zone": "Servidor de sucursal"
       },
       {
         "id": "group-postgres",
@@ -3256,8 +3253,7 @@ window.POS_INTERACTIONS_CURRENT = [
         "title": "Mountain · backend de sucursal",
         "repo": "mountain-implementos/backend",
         "runtime": "AdonisJS / Node.js",
-        "zone": "Servidor de sucursal",
-        "evidence": "Código del snapshot, no certificación del despliegue ni del tráfico productivo."
+        "zone": "Servidor de sucursal"
       },
       {
         "id": "group-postgres",
