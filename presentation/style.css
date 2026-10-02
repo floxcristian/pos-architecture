@@ -627,7 +627,7 @@ body:not(.reduce-motion):not(.reduced-motion):not(.motion-reduced) .is-running :
 .tech-diagram-controls > div { display: flex; flex-wrap: wrap; gap: 6px; }
 .tech-diagram-controls .btn { min-height: 40px; font-size: 11px; }
 .tech-diagram-controls .btn[aria-pressed="true"] { background: #dceee1; color: #245237; border-color: #90b69b; }
-.tech-diagram-scroll { max-height: 660px; min-height: 180px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 10px; background: white; }
+.tech-diagram-scroll { max-height: 660px; min-height: 180px; overflow: auto; overscroll-behavior-x:contain; overscroll-behavior-y:auto; border: 1px solid var(--line); border-radius: 10px; background: white; }
 .tech-diagram-render { padding: 18px 12px; min-width: 100%; width: max-content; }
 .tech-diagram-render > svg { max-width: none !important; }
 .tech-diagram-render [data-tech-node] { cursor: pointer; }
@@ -1073,7 +1073,7 @@ body.reduce-motion *, body.reduced-motion *, body.motion-reduced * { animation: 
 .df-zoom { display: flex; flex-wrap: wrap; gap: 6px; }
 .df-zoom .btn { min-height: 40px; font-size: 11px; }
 .df-zoom .btn[aria-pressed="true"] { background: #deeee4; border-color: #8eb4a2; }
-.df-map-scroll { max-height: 600px; min-height: 180px; overflow: auto; overscroll-behavior: contain; background: white; }
+.df-map-scroll { max-height: 600px; min-height: 180px; overflow: auto; overscroll-behavior-x:contain; overscroll-behavior-y:auto; background: white; }
 .df-map-render { min-width: 100%; width: max-content; padding: 20px 12px; }
 .df-map-render > svg { max-width: none !important; }
 .df-map-render [data-df-node] { cursor: pointer; transition: opacity .16s ease; }
@@ -1173,7 +1173,7 @@ body.reduce-motion *, body.reduced-motion *, body.motion-reduced * { animation: 
 .ops-map-card { background: white; border: 1px solid #d6e2de; border-radius: 14px; min-width: 0; overflow: hidden; }
 .ops-map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #d6e2de; font-size: 12px; font-weight: 700; }
 .ops-map-toolbar .tag-list { margin: 0; }
-.ops-map-scroll { max-height: 670px; overflow: auto; overscroll-behavior: contain; padding: 14px 0; }
+.ops-map-scroll { max-height: 670px; overflow: auto; overscroll-behavior-x:contain; overscroll-behavior-y:auto; padding: 14px 0; }
 .ops-map-scroll:focus-visible { outline: 3px solid #b05f30; outline-offset: -3px; }
 .ops-map-hint { margin: 0; padding: 14px 18px; border-top: 1px solid #d6e2de; font-size: 13px; line-height: 1.6; color: #46685f; }
 .ops-reading h4 { margin: 0 0 20px; font-size: 19px; }

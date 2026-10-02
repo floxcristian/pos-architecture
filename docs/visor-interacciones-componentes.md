@@ -38,6 +38,8 @@ Las llamadas internas entre clases de una misma aplicación se agrupan en su fic
 
 Las etiquetas pueden ocupar varias líneas y el lienzo ajusta su tamaño al contenido. El zoom y el desplazamiento permiten inspeccionar nombres completos; la compactación conserva tipografía, fuentes e inspección por teclado.
 
+La rueda del ratón y los gestos verticales recorren el diagrama cuando tiene contenido fuera de vista. Si cabe completo o se llega a su borde, el desplazamiento continúa en la página. En **Ampliar visor**, continúa dentro del diálogo y mantiene quieta la página de fondo.
+
 **Secuencia didáctica no significa orden universal.** El régimen fiscal y la capacidad del proveedor determinan cuándo emitir, confirmar o compensar. Las ramas de pago externo y fiscalidad solo se ejecutan cuando corresponden al tipo de operación. La ausencia de Internet no habilita esas capacidades por sí sola.
 
 ## Venta local propuesta
