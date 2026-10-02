@@ -83,7 +83,7 @@ async function main() {
     await page.locator('details.tech-audited-components > summary').click();
     for(const zone of await page.locator('.tech-audited-components .tech-zone > summary').all())await zone.click();
     assert.equal(await page.locator('.tech-component-card').count(),technical.components.length);
-    await page.locator('.tech-audited-components [data-tech-component="backend"]').click();assert.match(await page.locator('#modal-body').innerText(),/Repositorio/);assert.match(await page.locator('#modal-body').innerText(),/confirmar/);await page.keyboard.press('Escape');
+    await page.locator('.tech-audited-components [data-tech-component="backend"]').click();assert.match(await page.locator('#modal-body').innerText(),/Repositorio/);assert.ok((await page.locator('#modal-body .tech-component-facts').innerText()).includes(technical.components.find(c=>c.id==='backend').repo));await page.keyboard.press('Escape');
     await page.locator('.tech-functional:not(.tech-snapshots) > summary').click();assert.equal(await page.locator('.tech-functional:not(.tech-snapshots) dt').count(),7);
     await page.locator('.tech-snapshots > summary').click();assert.equal(await page.locator('.tech-snapshots dt').count(),technical.snapshots.length);
     assert.ok(await page.locator('.tech-source-index a[href*="decisiones-de-arquitectura"]').count());

@@ -64,9 +64,7 @@ window.POS_TECHNICAL = {
       "port": "3333 según diagrama y valor predeterminado del cliente del sync",
       "zone": "branch",
       "responsibility": "Venta, persistencia local, precios, clientes y coordinación fiscal.",
-      "locationEvidence": "PPTX identifica servidor de sucursal; código separa backend y sync.",
       "confidence": "Código + antecedente; host/VM no comprobados",
-      "pending": "Sistema operativo, supervisor, instancias y colocación de PostgreSQL.",
       "sources": [
         {
           "label": "mountain-implementos/backend/package.json:1–63",
