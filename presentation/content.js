@@ -2136,6 +2136,166 @@ window.POS_CONTENT = {
           "feedback": "Una recomendación no concede autorización. El núcleo debe validar esta operación con sus reglas y permisos, aunque exista una respuesta anterior de la IA."
         }
       ]
+    },
+    {
+      "prompt": "El terminal pudo haber cobrado, pero la caja no recibió la respuesta. ¿Cuál es el siguiente paso seguro?",
+      "options": [
+        {
+          "text": "Cobrar con otro proveedor para evitar el error del primero.",
+          "correct": false,
+          "feedback": "El primer proveedor pudo aplicar el cargo. Cambiar de proveedor no resuelve ese resultado y puede generar un segundo cobro."
+        },
+        {
+          "text": "Conservar la referencia y consultar al proveedor original, si lo permite, o iniciar una revisión controlada.",
+          "correct": true,
+          "feedback": "La falta de respuesta deja un resultado desconocido, no un rechazo confirmado. Se mantienen proveedor y referencias originales para consultar o conciliar antes de decidir cómo continuar."
+        },
+        {
+          "text": "Repetir el cobro con una referencia nueva en el mismo terminal.",
+          "correct": false,
+          "feedback": "Una referencia nueva puede ser tratada como otro cobro. Primero hay que resolver qué ocurrió con el intento original; un tiempo de espera agotado no demuestra que haya fallado."
+        }
+      ]
+    },
+    {
+      "prompt": "En la propuesta, la tienda está sin Internet y venció el paquete local de precios. ¿Qué debe hacer el POS?",
+      "options": [
+        {
+          "text": "Aplicar la política aprobada para datos vencidos: restringir la operación o usar una contingencia autorizada.",
+          "correct": true,
+          "feedback": "El motor local necesita reglas y datos válidos. Una política explícita decide qué se permite al vencerlos; conservar la versión usada permite explicar después el precio aplicado."
+        },
+        {
+          "text": "Seguir usando el paquete hasta recuperar Internet, sin considerar su vencimiento.",
+          "correct": false,
+          "feedback": "Estar desconectado no prolonga la vigencia de precios u ofertas. Usar el paquete vencido requiere una contingencia previamente autorizada."
+        },
+        {
+          "text": "Dejar que cualquier operador cambie los precios para poder finalizar la venta.",
+          "correct": false,
+          "feedback": "Calcular precios localmente no concede permiso para editarlos. Los cambios manuales necesitan sus propias reglas y autorizaciones."
+        }
+      ]
+    },
+    {
+      "prompt": "Una copia local muestra saldo disponible en una nota de crédito. ¿Eso basta para usarla sin conexión?",
+      "options": [
+        {
+          "text": "Sí, si la copia se descargó antes de que se cortara Internet.",
+          "correct": false,
+          "feedback": "Aunque la copia sea reciente, otra tienda pudo consumir ese saldo después. Conocer un saldo no equivale a tenerlo reservado para esta caja."
+        },
+        {
+          "text": "Sí, si esta caja descuenta el importe en su copia local.",
+          "correct": false,
+          "feedback": "Ese descuento no impide que otra tienda use su propia copia. Hace falta un mecanismo que evite comprometer el mismo saldo en dos lugares."
+        },
+        {
+          "text": "No: hace falta autorización para consumirlo y un control que evite usar el mismo saldo dos veces.",
+          "correct": true,
+          "feedback": "Una reserva o cupo autorizado puede delimitar el consumo, con controles y conciliación. Una copia de consulta, por sí sola, no otorga ese permiso."
+        }
+      ]
+    },
+    {
+      "prompt": "La pantalla calcula un total y envía la venta al backend. ¿Dónde deben comprobarse las reglas antes de guardarla?",
+      "options": [
+        {
+          "text": "Solo en la pantalla, para no repetir una validación que ya se hizo.",
+          "correct": false,
+          "feedback": "La pantalla ayuda a preparar la operación, pero sus datos pueden estar desactualizados o alterados. El servicio que guarda la venta no debe confiar únicamente en esa validación."
+        },
+        {
+          "text": "También en el backend que aplica las reglas de negocio y guarda la venta.",
+          "correct": true,
+          "feedback": "El backend debe comprobar datos, precios y permisos al ejecutar la operación. Las comprobaciones de la interfaz ayudan al usuario, pero no sustituyen ese control."
+        },
+        {
+          "text": "En el ERP, después de que la caja haya guardado y enviado la venta.",
+          "correct": false,
+          "feedback": "El ERP tiene sus propias validaciones, pero puede recibir la operación más tarde. El núcleo local debe aplicar sus reglas antes de confirmar la venta."
+        }
+      ]
+    },
+    {
+      "prompt": "En un recorrido aparece «INSERT INTO documentos» en PostgreSQL. ¿Qué significa «documentos» en ese contexto?",
+      "options": [
+        {
+          "text": "Es el nombre de una tabla SQL donde se insertan filas.",
+          "correct": true,
+          "feedback": "Una tabla puede llamarse documentos y seguir siendo relacional. En MongoDB, en cambio, los documentos son entradas de una colección; el nombre de la tabla no determina el motor."
+        },
+        {
+          "text": "Indica que la venta se guarda en una colección de MongoDB.",
+          "correct": false,
+          "feedback": "Aquí la instrucción se ejecuta en PostgreSQL. La palabra documentos es el nombre de la tabla, no una referencia a MongoDB."
+        },
+        {
+          "text": "Indica que se está creando el archivo PDF de la boleta.",
+          "correct": false,
+          "feedback": "INSERT guarda una fila en la tabla. Crear una representación imprimible o emitir una boleta son acciones distintas que no se deducen del nombre documentos."
+        }
+      ]
+    },
+    {
+      "prompt": "En la propuesta, ¿cómo se aprovechan core y devops-platform sin hacer que cada venta dependa de Internet?",
+      "options": [
+        {
+          "text": "Enviar cada venta a core y esperar su respuesta antes de guardarla localmente.",
+          "correct": false,
+          "feedback": "Eso introduciría una dependencia central en cada venta. Las operaciones habilitadas offline deben poder validarse y guardarse con los recursos locales previstos."
+        },
+        {
+          "text": "Reutilizar componentes y automatizaciones seleccionados, manteniendo autónoma la operación local autorizada.",
+          "correct": true,
+          "feedback": "core aporta bibliotecas y capacidades centrales; devops-platform, acciones para probar, construir y desplegar. Se adoptan piezas verificadas, sin exigir sus servicios centrales para cada venta offline."
+        },
+        {
+          "text": "Instalar core completo en cada caja y usar sin cambios su despliegue central.",
+          "correct": false,
+          "feedback": "core incluye dependencias remotas y la entrega central no resuelve por sí sola la actualización de cajas Windows. Hay que seleccionar piezas compatibles y validar lo específico de tienda."
+        }
+      ]
+    },
+    {
+      "prompt": "Una actualización falla y la tienda ya guardó ventas nuevas. ¿Qué debe proteger el procedimiento de recuperación?",
+      "options": [
+        {
+          "text": "La versión anterior del programa, restaurando también la base vieja para que coincidan.",
+          "correct": false,
+          "feedback": "Restaurar una base anterior puede borrar ventas y pendientes creados después. Volver a un programa anterior exige comprobar su compatibilidad con los datos actuales."
+        },
+        {
+          "text": "El arranque rápido, eliminando pendientes para que no bloqueen la instalación.",
+          "correct": false,
+          "feedback": "Los pendientes representan trabajo que todavía debe completarse. Borrarlos para instalar puede dejar ventas sin integrar o resultados sin resolver."
+        },
+        {
+          "text": "Las ventas y los pendientes, reparando o volviendo a una versión compatible con los datos conservados.",
+          "correct": true,
+          "feedback": "La recuperación debe preservar las operaciones ya confirmadas. Por eso se prueban migraciones, actualizaciones interrumpidas y compatibilidad antes de distribuir una versión a todas las tiendas."
+        }
+      ]
+    },
+    {
+      "prompt": "Según la propuesta, al llevar el POS a otro país, ¿qué se comparte y qué debe adaptarse?",
+      "options": [
+        {
+          "text": "Compartir el núcleo común y adaptar reglas y conexiones fiscales, de pago y ERP según el país.",
+          "correct": true,
+          "feedback": "Los procesos comunes pueden reutilizarse mediante contratos propios. Impuestos, moneda, documentos y capacidades de proveedores se validan para cada país y entidad."
+        },
+        {
+          "text": "Copiar la configuración de Chile y cambiar solo la moneda y el nombre del país.",
+          "correct": false,
+          "feedback": "Las diferencias incluyen reglas fiscales, documentos, medios de pago y contratos del ERP. Cambiar etiquetas y moneda no valida esas capacidades."
+        },
+        {
+          "text": "Crear un POS independiente por país, incluyendo otra implementación de todos los procesos comunes.",
+          "correct": false,
+          "feedback": "Eso duplica reglas y mantenimiento. La propuesta conserva un núcleo compartido y separa las variantes mediante configuración validada y adaptadores."
+        }
+      ]
     }
   ],
   "comparisons": [

@@ -50,7 +50,7 @@ Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`.
 | [Propuesta](index.html#propuesta) | Comienza en Arquitectura. Qué cambia, Venta y ERP, Precios y ofertas y Tecnología separan comparación, contratos, caso O02 y reutilización de core/devops-platform. Los enlaces a [venta local](index.html#propuesta?flujo=proposed-sale) y [entrega ERP](index.html#propuesta?flujo=proposed-erp) abren su pestaña y recorrido. |
 | [Evolución](index.html#evolucion) | Comienza en Países. Cambio de ERP, Proveedores y equipos, RFID y Despliegue son pestañas independientes; elegir país solo actualiza su ficha. |
 | [IA](index.html#ia) | Casos candidatos, alternativas y laboratorio de asistencia con abstención. |
-| [Repaso](index.html#repaso) | Doce situaciones de comprensión, con explicación por respuesta y posibilidad de reintentar; después, decisiones para conversar con el equipo. |
+| [Repaso](index.html#repaso) | Veinte situaciones de comprensión, con explicación por respuesta y posibilidad de reintentar; después, decisiones para conversar con el equipo. |
 
 La **[guía del visor](../docs/visor-interacciones-componentes.md)** es la referencia de controles, modos, conexiones, teclado, zoom y límites. El mapa muestra aplicaciones y datos; «Implementación y código» conserva clases y servicios internos en las fichas. La [matriz de cobertura](../docs/cobertura-documentacion-presentacion.md) detalla qué se explica y qué requiere abrir un informe.
 
