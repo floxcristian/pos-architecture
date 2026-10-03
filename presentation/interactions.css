@@ -54,9 +54,11 @@
 .ix-wire-line { fill:none; stroke:#087f70; stroke-width:2; stroke-linejoin:round; }
 .ix-wire.ix-selected .ix-wire-line { stroke-width:3; }.ix-uncertain .ix-wire-line { stroke-dasharray:7 5; }
 .ix-wire-hit { fill:none; stroke:transparent; stroke-width:18; pointer-events:stroke; cursor:pointer; }
-.ix-edge-label { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px 8px; width:max-content; max-width:100%; min-height:44px; padding:6px 10px; border:1px solid #a8c7ba; border-radius:7px; background:#fff; color:var(--ink); pointer-events:auto; box-shadow:0 2px 7px #2543350a; }
+.ix-edge-label { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px 8px; width:max-content; max-width:100%; min-height:44px; padding:6px 10px; border:0; border-radius:0; background:transparent; color:var(--ink); pointer-events:auto; box-shadow:none; }
 .ix-edge-label span { font:11px Consolas,monospace; color:#526b62; flex-shrink:0; }.ix-edge-label strong { font:600 13px/1.4 Consolas,monospace; overflow-wrap:anywhere; }.ix-edge-label em { font:10px sans-serif; color:var(--amber); }
-.ix-edge-label[aria-pressed=true] { border-color:var(--teal); background:#edf8f3; box-shadow:0 0 0 1px var(--teal); }
+.ix-edge-label[aria-pressed=true] { color:var(--teal); }
+.ix-edge-label:hover strong { text-decoration:underline; text-underline-offset:3px; }
+.ix-edge-label:focus-visible { outline-offset:-3px; }
 .ix-lifeline { stroke:#b6c9c0; stroke-width:1; stroke-dasharray:4 6; fill:none; }
 .ix-seq-headers { position:absolute; top:0; left:0; width:100%; z-index:3; background:#f5f8f7; border-bottom:1px solid #d5e2dc; }
 .ix-seq-group { position:absolute; z-index:2; padding:12px 14px; text-align:left; color:var(--ink); background:#eaf1ee; border:1px solid #b6cbc1; border-radius:8px; overflow-wrap:anywhere; }.ix-seq-group small { font:12px/1.5 Consolas,monospace; }

@@ -63,7 +63,7 @@
         ...nodes.map(node=>({id:'n:'+node.id,html:nodeHTML(node,{x:0,y:0,w:standalone(g(node.group))?320:294})})),
         ...activeEdges().map((e,i)=>({id:'e:'+e.id,html:labelHTML(e,i,labelMax)}))
       ]);
-      const top=32+Math.max(...activeEdges().map(e=>measured['e:'+e.id].h));
+      const top=48+Math.max(...activeEdges().map(e=>measured['e:'+e.id].h));
       let maxBottom=0, nextTop=top, rowBottom=top;
       groups.forEach((group,i)=>{
         if(i>0&&i%cols===0)nextTop=rowBottom+28;
@@ -83,10 +83,11 @@
         const a=boxes[e.from],b=boxes[e.to]; if(!a||!b)return '';
         const same=n(e.from).group===n(e.to).group;
         let sx,tx,sy=a.y+a.h*(e.from === e.to ? .35 : .5),ty=b.y+b.h*(e.from === e.to ? .75 : .5),route,labelX,labelY;
-        const label=measured['e:'+e.id],channel=16+label.h/2;
-        if(compact){sx=a.x+a.w;tx=b.x+b.w;route=`M ${sx} ${sy} H ${width-14} V ${ty} H ${tx+4}`;labelX=width/2;labelY=channel;}
-        else if(same){sx=a.x+a.w;tx=b.x+b.w;const rail=sx+10;route=`M ${sx} ${sy} H ${rail} V ${channel} H ${a.x+40} V ${channel+8} H ${rail+8} V ${ty} H ${tx+4}`;labelX=a.x+a.w/2;labelY=channel;}
-        else {const right=b.x>a.x;sx=right?a.x+a.w:a.x;tx=right?b.x:b.x+b.w;const sign=right?1:-1,railA=sx+sign*18,railB=tx-sign*18;route=`M ${sx} ${sy} H ${railA} V ${channel} H ${railB} V ${ty} H ${tx-sign*4}`;labelX=(railA+railB)/2;labelY=channel;}
+        const label=measured['e:'+e.id],channel=16+label.h+12;
+        labelY=16+label.h/2;
+        if(compact){sx=a.x+a.w;tx=b.x+b.w;route=`M ${sx} ${sy} H ${width-14} V ${ty} H ${tx+4}`;labelX=width/2;}
+        else if(same){sx=a.x+a.w;tx=b.x+b.w;const rail=sx+10;route=`M ${sx} ${sy} H ${rail} V ${channel} H ${a.x+40} V ${channel+8} H ${rail+8} V ${ty} H ${tx+4}`;labelX=a.x+a.w/2;}
+        else {const right=b.x>a.x;sx=right?a.x+a.w:a.x;tx=right?b.x:b.x+b.w;const sign=right?1:-1,railA=sx+sign*18,railB=tx-sign*18;route=`M ${sx} ${sy} H ${railA} V ${channel} H ${railB} V ${ty} H ${tx-sign*4}`;labelX=(railA+railB)/2;}
         labelX=Math.max(label.w/2+12,Math.min(width-label.w/2-12,labelX));
         return wire(e,route,labelX,labelY,label,i);
       }).join('');
