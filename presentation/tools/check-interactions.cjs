@@ -169,7 +169,7 @@ async function main(){
    if(!result.clamped)assert.ok(result.labelTop>=result.contentTop-2,context+' centering must place selected call in the readable area');
   }
   for(const f of flows){
-   await open(page,f);assert.equal(await page.locator('[data-ix-step]').count(),f.steps.length);assert.equal(await page.locator('[data-ix-play]').isDisabled(),true);
+   await open(page,f);assert.equal(await page.locator('[data-ix-step]').count(),f.steps.length);
    for(let i=0;i<f.steps.length;i++){
     const s=f.steps[i];await page.locator('[data-ix-step="'+i+'"]').click();
     assert.equal(norm(await page.locator('#ix-step-title').innerText()),norm(s.title));assert.equal(norm(await page.locator('#ix-step-text').innerText()),norm(s.detail));
@@ -317,38 +317,31 @@ async function main(){
   await navigation.goto(base+'/#mapa');await navigation.setViewportSize({width:390,height:844});await navigation.locator('[data-map-view="peticiones"]').click();await geometry(navigation,'resize-hidden-then-open');
   await navigation.goto(base+'/#propuesta?flujo=sale');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false,'Wrong-chapter flow must not open unrelated journey');
   report.checks.push('Ecosistema con cuatro pestañas independientes: selección ARIA, teclado con flechas/Home/End y una vista visible. Conexión/repositorios y flujo/paso/petición persisten al cambiar; URLs de pestañas y ocho enlaces directos, historial atrás/adelante, biblioteca de Propuesta y Datos inicial D03 en desktop/móvil.');
-  const timed=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(timed);await timed.clock.install();
-  const tf=flows.find(f=>f.id==='proposed-sale');await open(timed,tf);await timed.locator('[data-ix-step="'+(tf.steps.length-1)+'"]').click();await timed.locator('#ix-call').selectOption(tf.steps.at(-1).edges.at(-1));
-  await timed.locator('[data-ix-play]').click();assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'true');await timed.clock.runFor(6500);assert.notEqual(await timed.locator('#ix-call').inputValue(),tf.steps[0].edges[0]);
-  await timed.locator('#interaction-library > summary').click();await timed.waitForFunction(()=>!document.querySelector('#interaction-library').open&&document.querySelector('[data-ix-play]').getAttribute('aria-pressed')==='false',null,{polling:50,timeout:3000});assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'false','Closing library pauses playback');const foldedStep=await timed.locator('#ix-counter').textContent();await timed.clock.runFor(13000);assert.equal(await timed.locator('#ix-counter').textContent(),foldedStep);await timed.locator('#interaction-library > summary').click();
-  await timed.locator('[data-action="help"]').click();await timed.locator('#motion-toggle').check();await timed.keyboard.press('Escape');assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'false');assert.equal(await timed.locator('[data-ix-play]').isDisabled(),true);
-  const frozen=await timed.locator('#ix-counter').innerText();await timed.clock.runFor(13000);assert.equal(await timed.locator('#ix-counter').innerText(),frozen);
-  await timed.locator('[data-action="help"]').click();await timed.locator('#motion-toggle').uncheck();await timed.keyboard.press('Escape');assert.equal(await timed.locator('[data-ix-play]').isDisabled(),false);await timed.locator('[data-ix-play]').click();for(let tick=0;tick<=tf.steps.reduce((n,s)=>n+s.edges.length,0);tick++)await timed.clock.fastForward(6500);
-  assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'false');assert.equal(await timed.locator('[data-ix-step="'+(tf.steps.length-1)+'"]').getAttribute('aria-pressed'),'true');assert.equal(await timed.locator('#ix-call').inputValue(),tf.steps.at(-1).edges.at(-1));
-  await timed.locator('[data-ix-play]').click();await timed.evaluate(()=>{location.hash='venta';});await timed.locator('#interaction-viewer').waitFor({state:'detached'});await timed.clock.runFor(13000);await timed.evaluate(()=>{location.hash='propuesta';});await timed.locator('#ix-flow').waitFor({state:'attached'});assert.equal(await timed.locator('#interaction-library').evaluate(el=>el.open),false);await timed.locator('#interaction-library > summary').click();assert.equal(await timed.locator('[data-ix-play]').getAttribute('aria-pressed'),'false');assert.equal(await timed.locator('[data-ix-step="0"]').getAttribute('aria-pressed'),'true');
-  await timed.emulateMedia({reducedMotion:'reduce'});await timed.clock.runFor(100);await timed.waitForFunction(()=>document.querySelector('[data-ix-play]').disabled,null,{polling:50,timeout:3000});assert.equal(await timed.locator('[data-ix-play]').isDisabled(),true);
-  report.checks.push('Reproducción 6,5 s: avance/reinicio/parada final; detención por capítulo y movimiento reducido del sistema/aplicación.');
-  const tabPlayback=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(tabPlayback);await tabPlayback.clock.install();
-  await open(tabPlayback,flows.find(f=>f.id==='sale'));await tabPlayback.locator('[data-ix-step="1"]').click();
-  await tabPlayback.locator('[data-ix-play]').click();assert.equal(await tabPlayback.locator('[data-ix-play]').getAttribute('aria-pressed'),'true');
-  await tabPlayback.locator('[data-map-view="general"]').click();await tabPlayback.clock.runFor(100);
-  assert.equal(await tabPlayback.locator('[data-ix-play]').getAttribute('aria-pressed'),'false','Leaving Peticiones must pause hidden playback');
-  const tabCounter=await tabPlayback.locator('#ix-counter').textContent(),tabCall=await tabPlayback.locator('#ix-call').inputValue();
-  await tabPlayback.clock.runFor(13000);assert.equal(await tabPlayback.locator('#ix-counter').textContent(),tabCounter);assert.equal(await tabPlayback.locator('#ix-call').inputValue(),tabCall);
-  await tabPlayback.locator('[data-map-view="peticiones"]').click();assert.equal(await tabPlayback.locator('[data-ix-play]').getAttribute('aria-pressed'),'false');assert.equal(await tabPlayback.locator('#ix-call').inputValue(),tabCall);
-  report.checks.push('Ocultar Peticiones pausa la reproducción, conserva el paso y la llamada, y volver no reinicia ni reproduce automáticamente.');
+  const library=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(library);await library.clock.install();
+  const tf=flows.find(f=>f.id==='proposed-sale');await open(library,tf);await library.locator('[data-ix-step="'+(tf.steps.length-1)+'"]').click();await library.locator('#ix-call').selectOption(tf.steps.at(-1).edges.at(-1));
+  const foldedStep=await library.locator('#ix-counter').textContent(),foldedCall=await library.locator('#ix-call').inputValue();
+  await library.locator('#interaction-library > summary').click();assert.equal(await library.locator('#interaction-library').evaluate(el=>el.open),false);await library.clock.runFor(13000);
+  await library.locator('#interaction-library > summary').click();assert.equal(await library.locator('#ix-counter').textContent(),foldedStep);assert.equal(await library.locator('#ix-call').inputValue(),foldedCall);
+  await library.evaluate(()=>{location.hash='venta';});await library.locator('#interaction-viewer').waitFor({state:'detached'});await library.evaluate(()=>{location.hash='propuesta';});await library.locator('#ix-flow').waitFor({state:'attached'});assert.equal(await library.locator('#interaction-library').evaluate(el=>el.open),false);await library.locator('#interaction-library > summary').click();assert.equal(await library.locator('[data-ix-step="0"]').getAttribute('aria-pressed'),'true');
+  report.checks.push('La biblioteca conserva el paso y la conexión al plegarse y abrirse; cambiar de capítulo desmonta el visor y la biblioteca vuelve cerrada.');
+  const tabManual=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(tabManual);await tabManual.clock.install();
+  const saleFlow=flows.find(f=>f.id==='sale');await open(tabManual,saleFlow);await tabManual.locator('[data-ix-step="1"]').click();await tabManual.locator('#ix-call').selectOption(saleFlow.steps[1].edges.at(-1));
+  const tabCounter=await tabManual.locator('#ix-counter').textContent(),tabCall=await tabManual.locator('#ix-call').inputValue();
+  await tabManual.locator('[data-map-view="general"]').click();await tabManual.clock.runFor(13000);assert.equal(await tabManual.locator('#ix-counter').textContent(),tabCounter);assert.equal(await tabManual.locator('#ix-call').inputValue(),tabCall);
+  await tabManual.locator('[data-map-view="peticiones"]').click();assert.equal(await tabManual.locator('#ix-counter').textContent(),tabCounter);assert.equal(await tabManual.locator('#ix-call').inputValue(),tabCall);
+  report.checks.push('Ocultar Peticiones y volver conserva el paso y la conexión seleccionados, sin avance automático.');
   const expandedHistory=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(expandedHistory);await expandedHistory.clock.install();
   await expandedHistory.goto(base+'/#mapa');await expandedHistory.locator('[data-map-view="peticiones"]').click();
+  await expandedHistory.locator('[data-ix-step="1"]').click();await expandedHistory.locator('#ix-call').selectOption(saleFlow.steps[1].edges.at(-1));
+  const historyCounter=await expandedHistory.locator('#ix-counter').textContent(),historyCall=await expandedHistory.locator('#ix-call').inputValue();
   await expandedHistory.locator('[data-ix-expand]').click();assert.equal(await expandedHistory.locator('dialog.ix-expanded').evaluate(el=>el.open),true);
-  await expandedHistory.locator('[data-ix-play]').click();assert.equal(await expandedHistory.locator('[data-ix-play]').getAttribute('aria-pressed'),'true');
   await expandedHistory.goBack();await expandedHistory.locator('#map-panel-general').waitFor({state:'visible'});await expandedHistory.locator('dialog.ix-expanded').waitFor({state:'detached'});
   await assertMapTab(expandedHistory,'general',true);
   assert.equal(await expandedHistory.locator('dialog.ix-expanded').count(),0);
   assert.equal(await expandedHistory.locator('#map-panel-peticiones #interaction-viewer').count(),1,'Expanded viewer must return to its original panel');
-  assert.equal(await expandedHistory.locator('[data-ix-play]').getAttribute('aria-pressed'),'false','Back to another perspective must pause an expanded viewer');
   assert.equal(await expandedHistory.evaluate(()=>document.activeElement.id),'map-tab-general');
-  const historyCounter=await expandedHistory.locator('#ix-counter').textContent();await expandedHistory.clock.runFor(13000);assert.equal(await expandedHistory.locator('#ix-counter').textContent(),historyCounter);
-  report.checks.push('Atrás del navegador desde Peticiones ampliado y reproduciendo cierra el diálogo, devuelve el visor a su panel, pausa y enfoca Vista general sin avance posterior.');
+  await expandedHistory.clock.runFor(13000);assert.equal(await expandedHistory.locator('#ix-counter').textContent(),historyCounter);assert.equal(await expandedHistory.locator('#ix-call').inputValue(),historyCall);
+  report.checks.push('Atrás del navegador desde Peticiones ampliado cierra el diálogo, devuelve el visor a su panel y enfoca Vista general, conservando el paso y la conexión.');
   const off=await browser.newPage({viewport:{width:390,height:844},offline:true,reducedMotion:'reduce'});record(off,true);
   for(const f of flows){await open(off,f,true);for(const mode of modes){await off.locator('[data-ix-mode="'+mode+'"]').click();assert.ok(await off.locator('.ix-surface [data-ix-node]').count());}if(!await off.locator('.ix-relations').evaluate(el=>el.open))await off.locator('.ix-relations > summary').click();const e=f.edges.at(-1);await off.locator('[data-ix-relation="'+e.id+'"]').click();await detail(off,e);}
   await off.goto(pathToFileURL(path.join(root,'index.html')).href+'#propuesta?flujo=proposed-erp');assert.equal(await off.locator('#ix-flow').inputValue(),'proposed-erp');assert.equal(await off.locator('#interaction-library').evaluate(el=>el.open),true);

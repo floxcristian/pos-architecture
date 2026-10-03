@@ -79,7 +79,7 @@ En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos,
 - `interactions-extensions.js`: recorridos actuales de impresión y NC; conserva sus variantes y ramas independientes.
 - `interactions-proposed.js`: venta local y entrega/resultado ERP propuestos; contratos y nombres ilustrativos, sin endpoints productivos inventados.
 - `interactions-view-data.js`: agrupa la implementación por aplicación para el diagrama; conserva los originales en las fichas, sin modificar los datos auditados.
-- `interactions-ui.js`: renderer nativo HTML/SVG, vistas de componentes/secuencia, selector de conexión, avance, zoom, fichas y visor ampliado.
+- `interactions-ui.js`: renderer nativo HTML/SVG, vistas de componentes/secuencia, selección de pasos y conexiones, zoom, fichas y visor ampliado.
 - `interactions.css`: estilos y adaptación del visor de interacciones. Los tres archivos de datos alimentan las mismas vistas; no necesitan regeneración Mermaid.
 - `app.js`: capítulos, pasos narrativos y comportamiento de la simulación.
 - `style.css`: diseño, adaptación a pantallas y accesibilidad visual.

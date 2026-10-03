@@ -6,13 +6,12 @@
   const certainty = {code:'Observado en código',reported:'Informado por el equipo',unknown:'Tramo por confirmar',proposed:'Contrato propuesto'};
   const kind = {component:'Aplicación',table:'Tabla / datos',external:'Sistema externo'};
   const zones = {terminal:'Puesto de caja',branch:'Sucursal',central:'Integración central',external:'Sistema externo',erp:'ERP / adaptadores',device:'Dispositivo local'};
-  const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches || document.body.classList.contains('reduce-motion');
   const link = s => /^(\.\.\/docs\/|https:\/\/github\.com\/)/.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)} ↗</a>` : esc(s.label);
   const sources = items => `<details class="ix-sources"><summary>Evidencia y referencias (${items.length})</summary><ul>${items.map(s=>`<li>${link(s)}</li>`).join('')}</ul></details>`;
   let dispose = () => {};
   function html(chapter) {
     if (!['mapa','propuesta'].includes(chapter)) return '';
-    return `<section class="ix-viewer" id="interaction-viewer" aria-labelledby="ix-title"><div class="ix-heading"><div><span class="eyebrow">APLICACIONES → LLAMADAS → DATOS</span><h2 id="ix-title">Quién llama a quién.</h2><p>Sigue llamadas entre aplicaciones, bases y tablas. Selecciona un recorrido y pulsa una aplicación o conexión para consultar su implementación.</p></div><button class="btn secondary" data-ix-expand>Ampliar visor</button></div><div class="ix-picker"><label for="ix-flow">Recorrido</label><select id="ix-flow"></select><span id="ix-scope"></span></div><details class="ix-overview"><summary>Alcance del recorrido</summary><p class="ix-summary" id="ix-summary"></p><p class="ix-overview-boundary" id="ix-flow-boundary"></p></details><div class="ix-story"><div><span class="eyebrow" id="ix-counter"></span><h3 id="ix-step-title"></h3><p id="ix-step-text"></p></div><div class="ix-transport"><button class="btn secondary" data-ix-prev aria-label="Paso anterior">←</button><button class="btn primary" data-ix-next>Siguiente →</button><button class="btn secondary" data-ix-play aria-pressed="false">Reproducir</button></div></div><div class="ix-step-list" id="ix-steps" aria-label="Elegir paso"></div><div class="ix-call-picker"><label for="ix-call">Conexión de este paso</label><select id="ix-call"></select></div><div class="ix-controls"><div class="ix-modes" role="group" aria-label="Vista del recorrido"><button data-ix-mode="step" aria-pressed="true">Seguir paso</button><button data-ix-mode="all" aria-pressed="false">Aplicaciones y datos</button><button data-ix-mode="sequence" aria-pressed="false">Secuencia</button></div><div class="ix-zoom" role="group" aria-label="Escala del diagrama"><button data-ix-zoom="fit" aria-pressed="true">Ajustar</button><button data-ix-zoom="100" aria-pressed="false">100 %</button><button data-ix-zoom="out" aria-label="Alejar diagrama">−</button><output id="ix-scale" aria-label="Escala actual"></output><button data-ix-zoom="in" aria-label="Acercar diagrama">+</button></div></div><div class="ix-board"><div class="ix-board-caption"><span id="ix-board-caption"></span><span>Aplicación · <span class="ix-db-key">Tabla</span> · <span class="ix-unknown-key">Por confirmar</span></span></div><div class="ix-viewport" tabindex="0" role="region" aria-label="Diagrama interactivo; desplaza con las flechas o arrastra el fondo"><div class="ix-size"><div class="ix-surface"></div></div></div><div class="ix-board-footer"><span>Arrastra el fondo o desplaza para explorar. Ajustar muestra el conjunto; 100 % amplía las etiquetas.</span><button class="btn secondary small" data-ix-center>Centrar paso</button></div></div><div id="ix-detail" class="ix-detail" aria-live="polite" aria-atomic="true"></div><details class="ix-relations"><summary>Explorar todas las relaciones del recorrido</summary><div id="ix-relation-list"></div></details><p class="ix-limit" id="ix-limit"></p></section>`;
+    return `<section class="ix-viewer" id="interaction-viewer" aria-labelledby="ix-title"><div class="ix-heading"><div><span class="eyebrow">APLICACIONES → LLAMADAS → DATOS</span><h2 id="ix-title">Quién llama a quién.</h2><p>Sigue llamadas entre aplicaciones, bases y tablas. Selecciona un recorrido y pulsa una aplicación o conexión para consultar su implementación.</p></div><button class="btn secondary" data-ix-expand>Ampliar visor</button></div><div class="ix-picker"><label for="ix-flow">Recorrido</label><select id="ix-flow"></select><span id="ix-scope"></span></div><details class="ix-overview"><summary>Alcance del recorrido</summary><p class="ix-summary" id="ix-summary"></p><p class="ix-overview-boundary" id="ix-flow-boundary"></p></details><div class="ix-story"><div><span class="eyebrow" id="ix-counter"></span><h3 id="ix-step-title"></h3><p id="ix-step-text"></p></div></div><div class="ix-step-list" id="ix-steps" aria-label="Elegir paso"></div><div class="ix-call-picker"><label for="ix-call">Conexión de este paso</label><select id="ix-call"></select></div><div class="ix-controls"><div class="ix-modes" role="group" aria-label="Vista del recorrido"><button data-ix-mode="step" aria-pressed="true">Seguir paso</button><button data-ix-mode="all" aria-pressed="false">Aplicaciones y datos</button><button data-ix-mode="sequence" aria-pressed="false">Secuencia</button></div><div class="ix-zoom" role="group" aria-label="Escala del diagrama"><button data-ix-zoom="fit" aria-pressed="true">Ajustar</button><button data-ix-zoom="100" aria-pressed="false">100 %</button><button data-ix-zoom="out" aria-label="Alejar diagrama">−</button><output id="ix-scale" aria-label="Escala actual"></output><button data-ix-zoom="in" aria-label="Acercar diagrama">+</button></div></div><div class="ix-board"><div class="ix-board-caption"><span id="ix-board-caption"></span><span>Aplicación · <span class="ix-db-key">Tabla</span> · <span class="ix-unknown-key">Por confirmar</span></span></div><div class="ix-viewport" tabindex="0" role="region" aria-label="Diagrama interactivo; desplaza con las flechas o arrastra el fondo"><div class="ix-size"><div class="ix-surface"></div></div></div><div class="ix-board-footer"><span>Arrastra el fondo o desplaza para explorar. Ajustar muestra el conjunto; 100 % amplía las etiquetas.</span><button class="btn secondary small" data-ix-center>Centrar paso</button></div></div><div id="ix-detail" class="ix-detail" aria-live="polite" aria-atomic="true"></div><details class="ix-relations"><summary>Explorar todas las relaciones del recorrido</summary><div id="ix-relation-list"></div></details><p class="ix-limit" id="ix-limit"></p></section>`;
   }
   function mount(chapter) {
     dispose();
@@ -20,7 +19,7 @@
     const isEcosystemViewer=Boolean(root.closest('#map-panel-peticiones'));
     const $ = s => root.querySelector(s), $$ = s => [...root.querySelectorAll(s)];
     const flows = all().filter(f=>f.mode===(chapter==='propuesta'?'proposed':'current')); if (!flows.length) return;
-    const state = {flow:flows[0],step:0,mode:innerWidth>=1000?'all':'step',zoom:'fit',scale:1,edge:null,node:null,timer:null,running:false};
+    const state = {flow:flows[0],step:0,mode:innerWidth>=1000?'all':'step',zoom:'fit',scale:1,edge:null,node:null};
     let dimensions={width:800,height:500}, currentLayout=null, resizeFrame=0, dialog=null, placeholder=null;
     const viewport=$('.ix-viewport'), surface=$('.ix-surface'), size=$('.ix-size');
     const n = id => state.flow.nodes.find(n=>n.id===id), g = id => state.flow.groups.find(g=>g.id===id), edge = id => state.flow.edges.find(e=>e.id===id);
@@ -28,7 +27,6 @@
     const activeEdges = () => [edge(state.edge)||edge(step().edges[0])].filter(Boolean);
     const nodeName = id => n(id)?.title || id;
     const groupName = id => g(n(id)?.group)?.title || '';
-    const stop = () => { clearInterval(state.timer); state.timer=null; state.running=false; root.classList.remove('ix-playing'); $('[data-ix-play]').textContent='Reproducir'; $('[data-ix-play]').setAttribute('aria-pressed','false'); };
     $('#ix-flow').innerHTML=flows.map(f=>`<option value="${esc(f.id)}">${esc(f.title)}</option>`).join('');
     function nodeHTML(node,box) {
       const selected=state.node===node.id, active=activeEdges().some(e=>e.from===node.id||e.to===node.id);
@@ -222,18 +220,17 @@
       $('#ix-limit').textContent=step().boundary||'';
       $('#ix-limit').hidden=!step().boundary;
       $('#ix-steps').innerHTML=state.flow.steps.map((s,i)=>`<button data-ix-step="${i}" aria-pressed="${i===state.step}" aria-label="Paso ${i+1}: ${esc(s.title)}"><span>${String(i+1).padStart(2,'0')}</span>${esc(s.title)}</button>`).join('');
-      $('[data-ix-prev]').disabled=state.step===0&&state.edge===step().edges[0];$('[data-ix-next]').disabled=state.step===state.flow.steps.length-1&&state.edge===step().edges.at(-1);
       renderDiagram();renderDetail();
     }
     function renderFlow() {
-      stop();state.step=0;state.edge=null;state.node=null;
+      state.step=0;state.edge=null;state.node=null;
       $('#ix-summary').textContent=state.flow.summary;
       $('#ix-flow-boundary').textContent=state.flow.boundary;
       $('#ix-scope').textContent=`${state.flow.mode==='current'?'Chile · código revisado':'Propuesta · por implementar'} · ${state.flow.groups.length} aplicaciones/bases · ${state.flow.nodes.length} piezas · ${state.flow.edges.length} relaciones`;
       $('#ix-relation-list').innerHTML=state.flow.edges.map((e,i)=>`<button data-ix-relation="${esc(e.id)}"><span>${String(i+1).padStart(2,'0')} · ${esc(e.protocol)}</span><strong>${esc(e.label)}</strong><small>${esc(nodeName(e.from))} → ${esc(nodeName(e.to))}</small></button>`).join('');
       renderStep();
     }
-    function selectEdge(id) { const e=edge(id); if(!e)return;stop();state.node=null;state.edge=id;const i=state.flow.steps.findIndex(s=>s.edges.includes(id));if(i>=0&&!step().edges.includes(id)){state.step=i;renderStep();}else {renderStep();} $(state.mode==='sequence'?`.ix-surface [data-ix-seq-step="${state.step}"] button[data-ix-edge="${id}"]`:`.ix-surface button[data-ix-edge="${id}"]`)?.focus({preventScroll:true}); }
+    function selectEdge(id) { const e=edge(id); if(!e)return;state.node=null;state.edge=id;const i=state.flow.steps.findIndex(s=>s.edges.includes(id));if(i>=0&&!step().edges.includes(id)){state.step=i;renderStep();}else {renderStep();} $(state.mode==='sequence'?`.ix-surface [data-ix-seq-step="${state.step}"] button[data-ix-edge="${id}"]`:`.ix-surface button[data-ix-edge="${id}"]`)?.focus({preventScroll:true}); }
     function restoreExpanded() {
       if(!dialog)return;
       placeholder.replaceWith(root);dialog.remove();dialog=null;placeholder=null;
@@ -246,44 +243,26 @@
       placeholder=document.createElement('div');root.before(placeholder);dialog=document.createElement('dialog');dialog.className='ix-expanded';dialog.setAttribute('aria-label','Visor de interacciones ampliado');document.body.append(dialog);dialog.append(root);
       dialog.addEventListener('close',restoreExpanded,{once:true});dialog.showModal();$('[data-ix-expand]').textContent='Cerrar visor ampliado';$('[data-ix-expand]').focus();applyZoom(true);
     }
-    function advance(direction) {
-      const next=step().edges.indexOf(state.edge)+direction;
-      if(next>=0&&next<step().edges.length)state.edge=step().edges[next];
-      else if(direction>0&&state.step<state.flow.steps.length-1){state.step++;state.edge=step().edges[0];}
-      else if(direction<0&&state.step>0){state.step--;state.edge=step().edges.at(-1);}
-      renderStep();
-    }
     const onClick=e=>{
       const b=e.target.closest('button,[data-ix-edge]');if(!b||!root.contains(b))return;
-      if(b.hasAttribute('data-ix-next')||b.hasAttribute('data-ix-prev')){stop();advance(b.hasAttribute('data-ix-next')?1:-1);}
-      else if(b.hasAttribute('data-ix-step')){stop();state.step=Number(b.dataset.ixStep);renderStep();$(`[data-ix-step="${state.step}"]`).focus({preventScroll:true});}
-      else if(b.hasAttribute('data-ix-mode')){stop();state.mode=b.dataset.ixMode;if(state.mode==='sequence'&&viewport.clientWidth<600)state.zoom=1;$$('[data-ix-mode]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderDiagram();}
+      if(b.hasAttribute('data-ix-step')){state.step=Number(b.dataset.ixStep);renderStep();$(`[data-ix-step="${state.step}"]`).focus({preventScroll:true});}
+      else if(b.hasAttribute('data-ix-mode')){state.mode=b.dataset.ixMode;if(state.mode==='sequence'&&viewport.clientWidth<600)state.zoom=1;$$('[data-ix-mode]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderDiagram();}
       else if(b.hasAttribute('data-ix-zoom')){const z=b.dataset.ixZoom;state.zoom=z==='fit'?'fit':z==='100'?1:Math.max(.25,Math.min(1.75,state.scale+(z==='in'?.15:-.15)));applyZoom(true);}
-      else if(b.hasAttribute('data-ix-node')){stop();state.node=b.dataset.ixNode;$$('[data-ix-node]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.ixNode===state.node)));renderDetail();}
+      else if(b.hasAttribute('data-ix-node')){state.node=b.dataset.ixNode;$$('[data-ix-node]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.ixNode===state.node)));renderDetail();}
       else if(b.hasAttribute('data-ix-edge')||b.hasAttribute('data-ix-relation'))selectEdge(b.dataset.ixEdge||b.dataset.ixRelation);
       else if(b.hasAttribute('data-ix-return')){state.node=null;renderDetail();$$('[data-ix-node]').forEach(x=>x.setAttribute('aria-pressed','false'));}
       else if(b.hasAttribute('data-ix-center'))centerStep();
       else if(b.hasAttribute('data-ix-expand'))expand();
-      else if(b.hasAttribute('data-ix-play')){
-        if(state.running){stop();return;}if(reduced())return;
-        if(state.step===state.flow.steps.length-1&&state.edge===step().edges.at(-1)){state.step=0;state.edge=null;renderStep();}
-        state.running=true;root.classList.add('ix-playing');b.textContent='Pausar';b.setAttribute('aria-pressed','true');
-        state.timer=setInterval(()=>{advance(1);if(state.step===state.flow.steps.length-1&&state.edge===step().edges.at(-1))stop();},6500);
-      }
     };
     root.addEventListener('click',onClick);
     viewport.addEventListener('scroll',pinSequenceHeaders,{passive:true});
     $('#ix-flow').addEventListener('change',e=>{state.flow=flows.find(f=>f.id===e.target.value);renderFlow();});
-    $('#ix-call').addEventListener('change',e=>{stop();state.edge=e.target.value;renderStep();$('#ix-call').focus({preventScroll:true});});
-    const motion=()=>{if(reduced())stop();$('[data-ix-play]').disabled=reduced();$('[data-ix-play]').title=reduced()?'Movimiento reducido activo; usa los pasos manuales':'Avanza una conexión cada 6,5 segundos';};
-    const motionObserver=new MutationObserver(motion);motionObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
-    const media=matchMedia('(prefers-reduced-motion: reduce)');media.addEventListener('change',motion);
+    $('#ix-call').addEventListener('change',e=>{state.edge=e.target.value;renderStep();$('#ix-call').focus({preventScroll:true});});
     const columnBand=()=>viewport.clientWidth>=950?3:viewport.clientWidth>=600?2:1;let wasCompact=columnBand();
     const observer=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(!viewport.clientWidth)return;const compact=columnBand();if(compact!==wasCompact){wasCompact=compact;renderDiagram();}else applyZoom(false);});});observer.observe(viewport);
     const onMapView=event=>{
       if(!isEcosystemViewer)return;
       if(event.detail.view!=='peticiones'){
-        stop();
         if(dialog){dialog.removeEventListener('close',restoreExpanded);dialog.close();restoreExpanded();}
         return;
       }
@@ -292,12 +271,11 @@
     document.addEventListener('pos:map-view',onMapView);
     const library=root.closest('details.journey-library');
     const onLibraryToggle=()=>{
-      if(!library.open){stop();return;}
+      if(!library.open){return;}
       cancelAnimationFrame(resizeFrame);
       resizeFrame=requestAnimationFrame(()=>{if(root.isConnected){wasCompact=columnBand();renderDiagram();}});
     };
     library?.addEventListener('toggle',onLibraryToggle);
-    const onVisibility=()=>{if(document.hidden)stop();};document.addEventListener('visibilitychange',onVisibility);
     let drag=null;
     viewport.addEventListener('pointerdown',e=>{if(e.target.closest('button,a,[data-ix-edge]')||e.pointerType==='touch'||e.button!==0)return;drag={x:e.clientX,y:e.clientY,left:viewport.scrollLeft,top:viewport.scrollTop};viewport.setPointerCapture(e.pointerId);viewport.classList.add('ix-dragging');});
     viewport.addEventListener('pointermove',e=>{if(!drag)return;viewport.scrollLeft=drag.left-(e.clientX-drag.x);viewport.scrollTop=drag.top-(e.clientY-drag.y);});
@@ -315,9 +293,9 @@
         pinSequenceHeaders();
       }
     });
-    dispose=()=>{stop();observer.disconnect();motionObserver.disconnect();cancelAnimationFrame(resizeFrame);library?.removeEventListener('toggle',onLibraryToggle);document.removeEventListener('pos:map-view',onMapView);document.removeEventListener('visibilitychange',onVisibility);media.removeEventListener('change',motion);if(dialog){dialog.removeEventListener('close',restoreExpanded);placeholder?.remove();dialog.remove();dialog=null;}};
+    dispose=()=>{observer.disconnect();cancelAnimationFrame(resizeFrame);library?.removeEventListener('toggle',onLibraryToggle);document.removeEventListener('pos:map-view',onMapView);if(dialog){dialog.removeEventListener('close',restoreExpanded);placeholder?.remove();dialog.remove();dialog=null;}};
     $$('[data-ix-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ixMode===state.mode)));
-    renderFlow();motion();
+    renderFlow();
   }
   window.POS_INTERACTIONS_UI={html,mount,destroy:()=>dispose()};
 })();

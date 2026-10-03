@@ -38,7 +38,7 @@ El lector elige la pregunta: mapa para ubicar aplicaciones, recorrido de llamada
 
 1. Elegir el recorrido y comprobar su etiqueta de **situación actual** o **propuesta**. Comparar intenciones no convierte una capacidad nueva en algo existente.
 2. Leer el límite del recorrido: conectividad necesaria, autoridad de escritura y condiciones pendientes.
-3. Elegir un paso y su **Conexión de este paso**. Anterior/Siguiente recorren conexiones y luego cambian de paso. Una flecha indica una interacción; las conexiones del mismo paso pueden representar alternativas o escrituras de una misma transacción. El selector conserva estas ramas sin dibujarlas como una única cadena.
+3. Elegir un paso mediante sus botones numerados y una llamada en **Conexión de este paso**. Una flecha indica una interacción; las conexiones del mismo paso pueden representar alternativas o escrituras de una misma transacción. El selector conserva estas ramas sin dibujarlas como una única cadena.
 4. Abrir la ficha de una aplicación, tabla o conexión para consultar contrato, efecto, límite y fuente. **Implementación y código** conserva los controladores, servicios y llamadas internas auditados.
 5. Usar **Aplicaciones y datos** para ubicar las piezas (vista inicial de escritorio), **Seguir paso** para aislar el emisor/receptor (vista inicial móvil) y **Secuencia** para recorrer las interacciones visibles. Las dos primeras dibujan una conexión seleccionada a la vez.
 6. Usar **Ajustar**, **100 %**, **−/+** y **Centrar paso**, o desplazar/arrastrar el fondo. **Ampliar visor** abre un diálogo. Tab y Enter/Espacio activan controles, aplicaciones y conexiones; Escape cierra el diálogo y devuelve el foco.
@@ -158,7 +158,7 @@ El visor usa HTML y SVG propios. No depende de Mermaid para el layout de estas v
 - `interactions-view-data.js`: vista de aplicaciones y datos, con implementación accesible en las fichas.
 - `interactions-ui.js` y `interactions.css`: mismo modelo de datos para mapa y secuencia.
 
-La reproducción es voluntaria y avanza una conexión cada 6,5 segundos. Se pausa al inspeccionar, cambiar vista/recorrido/capítulo o esconder la página. Con movimiento reducido se utiliza el avance manual. Las fichas quedan junto al gráfico; no es necesario abrir otra ventana para leer una llamada. El visor ampliado es una ventana modal con cierre por Escape.
+El lector selecciona cada paso y conexión a su ritmo. Las fichas quedan junto al gráfico; no es necesario abrir otra ventana para leer una llamada. El visor ampliado es una ventana modal con cierre por Escape.
 
 ## Criterios de verificación del visor
 
