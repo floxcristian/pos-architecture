@@ -95,6 +95,7 @@ async function main(){
   const corporateConnection=data.connections.find(c=>c.id==='repo-core-ci');assert.ok(corporateConnection);
   for(const [width,height] of [[1440,1000],[390,844]]){
    await page.setViewportSize({width,height});await page.goto(url.replace('#mapa','#propuesta'));
+   await page.locator('[data-chapter-view="tecnologia"]').click();
    await page.locator('.repo-platform-module').waitFor();
    assert.equal(await page.locator('.repo-module').count(),0);
    assert.equal(await page.locator('.repo-platform-module [data-repository]').count(),2);

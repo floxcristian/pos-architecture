@@ -17,8 +17,16 @@
     {id:'repaso', label:'Comprueba lo aprendido', hint:'Repaso y siguientes decisiones', title:'Ahora, conecta las piezas.', intro:'Cuatro situaciones para comprobar el modelo mental. Puedes volver a intentar cada respuesta y consultar el glosario en cualquier momento.', eyebrow:'08 / Llevarlo a la conversación del equipo'}
   ];
   const mapViews = [{id:'general',label:'Vista general'},{id:'repositorios',label:'Repositorios'},{id:'peticiones',label:'Peticiones'},{id:'evidencia',label:'Evidencia'}];
+  // Each tab answers a separate question. Selectors assign whole modules, not
+  // individual controls, so a view keeps its state when another one is shown.
+  const chapterViews = {
+    venta:[{id:'recorrido',label:'Recorrido de la venta'},{id:'operacion',label:'Apertura, cierre e impresión',modules:'.ops-module'}],
+    offline:[{id:'laboratorio',label:'Probar una desconexión'},{id:'fallos',label:'Otros fallos y recuperación',modules:'.edgecase-explorer'}],
+    propuesta:[{id:'arquitectura',label:'Arquitectura'},{id:'cambios',label:'Qué cambia',modules:'.compare-module'},{id:'peticiones',label:'Venta y ERP',modules:'#interaction-library'},{id:'precios',label:'Precios y ofertas',modules:'.ops-module'},{id:'tecnologia',label:'Tecnología',modules:'.tech-panel'}],
+    evolucion:[{id:'paises',label:'Países'},{id:'erp',label:'Cambio de ERP',modules:'.chapter-split'},{id:'proveedores',label:'Proveedores y equipos',modules:'.provider-module'},{id:'rfid',label:'RFID',modules:'.rfid-module'},{id:'despliegue',label:'Despliegue',modules:'.standard-panel, .adoption-panel, .ops-module'}]
+  };
   const mediaMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const state = {chapter:'mapa', mapView:'general', selected:'localdb', dataMode:'masters', compare:0, country:'CL', providerCase:'printer', providerChanged:false, rfidCase:'checkout', rfidReads:0, rfidSeen:[], rfidConfirmed:false, aiCase:'procedures', aiNetwork:'online', aiEvidence:true, flowStep:0, presenting:false, reduced:mediaMotion.matches, offline:0, replay:false, answers:{}};
+  const state = {chapter:'mapa', mapView:'general', selected:'localdb', chapterView:null, compare:0, country:'CL', providerCase:'printer', providerChanged:false, rfidCase:'checkout', rfidReads:0, rfidSeen:[], rfidConfirmed:false, aiCase:'procedures', aiNetwork:'online', aiEvidence:true, flowStep:0, presenting:false, reduced:mediaMotion.matches, offline:0, replay:false, answers:{}};
   const flowDefs = {
     sale: [
       {title:'La persona prepara la venta', text:'La interfaz recoge el cliente, los productos y el medio de pago. En el flujo actual hay consultas remotas: preparar una venta no prueba autonomía offline.', nodes:['ui','backend'], states:['En preparación','Sin resultado','Pendiente de envío']},
@@ -27,18 +35,6 @@
       {title:'El sincronizador envía los elegibles', text:'La selección revisada de boletas y facturas exige estados de DTE y referencias admitidas fuera de development. Guardar la venta no garantiza que ya sea elegible para enviar. El minuto reportado por el equipo varía con reintentos y ventanas.', nodes:['localdb','sync'], states:['Persistida','Condiciona elegibilidad','Preparación / envío si procede']},
       {title:'La integración central recibe', text:'El bus y los adaptadores llevan el registro hacia AX. Una recepción central todavía no demuestra contabilización en el ERP. Hay que conocer qué confirma cada acuse.', nodes:['sync','bus'], states:['Persistida','Resultado propio','Recepción central']},
       {title:'AX registra después', text:'El registro llega al ERP más tarde. El objetivo es poder demostrar su resultado y conciliar diferencias. La reserva externa y la deuda en AX pueden estar en momentos distintos; caja no maneja stock.', nodes:['bus','ax'], states:['Persistida','Resultado propio','Resultado ERP por verificar']}
-    ],
-    masters: [
-      {title:'El origen central necesita confirmación', text:'Según los apuntes, cambios de AX pasan por MPOS SQL. Faltan jobs, DDL y configuración para verificar ese tramo, su ubicación y una eventual ejecución diaria. Las líneas discontinuas señalan esa incertidumbre.', nodes:['ax','mpos']},
-      {title:'Se prepara y anuncia un lote', text:'mountain-concentrador contiene el lector Java de MPOS, generación de lotes PostgreSQL y aviso por JMS. Falta confirmar los artefactos activos y el productor AX→MPOS.', nodes:['bus','readapi']},
-      {title:'La sucursal consulta y descarga', text:'El consumidor revisado atiende avisos AMQP y consulta maestros con un cron de tres minutos, sujeto a condiciones. Ese intervalo no es una promesa de frescura de extremo a extremo.', nodes:['readapi','sync']},
-      {title:'El consumidor aplica los datos', text:'El sincronizador descarga detalles y actualiza la base local. No es evidencia de que el centro escriba directamente en todas las bases de caja. Persistencia y acuses deben ser recuperables.', nodes:['sync','localdb']}
-    ],
-    customer: [
-      {title:'Se selecciona o carga un cliente', text:'En el flujo revisado, cargar la ficha por RUT puede activar un refresco. No significa que cada tecla dispare esa secuencia.', nodes:['ui','backend']},
-      {title:'El backend consulta la integración', text:'La API remota devuelve datos del cliente. Esta consulta no demuestra una modificación del cliente en AX. Los contactos tienen otra ruta y no deben darse todos por refrescados.', nodes:['backend','clientapi']},
-      {title:'Se actualiza la copia local', text:'El backend persiste datos de cliente, direcciones y estado de cuenta según la ruta. El refresco complementa los lotes; no elimina la distribución masiva.', nodes:['backend','localdb']},
-      {title:'La caída remota tiene un impacto', text:'El código puede devolver datos locales junto a un error. En el flujo principal inspeccionado, la interfaz limpia la venta en preparación. Es un hallazgo estático, no una incidencia productiva reproducida.', nodes:['backend','ui']}
     ]
   };
   const icons = {app:'Aplicación', db:'Base de datos', external:'Sistema externo', process:'Proceso'};
@@ -107,6 +103,54 @@
     state.linkedFlow=null;
     const hash='#mapa?'+params;if(location.hash!==hash)history.pushState(null,'',hash);
   }
+  function prepareChapterViews() {
+    const views=chapterViews[state.chapter];if(!views)return;
+    const article=$('#main > .chapter');
+    // The tab supplies the heading and visibility formerly owned by disclosures.
+    $$('.ix-context, #interaction-library',article).forEach(details=>{
+      const container=document.createElement('div');
+      if(details.id)container.id=details.id;
+      container.className='chapter-context';
+      container.append(...[...details.children].filter(child=>child.tagName!=='SUMMARY'));
+      details.replaceWith(container);
+    });
+    $('.roadmap',article)?.closest('section').classList.add('adoption-panel');
+    const modules=[...article.children].filter(el=>!el.matches('.chapter-header, .footer-nav'));
+    const tabs=document.createElement('div');tabs.className='chapter-tabs';
+    tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Vistas de '+chapters.find(ch=>ch.id===state.chapter).label);
+    tabs.innerHTML=views.map(v=>`<button id="chapter-tab-${v.id}" role="tab" data-chapter-view="${v.id}" aria-controls="chapter-panel-${v.id}" aria-selected="false" tabindex="-1">${v.label}</button>`).join('');
+    $('.chapter-header',article).after(tabs);
+    const panels=new Map(views.map(view=>{
+      const panel=document.createElement('section');panel.className='chapter-panel';panel.id='chapter-panel-'+view.id;
+      panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby','chapter-tab-'+view.id);panel.tabIndex=0;panel.hidden=true;
+      $('.footer-nav',article).before(panel);return [view.id,panel];
+    }));
+    modules.forEach(module=>{
+      const view=views.find(v=>v.modules&&module.matches(v.modules))||views[0];
+      panels.get(view.id).append(module);
+    });
+    $$('#ops-explorer, #edgecase-explorer, .rfid-explorer',article).forEach(details=>{
+      details.open=true;details.classList.add('chapter-open-content');$('summary',details).hidden=true;
+    });
+    showChapterView(state.chapterView);
+  }
+  function showChapterView(view,focus=false) {
+    const views=chapterViews[state.chapter];if(!views)return;
+    if(!views.some(v=>v.id===view))view=views[0].id;
+    state.chapterView=view;
+    $$('[data-chapter-view]').forEach(tab=>{const active=tab.dataset.chapterView===view;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;});
+    $$('.chapter-panel').forEach(panel=>panel.hidden=panel.id!=='chapter-panel-'+view);
+    document.dispatchEvent(new CustomEvent('pos:chapter-view',{detail:{chapter:state.chapter,view}}));
+    window.POS_OPERATIONS_UI?.refresh?.();
+    if(focus||document.activeElement.closest('.chapter-panel[hidden]'))$('#chapter-tab-'+view).focus({preventScroll:true});
+  }
+  function chooseChapterView(view) {
+    showChapterView(view,true);
+    const params=new URLSearchParams({vista:state.chapterView});
+    if(state.chapter==='propuesta'&&view==='peticiones'&&$('#ix-flow'))params.set('flujo',$('#ix-flow').value);
+    state.linkedFlow=null;
+    const hash='#'+state.chapter+'?'+params;if(location.hash!==hash)history.pushState(null,'',hash);
+  }
   function openLinkedRepository(id) {
     if(!id)return;
     const button=$$('[data-repository]',$('#map-panel-repositorios')).find(b=>b.dataset.repository===id);
@@ -121,8 +165,7 @@
     return links.length?`<nav class="component-connections" aria-label="Explorar esta pieza"><strong>Explorar esta pieza</strong>${links.join('')}</nav>`:'';
   }
   function salePage() { return `<div class="stage-layout flow-stage"><div>${diagram('sale','El recorrido actual de una venta','Selecciona un componente para abrir su ficha')}</div>${flowBlock('sale')}</div>${takeaway('Local, fiscal y ERP tienen estados propios. Un único “sincronizado” oculta información que necesitamos para operar y conciliar.')}${relatedReading([['#mapa?flujo=sale','Llamadas HTTP de la venta'],['#mapa?flujo=sync','Envío y respuesta de AX'],['#datos?flujo=D01','Tablas y estados de la venta']])}`; }
-  function dataContext() { return `<div class="segmented" aria-label="Camino de los datos"><button data-data-mode="masters" aria-pressed="${state.dataMode==='masters'}">Distribución por lotes</button><button data-data-mode="customer" aria-pressed="${state.dataMode==='customer'}">Consulta de cliente por RUT</button></div><div class="stage-layout flow-stage"><div>${diagram(state.dataMode,state.dataMode==='masters'?'Maestros / del centro a la sucursal':'Cliente / refresco bajo demanda')}</div>${flowBlock(state.dataMode)}</div><div class="notice ${state.dataMode==='masters'?'warning':''}">${state.dataMode==='masters'?'<strong>Falta cerrar el tramo central.</strong> El lector de MPOS y la API central están revisados en mountain-concentrador. El productor AX→MPOS, el job diario y los hosts siguen por confirmar.':'<strong>Una copia no equivale a autorización.</strong> Disponer del estado de cuenta local no concede por sí solo permiso para vender a crédito offline.'}</div>`; }
-  function dataPage() { return `${window.POS_DATAFLOWS_UI?.html() || ''}<details class="df-original-context"><summary>Contexto: lotes y consulta por RUT</summary><p class="df-context-intro">Dos ritmos complementarios. La vista resumida ayuda a ubicar los recorridos detallados de arriba.</p>${dataContext()}</details>`; }
+  function dataPage() { return window.POS_DATAFLOWS_UI?.html() || ''; }
   function offlinePage() { return `<div class="lab-banner"><span class="lab-label">LABORATORIO</span><span>Caída de Internet (WAN) · LAN y servidor de sucursal disponibles</span><button class="btn secondary small" data-action="offline-reset">Reiniciar laboratorio</button></div><div class="comparison-grid offline-grid"><section class="comparison-card before"><div class="card-kicker">HOY / EVIDENCIA REVISADA</div><h2>La base local ya existe.</h2><p>La consulta remota de precios puede bloquear el pago si falla. El resultado depende de la operación y de sus servicios externos.</p><div class="state-row"><span>Conexión con el centro</span><strong id="actual-network"></strong></div><div class="state-row"><span>Consulta de precios</span><strong id="actual-price"></strong></div><div class="state-row"><span>Persistencia local</span><strong>Disponible en sucursal</strong></div><p class="small-note">Una aplicación de escritorio no elimina esta dependencia.</p>${button('Inspeccionar precios','inspect-modal','data-component-id="pricing"','secondary small')}</section><section class="comparison-card after"><div class="card-kicker">PROPUESTO / EJEMPLO DIDÁCTICO</div><h2>La operación conserva su identidad.</h2><p>Venta de ejemplo con datos y reglas vigentes. El pago externo y la aprobación fiscal no se simulan.</p><div class="state-row"><span>Venta local</span><strong id="demo-local"></strong></div><div class="state-row"><span>Outbox local</span><strong id="demo-outbox"></strong></div><div class="state-row"><span>Registros centrales aplicados</span><strong id="demo-central"></strong></div><div class="state-row"><span>Resultado ERP</span><strong id="demo-erp"></strong></div><div class="state-row"><span>Fiscalidad / pago externo</span><strong>No demostrados</strong></div></section></div><section class="lab-control"><div><span class="eyebrow" id="lab-step"></span><h2 id="lab-title"></h2><p id="lab-description" aria-live="polite"></p></div><div class="lab-buttons"><button class="btn primary" data-action="offline-next" id="offline-next"></button><button class="btn secondary" data-action="offline-replay" id="offline-replay" hidden>Reenviar el mismo evento</button></div></section><div class="event-log" id="event-log" aria-label="Bitácora del ejemplo"></div>${takeaway('Aceptar una venta offline requiere reglas explícitas. La durabilidad, la deduplicación y la conciliación se diseñan; no aparecen por usar una cola o una app instalada.')}`; }
   function proposedPage() { return `<section class="compare-module"><div class="section-heading"><span class="eyebrow">ANTES / PROPUESTO</span><h2>Qué cambia, en concreto</h2></div><div class="segmented comparison-tabs" aria-label="Tema de comparación">${C.comparisons.map((x,i)=>`<button data-compare="${i}" aria-pressed="${state.compare===i}">${esc(x.topic)}</button>`).join('')}</div><div id="comparison-detail"></div></section>${interactionLibrary('propuesta')}<details class="ix-context"><summary>Vista general de responsabilidades y decisiones</summary><div class="stage-layout"><div>${diagram('proposed','Objetivo / sucursal y plataforma','Outbox e inbox son registros durables, no necesariamente bases separadas')}${nodeList(['edge','edgedb','offers','outbox','inbox','platform','acl','observability','tauri'],'Explorar todas las decisiones de diseño')}${takeaway('Una transacción local guarda negocio + outbox. El receptor registra inbox + efecto local. Las llamadas a ERP, pagos y fiscalidad conservan estados y recuperación propios.')}</div>${inspector()}</div></details><div class="tech-panel">${window.POS_REPOSITORIES_UI?.platformHTML() || ''}<div class="tag-list"><button class="tag" data-action="term" data-term="Monolito modular">Monolito modular</button><button class="tag" data-action="term" data-term="Monorepo">Nx / monorepo</button><button class="tag" data-action="inspect-modal" data-component-id="tauri">Tauri / shell candidato</button><button class="tag" data-action="inspect-modal" data-component-id="observability">Pino / Sentry / trazas</button></div></div>`; }
   function evolutionPage() { return `<div class="country-grid" aria-label="País que se está explorando">${Object.entries(C.countries).map(([id,x])=>`<button class="country-card" data-country="${id}" aria-pressed="${state.country===id}"><span class="country-code">${id}</span><span><strong>${x.name}</strong><small>${esc(x.erp)}</small></span></button>`).join('')}</div><div class="country-detail" id="country-detail" aria-live="polite"></div><div class="chapter-split"><div>${diagram('migration','Aislar la dependencia del ERP','Transición conceptual · destino y fechas por decidir')}${nodeList(['platform','acl','ax','erpnext'],'Explorar las piezas de la migración')}</div><div class="migration-story"><span class="eyebrow">EL LÍMITE QUE PROTEGE AL POS</span><h2>El ERP cambia detrás de un contrato.</h2><p>Una <button class="inline-term" data-action="term" data-term="Fachada">fachada</button> ofrece una entrada estable. La <button class="inline-term" data-action="term" data-term="ACL">ACL</button> traduce significado, estados y errores del ERP.</p><div class="contract-example"><span>Vocabulario del POS</span><code>RegistrarVenta · ConsultarCliente</code><span>Mapeo controlado por adaptador</span><code>AX hoy → ERP común por definir</code></div><p>El núcleo no copia nombres de tablas ni estados internos de AX. La transición requiere validar equivalencias y conciliar, incluso con buenos contratos.</p><div class="notice warning">Chile sería el primer país en migrar. El posible inicio el próximo año es una intención informada, sin producto ni calendario aprobados.</div></div></div>${providerModule()}${rfidModule()}<section class="standard-panel"><h2>Estándares que debemos acordar</h2><div class="standard-grid"><p><strong>Datos.</strong> Convención de schemas y tablas, propietario por módulo y migraciones versionadas.</p><p><strong>Código.</strong> Vocabulario de negocio compartido, dependencias permitidas y contratos versionados.</p><p><strong>Operación.</strong> Identidad de venta, correlación, estados observables y procedimientos de conciliación.</p></div></section><section><div class="section-heading"><span class="eyebrow">ADOPCIÓN PROGRESIVA</span><h2>Construir evidencia antes de ampliar</h2></div><div class="roadmap">${[['01','Acordar','Definir perfil offline, autoridad de datos y operaciones por país.'],['02','Demostrar','Probar pérdida de red, reinicio, duplicados, fiscalidad y periféricos.'],['03','Pilotar','Una sucursal controlada, conciliación y reversión ensayada.'],['04','Extender','Desplegar gradualmente y sustituir el adaptador ERP cuando corresponda.']].map(([n,t,p])=>`<div class="phase"><span>${n}</span><h3>${t}</h3><p>${p}</p></div>`).join('')}</div></section>`; }
@@ -136,7 +179,6 @@
   const pages = {mapa:currentPage,venta:salePage,datos:dataPage,offline:offlinePage,propuesta:proposedPage,evolucion:evolutionPage,ia:aiPage,repaso:recapPage};
   function researchSupplement() {
     if(state.chapter==='offline') return window.POS_TECH_UI?.edgeCasesHTML() || '';
-    if(state.chapter==='datos') return `<div class="notice warning"><strong>Horario informado de Chile:</strong> L–V 07:00–22:00; sábado 07:00–16:00. El equipo indica mantenimiento fuera de esa ventana los sábados. El código revisado tiene diferencias: domingo permitido en el cron y otras rutas sin la misma compuerta.<div class="tag-list">${button('Entender horario y mantenimiento','inspect-modal','data-component-id="syncpolicy"','secondary small')}</div></div>`;
     if(state.chapter==='propuesta') return `<section class="tech-panel"><div><span class="eyebrow">REVISIÓN CRÍTICA / INTEGRACIÓN Y DATOS</span><h2>Elegir por responsabilidad.</h2><p>Base preferente para piloto: outbox local, HTTPS con recepción durable y despacho central acotado sobre PostgreSQL. Comparar primero las capacidades corporativas existentes; adoptar un broker nuevo exige evidencia.</p></div><div class="tag-list">${[['mediation','Evolución de WSO2'],['rabbitmq','RabbitMQ central'],['bullmq','BullMQ y sus backends'],['dataplatform','Simplificar bases']].map(([id,label])=>button(label,'inspect-modal',`data-component-id="${id}"`,'secondary small')).join('')}</div></section>`;
     if(state.chapter==='evolucion') return `<div class="notice"><strong>46 entradas públicas de tiendas al 01-10-2026:</strong> Chile 31, Perú 12 y España 3. No equivalen a cajas activas ni a despliegues POS. El volumen, los pendientes y la capacidad de cada ERP determinan el dimensionamiento.<div class="tag-list"><a class="btn secondary small" href="../docs/cobertura-publica-sucursales.md" target="_blank" rel="noopener">Inventario y fuentes ↗</a><a class="btn secondary small" href="../docs/revision-arquitectura-corporativa.md" target="_blank" rel="noopener">Revisión en tres rondas ↗</a></div></div>`;
     return '';
@@ -148,14 +190,19 @@
     const params=new URLSearchParams(query);
     state.linkedFlow=params.get('flujo');
     const mapView=state.linkedFlow?'peticiones':params.get('vista')||'general';
+    const proposedFlow=chapter.id==='propuesta'&&window.POS_INTERACTIONS_VIEW?.all().some(flow=>flow.mode==='proposed'&&flow.id===state.linkedFlow);
+    const chapterView=proposedFlow?'peticiones':params.get('vista');
     if($('#modal').open)$('#modal').close();
     if(chapter.id==='mapa'&&state.chapter==='mapa'&&$('#ecosystem-views')){
       showMapView(mapView);openLinkedFlow();
       if(state.mapView==='repositorios')openLinkedRepository(params.get('repo'));
       return;
     }
-    state.chapter=chapter.id;state.flowStep=0;state.mapView=mapView;
-    state.selected=({mapa:'ui',venta:'backend',datos:state.dataMode==='masters'?'mpos':'clientapi',propuesta:'edge'})[state.chapter] || null;
+    if(chapter.id===state.chapter&&chapterViews[chapter.id]&&$('.chapter-tabs')){
+      showChapterView(chapterView);openLinkedFlow();return;
+    }
+    state.chapter=chapter.id;state.flowStep=0;state.mapView=mapView;state.chapterView=chapterView;
+    state.selected=({mapa:'ui',venta:'backend',propuesta:'edge'})[state.chapter] || null;
     render();
     if(focus){$('.chapter-title').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
     if(state.chapter==='mapa'&&state.mapView==='repositorios')openLinkedRepository(params.get('repo'));
@@ -167,9 +214,10 @@
     $('#mobile-chapter').innerHTML=chapters.map(c=>`<option value="${c.id}" ${c.id===ch.id?'selected':''}>${c.label}</option>`).join('');
     window.POS_INTERACTIONS_UI?.destroy();
     $('#main').innerHTML=`<article class="chapter chapter-${ch.id}">${header(ch)}${pages[ch.id]()}${researchSupplement()}${window.POS_OPERATIONS_UI?.html(ch.id)||''}<div class="footer-nav">${idx>0?button('← '+chapters[idx-1].label,'previous'):''}<span>${idx+1} / ${chapters.length}</span>${idx<chapters.length-1?button(chapters[idx+1].label+' →','next','','primary'):button('Volver al mapa ↗','home','','primary')}</div></article>`;
+    prepareChapterViews();
     wireDiagrams();
     if ($('#inspector')) selectComponent(state.selected);
-    if (state.chapter==='venta'||state.chapter==='datos') updateFlow();
+    if (state.chapter==='venta') updateFlow();
     if (state.chapter==='offline') updateOffline();
     if (state.chapter==='propuesta') updateComparison();
     if (state.chapter==='evolucion') { updateCountry(); updateProviderCase(); updateRfidCase(); }
@@ -181,6 +229,7 @@
     window.POS_INTERACTIONS_UI?.mount(ch.id);
     window.POS_REPOSITORIES_UI?.mount({openModal});
     if(ch.id==='mapa')showMapView(state.mapView);
+    else if(chapterViews[ch.id])showChapterView(state.chapterView);
     openLinkedFlow();
     document.title=`${ch.label} · POS Atlas`;
   }
@@ -188,9 +237,10 @@
     const id=state.linkedFlow;if(!id)return;
     const select=$(['mapa','propuesta'].includes(state.chapter)?'#ix-flow':state.chapter==='datos'?'#dataflow-select':'#unused-linked-flow');
     if(!select||![...select.options].some(option=>option.value===id))return;
-    const library=$('#interaction-library');if(library)library.open=true;
+    if(state.chapter==='propuesta')showChapterView('peticiones');
+    const library=$('#interaction-library');
     if(select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}
-    // Opening a disclosure changes the diagram's measured size before scrolling.
+    // Wait for the selected view to settle before scrolling to its controls.
     requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!select.isConnected)return;select.focus({preventScroll:true});(library||$('#map-panel-peticiones')||$('#dataflow-explorer')).scrollIntoView({block:'start',behavior:'instant'});}));
   }
   function componentHTML(id) {
@@ -226,7 +276,7 @@
       });
     });
   }
-  function activeFlow() { return state.chapter==='venta'?'sale':state.chapter==='datos'?state.dataMode:null; }
+  function activeFlow() { return state.chapter==='venta'?'sale':null; }
   function updateFlow() {
     const key=activeFlow(); if(!key||!$('#step-title')) return;
     const steps=flowDefs[key],step=steps[state.flowStep];
@@ -236,7 +286,6 @@
     $$('.diagram-canvas [data-node]').forEach(el=>{el.classList.toggle('is-active',step.nodes.includes(el.dataset.node));el.classList.toggle('is-dimmed',!step.nodes.includes(el.dataset.node));});
     const pairs=[step.nodes];
     if(key==='sale'&&state.flowStep===3)pairs.push(['branch','posting']);
-    if(key==='masters'&&state.flowStep===1)pairs.push(['upstream','download']);
     $$('.diagram-canvas .flowchart-link').forEach(el=>el.classList.toggle('is-active',pairs.some(([a,b])=>el.id.startsWith(`L_${a}_${b}_`)||el.id.startsWith(`L_${b}_${a}_`))));
     if (step.states) $('#flow-states').innerHTML=['Venta local','Documento fiscal','Integración ERP'].map((label,i)=>`<div><span>${label}</span><strong>${esc(step.states[i])}</strong></div>`).join('');
   }
@@ -336,11 +385,11 @@
   document.addEventListener('click',e=>{
     const el=e.target.closest('button,a[data-action]'); if(!el) return;
     if(el.dataset.mapView) chooseMapView(el.dataset.mapView);
+    else if(el.dataset.chapterView) chooseChapterView(el.dataset.chapterView);
     else if(el.dataset.action) action(el.dataset.action,el);
     else if(el.dataset.chapter) setHash(el.dataset.chapter);
     else if(el.dataset.component) selectComponent(el.dataset.component,true);
     else if(el.dataset.flowStep!==undefined){state.flowStep=Number(el.dataset.flowStep);updateFlow();}
-    else if(el.dataset.dataMode){state.dataMode=el.dataset.dataMode;state.flowStep=0;state.selected=state.dataMode==='masters'?'mpos':'clientapi';render();$('.df-original-context').open=true;$(`[data-data-mode="${state.dataMode}"]`).focus({preventScroll:true});}
     else if(el.dataset.compare!==undefined){state.compare=Number(el.dataset.compare);updateComparison();}
     else if(el.dataset.country){state.country=el.dataset.country;updateCountry();}
     else if(el.dataset.providerCase){state.providerCase=el.dataset.providerCase;updateProviderCase();announce(C.providerScenarios.find(c=>c.id===state.providerCase).title);}
@@ -352,7 +401,7 @@
   document.addEventListener('input',e=>{if(e.target.id==='glossary-search')renderGlossary(e.target.value);});
   document.addEventListener('change',e=>{
     if(e.target.id==='mobile-chapter')setHash(e.target.value);
-    if(e.target.id==='ix-flow'&&state.chapter==='mapa')history.replaceState(null,'','#mapa?vista=peticiones&flujo='+encodeURIComponent(e.target.value));
+    if(e.target.id==='ix-flow'&&['mapa','propuesta'].includes(state.chapter))history.replaceState(null,'','#'+state.chapter+'?vista=peticiones&flujo='+encodeURIComponent(e.target.value));
     if(e.target.id==='motion-toggle'){state.reduced=e.target.checked;document.body.classList.toggle('reduce-motion',state.reduced);updateFlow();}
     if(e.target.id==='ai-evidence'){state.aiEvidence=e.target.checked;updateAiCase();announce($('#ai-outcome-state').textContent);}
   });
@@ -364,6 +413,12 @@
       e.preventDefault();const index=mapViews.findIndex(v=>v.id===tab.dataset.mapView);
       const next=e.key==='Home'?0:e.key==='End'?mapViews.length-1:(index+(e.key==='ArrowRight'?1:-1)+mapViews.length)%mapViews.length;
       chooseMapView(mapViews[next].id);return;
+    }
+    const chapterTab=e.target.closest('[data-chapter-view]');
+    if(chapterTab&&['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){
+      e.preventDefault();const views=chapterViews[state.chapter],index=views.findIndex(v=>v.id===chapterTab.dataset.chapterView);
+      const next=e.key==='Home'?0:e.key==='End'?views.length-1:(index+(e.key==='ArrowRight'?1:-1)+views.length)%views.length;
+      chooseChapterView(views[next].id);return;
     }
     if(e.target.closest('input,textarea,select,[contenteditable="true"]'))return;
     if(e.target.closest('.tech-diagram-scroll,.df-map-scroll, .ops-map-scroll, .ix-viewer, .repo-viewport'))return;

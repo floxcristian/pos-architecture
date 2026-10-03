@@ -146,7 +146,8 @@ async function main() {
       await page.setViewportSize({ width, height: width === 1440 ? 1000 : 844 });
       for (const flow of flows) {
         await page.goto(base + '/#' + (flow.mode === 'proposed' ? 'propuesta' : 'mapa'));
-        if (!await page.locator('#interaction-library').evaluate(el => el.open)) await page.locator('#interaction-library > summary').click();
+        await page.locator(flow.mode === 'proposed' ? '[data-chapter-view="peticiones"]' : '[data-map-view="peticiones"]').click();
+        await page.locator('#ix-flow').waitFor();
         await page.locator('#ix-flow').selectOption(flow.id);
         await page.locator('[data-ix-step="0"]').click();
         for (const mode of ['step', 'all', 'sequence']) {

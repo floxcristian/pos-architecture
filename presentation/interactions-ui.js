@@ -17,6 +17,7 @@
     dispose();
     const root = document.querySelector('#interaction-viewer'); if (!root) return;
     const isEcosystemViewer=Boolean(root.closest('#map-panel-peticiones'));
+    const isChapterViewer=Boolean(root.closest('#chapter-panel-peticiones'));
     const $ = s => root.querySelector(s), $$ = s => [...root.querySelectorAll(s)];
     const flows = all().filter(f=>f.mode===(chapter==='propuesta'?'proposed':'current')); if (!flows.length) return;
     const state = {flow:flows[0],step:0,mode:innerWidth>=1000?'all':'step',zoom:'fit',scale:1,edge:null,node:null};
@@ -235,7 +236,7 @@
       if(!dialog)return;
       placeholder.replaceWith(root);dialog.remove();dialog=null;placeholder=null;
       $('[data-ix-expand]').textContent='Ampliar visor';
-      const returnTarget=root.closest('[hidden]')?document.querySelector('[data-map-view][aria-selected="true"]'):$('[data-ix-expand]');
+      const returnTarget=root.closest('[hidden]')?document.querySelector(isEcosystemViewer?'[data-map-view][aria-selected="true"]':'[data-chapter-view][aria-selected="true"]'):$('[data-ix-expand]');
       returnTarget?.focus({preventScroll:true});applyZoom(true);
     }
     function expand() {
@@ -260,15 +261,18 @@
     $('#ix-call').addEventListener('change',e=>{state.edge=e.target.value;renderStep();$('#ix-call').focus({preventScroll:true});});
     const columnBand=()=>viewport.clientWidth>=950?3:viewport.clientWidth>=600?2:1;let wasCompact=columnBand();
     const observer=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(!viewport.clientWidth)return;const compact=columnBand();if(compact!==wasCompact){wasCompact=compact;renderDiagram();}else applyZoom(false);});});observer.observe(viewport);
-    const onMapView=event=>{
-      if(!isEcosystemViewer)return;
-      if(event.detail.view!=='peticiones'){
+    const updateViewVisibility=visible=>{
+      cancelAnimationFrame(resizeFrame);
+      if(!visible){
         if(dialog){dialog.removeEventListener('close',restoreExpanded);dialog.close();restoreExpanded();}
         return;
       }
-      cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{wasCompact=columnBand();renderDiagram();});
+      resizeFrame=requestAnimationFrame(()=>{if(!root.isConnected||!viewport.clientWidth)return;wasCompact=columnBand();renderDiagram();});
     };
+    const onMapView=event=>{if(isEcosystemViewer)updateViewVisibility(event.detail.view==='peticiones');};
+    const onChapterView=event=>{if(isChapterViewer)updateViewVisibility(event.detail.chapter===chapter&&event.detail.view==='peticiones');};
     document.addEventListener('pos:map-view',onMapView);
+    document.addEventListener('pos:chapter-view',onChapterView);
     const library=root.closest('details.journey-library');
     const onLibraryToggle=()=>{
       if(!library.open){return;}
@@ -293,7 +297,7 @@
         pinSequenceHeaders();
       }
     });
-    dispose=()=>{observer.disconnect();cancelAnimationFrame(resizeFrame);library?.removeEventListener('toggle',onLibraryToggle);document.removeEventListener('pos:map-view',onMapView);if(dialog){dialog.removeEventListener('close',restoreExpanded);placeholder?.remove();dialog.remove();dialog=null;}};
+    dispose=()=>{observer.disconnect();cancelAnimationFrame(resizeFrame);library?.removeEventListener('toggle',onLibraryToggle);document.removeEventListener('pos:map-view',onMapView);document.removeEventListener('pos:chapter-view',onChapterView);if(dialog){dialog.removeEventListener('close',restoreExpanded);placeholder?.remove();dialog.remove();dialog=null;}};
     $$('[data-ix-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ixMode===state.mode)));
     renderFlow();
   }

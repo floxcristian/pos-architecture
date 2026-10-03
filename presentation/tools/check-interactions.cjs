@@ -76,8 +76,8 @@ async function main(){
   browser=await playwright().chromium.launch({headless:true});
   const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});record(page);
   async function open(p,f,file=false){
-   await p.goto((file?pathToFileURL(path.join(root,'index.html')).href:base+'/')+'#'+(f.mode==='proposed'?'propuesta':'mapa?flujo='+f.id));
-   if(f.mode==='proposed'&&!await p.locator('#interaction-library').evaluate(el=>el.open))await p.locator('#interaction-library > summary').click();
+   await p.goto((file?pathToFileURL(path.join(root,'index.html')).href:base+'/')+'#'+(f.mode==='proposed'?'propuesta':'mapa')+'?flujo='+f.id);
+   if(f.mode==='proposed')assert.equal(await p.locator('#chapter-panel-peticiones').isVisible(),true);
    if(f.mode!=='proposed')assert.equal(await p.locator('#map-panel-peticiones').isVisible(),true);
    await p.locator('#ix-flow').selectOption(f.id);await p.locator('[data-ix-mode="step"]').click();await p.locator('[data-ix-zoom="100"]').click();
    assert.equal(await p.locator('#ix-flow').inputValue(),f.id);assert.equal(norm(await p.locator('#ix-summary').textContent()),norm(f.summary));
@@ -304,26 +304,26 @@ async function main(){
    assert.ok((await navigation.locator('#ix-summary').innerText()).length>30);assert.ok((await navigation.locator('#ix-flow-boundary').innerText()).length>30);
    await geometry(navigation,'tabs-persist/'+width);
    for(const id of ['general','repositorios','peticiones','evidencia']){await navigation.goto(base+'/#mapa?vista='+id);await assertMapTab(navigation,id);}
-   await navigation.goto(base+'/#propuesta');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false,'Proposed library starts closed');
-   const summary=navigation.locator('#interaction-library > summary');await summary.focus();await navigation.keyboard.press('Enter');await navigation.locator('#ix-flow').waitFor();
-   assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),true);await geometry(navigation,'library-open/propuesta/'+width);
-   await summary.focus();await navigation.keyboard.press('Enter');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false);
-   for(const f of flows){await navigation.goto(base+'/#'+(f.mode==='proposed'?'propuesta':'mapa')+'?flujo='+f.id);await navigation.waitForFunction(id=>document.querySelector('#ix-flow')?.value===id,f.id);if(f.mode==='proposed')assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),true);else await assertMapTab(navigation,'peticiones');await geometry(navigation,'deep-link/'+f.id+'/'+width);}
+   await navigation.goto(base+'/#propuesta');assert.equal(await navigation.locator('#chapter-panel-arquitectura').isVisible(),true,'Proposal starts with architecture');
+   await navigation.locator('[data-chapter-view="peticiones"]').focus();await navigation.keyboard.press('Enter');await navigation.locator('#ix-flow').waitFor();
+   assert.equal(await navigation.locator('#chapter-panel-peticiones').isVisible(),true);await geometry(navigation,'proposal-requests/'+width);
+   await navigation.locator('[data-chapter-view="arquitectura"]').click();assert.equal(await navigation.locator('#interaction-viewer').isVisible(),false);
+   for(const f of flows){await navigation.goto(base+'/#'+(f.mode==='proposed'?'propuesta':'mapa')+'?flujo='+f.id);await navigation.waitForFunction(id=>document.querySelector('#ix-flow')?.value===id,f.id);if(f.mode==='proposed')assert.equal(await navigation.locator('#chapter-panel-peticiones').isVisible(),true);else await assertMapTab(navigation,'peticiones');await geometry(navigation,'deep-link/'+f.id+'/'+width);}
    await navigation.goto(base+'/#venta');await navigation.locator('a[href="#mapa?flujo=sync"]').click();await navigation.waitForFunction(()=>document.querySelector('#ix-flow')?.value==='sync');
    await navigation.goBack();await navigation.locator('.chapter-venta').waitFor();await navigation.goForward();await navigation.waitForFunction(()=>document.querySelector('#ix-flow')?.value==='sync');await assertMapTab(navigation,'peticiones');
    const fresh=await browser.newPage({viewport:{width,height:844},reducedMotion:'reduce'});record(fresh);await fresh.goto(base+'/#datos');assert.equal(await fresh.locator('#dataflow-select').inputValue(),'D03','Fresh data chapter begins with masters');await fresh.close();
    await navigation.goto(base+'/#datos?flujo=D01');assert.equal(await navigation.locator('#dataflow-select').inputValue(),'D01');await navigation.locator('a[href="#mapa?flujo=sale"]').click();await navigation.waitForFunction(()=>document.querySelector('#ix-flow')?.value==='sale');
   }
   await navigation.goto(base+'/#mapa');await navigation.setViewportSize({width:390,height:844});await navigation.locator('[data-map-view="peticiones"]').click();await geometry(navigation,'resize-hidden-then-open');
-  await navigation.goto(base+'/#propuesta?flujo=sale');assert.equal(await navigation.locator('#interaction-library').evaluate(el=>el.open),false,'Wrong-chapter flow must not open unrelated journey');
-  report.checks.push('Ecosistema con cuatro pestañas independientes: selección ARIA, teclado con flechas/Home/End y una vista visible. Conexión/repositorios y flujo/paso/petición persisten al cambiar; URLs de pestañas y ocho enlaces directos, historial atrás/adelante, biblioteca de Propuesta y Datos inicial D03 en desktop/móvil.');
+  await navigation.goto(base+'/#propuesta?flujo=sale');assert.equal(await navigation.locator('#chapter-panel-peticiones').isVisible(),false,'Wrong-chapter flow must not open unrelated journey');
+  report.checks.push('Ecosistema con cuatro pestañas independientes: selección ARIA, teclado con flechas/Home/End y una vista visible. Conexión/repositorios y flujo/paso/petición persisten al cambiar; URLs de pestañas y ocho enlaces directos, historial atrás/adelante, Peticiones de Propuesta y Datos inicial D03 en desktop/móvil.');
   const library=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(library);await library.clock.install();
   const tf=flows.find(f=>f.id==='proposed-sale');await open(library,tf);await library.locator('[data-ix-step="'+(tf.steps.length-1)+'"]').click();await library.locator('#ix-call').selectOption(tf.steps.at(-1).edges.at(-1));
   const foldedStep=await library.locator('#ix-counter').textContent(),foldedCall=await library.locator('#ix-call').inputValue();
-  await library.locator('#interaction-library > summary').click();assert.equal(await library.locator('#interaction-library').evaluate(el=>el.open),false);await library.clock.runFor(13000);
-  await library.locator('#interaction-library > summary').click();assert.equal(await library.locator('#ix-counter').textContent(),foldedStep);assert.equal(await library.locator('#ix-call').inputValue(),foldedCall);
-  await library.evaluate(()=>{location.hash='venta';});await library.locator('#interaction-viewer').waitFor({state:'detached'});await library.evaluate(()=>{location.hash='propuesta';});await library.locator('#ix-flow').waitFor({state:'attached'});assert.equal(await library.locator('#interaction-library').evaluate(el=>el.open),false);await library.locator('#interaction-library > summary').click();assert.equal(await library.locator('[data-ix-step="0"]').getAttribute('aria-pressed'),'true');
-  report.checks.push('La biblioteca conserva el paso y la conexión al plegarse y abrirse; cambiar de capítulo desmonta el visor y la biblioteca vuelve cerrada.');
+  await library.locator('[data-chapter-view="arquitectura"]').click();assert.equal(await library.locator('#interaction-viewer').isVisible(),false);await library.clock.runFor(13000);
+  await library.locator('[data-chapter-view="peticiones"]').click();assert.equal(await library.locator('#ix-counter').textContent(),foldedStep);assert.equal(await library.locator('#ix-call').inputValue(),foldedCall);
+  await library.evaluate(()=>{location.hash='venta';});await library.locator('#interaction-viewer').waitFor({state:'detached'});await library.evaluate(()=>{location.hash='propuesta';});await library.locator('[data-chapter-view="peticiones"]').click();await library.locator('#ix-flow').waitFor();assert.equal(await library.locator('[data-ix-step="0"]').getAttribute('aria-pressed'),'true');
+  report.checks.push('Peticiones de Propuesta conserva el paso y la conexión al alternar pestañas; cambiar de capítulo desmonta el visor.');
   const tabManual=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});record(tabManual);await tabManual.clock.install();
   const saleFlow=flows.find(f=>f.id==='sale');await open(tabManual,saleFlow);await tabManual.locator('[data-ix-step="1"]').click();await tabManual.locator('#ix-call').selectOption(saleFlow.steps[1].edges.at(-1));
   const tabCounter=await tabManual.locator('#ix-counter').textContent(),tabCall=await tabManual.locator('#ix-call').inputValue();
@@ -344,7 +344,7 @@ async function main(){
   report.checks.push('Atrás del navegador desde Peticiones ampliado cierra el diálogo, devuelve el visor a su panel y enfoca Vista general, conservando el paso y la conexión.');
   const off=await browser.newPage({viewport:{width:390,height:844},offline:true,reducedMotion:'reduce'});record(off,true);
   for(const f of flows){await open(off,f,true);for(const mode of modes){await off.locator('[data-ix-mode="'+mode+'"]').click();assert.ok(await off.locator('.ix-surface [data-ix-node]').count());}if(!await off.locator('.ix-relations').evaluate(el=>el.open))await off.locator('.ix-relations > summary').click();const e=f.edges.at(-1);await off.locator('[data-ix-relation="'+e.id+'"]').click();await detail(off,e);}
-  await off.goto(pathToFileURL(path.join(root,'index.html')).href+'#propuesta?flujo=proposed-erp');assert.equal(await off.locator('#ix-flow').inputValue(),'proposed-erp');assert.equal(await off.locator('#interaction-library').evaluate(el=>el.open),true);
+  await off.goto(pathToFileURL(path.join(root,'index.html')).href+'#propuesta?flujo=proposed-erp');assert.equal(await off.locator('#ix-flow').inputValue(),'proposed-erp');assert.equal(await off.locator('#chapter-panel-peticiones').isVisible(),true);
   const nojs=await browser.newPage({javaScriptEnabled:false,offline:true});record(nojs,true);await nojs.goto(pathToFileURL(path.join(root,'index.html')).href);assert.ok((await nojs.locator('noscript').innerText()).length>20);
   report.checks.push('Ocho flujos y tres modos por file:// sin red; fallback sin JavaScript. Cero solicitudes corporativas.');
   assert.deepEqual(report.errors,[]);assert.deepEqual(report.external,[]);report.layoutProblems=[...new Set(report.layoutProblems)];assert.deepEqual(report.layoutProblems,[]);

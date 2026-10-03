@@ -29,8 +29,10 @@ async function main() {
     page.on('request',request=>{if(!request.url().startsWith(base)&&!request.url().startsWith('data:'))external.push(request.url());});
     const openCase=async(target,c,useFile=false)=>{
       await target.goto((useFile?pathToFileURL(path.join(root,'index.html')).href:base+'/')+'#'+c.chapter);
-      await target.locator('#ops-explorer > summary').waitFor();
-      if(!await target.locator('#ops-explorer').evaluate(details=>details.open))await target.locator('#ops-explorer > summary').click();
+      const view={O01:'operacion',O02:'precios',O03:'operacion',O04:'despliegue'}[c.id];
+      await target.locator(`[data-chapter-view="${view}"]`).click();
+      await target.locator('#ops-select').waitFor();
+      assert.equal(await target.locator('#ops-explorer').evaluate(details=>details.open),true,'The case explorer opens within its chapter tab');
       await target.locator('#ops-select').selectOption(c.id);
     };
     const assertView=async(target,c,mode)=>{
@@ -79,8 +81,9 @@ async function main() {
         assert.ok(normalize(await page.locator('#ops-challenge-answer').innerText()).includes(normalize(c.challenge.test)));
         assert.equal(await page.locator('[data-ops-source]').count(),0);
         await page.locator('[data-ops-zoom="100"]').click();assert.equal(await page.locator('[data-ops-zoom="100"]').getAttribute('aria-pressed'),'true');
+        const caseHash=new URL(page.url()).hash;
         await page.locator('.ops-map-scroll').focus();await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowLeft');
-        assert.ok(page.url().endsWith('#'+c.chapter),'Diagram arrows must not change the chapter');
+        assert.equal(new URL(page.url()).hash,caseHash,'Diagram arrows must preserve the chapter and tab');
         await page.locator('[data-ops-zoom="fit"]').click();assert.equal(await page.locator('[data-ops-zoom="fit"]').getAttribute('aria-pressed'),'true');
       }
       await page.locator('[data-ops-challenge]').click();assert.equal(await page.locator('#ops-challenge-answer').isVisible(),false);

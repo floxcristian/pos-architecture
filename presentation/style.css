@@ -1083,9 +1083,9 @@ body.reduce-motion *, body.reduced-motion *, body.motion-reduced * { animation: 
 .df-node-facts > div { padding: 15px 0; border-bottom: 1px solid var(--line); }
 .df-node-facts dt { font-size: 11px; font-weight: 700; color: var(--muted); }
 .df-node-facts dd { margin: 6px 0 0; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
-.df-original-context { margin-top: 32px; border-top: 1px solid var(--line); }
-.df-original-context > summary { padding: 22px 0; font-size: 17px; font-weight: 650; color: var(--teal-dark); }
-.df-context-intro { margin: 0 0 22px; font-size: 14px; color: var(--muted); }
+.df-flow-context { margin: 20px 0; border-block: 1px solid var(--line); }
+.df-flow-context > summary { padding: 16px 0; font-size: 15px; font-weight: 650; color: var(--teal-dark); }
+.df-flow-context p { font-size: 14px; color: var(--muted); line-height: 1.7; }
 .df-selector select, [data-df-step], [data-df-action], [data-df-node], [data-df-zoom] { scroll-margin-top: 155px; }
 @media (max-width: 1150px) {
   .df-layout { grid-template-columns: minmax(0,1fr); }
@@ -1108,7 +1108,6 @@ body.reduce-motion *, body.reduced-motion *, body.motion-reduced * { animation: 
   .df-story h4 { margin: 9px 0 12px; font-size: 23px; }
   .df-step-endpoint { margin-top: 17px; }
   .df-caveat { grid-template-columns: 1fr; gap: 7px; }
-  .df-original-context > summary { font-size: 16px; }
   .df-guide-actions { max-width: none; }
 }
 @media print {
@@ -1189,19 +1188,25 @@ select:not([multiple]):not([size]) {
   }
 }
 
-/* One independent perspective at a time in the current ecosystem. */
-.map-tabs { display:flex; gap:8px; border-bottom:1px solid var(--line-strong); margin-bottom:24px; }
-.map-tabs [role="tab"] { min-height:48px; padding:12px 20px; border:0; border-bottom:3px solid transparent; background:transparent; color:var(--muted); font-size:15px; font-weight:650; }
-.map-tabs [role="tab"]:hover { color:var(--teal-dark); background:var(--teal-soft); }
-.map-tabs [role="tab"][aria-selected="true"] { color:var(--teal-dark); border-bottom-color:var(--teal); background:var(--teal-soft); }
-.map-panel { min-width:0; scroll-margin-top:90px; }
+/* One independent perspective at a time; the same navigation across chapters. */
+.map-tabs, .chapter-tabs { display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--line-strong); margin-bottom:24px; }
+.map-tabs [role="tab"], .chapter-tabs [role="tab"] { min-height:48px; padding:12px 20px; border:0; border-bottom:3px solid transparent; background:transparent; color:var(--muted); font-size:15px; font-weight:650; }
+.map-tabs [role="tab"]:hover, .chapter-tabs [role="tab"]:hover { color:var(--teal-dark); background:var(--teal-soft); }
+.map-tabs [role="tab"][aria-selected="true"], .chapter-tabs [role="tab"][aria-selected="true"] { color:var(--teal-dark); border-bottom-color:var(--teal); background:var(--teal-soft); }
+.map-panel, .chapter-panel { min-width:0; scroll-margin-top:90px; }
+.chapter-panel > :first-child { margin-top:0; }
+.chapter-panel > .ops-module:first-child, .chapter-panel > .compare-module:first-child,
+.chapter-panel > .tech-panel:first-child, .chapter-panel > .provider-module:first-child,
+.chapter-panel > .rfid-module:first-child, .chapter-panel > .standard-panel:first-child { padding-top:0; border-top:0; }
+.chapter-panel > :first-child > .section-heading { margin-top:0; }
+.chapter-context > .ix-viewer { margin-top:0; border:0; padding:0; background:transparent; }
 .map-perspective { max-width:960px; margin-bottom:24px; color:var(--muted); font-size:15px; line-height:1.7; }
 .map-panel > .repo-module, .map-panel > .ix-viewer, .map-panel > .technical-explorer { border:0; padding:0; margin:0; background:transparent; }
 .component-connections { display:flex; flex-wrap:wrap; gap:8px 16px; padding:15px 0 0; margin:15px 0 0; border-top:1px solid var(--line); font-size:13px; line-height:1.6; }
 .component-connections strong { flex-basis:100%; color:var(--ink); }
 .component-connections a { overflow-wrap:anywhere; }
 @media (max-width:600px) {
-  .map-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; }
-  .map-tabs [role="tab"] { padding:12px 8px; font-size:14px; }
-  .map-panel { scroll-margin-top:140px; }
+  .map-tabs, .chapter-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; }
+  .map-tabs [role="tab"], .chapter-tabs [role="tab"] { padding:12px 8px; font-size:14px; }
+  .map-panel, .chapter-panel { scroll-margin-top:140px; }
 }

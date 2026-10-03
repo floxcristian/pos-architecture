@@ -8,7 +8,7 @@ El mapa actual incluye venta/DTE, sincronización con AX, maestros, cliente por 
 
 ## Abrir el detalle adecuado
 
-Ecosistema comienza en **Vista general** y ofrece cuatro pestañas. Solo una está visible: cada una responde una pregunta distinta y sus selectores no controlan automáticamente las demás. Al alternar pestañas dentro del capítulo se conservan las selecciones.
+Las pestañas separan preguntas independientes y muestran un solo panel a la vez. Al alternar dentro del capítulo se conservan las selecciones y los pasos; un selector no filtra automáticamente las otras pestañas. Ecosistema comienza en **Vista general**:
 
 | Pestaña | Para qué sirve | Acceso directo |
 | --- | --- | --- |
@@ -19,7 +19,20 @@ Ecosistema comienza en **Vista general** y ofrece cuatro pestañas. Solo una est
 
 V01 tiene un único acceso en Evidencia → Despliegue. Los diagramas V02–V06 se consultan en [vistas de arquitectura y flujos](vistas-arquitectura-y-flujos.md). Las fichas conservan implementación, fuentes y límites junto a la pieza consultada.
 
-Propuesta comienza con las decisiones y la comparación actual/objetivo; su visor sigue bajo demanda. Datos inicia en maestros y permite cambiar de operación. Los enlaces anteriores `#mapa?flujo=…` abren Peticiones y seleccionan el recorrido solicitado.
+Los otros capítulos con pestañas tienen estas entradas. La primera de cada fila se abre por defecto; `?vista=…` permite enlazar directamente una pregunta.
+
+| Capítulo | Pestañas y accesos directos |
+| --- | --- |
+| Venta | [Recorrido de la venta](../presentation/index.html#venta?vista=recorrido) · [Apertura, cierre e impresión](../presentation/index.html#venta?vista=operacion) |
+| Offline | [Probar una desconexión](../presentation/index.html#offline?vista=laboratorio) · [Otros fallos y recuperación](../presentation/index.html#offline?vista=fallos) |
+| Propuesta | [Arquitectura](../presentation/index.html#propuesta?vista=arquitectura) · [Qué cambia](../presentation/index.html#propuesta?vista=cambios) · [Venta y ERP](../presentation/index.html#propuesta?vista=peticiones) · [Precios y ofertas](../presentation/index.html#propuesta?vista=precios) · [Tecnología](../presentation/index.html#propuesta?vista=tecnologia) |
+| Evolución | [Países](../presentation/index.html#evolucion?vista=paises) · [Cambio de ERP](../presentation/index.html#evolucion?vista=erp) · [Proveedores y equipos](../presentation/index.html#evolucion?vista=proveedores) · [RFID](../presentation/index.html#evolucion?vista=rfid) · [Despliegue](../presentation/index.html#evolucion?vista=despliegue) |
+
+Con el foco en una pestaña, **← / →** cambian de panel y **Home / End** van al primero o al último. Al salir de la pestaña con el visor ampliado, este se cierra y devuelve el foco a la pestaña seleccionada.
+
+Datos mantiene un único explorador de D01–D05, con maestros D03 como entrada. El contexto de lotes y cliente se consulta dentro de D03/D04; el horario pertenece a D02/D03. No hay un segundo resumen de esos recorridos. IA conserva juntos los controles que modifican su ejemplo; Repaso mantiene sus ejercicios.
+
+Los enlaces anteriores `#mapa?flujo=…` abren Peticiones. En Propuesta, `?flujo=proposed-sale` y `?flujo=proposed-erp` abren **Venta y ERP** y seleccionan el recorrido solicitado, sin otro desplegable de entrada.
 
 | Recorrido | Acceso directo |
 | --- | --- |
@@ -174,4 +187,4 @@ Estos criterios son de aceptación del tutorial. Las garantías financieras, fis
 
 ## Repositorios y ampliación central
 
-La pestaña Repositorios de Ecosistema muestra un [mapa de los seis repositorios del POS actual](mapa-repositorios-y-conexiones.md) con diez relaciones seleccionadas. Las fichas de core/devops-platform y la evidencia de su relación de CI/CD se encuentran en [Propuesta](../presentation/index.html#propuesta), dentro de la reutilización corporativa. Los nombres de repositorio aparecen también en las aplicaciones y sus fichas. Sincronización muestra WSO2, broker, consumidor Node, PostgreSQL central y adaptador AX; el detalle explica Synapse, DSS y Java. Maestros incorpora MPOS, lotes y api-lectura. Las variantes no se presentan como una cadena obligatoria. [Alcance de la auditoría central](analisis-repositorios/mountain-concentrador.md).
+La pestaña Repositorios de Ecosistema muestra un [mapa de los seis repositorios del POS actual](mapa-repositorios-y-conexiones.md) con diez relaciones seleccionadas. Las fichas de core/devops-platform y la evidencia de su relación de CI/CD se encuentran en [Propuesta → Tecnología](../presentation/index.html#propuesta?vista=tecnologia), dentro de la reutilización corporativa. Los nombres de repositorio aparecen también en las aplicaciones y sus fichas. Sincronización muestra WSO2, broker, consumidor Node, PostgreSQL central y adaptador AX; el detalle explica Synapse, DSS y Java. Maestros incorpora MPOS, lotes y api-lectura. Las variantes no se presentan como una cadena obligatoria. [Alcance de la auditoría central](analisis-repositorios/mountain-concentrador.md).

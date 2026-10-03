@@ -27,6 +27,27 @@ async function main() {
     const base=`http://127.0.0.1:${port}`;
     const goto=async id=>{await page.goto(`${base}/#${id}`);await page.locator('h1').waitFor();};
     const click=action=>page.locator(`[data-action="${action}"]`).first().click();
+    const chapterViews={venta:['recorrido','operacion'],offline:['laboratorio','fallos'],propuesta:['arquitectura','cambios','peticiones','precios','tecnologia'],evolucion:['paises','erp','proveedores','rfid','despliegue']};
+    const selectView=async view=>page.locator(`[data-chapter-view="${view}"]`).click();
+    const assertChapterView=async(view,focused=false)=>{
+      const tab=page.locator(`[data-chapter-view="${view}"]`),panel=page.locator(`#chapter-panel-${view}`);
+      assert.equal(await page.locator('[data-chapter-view][aria-selected="true"]').count(),1);
+      assert.equal(await page.locator('[data-chapter-view][tabindex="0"]').count(),1);
+      assert.equal(await tab.getAttribute('role'),'tab');assert.equal(await tab.getAttribute('aria-selected'),'true');
+      assert.equal(await tab.getAttribute('aria-controls'),`chapter-panel-${view}`);
+      assert.equal(await panel.getAttribute('role'),'tabpanel');assert.equal(await panel.getAttribute('aria-labelledby'),`chapter-tab-${view}`);
+      assert.equal(await page.locator('.chapter-panel:visible').count(),1);assert.equal(await panel.isVisible(),true);
+      if(focused)assert.equal(await page.evaluate(()=>document.activeElement.dataset.chapterView),view);
+    };
+    for(const [chapter,views] of Object.entries(chapterViews)){
+      await goto(chapter);assert.equal(await page.locator('[data-chapter-view]').count(),views.length);await assertChapterView(views[0]);
+      await page.locator(`[data-chapter-view="${views[0]}"]`).focus();
+      for(const [key,view] of [['ArrowRight',views[1]],['End',views.at(-1)],['ArrowRight',views[0]],['ArrowLeft',views.at(-1)],['Home',views[0]]]){
+        await page.keyboard.press(key);await assertChapterView(view,true);
+      }
+      for(const view of views){await goto(chapter+'?vista='+view);await assertChapterView(view);}
+    }
+    logs.push('Venta, Offline, Propuesta y Evolución: pestañas ARIA con una vista visible, selección por flechas/Home/End y enlaces directos a todas las perspectivas.');
     await goto('mapa');
     assert.equal(await page.locator('[data-map-view][role="tab"]').count(),4);
     assert.equal(await page.locator('#map-panel-general').isVisible(),true);
@@ -94,15 +115,12 @@ async function main() {
     await page.locator('[data-flow-step="1"]').click();assert.match(await page.locator('#step-title').innerText(),/guarda/);
     await page.locator('[data-flow-step="2"]').focus();await page.keyboard.press('Enter');assert.match(await page.locator('#step-title').innerText(),/facturación/);
     assert.equal(await page.locator('[data-flow-step="2"]').getAttribute('aria-pressed'),'true');
+    await selectView('operacion');await selectView('recorrido');assert.equal(await page.locator('[data-flow-step="2"]').getAttribute('aria-pressed'),'true');
     await page.locator('[data-node="localdb"]').click();await page.keyboard.press('Escape');assert.match(await page.locator('#step-title').innerText(),/facturación/);
     await page.locator('[data-flow-step="5"]').click();assert.match(await page.locator('#step-title').innerText(),/AX registra/);
     await page.locator('[data-flow-step="0"]').click();assert.match(await page.locator('#step-count').innerText(),/01/);
     logs.push('Venta: selección por números y teclado; conserva el paso al inspeccionar y permite volver al inicio.');
-    await goto('datos');await page.locator('.df-original-context > summary').click();await page.locator('[data-node="mpos"]').click();assert.match(await page.locator('.inspector-title:visible').innerText(),/MPOS/);await page.keyboard.press('Escape');
-    await page.locator('[data-data-mode="customer"]').click();assert.equal(await page.locator('[data-node]').count(),4);
-    await page.locator('[data-flow-step="3"]').click();assert.match(await page.locator('#step-description').innerText(),/limpia la venta en preparación/);
-    logs.push('Datos: lotes y RUT se exploran de forma independiente.');
-    await page.locator('.df-original-context > summary').click();
+    await goto('datos');assert.equal(await page.locator('.df-original-context,[data-data-mode]').count(),0);
     const dataflows=await page.evaluate(()=>window.POS_DATAFLOWS.flows);
     assert.equal(dataflows.length,5);assert.equal(new Set(dataflows.map(f=>f.id)).size,5);
     const flowDocument=await fs.readFile(path.join(root,'../docs/recorridos-datos-tablas.md'),'utf8');
@@ -112,6 +130,8 @@ async function main() {
     assert.deepEqual(compiledFlows,flowSources);
     for(const flow of dataflows) {
       await page.locator('#dataflow-select').selectOption(flow.id);
+      assert.equal(await page.locator('.df-flow-context').count(),['D03','D04'].includes(flow.id)?1:0);
+      assert.equal(await page.locator('.df-sync-schedule').count(),['D02','D03'].includes(flow.id)?1:0);
       assert.equal(await page.locator('#dataflow-map svg').count(),1);
       assert.equal(await page.locator('#dataflow-map [data-df-node]').count(),Object.keys(flow.nodes).length);
       assert.ok(flow.steps.length>=2);assert.ok(flow.caveat&&flow.summary);
@@ -150,6 +170,7 @@ async function main() {
 
     await goto('offline');
     await click('offline-next');assert.equal(await page.locator('#actual-network').innerText(),'Sin Internet');
+    await selectView('fallos');await selectView('laboratorio');assert.equal(await page.locator('#actual-network').innerText(),'Sin Internet');
     await click('offline-next');assert.match(await page.locator('#demo-local').innerText(),/persistida/);assert.equal(await page.locator('#demo-central').innerText(),'0');
     await click('offline-next');assert.match(await page.locator('#demo-outbox').innerText(),/pendiente/);
     await click('offline-next');assert.match(await page.locator('#demo-central').innerText(),/^1/);
@@ -157,18 +178,23 @@ async function main() {
     await click('offline-next');assert.match(await page.locator('#demo-erp').innerText(),/Confirmado en el ejemplo/);
     await click('offline-reset');assert.equal(await page.locator('#demo-central').innerText(),'0');
     logs.push('Offline: pérdida WAN, commit local, reconexión, entrega, reentrega sin duplicado y resultado ERP separado.');
-    await page.locator('#edgecase-explorer > summary').click();assert.equal(await page.locator('[data-edgecase]').count(),8);
+    await selectView('fallos');assert.equal(await page.locator('[data-edgecase]').count(),8);
     for(const scenario of await page.locator('[data-edgecase]').all()) {await scenario.focus();await page.keyboard.press('Enter');assert.equal(await scenario.getAttribute('aria-pressed'),'true');assert.ok((await page.locator('.edgecase-now').innerText()).length>90);assert.match(await page.locator('.edgecase-target').innerText(),/PROPUESTO/);}
     logs.push('Casos límite: ocho escenarios distinguen evidencia actual, estado propuesto, acción y fuentes; selección por teclado.');
     await goto('propuesta');
-    await page.locator('.ix-context > summary').click();
+    await selectView('cambios');
     for(const tab of await page.locator('[data-compare]').all()){await tab.click();assert.equal(await tab.getAttribute('aria-pressed'),'true');assert.ok((await page.locator('#comparison-detail').innerText()).length>80);}
+    const comparison=await page.locator('[data-compare][aria-pressed="true"]').getAttribute('data-compare');
+    await selectView('tecnologia');await selectView('cambios');assert.equal(await page.locator('[data-compare][aria-pressed="true"]').getAttribute('data-compare'),comparison);
+    await selectView('tecnologia');
     for(const id of ['mediation','rabbitmq','bullmq','dataplatform']){await page.locator(`[data-component-id="${id}"]`).click();assert.equal(await page.locator('#modal').evaluate(el=>el.open),true);assert.ok((await page.locator('#modal-body').innerText()).length>250);await page.keyboard.press('Escape');}
+    await selectView('arquitectura');
     await page.locator('[data-node="outbox"]').click();assert.match(await page.locator('.inspector-title:visible').innerText(),/Outbox/);
     assert.equal(await page.locator('[data-action="mermaid"]').count(),0);
     await goto('evolucion');await page.locator('[data-country="ES"]').click();assert.match(await page.locator('#country-detail').innerText(),/Gira/);
     await page.locator('[data-country="PE"]').click();assert.match(await page.locator('#country-detail').innerText(),/custom/);
     assert.match(await page.locator('#country-detail').innerText(),/12 entradas/);
+    await selectView('proveedores');await selectView('paises');assert.equal(await page.locator('[data-country="PE"]').getAttribute('aria-pressed'),'true');await selectView('proveedores');
     for(const id of ['printer','terminal','timeout']) {
       const scenario=page.locator(`[data-provider-case="${id}"]`);
       await scenario.focus();await page.keyboard.press('Enter');
@@ -199,7 +225,7 @@ async function main() {
       assert.equal(await node.evaluate(el=>el===document.activeElement),true);
     }
     logs.push('Proveedores: tres escenarios y siete piezas accesibles; cambiar perfil conserva operación e intentos pendientes en A, consultas condicionadas y reversas de origen.');
-    await page.locator('.rfid-explorer > summary').click();
+    await selectView('rfid');
     for(const scenario of ['checkout','inventory','selfservice']) {
       const control=page.locator(`[data-rfid-case="${scenario}"]`);await control.focus();await page.keyboard.press('Enter');
       assert.equal(await control.getAttribute('aria-pressed'),'true');assert.ok((await page.locator('#rfid-case-title').innerText()).length>25);
@@ -222,7 +248,7 @@ async function main() {
       assert.match(await page.locator('#modal-body').innerText(),/Propuesta/);await page.keyboard.press('Escape');assert.equal(await node.evaluate(el=>el===document.activeElement),true);
     }
     logs.push('RFID: tres escenarios; 5 observaciones, 3 tags, 2 SKU y carrito 0 hasta revisión; repetición sin duplicar candidatos, dos unidades del mismo SKU, selección fijada sin pago, reinicio y siete fichas accesibles.');
-    await goto('datos');await page.locator('[data-component-id="syncpolicy"]').click();assert.match(await page.locator('#modal-body').innerText(),/07:00 a 22:00/);assert.match(await page.locator('#modal-body').innerText(),/domingos/);await page.keyboard.press('Escape');
+    await goto('datos');await page.locator('#dataflow-select').selectOption('D03');await page.locator('[data-component-id="syncpolicy"]').click();assert.match(await page.locator('#modal-body').innerText(),/07:00 a 22:00/);assert.match(await page.locator('#modal-body').innerText(),/domingos/);await page.keyboard.press('Escape');
     logs.push('Propuesta: comparaciones, diagramas sin controles de código fuente y países.');
     await goto('ia');
     assert.equal(await page.locator('#chapter-nav .chapter-button').count(),8);
@@ -274,6 +300,13 @@ async function main() {
       await page.setViewportSize({width,height});
       for(const id of ['mapa','venta','datos','offline','propuesta','evolucion','ia','repaso']) {
         await goto(id);
+        if(chapterViews[id]){
+          for(const view of chapterViews[id]){
+            await selectView(view);await assertChapterView(view);
+            if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))layoutProblems.push(`${id}-${view}: overflow at ${width}x${height}`);
+          }
+          await selectView(chapterViews[id][0]);
+        }
         if(id==='mapa') {
           for(const view of ['general','repositorios','peticiones','evidencia']) {
             await page.locator(`[data-map-view="${view}"]`).click();
@@ -307,14 +340,15 @@ async function main() {
           }
         }
         if(id==='offline') {
-          await page.locator('#edgecase-explorer > summary').click();await page.locator('[data-edgecase="payment"]').click();
+          await selectView('fallos');await page.locator('[data-edgecase="payment"]').click();
           if([1440,390].includes(width))await page.locator('.edgecase-layout').screenshot({path:path.join(snapshots,`edgecases-${width}.png`)});
         }
         if(id==='evolucion') {
+          await selectView('proveedores');
           await page.locator('[data-provider-case="timeout"]').click();await click('provider-profile');
           await page.locator('.provider-map > summary').click();
           if([1440,390].includes(width))await page.locator('.provider-module').screenshot({path:path.join(snapshots,`providers-${width}.png`)});
-          await page.locator('.rfid-explorer > summary').click();await click('rfid-reset');await click('rfid-read');await click('rfid-read');
+          await selectView('rfid');await click('rfid-reset');await click('rfid-read');await click('rfid-read');
           await page.locator('.rfid-map > summary').click();
           if([1440,390].includes(width))await page.locator('.rfid-module').screenshot({path:path.join(snapshots,`rfid-${width}.png`)});
         }
@@ -334,15 +368,15 @@ async function main() {
       }
     }
     assert.deepEqual(layoutProblems,[]);
-    logs.push('Responsive: 48 capítulos, 24 pestañas de Ecosistema, 18 vistas técnicas y 30 recorridos de datos sin desbordamiento horizontal (375–1440 px y paisaje), con diagramas y casos límite desplegados.');
+    logs.push('Responsive: 48 capítulos, 24 pestañas de Ecosistema, 84 pestañas de capítulos, 18 vistas técnicas y 30 recorridos de datos sin desbordamiento horizontal (375–1440 px y paisaje), con diagramas y casos límite desplegados.');
     await page.setViewportSize({width:390,height:844});await goto('mapa');await page.locator('[data-node="localdb"]').click();assert.equal(await page.evaluate(()=>document.activeElement.id),'inspector');
     assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
     const filePage=await browser.newPage({viewport:{width:1440,height:1000},offline:true});
     await filePage.goto(pathToFileURL(path.join(root,'index.html')).href+'#offline');await filePage.locator('[data-action="offline-next"]').click();assert.equal(await filePage.locator('#actual-network').innerText(),'Sin Internet');
-    await filePage.goto(pathToFileURL(path.join(root,'index.html')).href+'#evolucion');await filePage.locator('[data-provider-case="timeout"]').click();
+    await filePage.goto(pathToFileURL(path.join(root,'index.html')).href+'#evolucion?vista=proveedores');await filePage.locator('[data-provider-case="timeout"]').click();
     await filePage.locator('[data-action="provider-profile"]').click();assert.match(await filePage.locator('#binding-new').innerText(),/Proveedor B/);
     assert.match(await filePage.locator('#binding-pending').innerText(),/Proveedor A.*desconocido/);
-    await filePage.locator('.rfid-explorer > summary').click();await filePage.locator('[data-action="rfid-read"]').click();assert.equal(await filePage.locator('#rfid-unique').innerText(),'3');
+    await filePage.locator('[data-chapter-view="rfid"]').click();await filePage.locator('[data-action="rfid-read"]').click();assert.equal(await filePage.locator('#rfid-unique').innerText(),'3');
     await filePage.locator('[data-action="rfid-confirm"]').click();assert.equal(await filePage.locator('#rfid-cart').innerText(),'3');assert.match(await filePage.locator('#rfid-result').innerText(),/No hay pago ni emisión/);
     await filePage.goto(pathToFileURL(path.join(root,'index.html')).href+'#ia');
     await filePage.locator('[data-ai-network="offline"]').click();assert.equal(await filePage.locator('.ai-outcome').getAttribute('data-ai-mode'),'local');

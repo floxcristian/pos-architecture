@@ -44,11 +44,11 @@ Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`.
 | Capítulo | Punto de entrada |
 | --- | --- |
 | [Ecosistema](index.html#mapa) | Comienza en Vista general. Las pestañas Repositorios, Peticiones y Evidencia permiten cambiar de perspectiva; solo se muestra un panel a la vez. |
-| [Venta](index.html#venta) | Historia de una venta: los botones numerados permiten elegir cada paso. Incluye accesos a sus [llamadas](index.html#mapa?flujo=sale), [registro AX](index.html#mapa?flujo=sync) y [tablas](index.html#datos?flujo=D01). |
-| [Datos](index.html#datos) | Comienza por [maestros D03](index.html#datos?flujo=D03). El selector ofrece también venta/DTE, envío AX, cliente y NC; cada recorrido enlaza sus llamadas. |
-| [Offline](index.html#offline) | Laboratorio de pérdida de WAN y casos límite. La LAN y el escritor de sucursal permanecen disponibles en el ejemplo. |
-| [Propuesta](index.html#propuesta) | Decisiones, comparación con lo actual y reutilización de core/devops-platform, con fichas y fuentes. Abre, cuando haga falta, [venta local](index.html#propuesta?flujo=proposed-sale) o [entrega ERP](index.html#propuesta?flujo=proposed-erp). |
-| [Evolución](index.html#evolucion) | Países, migración, proveedores, dispositivos y RFID futuro. |
+| [Venta](index.html#venta) | Comienza en Recorrido de la venta. La pestaña Apertura, cierre e impresión reúne O01/O03. El relato enlaza sus [llamadas](index.html#mapa?flujo=sale), [registro AX](index.html#mapa?flujo=sync) y [tablas](index.html#datos?flujo=D01). |
+| [Datos](index.html#datos) | Un único explorador comienza por [maestros D03](index.html#datos?flujo=D03). El selector ofrece también venta/DTE, envío AX, cliente y NC; cada recorrido reúne su contexto y enlaza sus llamadas. |
+| [Offline](index.html#offline) | Comienza en Probar una desconexión; Otros fallos y recuperación es otra pestaña. La LAN y el escritor de sucursal permanecen disponibles en el laboratorio. |
+| [Propuesta](index.html#propuesta) | Comienza en Arquitectura. Qué cambia, Venta y ERP, Precios y ofertas y Tecnología separan comparación, contratos, caso O02 y reutilización de core/devops-platform. Los enlaces a [venta local](index.html#propuesta?flujo=proposed-sale) y [entrega ERP](index.html#propuesta?flujo=proposed-erp) abren su pestaña y recorrido. |
+| [Evolución](index.html#evolucion) | Comienza en Países. Cambio de ERP, Proveedores y equipos, RFID y Despliegue son pestañas independientes; elegir país solo actualiza su ficha. |
 | [IA](index.html#ia) | Casos candidatos, alternativas y laboratorio de asistencia con abstención. |
 | [Repaso](index.html#repaso) | Ejercicios y decisiones para conversar con el equipo. |
 
@@ -62,11 +62,11 @@ Las capacidades de [proveedores y dispositivos](../docs/extensibilidad-proveedor
 
 ## Profundizar sin repetir el recorrido
 
-En Ecosistema, [Vista general](index.html#mapa?vista=general) explica las responsabilidades; [Repositorios](index.html#mapa?vista=repositorios) ubica el código; [Peticiones](index.html#mapa?vista=peticiones) muestra los seis recorridos actuales, sin un acordeón previo; y [Evidencia](index.html#mapa?vista=evidencia) reúne **Rutas**, **Despliegue** y **Fuentes y pendientes**. El inventario completo de componentes se abre bajo demanda en este último modo. Al alternar pestañas dentro del capítulo se conservan sus selecciones; cada selector pertenece a su vista y no filtra automáticamente las demás.
+En Ecosistema, [Vista general](index.html#mapa?vista=general) explica las responsabilidades; [Repositorios](index.html#mapa?vista=repositorios) ubica el código; [Peticiones](index.html#mapa?vista=peticiones) muestra los seis recorridos actuales, sin un acordeón previo; y [Evidencia](index.html#mapa?vista=evidencia) reúne **Rutas**, **Despliegue** y **Fuentes y pendientes**. El inventario completo de componentes se abre bajo demanda en este último modo. En todos los capítulos con pestañas se conservan las selecciones al alternar dentro del capítulo; cada selector pertenece a su vista y no filtra automáticamente las demás.
 
-V01 tiene un único acceso en Evidencia → Despliegue. V02–V06 se consultan en [vistas técnicas](../docs/vistas-arquitectura-y-flujos.md), sin repetir otra biblioteca de diagramas en pantalla. Los filtros y contadores describen el catálogo seleccionado, no un inventario completo de producción. Los enlaces anteriores `#mapa?flujo=…` siguen abriendo el recorrido solicitado en Peticiones.
+V01 tiene un único acceso en Evidencia → Despliegue. V02–V06 se consultan en [vistas técnicas](../docs/vistas-arquitectura-y-flujos.md), sin repetir otra biblioteca de diagramas en pantalla. Los filtros y contadores describen el catálogo seleccionado, no un inventario completo de producción. Los enlaces anteriores `#mapa?flujo=…` siguen abriendo el recorrido solicitado en Peticiones. Las pestañas de cada capítulo admiten `?vista=…`; la guía del visor reúne sus accesos directos y la navegación por teclado.
 
-En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos, esquema y fuentes. Los cinco diagramas proceden de [recorridos de datos](../docs/recorridos-datos-tablas.md). Los casos actuales/propuestos de sesión, precio, impresión y actualización se consultan desde Venta, Propuesta y Evolución; su evidencia está en [operación y evolución](../docs/operacion-caja-y-evolucion.md).
+En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos, esquema y fuentes. D03/D04 integran el contexto de lotes y cliente; D02/D03 incluyen el horario de sincronización. No se repiten en otro resumen. Los cinco diagramas proceden de [recorridos de datos](../docs/recorridos-datos-tablas.md). Los casos de sesión/impresión, precio y actualización están en Venta → Apertura, cierre e impresión; Propuesta → Precios y ofertas; y Evolución → Despliegue. Su evidencia está en [operación y evolución](../docs/operacion-caja-y-evolucion.md).
 
 ## Editar el contenido
 
@@ -124,4 +124,4 @@ Referencias de herramientas: [Mermaid: uso y renderizado](https://mermaid.js.org
 
 ## Mapa de repositorios
 
-La pestaña Repositorios de Ecosistema muestra seis repositorios del POS actual y diez relaciones seleccionadas. Se ajusta automáticamente al ancho disponible, sin control de zoom manual. Propuesta concentra las fichas de core/devops-platform y la evidencia de su relación de CI/CD; estas tarjetas no aparecen en Ecosistema ni se repiten en Evolución. Sus relaciones no acreditan tráfico productivo ni despliegues. [Mapa documental y fuentes](../docs/mapa-repositorios-y-conexiones.md). `repositories-data.js` conserva los ocho repositorios de software y las once relaciones; `repositories-ui.js` y `repositories.css` los presentan en el capítulo correspondiente.
+La pestaña Repositorios de Ecosistema muestra seis repositorios del POS actual y diez relaciones seleccionadas. Se ajusta automáticamente al ancho disponible, sin control de zoom manual. Propuesta → Tecnología concentra las fichas de core/devops-platform y la evidencia de su relación de CI/CD; estas tarjetas no aparecen en Ecosistema ni se repiten en Evolución. Sus relaciones no acreditan tráfico productivo ni despliegues. [Mapa documental y fuentes](../docs/mapa-repositorios-y-conexiones.md). `repositories-data.js` conserva los ocho repositorios de software y las once relaciones; `repositories-ui.js` y `repositories.css` los presentan en el capítulo correspondiente.
