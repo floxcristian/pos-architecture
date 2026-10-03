@@ -287,7 +287,9 @@ async function main() {
     assert.match(await page.locator('#chapter-counter').innerText(),/08.*08/s);
     const answers=await page.evaluate(()=>window.POS_CONTENT.questions.map(q=>({correct:q.options.findIndex(x=>x.correct),wrong:q.options.findIndex(x=>!x.correct)})));
     for(let i=0;i<answers.length;i++) {await page.locator(`[data-question="${i}"][data-answer="${answers[i].wrong}"]`).click();assert.match(await page.locator(`#feedback-${i}`).innerText(),/Inténtalo/);await page.locator(`[data-question="${i}"][data-answer="${answers[i].correct}"]`).click();}
-    assert.match(await page.locator('#quiz-score').innerText(),/4 de 4/);await click('quiz-reset');assert.match(await page.locator('#quiz-score').innerText(),/0 de 4/);
+    assert.equal(await page.locator('#quiz-score').innerText(),`${answers.length} de ${answers.length} resueltas`);
+    assert.deepEqual(await page.locator('.question-number').allTextContents(),answers.map((_,i)=>String(i+1).padStart(2,'0')));
+    await click('quiz-reset');assert.equal(await page.locator('#quiz-score').innerText(),`0 de ${answers.length} resueltas`);
     await click('glossary');await page.locator('#glossary-search').fill('acl');assert.equal(await page.locator('.glossary-item').count(),1);
     await page.locator('#glossary-search').fill('xxxxyyyy');assert.match(await page.locator('#glossary-results').innerText(),/No hay/);await page.keyboard.press('Escape');assert.equal(await page.locator('#modal').evaluate(el=>el.open),false);
     await click('sources');assert.equal(await page.locator('.source-image').evaluate(img=>img.complete&&img.naturalWidth>0),true);await page.keyboard.press('Escape');

@@ -1903,7 +1903,7 @@ window.POS_CONTENT = {
         {
           "text": "Que la operación está persistida localmente.",
           "correct": true,
-          "feedback": "Exacto. El estado del DTE, del pago y del registro ERP debe consultarse por separado."
+          "feedback": "El estado del DTE, del pago y del registro ERP debe consultarse por separado."
         },
         {
           "text": "Que AX ya la registró y el DTE fue aprobado.",
@@ -1928,7 +1928,7 @@ window.POS_CONTENT = {
         {
           "text": "Reconocer su identidad y no repetir el efecto ya aplicado.",
           "correct": true,
-          "feedback": "Exacto. La inbox y la idempotencia durable permiten recibir reentregas sin duplicar la venta."
+          "feedback": "La inbox y la idempotencia durable permiten recibir reentregas sin duplicar la venta."
         },
         {
           "text": "Borrar todos los pendientes de la tienda.",
@@ -1953,7 +1953,7 @@ window.POS_CONTENT = {
         {
           "text": "Una opción de empaquetado e integración con el dispositivo.",
           "correct": true,
-          "feedback": "Exacto. Es un candidato útil que debe probarse con periféricos y actualizaciones. Offline se diseña en todo el flujo."
+          "feedback": "Es un candidato útil que debe probarse con periféricos y actualizaciones. Offline se diseña en todo el flujo."
         }
       ]
     },
@@ -1968,12 +1968,172 @@ window.POS_CONTENT = {
         {
           "text": "No: refresco bajo demanda y lotes resuelven necesidades complementarias.",
           "correct": true,
-          "feedback": "Exacto. El primero obtiene ese cliente; los lotes distribuyen cambios. Deben acordarse versiones, autoridad y conflictos."
+          "feedback": "El primero obtiene ese cliente; los lotes distribuyen cambios. Deben acordarse versiones, autoridad y conflictos."
         },
         {
           "text": "Sí, porque consultar el RUT modifica necesariamente el cliente en AX.",
           "correct": false,
           "feedback": "La ruta observada consulta datos remotos y guarda una copia local. No prueba una escritura del cliente en AX."
+        }
+      ]
+    },
+    {
+      "prompt": "En Chile, la boleta electrónica ya se emitió, pero falló la impresora. ¿Qué corresponde?",
+      "options": [
+        {
+          "text": "Emitir otra boleta para obtener una nueva copia.",
+          "correct": false,
+          "feedback": "La emisión ya ocurrió. Crear otra boleta puede duplicar el documento fiscal; una reimpresión autorizada usa el documento original."
+        },
+        {
+          "text": "Cambiarla por una factura, porque solo las facturas son DTE.",
+          "correct": false,
+          "feedback": "DTE significa documento tributario electrónico. Incluye tanto boletas como facturas electrónicas; un fallo de impresión no cambia el tipo de documento."
+        },
+        {
+          "text": "Reimprimir la boleta original, que ya es un DTE emitido.",
+          "correct": true,
+          "feedback": "Tanto la boleta como la factura electrónica son tipos de DTE. Imprimir una copia y emitir el documento fiscal son acciones distintas."
+        }
+      ]
+    },
+    {
+      "prompt": "Ana compra dos filtros. ¿Cuál de estos datos es un maestro que la caja puede reutilizar en otras ventas?",
+      "options": [
+        {
+          "text": "La ficha de Ana con su RUT y dirección.",
+          "correct": true,
+          "feedback": "La ficha del cliente es un dato maestro: se consulta en muchas operaciones. Los productos y sus fichas también son maestros."
+        },
+        {
+          "text": "La cantidad de filtros comprados en esta venta.",
+          "correct": false,
+          "feedback": "Las dos unidades corresponden a esta compra. La ficha del filtro es un maestro; la cantidad vendida pertenece a la operación."
+        },
+        {
+          "text": "El comprobante del pago de esta compra.",
+          "correct": false,
+          "feedback": "Ese comprobante registra el resultado de un pago concreto. No es la ficha reutilizable del cliente ni del producto."
+        }
+      ]
+    },
+    {
+      "prompt": "Una sucursal envía una venta al concentrador. ¿Qué función cumple este dentro del sistema?",
+      "options": [
+        {
+          "text": "Es la base local donde la caja guarda primero cada venta.",
+          "correct": false,
+          "feedback": "La venta se guarda en la base de la sucursal. El concentrador reúne componentes centrales de integración y tiene su propio almacenamiento."
+        },
+        {
+          "text": "Coordina mensajes hacia el ERP y distribuye cambios de maestros a las sucursales.",
+          "correct": true,
+          "feedback": "El concentrador conecta esos intercambios mediante APIs, procesos, mensajería y datos. Que reciba una venta todavía no confirma que AX la haya registrado."
+        },
+        {
+          "text": "Es el ERP que registra directamente todas las operaciones de la empresa.",
+          "correct": false,
+          "feedback": "El concentrador integra sistemas; no reemplaza al ERP. En Chile, Dynamics AX conserva su responsabilidad y su propio resultado de registro."
+        }
+      ]
+    },
+    {
+      "prompt": "En la propuesta, se corta Internet, pero la red y el servidor de la sucursal siguen funcionando. ¿Qué ventas podrían continuar?",
+      "options": [
+        {
+          "text": "Todas, porque tener una base local permite cualquier pago y emisión fiscal.",
+          "correct": false,
+          "feedback": "La base local permite guardar datos, pero no autoriza cualquier operación. Pagos, crédito y emisión fiscal tienen condiciones y dependencias propias."
+        },
+        {
+          "text": "Ninguna, porque cada venta debe esperar una respuesta inmediata de AX.",
+          "correct": false,
+          "feedback": "La propuesta permite guardar operaciones autorizadas localmente y completar su integración después. AX no tiene que responder de inmediato en todos los casos."
+        },
+        {
+          "text": "Las autorizadas para ese modo, con los datos, permisos y servicios necesarios disponibles.",
+          "correct": true,
+          "feedback": "Este perfil tolera perder Internet si la sucursal sigue operativa. Si también falla la red local o el servidor, no se habilita automáticamente una base independiente en cada caja."
+        }
+      ]
+    },
+    {
+      "prompt": "La propuesta guarda la venta y su mensaje pendiente en una outbox, una bandeja de envíos. ¿Cómo evita guardar la venta y perder ese pendiente ante una caída?",
+      "options": [
+        {
+          "text": "Guarda ambos en una misma transacción: se confirman juntos o se cancelan juntos.",
+          "correct": true,
+          "feedback": "La base confirma la venta y su pendiente como un solo grupo. Un proceso puede enviar el mensaje después y retomarlo tras un reinicio."
+        },
+        {
+          "text": "Guarda primero la venta y mantiene el pendiente en memoria hasta enviarlo.",
+          "correct": false,
+          "feedback": "La memoria puede perderse al reiniciar. La venta quedaría guardada sin un registro persistente que recuerde que falta comunicarla."
+        },
+        {
+          "text": "Guarda la venta y crea el pendiente en otra transacción inmediatamente después.",
+          "correct": false,
+          "feedback": "Una caída entre ambas transacciones dejaría la venta sin su envío pendiente. Hacerlas una detrás de otra no garantiza que se guarden juntas."
+        }
+      ]
+    },
+    {
+      "prompt": "Al cambiar AX por otro ERP, los códigos y estados externos tienen otro significado. ¿Dónde conviene traducirlos en la propuesta?",
+      "options": [
+        {
+          "text": "En cada pantalla de caja, para que todas interpreten el nuevo ERP.",
+          "correct": false,
+          "feedback": "Eso repartiría las reglas del ERP entre muchas pantallas. Cada cambio externo obligaría a revisar esas traducciones y podría producir resultados diferentes."
+        },
+        {
+          "text": "En las reglas centrales de venta, usando directamente los estados del nuevo ERP.",
+          "correct": false,
+          "feedback": "El negocio del POS quedaría ligado al vocabulario del nuevo ERP. La propuesta busca que sus reglas mantengan un modelo propio."
+        },
+        {
+          "text": "En la capa de traducción de la integración (ACL), detrás del contrato del POS.",
+          "correct": true,
+          "feedback": "La ACL traduce significados y el adaptador conecta con el ERP. Así, la caja puede pedir «registrar venta» sin conocer sus códigos internos."
+        }
+      ]
+    },
+    {
+      "prompt": "Durante una lectura RFID aparecen cinco observaciones, pero solo tres códigos de etiqueta distintos. ¿Qué debe hacer la caja antes de añadir productos?",
+      "options": [
+        {
+          "text": "Reconocer las etiquetas repetidas, validar qué identifica cada una y revisar la selección.",
+          "correct": true,
+          "feedback": "Una etiqueta puede leerse varias veces. Incluso tres etiquetas únicas necesitan un mapeo válido: una puede identificar una unidad, un empaque o algo ajeno a la cesta."
+        },
+        {
+          "text": "Añadir cinco unidades, una por cada observación recibida.",
+          "correct": false,
+          "feedback": "Eso contaría varias veces una misma etiqueta. Una observación del lector no equivale a una unidad vendida."
+        },
+        {
+          "text": "Añadir tres unidades, una por cada etiqueta distinta.",
+          "correct": false,
+          "feedback": "Quitar repeticiones es solo un paso. Aún hay que saber qué producto o empaque identifica cada etiqueta y confirmar que pertenece a la selección."
+        }
+      ]
+    },
+    {
+      "prompt": "El asistente de IA no responde, pero el núcleo del POS puede autorizar la venta con sus reglas y datos disponibles. ¿Qué debería ocurrir?",
+      "options": [
+        {
+          "text": "Esperar a que vuelva la IA para que confirme la venta.",
+          "correct": false,
+          "feedback": "La asistencia es opcional. Convertirla en un requisito bloquearía una venta que el núcleo ya puede validar por sí mismo."
+        },
+        {
+          "text": "Continuar la venta autorizada y mostrar que la asistencia no está disponible.",
+          "correct": true,
+          "feedback": "El núcleo conserva reglas, precios y permisos. La IA ayuda, pero su fallo no debe bloquear una operación que cumple esas condiciones."
+        },
+        {
+          "text": "Usar la última recomendación de la IA como permiso para continuar.",
+          "correct": false,
+          "feedback": "Una recomendación no concede autorización. El núcleo debe validar esta operación con sus reglas y permisos, aunque exista una respuesta anterior de la IA."
         }
       ]
     }
