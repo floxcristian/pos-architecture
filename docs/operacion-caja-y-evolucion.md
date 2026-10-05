@@ -145,33 +145,50 @@ flowchart TB
 
 ### Propuesto: contrato por validar
 
-El módulo local necesita un paquete coherente de datos y reglas, contexto de la venta, vigencia y un resultado explicable. El diseño debe definir qué hacer cuando ese paquete ya no autoriza calcular.
+Se recomienda un **modelo de lectura de precios y ofertas en el PostgreSQL de sucursal**, alimentado por eventos y reconciliado mediante cargas masivas programables. El backend NestJS/Fastify evalúa localmente paquetes aprobados y versionados; las cajas lo consumen por LAN. La autoridad comercial permanece en el sistema central responsable de cada dato. Esta distribución es unidireccional y no permite editar maestros centrales desde la copia local. Sigue el [contrato de contenedores y propiedad de datos](propuesta-arquitectura.md#contratos-de-contenedores-y-propiedad-de-datos): un escritor de negocio por sucursal, sin base adicional por terminal en el perfil WAN.
 
 ```mermaid
 flowchart TB
-  PUBLISH["Publicación aprobada<br/>reglas, datos y vigencia"] --> VERIFY["Descargar, verificar y activar<br/>versión completa"]
-  VERIFY --> LOCAL[("Paquete local vigente")]
-  CONTEXT["SKU, cantidad, cliente<br/>sucursal, vendedor y fecha"] --> ENGINE["POS de sucursal<br/>Evaluar precio local"]
-  LOCAL -->|"LEE versión activa"| ENGINE
-  ENGINE --> RESULT{"Datos y política admiten cálculo"}
-  RESULT -->|"Sí"| SALE[("Venta: precio + versión<br/>contexto y explicación")]
-  RESULT -->|"No"| HOLD["Restricción o excepción<br/>según política aprobada"]
+  PUBLISH["Central: paquete aprobado V<br/>datos, reglas, vigencia + outbox"] --> EVENTS["Eventos de baja latencia<br/>inbox, cursor y orden por ámbito"]
+  PUBLISH --> SNAPSHOT["Snapshot masivo con corte H<br/>programado o recuperación manual"]
+  EVENTS --> STAGE["Sucursal: staging y validación<br/>esquema, checksum y replay desde H"]
+  SNAPSHOT --> STAGE
+  STAGE -->|"Completo y compatible: activar en COMMIT"| LOCAL[("PostgreSQL sucursal<br/>versión aprobada + cursor aplicado")]
+  STAGE -->|"Hueco o fallo: conservar versión válida"| RETRY["Reintentar o reconciliar<br/>sin activar datos parciales"]
+  RETRY --> SNAPSHOT
+  CONTEXT["Caja por LAN: SKU, cantidad<br/>cliente, vendedor y fecha"] --> ENGINE["NestJS/Fastify de sucursal<br/>fijar versión y evaluar localmente"]
+  LOCAL -->|"LEE sin pedir precio al centro"| ENGINE
+  ENGINE --> RESULT{"Datos completos<br/>vigencia, TTL y política válidos"}
+  RESULT -->|"Sí"| SALE[("Venta: precio + versión fijada<br/>reglas, contexto y explicación")]
+  RESULT -->|"No"| HOLD["Bloquear cálculo afectado<br/>mostrar motivo y resolución"]
 ```
 
-1. Publicar una versión aprobada de reglas y datos por entidad/sucursal, con vigencia y compatibilidad del motor local.
-2. Descargar y verificar el paquete completo antes de activarlo. Mantener la última versión válida sin mezclar parcialmente sus tablas.
-3. Evaluar con contexto completo y guardar en la venta versión, entradas relevantes y explicación del precio aplicado.
-4. Con paquete ausente o vencido, aplicar una política acordada: restringir la operación afectada o usar una excepción autorizada y auditable. No inventar un importe.
+1. **Publicar versiones aprobadas.** Preparar un paquete inmutable por país, entidad legal y ámbito comercial/sucursal: precios, promociones, grupos y demás dependencias necesarias para el cálculo. Su manifiesto identifica versión, versión base si es incremental, esquema, motor compatible, moneda, vigencias, límite autorizado de uso offline y checksum. Una publicación aprobada guarda manifiesto e intención de notificar en una transacción con outbox. Si el legado exige CDC, usarlo para alimentar al publicador central y traducir sus cambios; copiar filas del ERP no equivale a aprobar una campaña ni a portar su motor.
+2. **Consumir eventos con recuperación.** El worker de sucursal recibe cambios o referencias a paquetes por un contrato reanudable, inicialmente HTTPS con cursor durable; no se exige añadir un broker en cada tienda. Persistir `eventId`, ámbito, época del origen, secuencia/versión y hash en inbox antes del acuse. Duplicados con igual contenido no vuelven a aplicarse; el mismo ID con otro contenido se retiene como conflicto. Distinguir cursor recibido de cursor aplicado: recepción durable no significa versión activa. Detectar huecos, reordenamiento y versión base ausente; no avanzar aplicación por encima de un hueco pendiente ni ordenar solo por hora de llegada.
+3. **Programar carga masiva y conciliación.** Configurar frecuencia, zona horaria, ventana, tamaño de lote, concurrencia y desfase entre sucursales; negocio debe acordar la frescura requerida antes de fijar números. El mismo worker admite arranque inicial, carga programada y reintento manual autorizado con identidad de trabajo. El snapshot debe ser completo para su ámbito, incluir bajas, y declarar un corte consistente `H` del flujo de cambios. Retener y recibir los deltas posteriores mientras se descarga; si su retención expiró, solicitar un snapshot nuevo. Un `MAX(id)` o una fecha de consulta sin contrato de consistencia no acreditan ese corte.
+4. **Construir y activar sin mezclar.** Descargar por partes reanudables a staging separado de los datos activos; comprobar origen autorizado, esquema/motor, checksum, conteos y referencias del manifiesto. Reconstruir la candidata con los deltas posteriores a `H`, incluidas bajas, hasta un punto conocido completo. Comparar con la versión/cursor ya aplicados para impedir que una carga lenta retroceda cambios recientes. El incremental también produce una versión coherente: no parchea las tablas que está leyendo una venta. Activar mediante un commit local del puntero de versión y su cursor aplicado; conservar la anterior para ventas que ya la referencian y recuperación dentro de su validez. Interrumpir una descarga nunca deja media promoción activa.
+5. **Calcular y fijar la versión por venta.** El backend evalúa con SKU, cantidad, cliente, sucursal, vendedor, fecha de negocio y reglas aplicables, usando únicamente la versión aprobada fijada para esa cotización/venta. Guardar versión, reglas, entradas relevantes y explicación con el importe. Revalidar vigencia y plazo de la cotización antes de confirmar; si requiere recotizar, mostrar el cambio y obtener la aceptación prevista antes del pago. Una actualización de paquetes no cambia silenciosamente precios de una venta en curso ni reescribe ventas confirmadas. La operación offline aprobada no solicita un precio central para completarse.
+6. **Separar desconexión, atraso e invalidez.** Caer la WAN no invalida automáticamente el paquete. Su antigüedad máxima autorizada (TTL), vigencia comercial y compatibilidad se verifican localmente, con reloj controlado. Un contacto con el servidor o una nueva descarga de la misma versión no renueva esos límites. Paquete ausente, datos requeridos incompletos, reglas incompatibles o autorización vencida bloquean el cálculo afectado; ninguna oferta vencida se extiende silenciosamente. Una excepción requiere una política comercial explícita y evidencia auditable, no un fallback genérico al último precio disponible.
 
-**Frontera:** Es una propuesta. Requiere pruebas de paridad con el camino productivo y decisiones comerciales sobre vigencia, promociones y excepciones; un CRUD local no la implementa.
+La operación debe mostrar versión publicada/recibida/activa, última conciliación correcta, antigüedad, huecos y trabajos fallidos. El cron es una vía de reparación y comprobación periódica; los eventos reducen latencia entre ejecuciones. Ambos caminos usan el mismo validador y protocolo de activación. Separar la programación del trabajo de su ejecución durable evita que reiniciar el proceso o perder una respuesta borre el intento pendiente.
 
-### Excepción: ¿Se puede sustituir el cálculo individual por el precio del lote para cualquier cantidad?
+**Frontera:** Es una propuesta con consistencia eventual, reentrega e idempotencia; no promete exactly-once entre sistemas ni réplica bidireccional de maestros. Requiere paridad con el motor productivo, autoridad por atributo, retención y políticas comerciales de vigencia acordadas. La autonomía descrita cubre caída WAN con LAN y servidor disponibles; no autoriza pagos, saldos compartidos ni promociones de uso único sin el mecanismo específico que requieran.
 
-**Actual:** No hay equivalencia general demostrada: la ruta de lote observada fija cantidad y usuario. Cambiar cliente, volumen o vendedor puede seleccionar otra regla.
+### Excepción: Se pierde un evento mientras llega una carga masiva y hay una venta abierta
 
-**Propuesto:** El contrato de cálculo debe recibir el mismo contexto y conservar la versión utilizada. Las pruebas comparan resultados y explicaciones con casos comerciales aprobados.
+**Actual:** El precio del recorrido observado depende de la API remota; no se acreditó un protocolo de cursor, replay y activación local. El lote encontrado fija cantidad y usuario, por lo que tampoco sustituye sin pruebas al cálculo contextual.
 
-**Prueba pendiente:** Comparar cantidad 1 y cantidades mayores, dos clientes y vendedores, acuerdo comercial, oferta vencida y transición de versión. Son casos de prueba por acordar; no se ejecutaron precios reales.
+**Propuesto:** La sucursal detecta el hueco y recupera desde su cursor o pide otro snapshot si ya no hay historial. Reproduce los deltas posteriores al corte, valida el conjunto y activa sin retroceder la versión aplicada. Mientras tanto puede vender con la versión anterior solo si sigue autorizada; la venta abierta conserva su versión y revalida la cotización al confirmar.
+
+**Prueba pendiente:** Duplicar y desordenar eventos; perder uno; enviar el mismo ID con otro hash; publicar durante el snapshot; incluir una baja; cortar energía antes/después del commit de activación; expirar el historial y la vigencia offline. Verificar cero mezclas de versiones, ningún retroceso ni cambio silencioso del ticket. Comparar además cantidad, cliente, vendedor, acuerdo, solapamiento de promociones y redondeo con casos productivos aprobados. Estas son pruebas de aceptación propuestas, no resultados medidos.
+
+### Fundamento técnico del contrato propuesto
+
+El outbox evita separar la escritura de negocio de la intención de publicación; el consumidor sigue teniendo que tratar duplicados. Esto respalda publicar el manifiesto y su evento de manera transaccional, sin atribuir al transporte una garantía end-to-end de ejecución única. [AWS: transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
+
+Debezium documenta IDs de evento para deduplicación y claves de agregado para mantener orden dentro de una partición. Son referencias para identidad y ámbito del contrato; no una selección automática de Kafka/Debezium ni una garantía de orden global. [Debezium: Outbox Event Router](https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html).
+
+PostgreSQL documenta snapshots exportados vinculados al punto desde el que continúa el flujo lógico, y advierte que un reinicio puede volver a entregar cambios. Debezium explica cómo reconciliar snapshot y cambios concurrentes mediante marcas de avance. Son fundamentos del corte y replay; un snapshot incremental por sí solo no convierte el conjunto comercial multitabla en una versión aprobada y atómica. Esa garantía corresponde al publicador y al activador propuestos. [PostgreSQL: snapshots y logical decoding](https://www.postgresql.org/docs/current/logicaldecoding-explanation.html), [Debezium: incremental snapshots](https://debezium.io/blog/2021/10/07/incremental-snapshots/).
 
 ### Matices y evidencia
 

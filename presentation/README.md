@@ -38,6 +38,18 @@ Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`.
 
 ## Recorrer la presentación
 
+### Presentación detallada de la propuesta
+
+Abre **[Arquitectura en movimiento](architecture.html)** para un recorrido de 19 diapositivas inspirado en la presentación detallada de Integration Platform. En Vercel también está disponible mediante `/arquitectura`; comparte la publicación de POS Atlas y no requiere otro proyecto.
+
+Incluye siete diagramas C4/dinámicos de Excalidraw con zoom y descarga editable, cinco laboratorios con 15 escenarios y 90 pasos, ejemplos breves de código resaltados por paso, índice y notas para exponer. Los casos cubren venta/outbox, ACK perdido, precios por eventos y lotes, BullMQ y RabbitMQ. Los brokers se presentan como opciones centrales; la propuesta base conserva PostgreSQL y entrega HTTPS. Todos los estados son sintéticos y el código mostrado es educativo e inerte.
+
+Usa Anterior/Siguiente o las flechas para cambiar de diapositiva; `O` abre el índice y `N` las notas. Cada laboratorio permite elegir escenario, avanzar, retroceder, reproducir, pausar y reiniciar. El hash conserva enlaces a diapositiva, caso y paso. No hay reproducción automática al abrir una página; al salir del laboratorio o esconder la pestaña se pausa. Se respeta movimiento reducido y se conserva el relato textual.
+
+El código está en `architecture.html`, `architecture.css`, `architecture.js`, `architecture-content.js` y `architecture-labs.js`. Los pósteres y editables proceden de `docs/diagramas-excalidraw/`. Las vistas previas de `architecture-diagrams/` recortan únicamente el viewport del SVG según los elementos del modelo, sin alterar el original; se regeneran con `node presentation/tools/generate-architecture-previews.cjs --verify`. No necesita CDN. Verificación: `node presentation/tools/check-architecture.cjs`. La CSP mantiene `connect-src 'none'`: las simulaciones no ejecutan solicitudes a infraestructura.
+
+### Atlas de la situación actual y evolución
+
 - **Exponer:** activa «Modo exposición». Las flechas cambian de capítulo cuando el foco no está en un control.
 - **Explorar:** sigue el índice o un enlace directo; abre fichas y fuentes cuando necesites detalle. `G` abre el glosario, `P` alterna exposición y `Esc` cierra ventanas.
 
@@ -68,6 +80,12 @@ V01 tiene un único acceso en Evidencia → Despliegue. V02–V06 se consultan e
 
 En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos, esquema y fuentes. D03/D04 integran el contexto de lotes y cliente; D02/D03 incluyen el horario de sincronización. No se repiten en otro resumen. Los cinco diagramas proceden de [recorridos de datos](../docs/recorridos-datos-tablas.md). Los casos de sesión/impresión, precio y actualización están en Venta → Apertura, cierre e impresión; Propuesta → Precios y ofertas; y Evolución → Despliegue. Su evidencia está en [operación y evolución](../docs/operacion-caja-y-evolucion.md).
 
+## Arquitectura C4 de la propuesta
+
+En **Propuesta → Arquitectura** se consultan cinco vistas del mismo modelo: contexto (C1), aplicaciones y bases (C2), componentes del backend de sucursal (C3), componentes del worker de sincronización (C3) y despliegue complementario. El selector mantiene una vista a la vez, con zoom y fichas de responsabilidades, tecnología y datos. La [explicación C4](../docs/c4-arquitectura-propuesta.md) desarrolla los límites y la [comparación tecnológica](../docs/opciones-tecnologicas.md) explica PostgreSQL frente a MongoDB.
+
+El backend local reside en la sucursal y atiende las cajas por LAN. PostgreSQL conserva las operaciones y el espejo de lectura de precios/ofertas; eventos y cargas masivas programadas o manuales actualizan ese espejo. La pestaña **Precios y ofertas** explica validación, conciliación y activación. Es una propuesta de implementación, no una descripción de servicios ya desplegados.
+
 ## Editar el contenido
 
 - `content.js`: fichas, glosario, países, comparaciones, escenarios `providerScenarios`, `rfidScenarios`, `rfidDemo` y `aiCases`, fuentes y ejercicios.
@@ -82,6 +100,7 @@ En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos,
 - `interactions-ui.js`: renderer nativo HTML/SVG, vistas de componentes/secuencia, selección de pasos y conexiones, zoom, fichas y visor ampliado.
 - `interactions.css`: estilos y adaptación del visor de interacciones. Los tres archivos de datos alimentan las mismas vistas; no necesitan regeneración Mermaid.
 - `app.js`: capítulos, pasos narrativos y comportamiento de la simulación.
+- `c4-data.js`: vistas, nodos, relaciones y contratos de los cinco diagramas C4. `c4-ui.js` y `c4.css` implementan su visor y fichas; `diagrams/c4-*.mmd` conserva sus fuentes gráficas.
 - `style.css`: diseño, adaptación a pantallas y accesibilidad visual.
 - `diagrams/*.mmd`: fuentes conceptuales y copias documentales; las familias generadas se editan en su documento de origen, indicado abajo.
 - `diagrams.js`: SVG previamente generados; la presentación no carga Mermaid en ejecución. La interfaz muestra los diagramas y sus fichas, sin botones para ver o descargar su código; las fuentes `.mmd` se conservan para mantenimiento.
@@ -105,6 +124,7 @@ Las comprobaciones se ejecutan sobre el tutorial local. Guardan los resultados y
 ```powershell
 node presentation/tools/check-documents.cjs
 node presentation/tools/check-presentation.cjs
+node presentation/tools/check-c4.cjs
 node presentation/tools/check-interactions.cjs
 node presentation/tools/check-operations.cjs
 node presentation/tools/check-repositories.cjs

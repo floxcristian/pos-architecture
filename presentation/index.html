@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="interactions.css">
   <link rel="stylesheet" href="repositories.css">
+  <link rel="stylesheet" href="c4.css">
   <script defer src="content.js"></script>
   <script defer src="diagrams.js"></script>
   <script defer src="technical-data.js"></script>
@@ -25,6 +26,8 @@
   <script defer src="interactions-ui.js"></script>
   <script defer src="repositories-data.js"></script>
   <script defer src="repositories-ui.js"></script>
+  <script defer src="c4-data.js"></script>
+  <script defer src="c4-ui.js"></script>
   <script defer src="app.js"></script>
 </head>
 <body>
@@ -38,6 +41,7 @@
       <div class="sidebar-label">EL RECORRIDO</div>
       <nav id="chapter-nav" aria-label="Capítulos"></nav>
       <div class="sidebar-footer">
+        <a class="btn secondary" href="architecture.html">Arquitectura detallada <span aria-hidden="true">↗</span></a>
         <div class="country-codes">CL <span>·</span> PE <span>·</span> ES</div>
         <p>Una base común.<br>Tres realidades operativas.</p>
         <button class="btn secondary" data-action="sources">Fuentes y alcance <span aria-hidden="true">↗</span></button>
@@ -49,6 +53,7 @@
         <div class="chapter-counter" id="chapter-counter"></div>
         <label class="mobile-nav">Capítulo <select id="mobile-chapter" aria-label="Elegir capítulo"></select></label>
         <div class="toolbar">
+          <a class="btn secondary small architecture-entry" href="architecture.html">Arquitectura detallada</a>
           <button class="btn secondary small" data-action="glossary" title="Abrir glosario (G)">Glosario <span class="key-hint">G</span></button>
           <button class="btn secondary small" data-action="present" aria-pressed="false" title="Alternar modo exposición (P)">Modo exposición</button>
           <button class="btn icon" data-action="fullscreen" aria-label="Pantalla completa" title="Pantalla completa">

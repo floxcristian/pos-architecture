@@ -1,8 +1,13 @@
 flowchart TB
-  PUBLISH["Publicación aprobada<br/>reglas, datos y vigencia"] --> VERIFY["Descargar, verificar y activar<br/>versión completa"]
-  VERIFY --> LOCAL[("Paquete local vigente")]
-  CONTEXT["SKU, cantidad, cliente<br/>sucursal, vendedor y fecha"] --> ENGINE["POS de sucursal<br/>Evaluar precio local"]
-  LOCAL -->|"LEE versión activa"| ENGINE
-  ENGINE --> RESULT{"Datos y política admiten cálculo"}
-  RESULT -->|"Sí"| SALE[("Venta: precio + versión<br/>contexto y explicación")]
-  RESULT -->|"No"| HOLD["Restricción o excepción<br/>según política aprobada"]
+  PUBLISH["Central: paquete aprobado V<br/>datos, reglas, vigencia + outbox"] --> EVENTS["Eventos de baja latencia<br/>inbox, cursor y orden por ámbito"]
+  PUBLISH --> SNAPSHOT["Snapshot masivo con corte H<br/>programado o recuperación manual"]
+  EVENTS --> STAGE["Sucursal: staging y validación<br/>esquema, checksum y replay desde H"]
+  SNAPSHOT --> STAGE
+  STAGE -->|"Completo y compatible: activar en COMMIT"| LOCAL[("PostgreSQL sucursal<br/>versión aprobada + cursor aplicado")]
+  STAGE -->|"Hueco o fallo: conservar versión válida"| RETRY["Reintentar o reconciliar<br/>sin activar datos parciales"]
+  RETRY --> SNAPSHOT
+  CONTEXT["Caja por LAN: SKU, cantidad<br/>cliente, vendedor y fecha"] --> ENGINE["NestJS/Fastify de sucursal<br/>fijar versión y evaluar localmente"]
+  LOCAL -->|"LEE sin pedir precio al centro"| ENGINE
+  ENGINE --> RESULT{"Datos completos<br/>vigencia, TTL y política válidos"}
+  RESULT -->|"Sí"| SALE[("Venta: precio + versión fijada<br/>reglas, contexto y explicación")]
+  RESULT -->|"No"| HOLD["Bloquear cálculo afectado<br/>mostrar motivo y resolución"]

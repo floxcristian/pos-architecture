@@ -25,7 +25,7 @@ const diagrams = {
   sale: ['ui', 'backend', 'localdb', 'fiscal', 'sync', 'bus', 'ax'],
   masters: ['ax', 'mpos', 'bus', 'readapi', 'sync', 'localdb'],
   customer: ['ui', 'backend', 'clientapi', 'localdb'],
-  proposed: ['ui', 'edge', 'edgedb', 'offers', 'outbox', 'inbox', 'platform', 'acl', 'erp'],
+  proposed: ['tauri', 'edge', 'edgedb', 'offers', 'outbox', 'inbox', 'platform', 'acl', 'erp'],
   migration: ['platform', 'acl', 'ax', 'erpnext'],
   providers: ['edge', 'ports', 'capabilities', 'paymentadapter', 'fiscaladapter', 'printadapter', 'deviceagent'],
   ai: ['aievidence', 'aipolicies', 'aigateway', 'aimodel', 'ailocal', 'aireview', 'aicore'],
@@ -63,6 +63,10 @@ function loadPlaywright() {
 }
 
 async function main() {
+  // One node contract drives the C4 selector, details, diagrams and validation.
+  const c4Context = {window:{}};
+  require('node:vm').runInNewContext(await fs.readFile(path.join(presentationDir, 'c4-data.js'), 'utf8'), c4Context);
+  for (const view of c4Context.window.POS_C4.views) diagrams[view.key] = view.nodeIds;
   const { chromium } = loadPlaywright();
   const browser = await chromium.launch({ headless: true });
   const output = {};
@@ -115,9 +119,12 @@ async function main() {
       const source = await fs.readFile(path.join(presentationDir, 'diagrams', `${key}.mmd`), 'utf8');
       const result = await page.evaluate(async ({ key, source, interactive }) => {
         const base=window.POS_MERMAID_CONFIG;
-        window.mermaid.initialize(key.startsWith('dataflow-')
-          ? {...base,flowchart:{...base.flowchart,wrappingWidth:320,nodeSpacing:35,rankSpacing:45,subGraphTitleMargin:{top:65,bottom:55}}}
-          : base);
+        const c4 = key.startsWith('c4-');
+        window.mermaid.initialize(c4
+          ? {...base,flowchart:{...base.flowchart,wrappingWidth:320,nodeSpacing:40,rankSpacing:55,subGraphTitleMargin:{top:90,bottom:70}}}
+          : key.startsWith('dataflow-')
+            ? {...base,flowchart:{...base.flowchart,wrappingWidth:320,nodeSpacing:35,rankSpacing:45,subGraphTitleMargin:{top:65,bottom:55}}}
+            : base);
         const rendered = await window.mermaid.render(`pos-${key}`, source);
         const parsed = new DOMParser().parseFromString(rendered.svg, 'image/svg+xml');
         const svg = parsed.documentElement;
@@ -130,7 +137,7 @@ async function main() {
         svg.setAttribute('role', 'group');
         svg.removeAttribute('width');
         svg.removeAttribute('height');
-        if (key.startsWith('dataflow-')) {
+        if (key.startsWith('dataflow-') || c4) {
           // Mermaid centers cluster titles where incoming edge labels can overlap.
           // The reserved top band keeps a left-aligned title separate from arrows.
           for (const cluster of svg.querySelectorAll('g.cluster')) {

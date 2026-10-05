@@ -589,9 +589,10 @@ window.POS_CONTENT = {
       "kind": "db",
       "place": "Sucursal y central",
       "status": "proposed",
-      "description": "PostgreSQL es el candidato para datos POS nuevos, local y central. La base intermedia registra integración y estados; no necesita copiar indiscriminadamente las tablas del ERP.",
+      "description": "La propuesta usa PostgreSQL en sucursal para ventas, caja, pagos y sincronización, y otro PostgreSQL operativo por país para recepción, proyecciones y distribución. Las transacciones, relaciones y restricciones de estos datos justifican esa elección; JSONB cubre atributos variables sin incorporar otro motor por defecto.",
       "responsibilities": [
-        "Mantener negocio, outbox e inbox bajo transacciones y propietarios claros.",
+        "Mantener negocio, outbox e inbox bajo transacciones y propietarios claros en PostgreSQL.",
+        "MongoDB también admite transacciones multidocumento. Evaluarlo para una carga documental concreta; no es necesario para el espejo de precios y ofertas.",
         "Inventariar MPOS, SQL Server, MongoDB y todos sus consumidores antes de retirar.",
         "Migrar la autoridad de reserva, consumo y liberación de NC; una proyección de saldo no autoriza gasto."
       ],
@@ -603,8 +604,12 @@ window.POS_CONTENT = {
       ],
       "sources": [
         {
-          "label": "Decisiones de datos",
+          "label": "Decisiones de datos y responsabilidades",
           "url": "../docs/revision-arquitectura-corporativa.md"
+        },
+        {
+          "label": "PostgreSQL frente a MongoDB: elección y límites",
+          "url": "../docs/opciones-tecnologicas.md#postgresql-en-sucursal-y-país-frente-a-mongodb"
         },
         {
           "label": "Resiliencia y autoridad NC",
@@ -1066,12 +1071,12 @@ window.POS_CONTENT = {
       ]
     },
     "edge": {
-      "title": "Núcleo local del POS",
-      "subtitle": "Reglas que pueden ejecutarse en la tienda",
+      "title": "Backend de sucursal",
+      "subtitle": "NestJS + Fastify · reglas y transacciones del POS",
       "kind": "app",
-      "place": "Sucursal; por caja si se exige aislamiento LAN",
+      "place": "Servidor de sucursal · compartido por las cajas",
       "status": "proposed",
-      "description": "Un monolito modular organiza ventas, caja, precios, ofertas y las capacidades locales. Mantiene contratos claros sin multiplicar servicios por defecto.",
+      "description": "Es el backend, no la interfaz ni la base de datos. Un proceso Node con NestJS + Fastify organiza ventas, caja, pagos, precios y ofertas como módulos. Atiende a los clientes Angular/Tauri por la LAN y persiste en PostgreSQL de sucursal.",
       "responsibilities": [
         "Decidir si una operación está autorizada con datos y permisos disponibles.",
         "Calcular precios y ofertas localmente usando una versión aprobada.",
@@ -1079,14 +1084,14 @@ window.POS_CONTENT = {
       ],
       "offline": "Para pérdida de Internet puede aprovecharse el servidor de sucursal. Si también debemos tolerar perder LAN o servidor, se necesita autoridad y persistencia por caja; es una decisión pendiente.",
       "tech": [
-        "NestJS + Fastify, candidato",
+        "NestJS + Fastify",
         "Monolito modular",
         "Contratos de módulos",
         "Nx para organización del código"
       ],
       "sources": [
         {
-          "label": "Perfiles offline y núcleo local",
+          "label": "Backend, datos y perfiles offline",
           "url": "../docs/propuesta-arquitectura.md"
         },
         {
@@ -1096,12 +1101,12 @@ window.POS_CONTENT = {
       ]
     },
     "edgedb": {
-      "title": "Persistencia local propuesta",
-      "subtitle": "Una operación y su envío pendiente, juntos",
+      "title": "PostgreSQL de sucursal",
+      "subtitle": "Ventas, caja, pagos y sincronización",
       "kind": "db",
-      "place": "Junto al escritor local autorizado",
+      "place": "Servidor de sucursal · acceso exclusivo mediante backend y workers",
       "status": "proposed",
-      "description": "La base conserva operaciones, versiones de reglas, recepción de mensajes y envíos pendientes. Su ubicación sigue el perfil offline elegido; no se cambia de escritor improvisadamente ante un fallo.",
+      "description": "Base relacional compartida por la sucursal: ventas y líneas, turnos y movimientos, intentos y resultados de pago, referencias fiscales, inbox/outbox y espejo de maestros, precios y ofertas. Se proponen schemas por responsabilidad dentro de la misma base; el cliente no tiene credenciales SQL.",
       "responsibilities": [
         "Confirmar venta y outbox en la misma transacción.",
         "Guardar identificadores estables y evidencia de resultados externos.",
@@ -1110,8 +1115,9 @@ window.POS_CONTENT = {
       "offline": "La tienda debe sobrevivir a un reinicio sin perder ventas pendientes. El espacio, la vigencia de datos y los límites autorizados acotan la autonomía.",
       "tech": [
         "Transacciones ACID",
-        "PostgreSQL de sucursal como punto de partida",
-        "Motor por terminal por evaluar"
+        "PostgreSQL",
+        "Restricciones, claves y control de concurrencia",
+        "JSONB para atributos variables; importes y relaciones tipados"
       ],
       "sources": [
         {
@@ -1130,7 +1136,7 @@ window.POS_CONTENT = {
       "kind": "db",
       "place": "En la base de quien origina la operación",
       "status": "proposed",
-      "description": "Es una tabla o colección persistente, no necesariamente otra base ni otro servicio. Se guarda junto a la operación que necesita comunicar.",
+      "description": "En esta propuesta es una tabla de PostgreSQL, dentro de la misma base que la operación que comunica. No es otra base ni un broker. Venta y evento pendiente se guardan en una transacción.",
       "responsibilities": [
         "Registrar qué evento hay que enviar con un identificador estable.",
         "Permitir que un worker reintente después de una desconexión o caída.",
@@ -1184,7 +1190,7 @@ window.POS_CONTENT = {
       "kind": "app",
       "place": "Central con aislamiento por país y entidad legal",
       "status": "proposed",
-      "description": "Consolida operaciones, entrega paquetes de maestros y coordina integraciones. Debe tolerar el retraso de tiendas y de ERPs con estados visibles y responsables.",
+      "description": "Backend y workers NestJS + Fastify con PostgreSQL operativo por país. Conserva inbox/outbox, proyecciones de ventas, resultados ERP y publicaciones versionadas de maestros, precios y ofertas. La copia central de una venta no se convierte en otro editor de la operación originada en sucursal.",
       "responsibilities": [
         "Recibir eventos y confirmar persistencia durable.",
         "Distribuir versiones de datos, permisos y reglas.",
@@ -1193,7 +1199,8 @@ window.POS_CONTENT = {
       "offline": "Las operaciones locales permitidas no necesitan esperar a esta plataforma. Una caída de Chile tampoco debe bloquear las colas de Perú o España.",
       "tech": [
         "Contratos versionados",
-        "Workers",
+        "NestJS + Fastify y workers supervisados",
+        "PostgreSQL operativo por país",
         "Aislamiento por país",
         "Capacidades de core seleccionadas"
       ],
@@ -1271,18 +1278,21 @@ window.POS_CONTENT = {
       "title": "Motor local de precios y ofertas",
       "subtitle": "La tienda puede explicar el precio que aplica",
       "kind": "app",
-      "place": "Dentro del núcleo local",
+      "place": "Módulo del backend de sucursal",
       "status": "proposed",
-      "description": "Evalúa reglas y vigencias sin consultar el servicio central en cada venta. Registra la versión utilizada para poder reproducir y auditar el cálculo.",
+      "description": "Evalúa precios y ofertas sobre un espejo de lectura en PostgreSQL de sucursal. Recibe cambios por eventos y dispone de cargas masivas programadas o manuales para alta y conciliación. No consulta central para cada cálculo ni convierte la tienda en editor de los maestros comerciales.",
       "responsibilities": [
         "Aplicar precios, promociones, precedencias y redondeos acordados.",
-        "Activar paquetes validados de forma atómica.",
+        "Aplicar eventos con cursor durable, deduplicación y detección de huecos o versiones incompatibles.",
+        "Cargar snapshots en staging, verificar corte, integridad y reglas, recuperar eventos posteriores y activar una versión completa de forma atómica.",
+        "Conservar en cada venta la versión, contexto e importes aplicados; una carga nueva no recalcula ventas confirmadas.",
         "Distinguir evaluación local de permisos para crear o editar ofertas en tienda."
       ],
-      "offline": "Solo debe vender con paquetes válidos según la política aprobada. Si vencen, el sistema necesita una regla explícita de restricción o contingencia.",
+      "offline": "Con LAN y backend disponibles, calcula con la última versión completa autorizada. Vigencia comercial y antigüedad máxima del espejo son controles distintos. Datos vencidos, ausentes o incompatibles restringen la operación según una política explícita; no se inventa un precio ni se concede una oferta global sin autoridad.",
       "tech": [
         "Reglas versionadas",
-        "Paquetes de datos",
+        "PostgreSQL: espejo de lectura versionado",
+        "Eventos + snapshot masivo programado o manual",
         "Pruebas de paridad",
         "Trazabilidad del cálculo"
       ],
@@ -1354,21 +1364,21 @@ window.POS_CONTENT = {
       ]
     },
     "tauri": {
-      "title": "Aplicación de escritorio con Tauri",
-      "subtitle": "Una opción para presentar y distribuir la interfaz",
+      "title": "Cliente de caja",
+      "subtitle": "Angular + Tauri · interfaz instalada",
       "kind": "app",
       "place": "PC de caja",
       "status": "proposed",
-      "description": "Tauri es un candidato para empaquetar la interfaz y controlar integraciones del dispositivo. La decisión requiere validar periféricos, instalación, actualizaciones y soporte.",
+      "description": "Angular presenta la experiencia de caja y Tauri empaqueta la aplicación de escritorio. Esta es la dirección elegida para el cliente; la homologación de periféricos, instalación, actualizaciones y soporte sigue siendo parte del piloto. El backend corre en el servidor de sucursal, no dentro del WebView.",
       "responsibilities": [
         "Presentar la interfaz en una aplicación instalada.",
         "Exponer capacidades nativas con permisos mínimos.",
         "Participar en actualizaciones firmadas y recuperación verificable."
       ],
-      "offline": "Tauri por sí solo no vuelve offline a la aplicación. La autonomía depende del núcleo local, datos, reglas, permisos y capacidades de proveedores.",
+      "offline": "Tauri por sí solo no vuelve offline a la aplicación. La autonomía WAN depende del backend y PostgreSQL de sucursal, datos, reglas, permisos y capacidades de proveedores.",
       "tech": [
-        "Tauri, candidato",
-        "Angular reutilizable",
+        "Tauri",
+        "Angular",
         "Rust en la capa nativa"
       ],
       "sources": [
@@ -1953,7 +1963,7 @@ window.POS_CONTENT = {
         {
           "text": "Una opción de empaquetado e integración con el dispositivo.",
           "correct": true,
-          "feedback": "Es un candidato útil que debe probarse con periféricos y actualizaciones. Offline se diseña en todo el flujo."
+          "feedback": "El cliente Angular/Tauri debe probarse con periféricos y actualizaciones. Offline se diseña en todo el flujo, junto con el backend y los datos de sucursal."
         }
       ]
     },
@@ -2213,7 +2223,7 @@ window.POS_CONTENT = {
         {
           "text": "En el ERP, después de que la caja haya guardado y enviado la venta.",
           "correct": false,
-          "feedback": "El ERP tiene sus propias validaciones, pero puede recibir la operación más tarde. El núcleo local debe aplicar sus reglas antes de confirmar la venta."
+          "feedback": "El ERP tiene sus propias validaciones, pero puede recibir la operación más tarde. El backend de sucursal debe aplicar sus reglas antes de confirmar la venta."
         }
       ]
     },

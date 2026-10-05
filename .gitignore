@@ -3,6 +3,8 @@
 
 # Local browser captures and verification reports.
 /presentation/qa/
+/presentation/architecture-diagrams/qa/
+/presentation/tools/excalidraw-runtime/generator.js
 /public/
 /.vercel/
 

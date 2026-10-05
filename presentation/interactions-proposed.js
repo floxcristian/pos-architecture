@@ -11,7 +11,7 @@ window.POS_INTERACTIONS_PROPOSED = [
         "id": "sale-terminal",
         "title": "Caja · interfaz",
         "repo": "Repositorio de implementación por definir",
-        "runtime": "Angular; Tauri como alternativa por validar",
+        "runtime": "Angular + Tauri; cliente instalado, homologación pendiente",
         "zone": "terminal",
         "evidence": "Propuesto: ubicación lógica del cliente, sin host ni versión de producción confirmados."
       },
@@ -19,7 +19,7 @@ window.POS_INTERACTIONS_PROPOSED = [
         "id": "sale-branch",
         "title": "Sucursal · monolito modular",
         "repo": "Repositorio de implementación por definir",
-        "runtime": "NestJS/Fastify como candidatos; fachadas y módulos internos",
+        "runtime": "Backend NestJS + Fastify propuesto; fachadas y módulos internos",
         "zone": "branch",
         "evidence": "Propuesto: servicio por LAN y único escritor de negocio. Los módulos no implican microservicios."
       },
@@ -600,7 +600,7 @@ window.POS_INTERACTIONS_PROPOSED = [
         "id": "erp-ingress",
         "title": "País/entidad · recepción",
         "repo": "Repositorio de implementación por definir",
-        "runtime": "API HTTPS autenticada; framework candidato",
+        "runtime": "Backend NestJS + Fastify propuesto; API HTTPS autenticada",
         "zone": "central",
         "evidence": "Propuesto: límite lógico por país/entidad, sin servidores productivos identificados."
       },

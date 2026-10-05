@@ -1,6 +1,6 @@
 # Opciones tecnológicas discutidas para el POS
 
-Registro del 1 de octubre de 2026. Complementa la [propuesta de arquitectura](propuesta-arquitectura.md) y conserva las alternativas planteadas por el usuario después del análisis inicial de repositorios. **Son candidatas para evaluar; preguntar por una tecnología no equivale a aprobar su adopción.** No se ha implementado ni instalado el producto POS objetivo.
+Registro iniciado el 1 de octubre de 2026, precisado el 5 de octubre de 2026. Complementa la [propuesta de arquitectura](propuesta-arquitectura.md) y conserva las alternativas planteadas por el usuario después del análisis inicial de repositorios. **Angular empaquetado en Tauri y el uso de Nx son direcciones indicadas por el usuario. NestJS/Fastify y PostgreSQL en sucursal y país son la recomendación técnica explícita, aún pendiente de aprobación y piloto.** Aceptar cliente y Nx no aprueba automáticamente backend, datos, topología, operación ni todos los dispositivos. Este documento no acredita implementación ni despliegue del producto POS objetivo.
 
 La evaluación de **WSO2, RabbitMQ, BullMQ, workers PostgreSQL y Pub/Sub** está en [Investigación de mensajería](investigacion-mensajeria-pos.md). Incluye el backend PostgreSQL documentado actualmente por BullMQ, sin asumir que sea tan probado como Redis ni que comparta automáticamente la transacción de venta. La [revisión corporativa](revision-arquitectura-corporativa.md) reúne selección provisional, simplificación de motores, horario y condiciones de retirada. Estas decisiones son independientes de NestJS/Fastify o del monorepo.
 
@@ -14,17 +14,20 @@ La evaluación de **servicios de IA** está en [Propuestas de IA para el POS](se
 
 | ID | Alternativa planteada por el usuario | Evaluación y recomendación inicial | Decisión pendiente |
 | --- | --- | --- | --- |
-| TEC-01 | NestJS con Fastify en lugar de Express | Candidata preferente para el backend objetivo, organizada como núcleo modular con workers separados según responsabilidad. | Compatibilidad, experiencia del equipo, recursos del hardware local, versiones y alcance de migración. |
+| TEC-01 | NestJS con Fastify en lugar de Express | Backend recomendado de sucursal y país. Monolito modular en sucursal; workers supervisados según responsabilidad. | Aprobación técnica, compatibilidad, experiencia del equipo, recursos locales, versiones y alcance de migración. |
 | TEC-02 | Usar `nestjs-pino` y Sentry | Pino para logging estructurado; Sentry para errores y trazas, con política de captura, correlación y operación desconectada. | Retención, datos permitidos, alojamiento, presupuesto de telemetría y validación de integración. |
-| TEC-03 | Aplicación de escritorio Tauri en lugar de navegador | Candidata preferente para puestos físicos de caja, con interfaz Angular empaquetada. Administración/reporting podrían continuar en navegador. | Homologación de periféricos, perfil offline, empaquetado, distribución y capacidad de mantener Rust/WebView2. |
-| TEC-04 | Quizás usar un monorepo con Nx | Recomendado como candidato para organizar el producto objetivo, sus contratos y tareas de construcción/validación. | Alcance del repositorio, límites de proyectos, toolchains, CI, propiedad y estrategia de releases. |
+| TEC-03 | Aplicación de escritorio Tauri en lugar de navegador | Dirección de cliente aceptada: Angular empaquetado en Tauri para puestos físicos de caja. Administración/reporting podrían continuar en navegador. | Homologación de periféricos, empaquetado, distribución y soporte Rust/WebView2; esta dirección no amplía el perfil offline. |
+| TEC-04 | Usar Nx | Dirección indicada para organizar el producto, sus contratos y tareas de construcción/validación; se recomienda un monorepo POS con releases propios. | Alcance del repositorio, límites de proyectos, toolchains, CI, propiedad y estrategia de releases. |
 | TEC-05 | Quizás usar un monolito modular | Recomendado como punto de partida del núcleo transaccional; plataforma central y workers mantienen límites operativos propios. | Módulos, autoridad de datos, transacciones y criterios para separar procesos/servicios. |
+| TEC-06 | PostgreSQL o MongoDB para los datos del POS | Recomendar PostgreSQL de sucursal y PostgreSQL operativo por país; tablas relacionales más JSONB para datos variables acotados. MongoDB se conserva donde haya un caso vigente identificado, sin desplegarlo por defecto en tiendas. | Validación del modelo, carga, recuperación, aislamiento por país, versiones soportadas y transición de consumidores heredados. |
 
 La adopción de un framework no demuestra por sí sola integridad de ventas, idempotencia de pagos ni autonomía offline. Esas garantías se establecen en contratos, transacciones, estados y recuperación, y se comprueban con pruebas.
 
 ## 2. NestJS y Fastify
 
 **Planteamiento:** usar NestJS para organizar módulos, casos de uso, autorización e integraciones, y Fastify como proveedor HTTP mediante `@nestjs/platform-fastify`. Nest dispone de un adaptador oficial; los middleware específicos de Express requieren revisar compatibilidad o equivalentes Fastify. [Documentación oficial](https://docs.nestjs.com/techniques/performance).
+
+El despliegue recomendado es concreto: **backend de sucursal NestJS + Fastify, compartido por sus cajas y conectado a PostgreSQL de sucursal; backend de país NestJS + Fastify, conectado a PostgreSQL operativo del país**. Los workers reutilizan módulos de aplicación en procesos supervisados y no necesitan exponer HTTP para realizar sus trabajos. Nest admite contextos de aplicación independientes de listeners de red. «Núcleo local» se denomina aquí backend de sucursal para que su ubicación y responsabilidad queden claras. [Aplicaciones independientes de Nest](https://docs.nestjs.com/standalone-applications).
 
 El beneficio buscado es coherencia de código y límites de responsabilidad. No se promete una mejora porcentual del rendimiento del POS a partir de benchmarks HTTP: las consultas SQL, el fan-out entre sucursales y las integraciones remotas observadas pueden dominar la latencia total.
 
@@ -39,6 +42,41 @@ Organización propuesta:
 **Alcance real de la migración:** `api-pagos-caja` usa Express directamente, mientras Mountain, el concentrador y el sincronizador usan AdonisJS. Pasarlos a NestJS exige revisar ORM, transacciones, validación, autenticación y jobs; no es solamente cambiar el servidor HTTP. Los adaptadores .NET y de dispositivos pueden conservarse donde cumplan los contratos.
 
 **Criterio de piloto:** una operación representativa con persistencia, worker y telemetría en hardware de sucursal. Medir latencia de extremo a extremo, memoria, CPU, conexiones y recuperación. Comparar contratos y resultados con el sistema actual sin duplicar efectos externos.
+
+### PostgreSQL en sucursal y país frente a MongoDB
+
+**Recomendación:** una base PostgreSQL por sucursal en el perfil WAN y una base operativa PostgreSQL por país en la plataforma central. «Por país» fija separación de datos y autoridad; instancias, clústeres, réplicas y alojamiento se dimensionan después. No hay una base transaccional por terminal ni una conexión SQL desde Angular/Tauri. El cliente llama a la API; el backend y sus workers autorizados acceden a la persistencia.
+
+| Criterio del POS | PostgreSQL propuesto | MongoDB como alternativa | Criterio de elección |
+| --- | --- | --- | --- |
+| Venta, partidas, pagos, turnos y devoluciones relacionados | Tablas con claves, referencias y restricciones explícitas; una transacción coordina los cambios locales | Se puede modelar con documentos embebidos o referencias, y usar transacciones cuando se modifican varios documentos | Recomendamos el modelo relacional para estas invariantes y consultas; no suponemos superioridad de rendimiento sin medir |
+| Negocio y mensajes pendientes | Venta y outbox en la misma transacción de sucursal; inbox, efecto y outbox en la misma transacción de país | Es posible implementar también un outbox transaccional; requiere diseñar transacciones, sesiones, esquema y configuración de durabilidad | Mantener una sola frontera transaccional por nodo evita escrituras dobles entre motores |
+| Reglas variables y payloads de integración | JSONB junto a columnas tipadas para IDs, dinero, estado, país y versión | El modelo documental puede ser adecuado para agregados autocontenidos y proyecciones de consulta | Necesitar JSON no basta para introducir otro motor; evaluar consultas, tamaños, índices y evolución del esquema |
+| Operación y evolución del legado | Continúa el motor ya observado en sucursales; centraliza prácticas de migración, backup y recuperación en el objetivo POS | Puede seguir siendo dueño o proyección de datos en servicios existentes que lo justifiquen | La reducción de motores es un objetivo operativo; no autoriza retirar MongoDB ni alterar servicios vigentes sin inventario y transición |
+
+PostgreSQL ofrece restricciones `PRIMARY KEY`, `UNIQUE`, `CHECK` y claves foráneas para expresar parte de esas invariantes. La aplicación sigue siendo responsable de reglas entre operaciones, autorización y recuperación. Las restricciones y pruebas de concurrencia deben diseñarse; instalar PostgreSQL no evita por sí solo una devolución doble. [Restricciones PostgreSQL](https://www.postgresql.org/docs/current/ddl-constraints.html).
+
+JSONB permite consultas e índices sobre JSON, de modo que reglas y payloads variables pueden coexistir con datos relacionales. Se propone limitar su tamaño y darles un contrato/versionado; importes, referencias y estados que soporten invariantes no se ocultan en un documento sin controles. JSONB no conserva formato textual original ni orden de claves: el original firmado o evidencia que requiera bytes exactos se conserva separadamente. [Tipos JSON y diseño de documentos en PostgreSQL](https://www.postgresql.org/docs/current/datatype-json.html).
+
+**MongoDB sí ofrece transacciones ACID multidocumento** en replica sets y clústeres fragmentados. Su documentación advierte que no sustituyen un modelo de datos adecuado y pueden costar más que las escrituras de un solo documento. Los servidores independientes no soportan esas transacciones; la topología, `read concern` y `write concern` forman parte de la evaluación. Esta es una diferencia operativa que debe probarse, no una razón para afirmar que MongoDB carece de transacciones. [Transacciones](https://www.mongodb.com/docs/manual/core/transactions/), [consideraciones de producción](https://www.mongodb.com/docs/manual/core/transactions-production-consideration/).
+
+La decisión podría revisarse para una **proyección documental delimitada**, con propietario, consultas y métricas que demuestren beneficio sobre PostgreSQL/JSONB, sin hacerla autoridad simultánea de la misma venta. No recomendamos dual write «venta en PostgreSQL, outbox o réplica obligatoria en MongoDB»; una proyección en otro motor se alimentaría después del commit por eventos y podría reconstruirse. Las fuentes MongoDB actuales de catálogo/precios no obligan a instalar MongoDB en sucursal: el adaptador publica contratos del dominio y el POS mantiene su espejo local autorizado.
+
+### Schemas, transacciones y espejos locales
+
+Los nombres siguientes describen propiedad lógica, no un esquema implementado. Se propone una sola base de sucursal con schemas/tablas por módulo y acceso a través de sus interfaces:
+
+| Propietario | Datos propuestos | Escritura permitida |
+| --- | --- | --- |
+| Ventas y caja | Venta, partidas, aplicación de importes, turno, movimientos y referencias de devolución | Casos de uso del módulo; una unidad de trabajo comparte transacción cuando una invariante lo requiere |
+| Pagos y fiscalidad | Intentos, referencias externas, resultados inciertos, respuestas y evidencias | Sus módulos y adaptadores por comandos; nunca equiparar commit de venta con pago autorizado o documento aceptado |
+| Precios/maestros | Espejos de catálogo, clientes permitidos, precios y promociones, con versión, vigencia y origen | Consumidor de distribución autorizado; el uso local es lectura y cálculo, no edición implícita del maestro corporativo |
+| Sincronización | Outbox, inbox, cursor, intentos, entrega y acuses | Productores insertan outbox dentro de la transacción de negocio; workers solo actualizan metadatos de entrega y llaman al módulo receptor |
+| Módulos de país | Inbox y proyecciones consolidadas, distribución, conciliación y outbox por destino | Transacción propia de país; la copia de una venta de sucursal no habilita otro editor de su historia |
+
+La inserción de outbox participa en **la misma conexión y transacción** de PostgreSQL que el cambio de negocio; no basta usar dos repositorios que apunten al mismo servidor. En recepción, una clave única de origen + consumidor + ID de evento y la verificación del contenido soportan deduplicación: mismo ID y otro contenido se rechaza. Inbox, efecto de recepción y nuevos mensajes se confirman juntos antes del ACK. Las garantías se prueban con reinicios, mensajes repetidos y acuses perdidos. [Transacciones PostgreSQL](https://www.postgresql.org/docs/current/tutorial-transactions.html).
+
+Para precios y promociones se recomienda un espejo de lectura PostgreSQL de sucursal con **deltas por eventos, carga masiva programada y conciliación manual controlada**. La carga se prepara y valida antes de activar un conjunto coherente; la venta registra la versión aplicada. El dueño de cada dato, la cobertura de eventos, vigencias y política de datos vencidos requieren contrato. Esto elimina la consulta central obligatoria del camino de venta permitido offline sin convertir a la sucursal en autora del precio corporativo. El funcionamiento se desarrolla en [Operación de caja y evolución](operacion-caja-y-evolucion.md).
 
 ## 3. Pino, `nestjs-pino` y Sentry
 
@@ -72,11 +110,11 @@ Sentry ofrece integración con Pino para capturar logs y, opcionalmente, errores
 - Medir antigüedad del backlog, pendientes fiscales, pagos inciertos, demora de confirmación ERP y cobertura de sucursales, además de errores HTTP.
 - Confirmar si Sentry puede alojarse como servicio externo o requiere otra modalidad según las restricciones del proyecto.
 
-Si se adopta Tauri, Pino cubre el proceso Node/NestJS; interfaz y proceso Rust necesitan instrumentación propia y correlación entre procesos, cuya compatibilidad debe comprobarse.
+Con el cliente Tauri previsto, Pino cubre el proceso Node/NestJS; interfaz y proceso Rust necesitan instrumentación propia y correlación entre procesos, cuya compatibilidad debe comprobarse.
 
 ## 4. Tauri como cliente de caja
 
-Tauri permite una interfaz HTML/CSS/JavaScript dentro de una aplicación de escritorio, con un proceso nativo Rust y WebView. En Windows emplea WebView2. Esto permite evaluar la reutilización de Angular, sin obligar a portar todas las reglas a Rust. [Modelo de procesos](https://v2.tauri.app/concept/process-model/), [configuración del frontend](https://v2.tauri.app/start/frontend/).
+La dirección aceptada de cliente es **Angular empaquetado en Tauri**. Tauri permite una interfaz HTML/CSS/JavaScript dentro de una aplicación de escritorio, con un proceso nativo Rust y WebView; en Windows emplea WebView2. Las reglas de negocio permanecen en el backend de sucursal y módulos de dominio, sin obligación de portarlas a Rust. La aceptación de esta dirección no acredita compatibilidad de todos los SDK o periféricos. [Modelo de procesos](https://v2.tauri.app/concept/process-model/), [configuración del frontend](https://v2.tauri.app/start/frontend/).
 
 Se propone empaquetar los recursos necesarios de la interfaz para que pueda arrancar sin descargarlos de un servidor. Revisar navegación, rutas, configuración de endpoints, almacenamiento y autenticación. Angular 8 y las dependencias observadas requieren su propio plan de actualización aunque se empaqueten en Tauri.
 
@@ -127,7 +165,7 @@ El requisito de variantes por país/sucursal se desarrolla en [Extensibilidad de
 
 ## 5. Monorepo con Nx
 
-**Planteamiento del usuario:** considerar un monorepo con Nx. Se registra como opción candidata; no se ha creado un workspace Nx, inicializado Git ni movido los repositorios analizados.
+**Dirección indicada por el usuario:** usar Nx para organizar el producto. Se recomienda un monorepo POS con contratos y releases propios; falta concretar límites de proyectos, propiedad y convivencia con `core`. Este repositorio `pos-enterprise` conserva el análisis y la presentación. La maqueta funcional separada `corporate-pos` usa Nx y datos sintéticos; no demuestra que el backend de sucursal, PostgreSQL, integración ERP o sincronización de esta propuesta estén implementados.
 
 Monorepo define cómo se organiza el código. Nx aporta un grafo de proyectos y tareas, caché y ejecución de tareas afectadas por cambios. Esto no determina cuántos procesos, bases o despliegues existen en producción. Su caché de compilación tampoco es una caché de datos del POS ni una solución offline de negocio. [Tareas Nx](https://nx.dev/docs/features/run-tasks), [caché de tareas](https://nx.dev/docs/features/cache-task-results), [tareas afectadas](https://nx.dev/docs/features/ci-features/affected).
 
@@ -135,12 +173,12 @@ Nx tiene integraciones para Angular y NestJS. Para Rust/Tauri y otros componente
 
 ### Organización ilustrativa
 
-La siguiente estructura es un mapa candidato, no directorios creados ni una obligación de desplegar todo desde el inicio. Los nombres definitivos dependen del glosario y del alcance aprobado.
+La siguiente estructura es un mapa del objetivo, no una afirmación de que todos estos directorios o procesos existan en la maqueta ni una obligación de desplegarlos desde el inicio. Los nombres definitivos dependen del glosario y del alcance aprobado.
 
 ```text
 apps/
   pos-desktop/           # Angular y proyecto Tauri/src-tauri
-  pos-runtime/           # NestJS local: en sucursal o caja según perfil
+  pos-runtime/           # NestJS + Fastify en sucursal, perfil WAN recomendado
   pos-sync-worker/       # Sincronización local supervisada
   country-api/           # Recepción, consolidación y administración por país
   erp-worker/            # Integración en la red autorizada del ERP
@@ -187,7 +225,7 @@ La adopción se concentra en el producto objetivo. No se propone copiar sin sele
 | Unidad | Responsabilidad y autoridad |
 | --- | --- |
 | Tauri + Angular | Presentación y capacidades nativas acotadas. No se convierte en autoridad de la venta por compartir código. |
-| POS local modular | Ventas, caja, precios/ofertas, coordinación de pagos y operaciones fiscales/devoluciones habilitadas. Escritor en sucursal o terminal según el perfil elegido. |
+| Backend de sucursal NestJS + Fastify | Ventas, caja, precios/ofertas, coordinación de pagos y operaciones fiscales/devoluciones habilitadas. Escritor compartido por las cajas, con PostgreSQL de sucursal, en el perfil WAN recomendado. |
 | Worker local | Entrega y recuperación de mensajes durables, con recursos acotados y supervisión independiente de la ventana. |
 | Plataforma del país | Recepción, consolidación, maestros y conciliación. Mantiene las autoridades por dato acordadas; la proyección central de una venta no crea otro editor de su historia. |
 | Workers ERP/proveedores | Aislar reintentos, límites y fallos externos; traducir mediante ACL y conservar resultados. |
@@ -217,6 +255,6 @@ Además de las preguntas siguientes, el [análisis corporativo](analisis-reposit
 
 Ampliar Q08–Q10 de la [solicitud al equipo](solicitud-informacion-equipo.md) con: versiones/SO y recursos mínimos de cajas; modelos, drivers y SDK de periféricos; administración de dispositivos y permisos de instalación; experiencia NestJS/Rust; política de telemetría; capacidad de distribuir paquetes y soporte de sucursales desconectadas.
 
-Para Nx y monolito modular, confirmar también propiedad/permisos de repositorios, responsables por dominio, toolchains, capacidad de CI Windows, estrategia de versiones, límites de compatibilidad y necesidades reales de despliegue/escala independiente. Son dos decisiones candidatas separadas: organización del código y arquitectura de ejecución.
+Para concretar Nx y el monolito modular propuesto, confirmar también propiedad/permisos de repositorios, responsables por dominio, toolchains, capacidad de CI Windows, estrategia de versiones, límites de compatibilidad y necesidades reales de despliegue/escala independiente. La organización del código indicada con Nx y la arquitectura de ejecución son decisiones distintas.
 
 Las [validaciones del proyecto](validacion-y-decisiones.md) recogen los casos de adopción tecnológica. Las fuentes oficiales anteriores se consultaron durante la evaluación; al implementar se volverán a comprobar versiones y compatibilidad, sin convertir las recomendaciones en decisiones aprobadas por defecto.

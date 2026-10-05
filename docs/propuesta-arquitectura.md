@@ -1,22 +1,26 @@
 # Propuesta de arquitectura enterprise para POS en Chile Perú y España
 
-**Fuente de decisión vigente:** este documento y sus [ADR](#decisiones-de-arquitectura) gobiernan la recomendación objetivo, aún no aprobada. Las revisiones conservan motivos, alternativas y pruebas; las guías y diagramas la sintetizan. Un cambio de recomendación debe actualizar aquí su decisión y alcance antes de propagarse a las síntesis.
+**Fuente de decisión vigente:** este documento y sus [ADR](#decisiones-de-arquitectura) gobiernan la recomendación objetivo. La dirección de cliente **Angular empaquetado en Tauri** y el uso de **Nx** fueron indicados por el usuario; esto no acredita homologación ni despliegue. Backend, datos, topología y operación mantienen el estado de recomendación pendiente de aprobación. Las revisiones conservan motivos, alternativas y pruebas; las guías y diagramas la sintetizan. Un cambio de recomendación debe actualizar aquí su decisión y alcance antes de propagarse a las síntesis.
 
 Se propone evolucionar el POS hacia una operación local autónoma, sincronización asíncrona y una plataforma operativa separada por país. Los sistemas actuales se integran mediante adaptadores: Dynamics AX on-premise en Chile, Gira en España y un sistema custom en Perú. La venta no depende de estos sistemas para completar las operaciones habilitadas durante una desconexión.
 
 La recomendación inicial es aprovechar la persistencia por sucursal documentada para Chile si offline significa perder Internet. La vista principal desarrolla ese perfil WAN. La autonomía por terminal ante pérdida de LAN o servidor sigue como perfil ampliado sujeto a aprobación; no se prescribe una nueva base por caja para resolver únicamente una caída de Internet.
 
+**Propuesta técnica concreta:** cliente Angular + Tauri en cada puesto; **backend de sucursal NestJS + Fastify y PostgreSQL de sucursal**, compartidos por las cajas de esa tienda; **backend de país NestJS + Fastify con PostgreSQL operativo por país y workers supervisados**. El backend de sucursal es lo que otras vistas llamaban «núcleo local»: no es una segunda interfaz ni un proceso central en Internet. «Cliente» designa el puesto POS; no implica autoridad sobre la venta ni conexión directa a la base. El detalle y la comparación con MongoDB están en [Opciones tecnológicas](opciones-tecnologicas.md#postgresql-en-sucursal-y-país-frente-a-mongodb).
+
 La [revisión crítica corporativa](revision-arquitectura-corporativa.md) incorpora horario/mantenimiento, evaluación WSO2/RabbitMQ/BullMQ, consolidación de datos, expansión y protección de la inversión ante cambio de ERP. La [investigación de mensajería](investigacion-mensajeria-pos.md), el [inventario público de tiendas](cobertura-publica-sucursales.md) y los [casos adversos](revision-resiliencia-datos-pos.md) documentan fuentes, alternativas y límites de esta revisión.
 
 La condición para considerar la solución enterprise es demostrar integridad de ventas y pagos, recuperación ante fallos, trazabilidad, controles de acceso y conciliación. El número de microservicios no constituye un criterio de calidad.
 
-Estado: propuesta inicial, 1 de octubre de 2026. Destinatarios: arquitectura, operaciones de tiendas, finanzas, seguridad y responsables de integración de cada país. Las elecciones técnicas son recomendaciones; los objetivos numéricos son propuestas que deben validarse.
+Estado: propuesta inicial del 1 de octubre de 2026, precisada el 5 de octubre de 2026. Destinatarios: arquitectura, operaciones de tiendas, finanzas, seguridad y responsables de integración de cada país. La dirección de cliente se distingue de las recomendaciones técnicas aún abiertas; los objetivos numéricos son propuestas que deben validarse. Este documento no acredita una implementación del producto objetivo.
 
-Nivel de definición: arquitectura de referencia. El diseño de implementación, la topología definitiva, el dimensionamiento y los compromisos operativos se cerrarán con las decisiones y evidencias de la [solicitud al equipo](solicitud-informacion-equipo.md). Las correcciones al sistema vigente son un frente de estabilización; la arquitectura objetivo y el plan para llegar a ella deben tener entregables y criterios propios.
+Nivel de definición: arquitectura de referencia. Este repositorio `pos-enterprise` contiene análisis y presentación; la maqueta funcional separada `corporate-pos` usa datos sintéticos y no acredita el backend, PostgreSQL o la sincronización objetivo. El diseño de implementación, la topología definitiva, el dimensionamiento y los compromisos operativos se cerrarán con las decisiones y evidencias de la [solicitud al equipo](solicitud-informacion-equipo.md). Las correcciones al sistema vigente son un frente de estabilización; la arquitectura objetivo y el plan para llegar a ella deben tener entregables y criterios propios.
 
 Actualizada con el [análisis estático de cinco repositorios](analisis-repositorios/README.md). Los commits y las ramas están registrados; su correspondencia con producción no está confirmada. La revisión agrega evidencia del sistema chileno y no valida todavía los sistemas de Perú o España.
 
 Las [vistas técnicas](vistas-arquitectura-y-flujos.md) separan despliegue y secuencias actuales de actividades/estados propuestos. El [catálogo de integraciones](catalogo-integraciones-actuales.md) conserva rutas y repositorios por SHA; la [matriz de cobertura](cobertura-documentacion-presentacion.md) indica qué se explica en la presentación y qué permanece en documentación de consulta.
+
+Las [vistas C4 de la propuesta](c4-arquitectura-propuesta.md) detallan C1 de contexto, C2 de contenedores y C3 de componentes del backend y del worker de sucursal. Añaden una vista de despliegue complementaria para distinguir puesto, servidor de sucursal y plataforma de país; esa vista no es C4 de código ni acredita infraestructura implementada.
 
 ## Alcance y supuestos
 
@@ -46,7 +50,7 @@ Los [antecedentes del proyecto](../README.md) describen una solución distribuid
 
 El diagrama siguiente desarrolla el primer perfil: servicio transaccional, base e inbox/outbox local en sucursal, consumidos por LAN. Las garantías de aislamiento de terminal no aplican a ese despliegue. No se alterna entre escritores de sucursal y terminal automáticamente durante una avería. La transición de perfil requiere un corte controlado de propiedad y conciliación.
 
-La propuesta inicial contemplaba reutilizar Angular, AdonisJS y PostgreSQL cuando sus versiones, diseño y pruebas satisficieran los requisitos. En conversaciones posteriores, el usuario planteó NestJS/Fastify, Pino/Sentry y Tauri, evaluados favorablemente como candidatos para el objetivo en [Opciones tecnológicas](opciones-tecnologicas.md). La selección permanece abierta: la transición del legado y la elección del stack objetivo son decisiones relacionadas pero distintas. Los adaptadores .NET y el bus existentes también requieren evaluar contratos, soporte y garantías antes de conservarlos o sustituirlos.
+La propuesta inicial contemplaba reutilizar Angular, AdonisJS y PostgreSQL cuando sus versiones, diseño y pruebas satisficieran los requisitos. La dirección actual de cliente es Angular + Tauri y el producto se organiza con Nx; para el backend objetivo se recomienda NestJS/Fastify y se precisa PostgreSQL en sucursal y país. Pino/Sentry y los límites del workspace se desarrollan en [Opciones tecnológicas](opciones-tecnologicas.md). La recomendación de backend/datos y su transición desde AdonisJS/Express requieren validación propia; aceptar cliente y Nx no las aprueba automáticamente. Los adaptadores .NET y el bus existentes también requieren evaluar contratos, soporte y garantías antes de conservarlos o sustituirlos.
 
 El desfase informado entre reserva de inventario, emisión de DTE y registro posterior de deuda en AX se trata con estados separados. Se debe documentar quién crea, consume y libera la reserva, cómo vence y qué sucede ante un pago o DTE fallido. El envío habitual aproximado de un minuto no prueba recepción ni contabilización dentro de ese plazo.
 
@@ -63,9 +67,9 @@ La revisión de código refuerza tres prioridades antes de sustituir componentes
 | `core`: código compartido | Convenciones y controles de Nx; componentes de logs, correlación y configuración; contratos y utilidades de país/moneda. Seleccionar bibliotecas y publicarlas con versiones para incluirlas en el software POS. | Revisar dependencias y propietarios; adaptar observabilidad y configuración para arrancar y operar sin servicios centrales. Validar moneda y reglas por operación. |
 | `core`: capacidades centrales por API | Evaluar servicios existentes de catálogo, clientes e integración ERP como parte de la plataforma central del POS; distribuir a sucursales los datos necesarios para las operaciones offline autorizadas. | Confirmar qué servicio es responsable de cada dato, qué contratos ofrece y sus garantías. El cliente remoto de precios actual no sustituye al motor local de ofertas. |
 | `devops-platform`: construcción y entrega | Consumir acciones corporativas para comprobar código, construir artefactos y desplegar servicios centrales, fijando la versión de cada acción. | Corregir o cubrir las brechas de validación y despliegue antes de adoptarlas. Cloud Run solo aplica si se aprueba ese destino; las acciones revisadas no acreditan una entrega completa a tiendas. |
-| Producto POS: desarrollo específico | Núcleo local de caja, motor local de precios/ofertas, protocolo sucursal–central, adaptadores de dispositivos y actualización de la flota. | Reutilizar piezas compatibles donde existan y desarrollar lo faltante; demostrar continuidad, recuperación y compatibilidad con los datos locales. |
+| Producto POS: desarrollo específico | Backend de sucursal, motor local de precios/ofertas, protocolo sucursal–central, adaptadores de dispositivos y actualización de la flota. | Reutilizar piezas compatibles donde existan y desarrollar lo faltante; demostrar continuidad, recuperación y compatibilidad con los datos locales. |
 
-La recomendación inicial es un **monorepo POS con versiones de producto independientes**, que consume bibliotecas corporativas y acciones de entrega. La alternativa de alojarlo dentro de `core` requiere acordar propiedad, permisos y ciclos de publicación. El [inventario detallado de reutilización](analisis-repositorios/aportes-plataforma-corporativa.md#3-qué-reutilizar-qué-adaptar-y-qué-desarrollar) conserva candidatos y evidencias; evita duplicar una implementación corporativa que sí cumpla los requisitos.
+La dirección de organización del código es **Nx**; se recomienda un **monorepo POS con versiones de producto independientes**, que consume bibliotecas corporativas y acciones de entrega. La alternativa de alojarlo dentro de `core` requiere acordar propiedad, permisos y ciclos de publicación. El [inventario detallado de reutilización](analisis-repositorios/aportes-plataforma-corporativa.md#3-qué-reutilizar-qué-adaptar-y-qué-desarrollar) conserva candidatos y evidencias; evita duplicar una implementación corporativa que sí cumpla los requisitos.
 
 Las bibliotecas incluidas en el software de la sucursal se ejecutan localmente. Las APIs de `core` participan en intercambios con la plataforma central; `devops-platform` prepara y entrega versiones. **Ningún servicio central de estos repositorios debe ser requisito de cada venta habilitada offline.** La reutilización de inbox/outbox, reintentos y adaptadores ERP exige validar cada flujo, especialmente cuando el ERP aplica un cambio y se pierde su respuesta. Los [criterios CORP-01 a CORP-08](validacion-y-decisiones.md#validación-de-componentes-corporativos-candidatos) definen las pruebas pendientes.
 
@@ -74,22 +78,22 @@ Las bibliotecas incluidas en el software de la sucursal se ejecutan localmente. 
 ```mermaid
 flowchart TB
     subgraph Tienda["Tienda de un país · LAN disponible"]
-        UI["Puestos POS · Angular / Tauri candidato"]
-        Local["Núcleo modular en servidor de sucursal"]
-        DB[("PostgreSQL local\nnegocio + outbox en un commit")]
+        UI["Cliente POS · Angular + Tauri"]
+        Local["Backend de sucursal · NestJS + Fastify\nMonolito modular · escritor compartido"]
+        DB[("PostgreSQL de sucursal\nnegocio + outbox en un commit")]
         FiscalLocal["Componente fiscal local según régimen"]
         Pay["Terminal y SDK de pagos"]
         Edge["Publicador y consumidor de lotes"]
-        UI --> Local
+        UI -->|"HTTPS por LAN · API autenticada"| Local
         Local --> DB
         Local --> FiscalLocal
         Local --> Pay
         DB <--> Edge
     end
     subgraph Pais["Plataforma del país en cloud autorizado o centro de datos"]
-        Sync["API de sincronización e inbox"]
-        Core["Ventas, turnos, maestros y conciliación"]
-        Store[("PostgreSQL operativo\ninbox, estados y outbox")]
+        Sync["API de sincronización · NestJS + Fastify"]
+        Core["Backend de país · NestJS + Fastify\nConsolidación, maestros y conciliación"]
+        Store[("PostgreSQL operativo por país\ninbox, estados y outbox")]
         Queue["Workers y trabajo durable por destino\nbroker adicional si se justifica"]
         Fiscal["Envío y seguimiento fiscal del país"]
         Adapter["Puertos y ACL del ERP\nlegado WSO2 delimitado en transición"]
@@ -108,7 +112,7 @@ flowchart TB
 
 El diagrama representa una tienda y su plataforma de país; se repite para Chile, Perú y España. No existe un único servicio remoto obligatorio para que todas las tiendas vendan. El componente fiscal puede producir registros locales y delegar su transmisión, únicamente cuando el régimen aplicable lo permite.
 
-**Caja y núcleo de sucursal.** La interfaz usa por LAN un servicio autenticado que calcula la venta, conserva maestros válidos, controla turnos y persiste negocio y outbox. El único ejemplar de una venta no queda en memoria o caché del navegador. Impresión y terminal bancario se validan en hardware real; otros periféricos se incorporan según el alcance.
+**Cliente y backend de sucursal.** Angular + Tauri presenta la operación y accede a capacidades nativas autorizadas. Por una API autenticada sobre la LAN llama al backend NestJS/Fastify, que valida permisos, calcula precios/ofertas con datos locales, controla turnos y persiste negocio y outbox en PostgreSQL. Varias cajas comparten este backend y un escritor autorizado de datos de sucursal; la base de ventas pertenece a la sucursal. El cliente no recibe credenciales SQL. Impresión y terminal bancario se validan en hardware real; otros periféricos se incorporan según el alcance.
 
 **Servidor de sucursal, perfil WAN.** Es el escritor autorizado y su pérdida puede detener las cajas. Se acuerdan redundancia, backups, repuesto, RTO/RPO y aislamiento del escritor anterior antes de failover. Ninguna caja activa un escritor alternativo por su cuenta.
 
@@ -117,6 +121,22 @@ El diagrama representa una tienda y su plataforma de país; se repite para Chile
 **Plataforma de país.** Mantiene el registro operativo consolidado, distribuye configuración y concilia con pagos, fiscalidad y sistema financiero. Separa bases, colas, credenciales y límites de recursos por país y entidad legal. Una interrupción de AX no debe llenar la cola de España ni detener Perú. La analítica corporativa recibe datos asíncronamente.
 
 **Integración.** Una capa de traducción evita que campos, estados y particularidades de un sistema externo invadan el modelo del POS. Los servicios fiscales y de pagos también tienen contratos propios y resultados persistidos.
+
+### Contratos de contenedores y propiedad de datos
+
+Esta descomposición orienta las vistas C4: cliente, API y worker son unidades de ejecución; los módulos de negocio son componentes del backend. Un módulo no implica por sí mismo un microservicio o una nueva base.
+
+| Contenedor propuesto | Persistencia y propietario | Contrato de comunicación |
+| --- | --- | --- |
+| Cliente POS Angular + Tauri, por puesto | Preferencias y estado de presentación; los registros técnicos de un agente de dispositivos no son otro libro de ventas | API HTTPS autenticada por LAN al backend de sucursal; comandos acotados al agente local de dispositivos |
+| Backend de sucursal NestJS + Fastify | PostgreSQL de sucursal; módulos de ventas, caja, pagos y fiscalidad controlan sus datos. Precios/maestros son espejos de lectura autorizados | Confirma cada cambio local junto con su outbox; no llama al ERP ni a una API remota de precios como condición de las ventas habilitadas offline |
+| Worker de sucursal supervisado | Pendientes, inbox, cursores y metadatos de entrega en la misma base de sucursal; no cambia ventas saltándose el módulo dueño | Envía eventos y recibe datos por HTTPS; reintenta con identidad estable y confirma recepción después de persistir |
+| Backend y workers de país | PostgreSQL operativo separado por país; módulos responsables de recepción, proyecciones, distribución y conciliación | Inbox, efecto y siguiente outbox en una transacción de país; adapta contratos ERP/proveedores y conserva sus estados por separado |
+| ERP y fuentes de maestros vigentes | Conservan las autoridades pactadas por dato; una copia POS no transfiere su propiedad | APIs/eventos o adaptadores de transición; las tablas internas no son el contrato entre productos |
+
+«Misma base» permite una transacción entre tablas de una sucursal; no significa compartir esa transacción con país o ERP. Los nombres de schemas propuestos son ilustrativos: `sales`, `cash`, `payments`, `fiscal`, `pricing` y `sync`. Cada módulo controla sus tablas mediante interfaces y migraciones propias; `sync` controla entrega/deduplicación, no puede reescribir los importes de `sales`. Una unidad de trabajo coordina venta y outbox usando la misma conexión/transacción. En país, la clave de inbox combina origen, consumidor e ID de evento; un duplicado se reconoce y un ID reutilizado con contenido distinto se rechaza. El acuse sigue al commit; no certifica pago, aceptación fiscal ni contabilización. PostgreSQL permite agrupar cambios de varias tablas en una operación atómica; la corrección del protocolo debe probarse aparte. [Transacciones PostgreSQL](https://www.postgresql.org/docs/current/tutorial-transactions.html).
+
+Los espejos locales de catálogo, clientes autorizados, precios y promociones se almacenan en PostgreSQL de sucursal con versión, vigencia y procedencia. La propuesta combina **deltas por eventos con cargas masivas programadas y conciliación manual controlada**; una carga se prepara y valida antes de activar la versión completa. La venta usa la versión local aprobada y conserva la aplicada. Ni el transporte por eventos ni la copia local demuestran que las fuentes actuales ya publiquen todos los cambios necesarios; esos contratos forman parte de la transición.
 
 ### Extensibilidad de facturación, pagos e impresión
 
@@ -426,26 +446,31 @@ El control de acceso filtra documentos y datos antes de incorporarlos al context
 
 ## Tecnología y despliegue propuestos
 
-Las [opciones tecnológicas discutidas](opciones-tecnologicas.md) amplían esta matriz. NestJS/Fastify, Tauri y monorepo Nx son candidatos recomendados para evaluar. El monolito modular concreta la organización inicial del núcleo. No hay decisión definitiva ni cambio en el alcance offline todavía pendiente.
+Las [opciones tecnológicas discutidas](opciones-tecnologicas.md) amplían esta matriz. Angular + Tauri fija la dirección de cliente aceptada y Nx la organización indicada por el usuario; **NestJS/Fastify y PostgreSQL en sucursal y país son la recomendación explícita de backend y datos**, pendiente de aprobación y piloto. Los límites, propiedad y entrega del workspace requieren concreción. El monolito modular concreta el backend de sucursal; no amplía la autonomía WAN a autonomía sin LAN.
 
 La revisión adicional de [`core`, `devops-platform` e `integration-presentations`](analisis-repositorios/aportes-plataforma-corporativa.md) verifica un precedente corporativo para Nx, NestJS/Fastify, Pino/Sentry, módulos, workers y CI/CD. Se recomienda alinear convenciones, contratos y bibliotecas con esa plataforma, conservando un runtime local autónomo. Los servicios centrales de `core` se integran mediante capacidades delimitadas; su persistencia y dependencias cloud no se trasladan automáticamente a tienda. La elección física de repositorio, alojamiento y paquetes requiere propietarios y validación de sus garantías.
 
 | Capa | Referencia técnica y criterio |
 | --- | --- |
-| Aplicación de caja | Evaluar Angular empaquetado en Tauri para puestos físicos y mantener administración/reporting web; homologar periféricos, WebView2 y distribución. La autonomía por caja exige además servicio y persistencia locales |
-| Persistencia local | Mantener PostgreSQL por sucursal en el perfil WAN. Para el perfil por caja, SQLite con WAL y `synchronous=FULL`, cifrado y backups consistentes; evitar SQLite compartido por red |
-| Plataforma | Evaluar NestJS con Fastify para el núcleo objetivo, con módulos claros y runtime soportado; definir transición desde AdonisJS/Express. Conservar .NET donde lo exijan adaptadores o SDK y cumpla sus contratos |
+| Aplicación de caja | Angular empaquetado en Tauri, dirección aceptada para puestos físicos; homologación de periféricos, WebView2 y distribución pendiente. Administración/reporting web como capacidad separada |
+| Persistencia de sucursal | PostgreSQL para negocio, inbox/outbox y espejos de maestros/precios. Base compartida por las cajas de una sucursal a través del backend; sin acceso SQL desde clientes |
+| Backend de sucursal y país | NestJS con Fastify, módulos claros y runtime soportado; workers supervisados según responsabilidad. Definir transición desde AdonisJS/Express. Conservar .NET donde lo exijan adaptadores o SDK y cumpla sus contratos |
 | Observabilidad | Evaluar `nestjs-pino` para logs estructurados y Sentry para diagnóstico/trazas; incluir métricas operativas, correlación de workers, retención local acotada y tolerancia a caída de telemetría |
-| Datos centrales | Base relacional, por ejemplo PostgreSQL, con réplica, backups y recuperación a un punto en el tiempo según objetivos acordados |
+| Datos de país | PostgreSQL operativo por país, con réplica, backups y recuperación según objetivos acordados. Consolidación y estados propios; no segunda autoridad que edita ventas originadas en sucursal |
+| MongoDB existente | Mantener donde el inventario confirme un propietario y consumidores vigentes; integrar por contrato. No copiar automáticamente su modelo ni añadir MongoDB a cada sucursal por disponer de precios/reglas en documentos |
 | Mensajería | Base propuesta: outbox/inbox y HTTPS durable; workers centrales sobre registro persistido. RabbitMQ central o servicio gestionado corporativo si justifican transporte/enrutamiento/aislamiento. BullMQ para trabajos delimitados. WSO2 conserva solo capacidades heredadas necesarias mientras se migran; ver comparación y criterios de retirada en la revisión corporativa |
 | Workers | Sincronización, conectores y transmisión fiscal desplegables de forma independiente |
 | Infraestructura | Automatizada y reproducible; cloud autorizado o máquinas virtuales privadas. Kubernetes solo si escala y capacidad operativa lo justifican |
-| Organización del código y CI | Evaluar monorepo Nx, límites entre proyectos, contratos versionados y tareas afectadas. Artefactos y despliegues conservan ciclos propios; Nx no es una dependencia operativa de la caja |
+| Organización del código y CI | Nx como dirección indicada; concretar límites entre proyectos, contratos versionados y tareas afectadas. Artefactos y despliegues conservan ciclos propios; Nx no es una dependencia operativa de la caja |
 | IA opcional | Servicios por capacidad detrás de contratos propios, recuperación autorizada y evaluación versionada. Cloud aprobado o inferencia local homologada; búsqueda y operación convencional conservadas. Ver [servicios y candidatos](servicios-ia-pos.md) |
 
-SQLite documenta que WAL con `synchronous=NORMAL` puede perder transacciones confirmadas ante un fallo eléctrico; por ello se propone `FULL`. La durabilidad sigue dependiendo del sistema operativo y del almacenamiento real. Los backups deben usar un mecanismo consistente, como la API de backup, y verificarse mediante restauración. [Durabilidad de SQLite](https://www.sqlite.org/pragma.html#pragma_synchronous), [API de backup](https://www.sqlite.org/backup.html).
+**Por qué PostgreSQL y no MongoDB como base del POS objetivo:** la venta relaciona partidas, pagos, caja, devoluciones y mensajes durables. Recomendamos transacciones y restricciones relacionales para esas invariantes, y `jsonb` para payloads externos o reglas de estructura variable; ello evita otro motor solo por necesitar JSON. Es una elección de ajuste al dominio y de operación, no una garantía automática de corrección o rendimiento. PostgreSQL documenta claves, referencias y comprobaciones, además de almacenamiento/indexación de `jsonb`. [Restricciones](https://www.postgresql.org/docs/current/ddl-constraints.html), [JSON/JSONB](https://www.postgresql.org/docs/current/datatype-json.html).
 
-Se propone iniciar el núcleo local como monolito modular, con plataforma central modular separada y workers según su responsabilidad. Cada módulo controla sus datos e interfaces; una unidad de trabajo coordina los cambios locales y outbox que deben confirmarse juntos. El monorepo puede compartir contratos y reglas puras sin convertir central y sucursal en dos escritores de la misma operación. Extraer un microservicio requiere una necesidad demostrada de escala, aislamiento, seguridad o despliegue. El [detalle de módulos y organización Nx](opciones-tecnologicas.md#5-monorepo-con-nx) conserva estas opciones como candidatas.
+MongoDB **sí soporta transacciones multidocumento**, incluso en replica sets y clústeres fragmentados. No se descarta por una supuesta ausencia de ACID. Su modelo documental puede encajar en proyecciones específicas; introducirlo además de PostgreSQL exige justificar ese beneficio y asumir otro modelo de recuperación, consultas y operación. La comparación y las condiciones para reconsiderarlo se detallan en [Opciones tecnológicas](opciones-tecnologicas.md#postgresql-en-sucursal-y-país-frente-a-mongodb). [Transacciones MongoDB](https://www.mongodb.com/docs/manual/core/transactions/).
+
+**Solo para el perfil adicional sin LAN/servidor**, si se aprueba: evaluar servicio y persistencia por terminal. SQLite con WAL y `synchronous=FULL` es una alternativa, no la base seleccionada del perfil WAN; evitar SQLite compartido por red. SQLite documenta que WAL con `synchronous=NORMAL` puede perder transacciones confirmadas ante un fallo eléctrico. La durabilidad depende también del sistema operativo y almacenamiento; verificar backups mediante restauración. [Durabilidad de SQLite](https://www.sqlite.org/pragma.html#pragma_synchronous), [API de backup](https://www.sqlite.org/backup.html).
+
+Se propone iniciar el backend de sucursal como monolito modular, con backend de país separado y workers según su responsabilidad. Cada módulo controla sus datos e interfaces; una unidad de trabajo coordina los cambios locales y outbox que deben confirmarse juntos. El monorepo puede compartir contratos y reglas puras sin convertir país y sucursal en dos escritores de la misma operación. Extraer un microservicio requiere una necesidad demostrada de escala, aislamiento, seguridad o despliegue. El [detalle de módulos y organización Nx](opciones-tecnologicas.md#5-monorepo-con-nx) conserva estas opciones como recomendaciones.
 
 Desplegar por anillos: laboratorio, tienda piloto, grupo de tiendas y país. Firmar paquetes, conservar compatibilidad de contratos con cajas atrasadas y probar migraciones de datos locales. Un rollback de binarios solo se admite con un esquema compatible; no restaura una base vieja que borre ventas nuevas. Las actualizaciones no se fuerzan durante una venta ni un turno crítico.
 
@@ -453,7 +478,7 @@ La plataforma de cada país requiere redundancia, backups inmutables según pol�
 
 ## Decisiones de arquitectura
 
-Los identificadores siguientes permiten discutir y cambiar decisiones sin perder su motivo. **Todas están propuestas, no aprobadas.** Al aprobar una, registrar fecha, responsables, alternativa elegida/descartada, evidencias y condición de revisión. Cambiar de opinión mediante un registro que sustituya al anterior; no borrar la decisión histórica. Los responsables indicados son roles por asignar, no personas ya comprometidas.
+Los identificadores siguientes permiten discutir y cambiar decisiones sin perder su motivo. **Las decisiones de backend, datos y operación siguen propuestas; el cliente Angular + Tauri y el uso de Nx son direcciones indicadas por el usuario, con homologación y límites de implementación pendientes.** Al aprobar una decisión, registrar fecha, responsables, alternativa elegida/descartada, evidencias y condición de revisión. Cambiar de opinión mediante un registro que sustituya al anterior; no borrar la decisión histórica. Los responsables indicados son roles por asignar, no personas ya comprometidas.
 
 | ID y decisión candidata | Motivo y coste | Evidencia necesaria para cerrarla | Responsable sugerido |
 | --- | --- | --- | --- |
@@ -464,11 +489,12 @@ Los identificadores siguientes permiten discutir y cambiar decisiones sin perder
 | ADR-05 · Fachadas y ACL por capacidad ERP | Aísla semántica AX/Gira/custom; mantiene mapeos e históricos y añade gestión de latencia contable. | Pruebas de equivalencia, destino persistido, tardíos offline, devolución/cobranza histórica y reversión del corte. | Programa ERP + integración + finanzas |
 | ADR-06 · Naming y propiedad de escritura con transición gradual | Vocabulario coherente y contratos explícitos; requiere compatibilidad con SQL externo, mensajes y versiones antiguas. | E05: consumidores inventariados, migraciones compatibles y prueba con caja atrasada. | Arquitectura + dueños de módulos + DBA |
 | ADR-07 · Aislamiento por país/entidad y destino | Limita acceso e impacto de fallos; la separación física puede aumentar infraestructura y operación. | Q06/Q08: carga, permisos, residencia, coste y prueba de fallo/aislamiento. Separación lógica mínima; topología física por decidir. | Plataforma + seguridad + responsables por país |
-| ADR-08 · Monolito modular y Nx candidatos | Facilitan desarrollo y consistencia inicial; requieren límites de dependencia y versiones compatibles. Extraer servicios solo por necesidad demostrada. | Fronteras y propiedad de módulos, CI por impacto, despliegue con versiones mixtas y carga del piloto. | Ingeniería POS + plataforma |
+| ADR-08 · Monolito modular propuesto sobre organización Nx indicada | Nx organiza código/tareas; no decide la topología. La modularidad requiere límites de dependencia y versiones compatibles. Extraer servicios solo por necesidad demostrada. | Fronteras y propiedad de módulos, CI por impacto, despliegue con versiones mixtas y carga del piloto. | Ingeniería POS + plataforma |
 | ADR-09 · Reutilización selectiva de `core` y DevOps | Aprovecha código/experiencia; hereda dependencias y obligaciones de soporte. | E10/E11: paquetes estables, garantías verificadas, cierre de hallazgos relevantes y pruebas offline/Windows. | Dueños de `core`/DevOps + ingeniería POS |
 | ADR-10 · Transporte inicial PostgreSQL + HTTPS con workers | Reduce componentes nuevos; necesita custodia, límites y supervisión. Broker/job engine se adopta según carga/capacidad. | Gates de mensajería, saturación, recuperación, capacidades WSO2 inventariadas y equipo operador asignado. | Integración + plataforma |
 | ADR-11 · Precio y ofertas evaluados localmente | Resuelve bloqueo online; distribuir datos no basta: hay que portar reglas, vigencias y autoridad. | Casos de paridad aprobados, promociones solapadas, redondeo, datos vencidos y actualización atómica. Precisar creación/edición local. | Comercial + dueño de precios + ingeniería POS |
 | ADR-12 · IA y RFID como extensiones opcionales | Añaden asistencia/captura sin tomar autoridad de pagos, fiscalidad o inventario. Tienen coste, fallos y pilotos propios. | Métricas frente al proceso actual, evidencia de calidad, fallback, hardware/etiquetado y criterios de retirada. | Producto + operaciones + dueños de datos |
+| ADR-13 · NestJS/Fastify y PostgreSQL en sucursal y país | Backend explícito, persistencia relacional y JSONB donde corresponda; conserva un escritor de sucursal en perfil WAN. MongoDB no se instala por defecto en tiendas ni se elimina del legado sin transición. | Piloto de carga, transacción venta/outbox e inbox/efecto, restore, compatibilidad de adaptadores, reglas/precios y plan de migración. Versión soportada y operación por DBA/plataforma. | Ingeniería POS + arquitectura + DBA |
 
 Referencias de cierre: [preguntas y evidencias](solicitud-informacion-equipo.md), [pruebas de aceptación](validacion-y-decisiones.md), [gates de mensajería](investigacion-mensajeria-pos.md#5-matriz-de-decisión-provisional-por-carga-de-trabajo), [opciones tecnológicas](opciones-tecnologicas.md). Un resultado del piloto puede modificar una candidata; la existencia de este registro no la convierte en una tecnología adoptada.
 

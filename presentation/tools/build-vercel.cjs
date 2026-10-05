@@ -16,11 +16,12 @@ function collect(directory, accept) {
 }
 
 // Keep the original directory layout so ../docs and ../presentation links work.
-collect('docs', file => /\.(md|png|jpe?g|svg|webp|pdf|pptx)$/i.test(file));
+collect('docs', file => /\.(md|png|jpe?g|svg|webp|pdf|pptx)$/i.test(file) || (file.startsWith('docs/diagramas-excalidraw/') && /\.(html|excalidraw|zip)$/.test(file)));
 for (const entry of fs.readdirSync(path.join(root, 'presentation'), {withFileTypes:true})) {
   if (entry.isFile() && /\.(html|css|js|md)$/.test(entry.name)) files.push('presentation/' + entry.name);
 }
 collect('presentation/diagrams', file => file.endsWith('.mmd'));
+collect('presentation/architecture-diagrams', file => /^presentation\/architecture-diagrams\/[^/]+\.svg$/.test(file));
 files.push('README.md');
 for (const name of ['concentrador-ingress-evidence.json', 'concentrador-masters-evidence.json']) {
   files.push('tools/' + name);

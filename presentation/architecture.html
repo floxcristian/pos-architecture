@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="Arquitectura del POS corporativo: diagramas C4 editables y simulaciones de venta, sincronización, precios, BullMQ y RabbitMQ.">
+  <title>POS Atlas · Arquitectura en movimiento</title>
+  <link rel="stylesheet" href="architecture.css">
+  <script defer src="architecture-content.js"></script>
+  <script defer src="architecture-labs.js"></script>
+  <script defer src="architecture.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#slide">Saltar a la diapositiva</a>
+  <header class="deck-header">
+    <a class="deck-brand" href="index.html" aria-label="Volver a POS Atlas"><span class="brand-mark" aria-hidden="true">P</span><span>POS <strong>Atlas</strong></span></a>
+    <span class="header-divider" aria-hidden="true"></span><span class="deck-label">Arquitectura en movimiento</span>
+    <nav class="header-actions" aria-label="Herramientas de la presentación">
+      <button type="button" data-action="overview" aria-haspopup="dialog">Índice <kbd>O</kbd></button>
+      <button type="button" data-action="notes" aria-haspopup="dialog">Notas <kbd>N</kbd></button>
+      <button type="button" data-action="fullscreen" id="fullscreen-button">Pantalla completa</button>
+    </nav>
+  </header>
+  <main id="deck-main" class="deck-main" tabindex="0" aria-label="Contenido de la presentación">
+    <article id="slide" class="slide" tabindex="-1" aria-label="Diapositiva"></article>
+  </main>
+  <footer class="deck-footer">
+    <div class="deck-location"><span id="chapter-label"></span><span id="slide-count"></span></div>
+    <div class="deck-progress" role="progressbar" aria-label="Avance de la presentación" aria-valuemin="1" aria-valuemax="19" aria-valuenow="1"><span id="progress-fill"></span></div>
+    <nav class="slide-actions" aria-label="Diapositivas">
+      <button type="button" data-action="previous" id="previous">← Anterior</button>
+      <button type="button" class="primary" data-action="next" id="next">Siguiente →</button>
+    </nav>
+  </footer>
+  <dialog id="overview" class="deck-dialog" aria-labelledby="overview-title">
+    <header class="dialog-header"><div><p class="eyebrow">El recorrido completo</p><h2 id="overview-title">Elige dónde profundizar</h2></div><button type="button" data-action="close-dialog">Cerrar</button></header>
+    <div id="overview-grid" class="overview-grid"></div>
+  </dialog>
+  <dialog id="notes" class="deck-dialog notes-dialog" aria-labelledby="notes-title">
+    <header class="dialog-header"><h2 id="notes-title">Notas para presentar</h2><button type="button" data-action="close-dialog">Cerrar</button></header>
+    <div id="notes-content" class="notes-content"></div>
+  </dialog>
+  <dialog id="diagram-dialog" class="deck-dialog diagram-dialog" aria-labelledby="diagram-title">
+    <header class="dialog-header"><div><p class="eyebrow">Excalidraw · modelo de referencia</p><h2 id="diagram-title"></h2></div><button type="button" data-action="close-dialog">Cerrar</button></header>
+    <div class="diagram-toolbar" aria-label="Controles del diagrama">
+      <button type="button" data-action="zoom-out" aria-label="Reducir diagrama">−</button>
+      <output id="zoom-label" aria-live="polite">Ajustado</output>
+      <button type="button" data-action="zoom-in" aria-label="Ampliar diagrama">+</button>
+      <button type="button" data-action="zoom-fit">Ajustar</button>
+      <button type="button" data-action="zoom-native">Tamaño real</button>
+      <a id="diagram-download" class="text-link" download>Descargar editable</a>
+    </div>
+    <p class="diagram-hint" id="diagram-hint">Amplía para leer el detalle. Arrastra o usa las barras para desplazarte; con el foco en el mapa, usa las flechas.</p>
+    <div class="diagram-viewport" id="diagram-viewport" tabindex="0" aria-describedby="diagram-hint"><div id="diagram-stage"><img id="diagram-image" alt=""></div></div>
+  </dialog>
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+  <noscript><p>Activa JavaScript para recorrer la presentación. También puedes consultar <a href="../docs/diagramas-excalidraw/index.html">la galería C4</a> y <a href="../docs/c4-arquitectura-propuesta.md">la explicación del modelo</a>.</p></noscript>
+</body>
+</html>

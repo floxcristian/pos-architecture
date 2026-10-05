@@ -189,7 +189,10 @@ async function main() {
     await selectView('tecnologia');
     for(const id of ['mediation','rabbitmq','bullmq','dataplatform']){await page.locator(`[data-component-id="${id}"]`).click();assert.equal(await page.locator('#modal').evaluate(el=>el.open),true);assert.ok((await page.locator('#modal-body').innerText()).length>250);await page.keyboard.press('Escape');}
     await selectView('arquitectura');
-    await page.locator('[data-node="outbox"]').click();assert.match(await page.locator('.inspector-title:visible').innerText(),/Outbox/);
+    assert.equal(await page.locator('#c4-view-select').inputValue(),'containers');
+    await page.locator('#c4-canvas [data-c4-node="branchDb"]').click();
+    assert.match(await page.locator('#c4-detail').innerText(),/PostgreSQL/);
+    assert.match(await page.locator('#c4-detail').innerText(),/sucursal/i);
     assert.equal(await page.locator('[data-action="mermaid"]').count(),0);
     await goto('evolucion');await page.locator('[data-country="ES"]').click();assert.match(await page.locator('#country-detail').innerText(),/Gira/);
     await page.locator('[data-country="PE"]').click();assert.match(await page.locator('#country-detail').innerText(),/custom/);

@@ -1,6 +1,10 @@
 # POS enterprise para Chile, Perú y España
 
-La **[presentación web POS Atlas](presentation/index.html)** reúne ocho capítulos sobre el sistema actual y la arquitectura propuesta. Ecosistema comienza con el mapa de repositorios; Propuesta resume las decisiones principales; Datos comienza con los maestros. Los recorridos de interacciones se abren cuando se necesita profundizar.
+La **[presentación web POS Atlas](presentation/index.html)** reúne ocho capítulos sobre el sistema actual y la arquitectura propuesta. Ecosistema comienza con la vista general; Propuesta abre el modelo C4 y sus decisiones de backend, persistencia y sincronización; Datos comienza con los maestros. Los recorridos de interacciones se abren cuando se necesita profundizar.
+
+La [colección C4 editable en Excalidraw](docs/diagramas-excalidraw/index.html) incluye contexto, contenedores, componentes, despliegue y flujos detallados de precios y venta, con archivos individuales y un atlas completo.
+
+La **[presentación detallada de arquitectura](presentation/architecture.html)** conecta esos diagramas en 19 diapositivas, con cinco laboratorios sobre venta, entrega HTTPS, precios, BullMQ y RabbitMQ. Permite recorrer 15 casos con código resaltado, reproducir y pausar cada secuencia, consultar notas y descargar los diagramas editables. Comparte la publicación de Vercel de POS Atlas mediante `/arquitectura`; los laboratorios usan datos sintéticos y no conectan sistemas reales.
 
 Para una consulta concreta: [venta actual](presentation/index.html#mapa?flujo=sale), [entrega ERP propuesta](presentation/index.html#propuesta?flujo=proposed-erp) o [maestros y tablas](presentation/index.html#datos?flujo=D03). La [guía breve de la presentación](presentation/README.md) explica cómo abrir y recorrer el material; la [guía canónica del visor](docs/visor-interacciones-componentes.md) concentra sus controles y convenciones.
 
@@ -38,6 +42,7 @@ La segunda revisión incorpora **`core`, `devops-platform` e `integration-presen
 | Arquitectura enterprise, separación entre objetivo/estabilización/transición y límites de la propuesta | [Propuesta](docs/propuesta-arquitectura.md) y [solicitud al equipo](docs/solicitud-informacion-equipo.md). |
 | Datos por pedir al equipo, responsables y plantilla | [Solicitud de información](docs/solicitud-informacion-equipo.md). |
 | NestJS, Fastify, Pino, Sentry, Tauri, monorepo Nx y monolito modular | [Opciones tecnológicas](docs/opciones-tecnologicas.md). |
+| C4: contexto, aplicaciones y bases, componentes y despliegue; PostgreSQL y espejo de precios/ofertas | [Arquitectura C4 detallada](docs/c4-arquitectura-propuesta.md) y [caso de precios y ofertas](docs/operacion-caja-y-evolucion.md#o02--precio-oferta-y-reglas-locales). |
 | Pruebas futuras, objetivos preliminares, riesgos y decisiones pendientes | [Validación y decisiones](docs/validacion-y-decisiones.md). |
 | Horario de sincronización, mantenimiento, WSO2/RabbitMQ/BullMQ, consolidación de bases y expansión | [Revisión corporativa](docs/revision-arquitectura-corporativa.md), [mensajería](docs/investigacion-mensajeria-pos.md) y [resiliencia](docs/revision-resiliencia-datos-pos.md). |
 | Tiendas publicadas en Chile, Perú y España | [Inventario público y límites](docs/cobertura-publica-sucursales.md). |

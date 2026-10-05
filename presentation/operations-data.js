@@ -136,7 +136,23 @@ window.POS_OPERATIONS = {
         },
         {
           "label": "Contrato local de precios y ofertas propuesto",
-          "url": "../docs/propuesta-arquitectura.md"
+          "url": "../docs/propuesta-arquitectura.md#contratos-de-contenedores-y-propiedad-de-datos"
+        },
+        {
+          "label": "AWS: outbox transaccional y consumo idempotente",
+          "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html"
+        },
+        {
+          "label": "Debezium: identidad y orden de eventos outbox",
+          "url": "https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html"
+        },
+        {
+          "label": "PostgreSQL: snapshot consistente y replay de cambios",
+          "url": "https://www.postgresql.org/docs/current/logicaldecoding-explanation.html"
+        },
+        {
+          "label": "Debezium: conciliación de snapshot y cambios concurrentes",
+          "url": "https://debezium.io/blog/2021/10/07/incremental-snapshots/"
         }
       ],
       "current": {
@@ -152,25 +168,31 @@ window.POS_OPERATIONS = {
       },
       "proposed": {
         "diagram": "operation-price-proposed",
-        "summary": "El módulo local necesita un paquete coherente de datos y reglas, contexto de la venta, vigencia y un resultado explicable. El diseño debe definir qué hacer cuando ese paquete ya no autoriza calcular.",
+        "summary": "NestJS/Fastify calcula con paquetes aprobados en el PostgreSQL de sucursal. Los eventos actualizan con baja latencia; una carga masiva programable concilia y recupera faltantes. Las cajas acceden por LAN: vender con una versión válida no requiere pedir precio al centro ni añadir una base por terminal.",
         "steps": [
-          "Publicar una versión aprobada de reglas y datos por entidad/sucursal, con vigencia y compatibilidad del motor local.",
-          "Descargar y verificar el paquete completo antes de activarlo. Mantener la última versión válida sin mezclar parcialmente sus tablas.",
-          "Evaluar con contexto completo y guardar en la venta versión, entradas relevantes y explicación del precio aplicado.",
-          "Con paquete ausente o vencido, aplicar una política acordada: restringir la operación afectada o usar una excepción autorizada y auditable. No inventar un importe."
+          "La autoridad comercial publica paquetes inmutables por ámbito, con versión, esquema/motor, vigencias y checksum. Manifiesto e intención de notificar comparten transacción con outbox; CDC puede alimentar al publicador desde el legado, pero no aprueba reglas por sí mismo.",
+          "El worker recibe eventos mediante un contrato reanudable con cursor e inbox durables. Deduplica por identidad y contenido, detecta huecos y versiones fuera de orden, y distingue recibido de aplicado. El acuse sigue a la persistencia; un mensaje repetido no repite su efecto.",
+          "Configurar frecuencia, zona horaria, lotes y concurrencia del snapshot masivo, con reintento manual por el mismo worker. El snapshot declara un corte consistente H; conservar y reproducir deltas posteriores, incluidas bajas. Si venció el historial, recuperar con otro snapshot.",
+          "Descargar a staging, validar origen, esquema, checksum y referencias, y alcanzar un punto completo sin retroceder el cursor aplicado. Activar versión y cursor en un commit de PostgreSQL; ningún incremental modifica a medias el paquete que usan las ventas.",
+          "Evaluar con el contexto completo y fijar la versión por cotización/venta. Guardar precio, reglas y explicación; revalidar vigencia antes de confirmar. Una actualización no cambia silenciosamente una venta abierta ni recalcula ventas confirmadas.",
+          "Sin WAN se usa la versión anterior solo mientras vigencia, TTL autorizado y compatibilidad lo permitan. Datos requeridos ausentes, reglas incompatibles o autorización vencida bloquean el cálculo afectado con motivo visible. Reintentar o descargar lo mismo no renueva la autorización offline."
         ],
-        "boundary": "Es una propuesta. Requiere pruebas de paridad con el camino productivo y decisiones comerciales sobre vigencia, promociones y excepciones; un CRUD local no la implementa."
+        "boundary": "Proyección de lectura unidireccional, con un escritor de negocio en sucursal. Eventos y lotes comparten validación y activación; admiten reentrega, no prometen exactly-once. Requiere paridad comercial, retención y vigencias acordadas. Caída WAN no equivale a autonomía sin LAN/servidor."
       },
       "challenge": {
-        "question": "¿Se puede sustituir el cálculo individual por el precio del lote para cualquier cantidad?",
-        "current": "No hay equivalencia general demostrada: la ruta de lote observada fija cantidad y usuario. Cambiar cliente, volumen o vendedor puede seleccionar otra regla.",
-        "proposed": "El contrato de cálculo debe recibir el mismo contexto y conservar la versión utilizada. Las pruebas comparan resultados y explicaciones con casos comerciales aprobados.",
-        "test": "Comparar cantidad 1 y cantidades mayores, dos clientes y vendedores, acuerdo comercial, oferta vencida y transición de versión. Son casos de prueba por acordar; no se ejecutaron precios reales."
+        "question": "Se pierde un evento mientras llega una carga masiva y hay una venta abierta",
+        "current": "El precio observado depende de la API remota; no se acreditó cursor, replay ni activación local. El lote encontrado fija cantidad y usuario, por lo que tampoco sustituye sin pruebas al cálculo contextual.",
+        "proposed": "Detectar el hueco y recuperar desde el cursor o pedir otro snapshot. Reproducir los deltas posteriores al corte y activar sin retroceder. Mientras la versión anterior siga autorizada puede usarse; la venta abierta conserva su versión y revalida la cotización al confirmar.",
+        "test": "Duplicados, desorden, evento perdido, mismo ID con otro hash, cambios/bajas durante snapshot y corte de energía al activar. Verificar cero mezclas de versiones y ningún cambio silencioso del ticket; añadir vencimiento de historial/TTL y paridad de cantidad, cliente, vendedor, promociones y redondeo."
       },
       "notes": [
         "El nombre de una colección Mongo se toma de GetCollection. No identifica servidor, instancia, ubicación física ni productor de datos.",
         "La ventana del histórico usa DateTime.Now con tres meses previos. Reloj/zona horaria y fecha efectiva son parte del contrato a decidir; no basta copiar el comentario que dice retirar el histórico mientras permanece código que lo usa.",
-        "El objetivo de estandarizar naming no justifica renombrar estas colecciones sin mapear consumidores ni identificar el motor activo."
+        "El objetivo de estandarizar naming no justifica renombrar estas colecciones sin mapear consumidores ni identificar el motor activo.",
+        "El espejo local conserva la autoridad central por atributo. Su worker sincroniza la proyección; no replica escrituras locales de maestros al centro ni permite otro escritor de ventas.",
+        "Los eventos reducen latencia; el cron y la conciliación manual reparan y comprueban. Mostrar versión publicada, recibida y activa, última conciliación, antigüedad y huecos; todos los caminos comparten activador.",
+        "TTL comercial, vigencia de promociones y plazo de cotización son límites distintos. Una excepción necesita política y auditoría; ni una nueva descarga ni un contacto con el servidor renuevan silenciosamente esos límites.",
+        "Las fuentes oficiales sustentan outbox, deduplicación y corte/replay. El manifiesto completo y la activación atómica del conjunto de reglas son un contrato propuesto que debe probarse; CDC no los aporta automáticamente."
       ]
     },
     {

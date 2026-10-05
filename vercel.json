@@ -6,6 +6,7 @@
   "outputDirectory": "public",
   "redirects": [
     { "source": "/", "destination": "/presentation/index.html", "permanent": false },
+    { "source": "/arquitectura", "destination": "/presentation/architecture.html", "permanent": false },
     { "source": "/presentation", "destination": "/presentation/index.html", "permanent": false }
   ],
   "headers": [

@@ -1,0 +1,78 @@
+/* Scoped explorer styles; the surrounding presentation owns its design tokens. */
+.c4-explorer { min-width: 0; margin-block: 24px; }
+.c4-heading { margin-bottom: 24px; }
+.c4-heading h2 { margin: 12px 0; }
+.c4-heading p { max-width: 78ch; color: var(--muted); }
+.c4-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-small); }
+.c4-toolbar label { display: flex; flex: 1; flex-direction: column; gap: 6px; min-width: min(100%, 290px); font-weight: 600; }
+.c4-toolbar select { width: 100%; min-height: 44px; padding: 8px 36px 8px 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; font-weight: 400; }
+.c4-zoom-controls { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.c4-zoom-controls output { min-width: 64px; text-align: center; font-size: 14px; }
+.c4-explorer .btn { min-height: 44px; }
+.c4-zoom-controls [data-c4-action='out'], .c4-zoom-controls [data-c4-action='in'] { min-width: 44px; font-size: 20px; }
+.c4-view-heading { padding: 20px 0; }
+.c4-view-heading h3 { margin-bottom: 10px; }
+.c4-view-heading p { margin-bottom: 10px; max-width: 100ch; }
+.c4-view-heading .c4-scope-note { margin: 0; padding-left: 14px; border-left: 3px solid var(--teal); color: var(--muted); }
+.c4-workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+.c4-map-column { min-width: 0; }
+.c4-map-help { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
+.c4-map-help button { flex-shrink: 0; }
+.c4-viewport { position: relative; width: 100%; height: clamp(420px, 64vh, 720px); overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; border: 1px solid var(--line-strong); border-radius: var(--radius-small); background: var(--surface); cursor: grab; touch-action: pan-x pan-y; }
+.c4-viewport.c4-dragging { cursor: grabbing; user-select: none; }
+.c4-canvas { width: max-content; min-width: 100%; min-height: 100%; padding: 20px; }
+.c4-canvas svg { overflow: visible; }
+.c4-canvas [data-c4-node] { cursor: pointer; }
+#c4-canvas [data-c4-node]:is(:hover, .c4-selected) :is(rect, polygon, path, circle, ellipse) { stroke: var(--amber) !important; stroke-width: 3px !important; }
+.c4-canvas [data-c4-node]:focus-visible { outline: none; }
+#c4-canvas [data-c4-node]:focus-visible :is(rect, polygon, path, circle, ellipse) { stroke: var(--teal-dark) !important; stroke-width: 5px !important; }
+.c4-pan-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.c4-pan-controls button { min-width: 44px; }
+.c4-pan-controls .small-note { flex: 1; padding-left: 8px; min-width: 140px; }
+.c4-detail { min-width: 0; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-small); }
+.c4-element-kind { display: inline-block; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; font-weight: 650; color: var(--teal-dark); }
+.c4-detail h3 { margin-bottom: 8px; }
+.c4-technology { color: var(--muted); font-size: 14px; }
+.c4-detail dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 20px 0; }
+.c4-detail dl > div { padding-top: 14px; margin-top: 14px; border-top: 1px solid var(--line); }
+.c4-detail dt { font-weight: 650; margin-bottom: 6px; }
+.c4-detail dd { margin: 0; font-size: 14px; line-height: 1.6; }
+.c4-detail h4 { margin-bottom: 10px; }
+.c4-detail .source-list { font-size: 14px; }
+.c4-detail .btn { margin-top: 12px; }
+.c4-legend { margin-top: 24px; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--surface); }
+.c4-legend h3 { margin-bottom: 12px; }
+.c4-legend ul { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 28px; padding-left: 18px; margin: 0; color: var(--muted); font-size: 14px; }
+.c4-legend li { margin: 0; }
+.c4-alternative { margin-top: 16px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-small); }
+.c4-alternative summary { min-height: 44px; align-content: center; font-weight: 600; }
+.c4-alternative h4 { margin: 20px 0 12px; }
+.c4-element-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.c4-element-button { display: flex; flex-direction: column; gap: 4px; padding: 12px; text-align: left; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); min-height: 44px; }
+.c4-element-button span { font-size: 13px; color: var(--muted); }
+.c4-element-button:hover, .c4-element-button.c4-selected { background: var(--teal-soft); border-color: var(--teal); }
+.c4-relationship-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 28px; }
+.c4-relationship-list li { margin-top: 0; font-size: 14px; }
+.c4-relationship-list span { display: block; color: var(--muted); }
+.c4-reference { margin: 16px 0 0; font-size: 14px; }
+.c4-unavailable { width: min(80vw, 600px); white-space: normal; }
+@media (max-width: 1050px) {
+  .c4-workspace { grid-template-columns: 1fr; }
+  .c4-detail { max-height: none; overflow: visible; }
+  .c4-detail dl { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+}
+@media (max-width: 650px) {
+  .c4-toolbar, .c4-map-help { align-items: stretch; flex-direction: column; }
+  .c4-toolbar label { min-width: 0; }
+  .c4-viewport { height: 460px; }
+  .c4-legend ul, .c4-detail dl, .c4-element-list, .c4-relationship-list { grid-template-columns: 1fr; }
+  .c4-detail, .c4-legend, .c4-alternative { padding: 16px; }
+}
+@media print {
+  .c4-toolbar, .c4-map-help, .c4-pan-controls { display: none; }
+  .c4-workspace { display: block; }
+  .c4-viewport { height: auto; overflow: visible; }
+  .c4-canvas { width: 100%; min-height: 0; padding: 0; }
+  .c4-canvas svg { width: 100% !important; height: auto !important; }
+  .c4-detail { max-height: none; overflow: visible; }
+}

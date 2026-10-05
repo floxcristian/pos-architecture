@@ -1,13 +1,13 @@
 flowchart LR
     accTitle: Propuesta de POS con operación local e integración posterior
-    accDescr: El núcleo local aplica ofertas y persiste operación y outbox en una misma transacción. Con conexión, el outbox entrega al inbox central. La plataforma usa una ACL para integrar el ERP. Es una propuesta, no una implementación existente.
+    accDescr: El backend de sucursal NestJS y Fastify evalúa precios sobre un espejo de PostgreSQL y guarda ventas y outbox en una transacción. Central recibe en PostgreSQL por país; una ACL integra el ERP. Los eventos y las cargas programadas o manuales actualizan el espejo. Arquitectura propuesta.
     subgraph branch["Sucursal · propuesta"]
         direction TB
-        ui["Cliente candidato<br/>Angular / Tauri"] --> edge["Núcleo local<br/>ventas y caja"]
-        edge <--> offers["Precios y ofertas<br/>evaluación local"]
+        tauri["Cliente de caja<br/>Angular + Tauri"] -->|"HTTPS / LAN"| edge["Backend de sucursal<br/>NestJS + Fastify"]
+        edge -->|"Evaluar versión activa"| offers["Precios y ofertas<br/>Espejo local + motor"]
         subgraph tx["Una base · un commit"]
             direction LR
-            edgedb[("Datos de<br/>operación")]
+            edgedb[("PostgreSQL de sucursal<br/>Ventas, caja y pagos")]
             outbox["Outbox<br/>pendientes"]
             edgedb ~~~ outbox
         end
@@ -16,8 +16,9 @@ flowchart LR
     end
     subgraph central["Integración central"]
         direction TB
-        inbox["Inbox<br/>recepción durable"] --> platform["Plataforma<br/>y workers"]
+        inbox["Inbox / PostgreSQL país<br/>recepción durable"] --> platform["Backend y workers del país<br/>NestJS + Fastify"]
         platform --> acl["ACL<br/>por ERP"]
         acl --> erp[("ERP<br/>por país")]
     end
-    branch <-->|"Con conexión"| central
+    outbox -->|"HTTPS / eventos"| inbox
+    platform -->|"Eventos y cargas masivas<br/>programadas o manuales"| offers
