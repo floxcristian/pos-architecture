@@ -1,0 +1,1894 @@
+{
+  "title": "Cómo funciona la arquitectura propuesta del POS",
+  "description": "Guion técnico en español latino para desarrolladores junior. Explica una propuesta pendiente de implementación y validación, con ejemplos didácticos y siete diagramas C4 existentes. Los fragmentos con funciones de negocio son contratos ilustrativos, no una aplicación ejecutable.",
+  "chapters": [
+    {
+      "id": "c01",
+      "title": "El problema y el mapa"
+    },
+    {
+      "id": "c02",
+      "title": "Sucursal, país y conectividad"
+    },
+    {
+      "id": "c03",
+      "title": "Datos y transacciones"
+    },
+    {
+      "id": "c04",
+      "title": "Una venta paso a paso"
+    },
+    {
+      "id": "c05",
+      "title": "Pagos y estados inciertos"
+    },
+    {
+      "id": "c06",
+      "title": "Entrega sin duplicar efectos"
+    },
+    {
+      "id": "c07",
+      "title": "El sincronizador"
+    },
+    {
+      "id": "c08",
+      "title": "Precios por eventos"
+    },
+    {
+      "id": "c09",
+      "title": "Precios por lotes y vigencia"
+    },
+    {
+      "id": "c10",
+      "title": "Trabajos con BullMQ"
+    },
+    {
+      "id": "c11",
+      "title": "Mensajes con RabbitMQ"
+    },
+    {
+      "id": "c12",
+      "title": "Fachadas e integración empresarial"
+    },
+    {
+      "id": "c13",
+      "title": "Construcción y operación"
+    },
+    {
+      "id": "c14",
+      "title": "Preguntas para comprobar el diseño"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "chapter": "c01",
+      "title": "Una venta debe sobrevivir a una mala conexión",
+      "kicker": "01 · El problema",
+      "kind": "title",
+      "narration": "Imagina una tienda con tres cajas. Una persona paga, la conexión con la oficina central se corta y el cajero necesita saber si puede entregar el producto. Un punto de venta, o POS por sus siglas en inglés, debe responder esa pregunta con evidencia. No basta con mostrar una pantalla de éxito. Durante este recorrido separaremos lo que ocurrió en la tienda, lo que recibió el país y lo que aceptó el sistema empresarial. Esa separación evita cobrar dos veces y perder operaciones.",
+      "takeaway": "Cada confirmación debe decir qué ocurrió y dónde quedó registrado.",
+      "bullets": [
+        "Tres cajas, una sucursal, una venta real",
+        "Continuidad con límites explícitos",
+        "Evidencia antes de mostrar éxito"
+      ]
+    },
+    {
+      "id": "s02",
+      "chapter": "c01",
+      "title": "Leemos una propuesta, no una promesa de producción",
+      "kicker": "01 · Alcance",
+      "kind": "compare",
+      "narration": "La dirección de producto ya contempla Angular para la interfaz, Tauri para el cliente de escritorio y Nx para organizar el desarrollo. El servidor de sucursal, las bases de datos y los contratos de sincronización son recomendaciones de esta arquitectura. Todavía requieren implementación, pruebas y homologación. Existe una aplicación de demostración separada con datos simulados; verla funcionar no prueba que un pago o una recuperación reales estén resueltos. A lo largo del video distinguiremos decisiones de diseño, ejemplos y garantías que necesitan evidencia.",
+      "takeaway": "Una demostración visual no demuestra las garantías del sistema completo.",
+      "columns": [
+        {
+          "title": "Dirección elegida",
+          "items": [
+            "Angular y Tauri",
+            "Organización con Nx"
+          ]
+        },
+        {
+          "title": "Propuesta por validar",
+          "items": [
+            "Servidor y PostgreSQL",
+            "Contratos y recuperación",
+            "Integraciones por país"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "chapter": "c01",
+      "title": "C4: primero vemos quién se relaciona con quién",
+      "kicker": "01 · Contexto · Vista general",
+      "kind": "diagram",
+      "diagram": "01-contexto",
+      "narration": "Esta vista de contexto pertenece al modelo C4: contexto, contenedores, componentes y código. El cajero vende, cobra y gestiona su turno desde el punto de venta. El supervisor autoriza excepciones y revisa cierres; su responsabilidad es distinta de la del cajero. Operación de plataforma supervisa incidentes, sincronización y recuperación mediante soporte autorizado. La fuente externa de maestros y precios publica datos y reglas comerciales autorizados. El proveedor de pagos autoriza o informa resultados mediante un contrato propio. El proveedor fiscal emite o transmite documentos según el país y la modalidad permitida. El sistema empresarial del país recibe y concilia documentos financieros, conservando su responsabilidad externa. La flecha de maestros al POS expresa una responsabilidad, no una llamada de programación. Recibir datos no transfiere propiedad sobre precios, inventario o contabilidad.",
+      "takeaway": "El contexto muestra responsabilidades y sistemas externos.",
+      "bullets": [
+        "Personas y sistemas externos",
+        "Cada dato necesita una autoridad"
+      ],
+      "focus": {
+        "x": 0.04213197969543147,
+        "y": 0.13164298529386023,
+        "w": 0.43289055683891176,
+        "h": 0.05230536431274981
+      },
+      "focusLabel": "Detalle: cajero y supervisor, responsabilidades distintas",
+      "overviewFocus": {
+        "x": 0.03604060913705584,
+        "y": 0.12812468724591744,
+        "w": 0.8826964467005076,
+        "h": 0.25115956998247757
+      }
+    },
+    {
+      "id": "s04",
+      "chapter": "c01",
+      "title": "Cinco éxitos distintos en una sola venta",
+      "kicker": "01 · Vocabulario",
+      "kind": "flow",
+      "narration": "Pensemos en una venta pagada con tarjeta. El proveedor puede autorizar el pago antes de que la venta quede confirmada en la base local. Después, el país puede recibirla y el sistema empresarial puede aceptarla más tarde. El resultado fiscal tiene su propio estado. Por eso una etiqueta única, como sincronizado, sería ambigua. Necesitamos referencias y estados separados para explicar qué pasó, qué falta y quién debe resolverlo. Las flechas ilustran dependencias del ejemplo; no significan que todo ocurra dentro de una sola transacción.",
+      "takeaway": "Pago, venta, fiscalidad y entrega tienen estados independientes.",
+      "nodes": [
+        {
+          "id": "pay",
+          "label": "Pago"
+        },
+        {
+          "id": "sale",
+          "label": "Venta local"
+        },
+        {
+          "id": "fiscal",
+          "label": "Estado fiscal"
+        },
+        {
+          "id": "country",
+          "label": "Recepción país"
+        },
+        {
+          "id": "erp",
+          "label": "Aceptación ERP"
+        }
+      ],
+      "edges": [
+        {
+          "from": "pay",
+          "to": "sale",
+          "label": "Evidencia"
+        },
+        {
+          "from": "sale",
+          "to": "fiscal",
+          "label": "Política fiscal"
+        },
+        {
+          "from": "sale",
+          "to": "country",
+          "label": "Entrega posterior"
+        },
+        {
+          "from": "country",
+          "to": "erp",
+          "label": "Integración"
+        }
+      ],
+      "active": [
+        "pay",
+        "sale",
+        "fiscal",
+        "country",
+        "erp"
+      ],
+      "highlightEdges": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "s05",
+      "chapter": "c02",
+      "title": "C2: procesos con responsabilidades concretas",
+      "kicker": "02 · Contenedores · Vista general",
+      "kind": "diagram",
+      "diagram": "02-contenedores",
+      "narration": "Un contenedor C4 representa una aplicación o un almacén de datos, no necesariamente Docker. La terminal ejecuta Angular dentro de Tauri. Presenta la caja y envía comandos del operador. El backend de sucursal recibe esos comandos, aplica las reglas y confirma la operación compartida. PostgreSQL de sucursal guarda el negocio, la salida pendiente y el espejo comercial autorizado. El sincronizador entrega eventos y actualiza espejos. Intercambia información con la interfaz del país. La API de país recibe lotes y sirve publicaciones. Confirma sus efectos en PostgreSQL de país. La base de país conserva proyecciones, publicaciones y referencias duraderas de entrega e integración. Los workers de país publican versiones e integran los pendientes que ya quedaron confirmados. El adaptador empresarial traduce contratos y concilia resultados. Cambiar esa conexión no reparte reglas de venta entre las cajas.",
+      "takeaway": "La terminal presenta; el servidor de sucursal gobierna la operación.",
+      "bullets": [
+        "Una base compartida por sucursal",
+        "Sin credenciales SQL en las terminales"
+      ],
+      "focus": {
+        "x": 0.4105765318758283,
+        "y": 0.26483300320332764,
+        "w": 0.28029563986226413,
+        "h": 0.03713980434797903
+      },
+      "focusLabel": "Detalle: sincronizador y servidor compartido de sucursal",
+      "overviewFocus": {
+        "x": 0.020966515289256818,
+        "y": 0.0841809880708861,
+        "w": 0.958066983263816,
+        "h": 0.4187563025033031
+      }
+    },
+    {
+      "id": "s06",
+      "chapter": "c02",
+      "title": "Sin internet no significa sin red local",
+      "kicker": "02 · WAN y LAN",
+      "kind": "compare",
+      "narration": "WAN significa red de área amplia: aquí conecta la sucursal con el país. LAN significa red de área local: aquí conecta las cajas con su servidor. Si cae la WAN, una venta permitida podría continuar usando datos locales válidos. Si cae la LAN o el servidor, la caja pierde la autoridad compartida que necesita para confirmar. Son fallas diferentes. La propuesta base no convierte cada terminal en un servidor independiente al detectar una desconexión. Esa autonomía adicional exigiría otro diseño y nuevas reglas de coordinación.",
+      "takeaway": "La autonomía propuesta depende de que funcionen la red y el servidor locales.",
+      "columns": [
+        {
+          "title": "WAN caída",
+          "items": [
+            "Sucursal aún comunicada",
+            "Datos locales válidos",
+            "Operaciones permitidas"
+          ]
+        },
+        {
+          "title": "LAN o servidor caído",
+          "items": [
+            "Autoridad inaccesible",
+            "Comandos dependientes detenidos",
+            "Sin escritor alternativo automático"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "chapter": "c02",
+      "title": "Una venta local posible: efectivo y reglas vigentes",
+      "kicker": "02 · Ejemplo de continuidad",
+      "kind": "flow",
+      "narration": "Tomemos un ejemplo acotado: pago en efectivo, sesión autorizada, precios vigentes y una modalidad fiscal previamente aprobada para ese escenario. La caja envía el comando por la red local. El servidor valida y registra la venta; la entrega al país queda pendiente. La falta de internet no renueva permisos vencidos ni promociones caducadas. Tampoco habilita tarjetas desconectadas, cupones compartidos o saldos globales por sí sola. Cada capacidad necesita una política y una autoridad disponibles. Continuidad significa conservar estas condiciones, no saltarse las validaciones.",
+      "takeaway": "La continuidad local se decide por operación y por capacidad disponible.",
+      "nodes": [
+        {
+          "id": "client",
+          "label": "Caja",
+          "detail": "Comando autorizado"
+        },
+        {
+          "id": "api",
+          "label": "Servidor local",
+          "detail": "Valida reglas vigentes"
+        },
+        {
+          "id": "db",
+          "label": "PostgreSQL",
+          "detail": "Venta y entrega pendiente"
+        },
+        {
+          "id": "country",
+          "label": "País",
+          "detail": "Espera conectividad"
+        }
+      ],
+      "edges": [
+        {
+          "from": "client",
+          "to": "api",
+          "label": "Red local"
+        },
+        {
+          "from": "api",
+          "to": "db",
+          "label": "Transacción"
+        },
+        {
+          "from": "db",
+          "to": "country",
+          "label": "Después"
+        }
+      ],
+      "active": [
+        "client",
+        "api",
+        "db"
+      ],
+      "highlightEdges": [
+        0,
+        1
+      ],
+      "bullets": [
+        "Efectivo y modalidad fiscal aprobada",
+        "La desconexión no concede permisos"
+      ]
+    },
+    {
+      "id": "s08",
+      "chapter": "c02",
+      "title": "Despliegue: dónde vive cada responsabilidad",
+      "kicker": "02 · Infraestructura · Vista general",
+      "kind": "diagram",
+      "diagram": "05-despliegue",
+      "narration": "El despliegue ubica terminales, servidor de sucursal y plataforma de país en entornos diferentes. En cada terminal se ejecuta el cliente de caja, conectado al servidor compartido de la sucursal. PostgreSQL tiene un primario autorizado por sucursal; los puestos comparten ese almacenamiento de negocio. La relación del backend con PostgreSQL expresa autoridad de escritura, no una sola conexión. El sincronizador funciona como proceso supervisado en la sucursal y dispone de permisos acotados. En la plataforma de país, la API recibe comunicación de las sucursales y sirve publicaciones. El respaldo conserva copias y permite ensayar restauraciones. Tenerlo no demuestra conmutación automática ni alta disponibilidad. Redundancia, energía y recuperación deben responder a objetivos acordados y comprobarse en el entorno real.",
+      "takeaway": "La topología física debe sostener las autoridades y los objetivos de recuperación.",
+      "bullets": [
+        "Un primario autorizado por sucursal",
+        "Respaldo y alta disponibilidad son decisiones distintas"
+      ],
+      "focus": {
+        "x": 0.6932970769331821,
+        "y": 0.21518784818873532,
+        "w": 0.2312245644414975,
+        "h": 0.039732060075453136
+      },
+      "focusLabel": "Detalle: procesos del servidor de sucursal",
+      "overviewFocus": {
+        "x": 0.018698113981032258,
+        "y": 0.09005658844903021,
+        "w": 0.9626036629930367,
+        "h": 0.400855682489668
+      }
+    },
+    {
+      "id": "s09",
+      "chapter": "c03",
+      "title": "Antes de elegir una base, elegimos quién manda",
+      "kicker": "03 · Propiedad de datos",
+      "kind": "compare",
+      "narration": "La sucursal es responsable de su historia operativa de ventas. El país conserva las proyecciones y referencias necesarias para recibir e integrar esas operaciones, sin convertirse en otro autor concurrente de la misma venta. Los precios y maestros necesitan una autoridad definida por atributo y país; no asumimos que todo provenga del sistema empresarial. Una copia de lectura permite consultar, pero no otorga derecho a gastar un saldo compartido. Separar propiedad, lectura y escritura reduce conflictos antes de discutir herramientas o formatos de mensajes.",
+      "takeaway": "Replicar un dato no transfiere su autoridad.",
+      "columns": [
+        {
+          "title": "Sucursal",
+          "items": [
+            "Historia operativa local",
+            "Venta, caja y auditoría",
+            "Entrega pendiente"
+          ]
+        },
+        {
+          "title": "País y maestros",
+          "items": [
+            "Proyecciones e integración",
+            "Autoridad comercial definida",
+            "Versiones aprobadas"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "chapter": "c03",
+      "title": "Por qué recomendamos PostgreSQL",
+      "kicker": "03 · Modelo de datos",
+      "kind": "checklist",
+      "narration": "Una venta relaciona cabecera, líneas, movimientos de caja, evidencias y mensajes pendientes. PostgreSQL permite expresar relaciones, restricciones y transacciones para mantener coherente ese conjunto. También ofrece JSONB, un formato de documentos que puede alojar cargas variables sin abandonar el modelo relacional. La recomendación responde a estas necesidades, no a que otras bases carezcan de transacciones. MongoDB sí soporta transacciones sobre varios documentos. Su evaluación debe considerar el modelo, la operación y la migración existentes. Tampoco estamos afirmando que las bases actuales ya hayan sido reemplazadas.",
+      "takeaway": "La elección se apoya en invariantes y operación, no en mitos sobre otras bases.",
+      "bullets": [
+        "Relaciones y restricciones explícitas",
+        "Transacciones para cambios relacionados",
+        "JSONB para contenido variable",
+        "MongoDB también tiene transacciones"
+      ]
+    },
+    {
+      "id": "s11",
+      "chapter": "c03",
+      "title": "SQLite no es la base compartida de todas las cajas",
+      "kicker": "03 · Una alternativa con otro alcance",
+      "kind": "compare",
+      "narration": "SQLite es una base integrada útil para almacenamiento local de una aplicación. Eso no la transforma en un servidor compartido entre terminales. Por ejemplo, su modo WAL, que registra cambios antes de consolidarlos, requiere que los procesos participantes estén en el mismo equipo y no funciona sobre un sistema de archivos de red. Una futura caja con autonomía propia podría evaluarla, junto con durabilidad, identidad y conflictos. Ese perfil no está aprobado como comportamiento base. Hoy proponemos que las terminales compartan el servidor y PostgreSQL de la sucursal.",
+      "takeaway": "Una base por terminal requeriría un perfil de autonomía diferente.",
+      "columns": [
+        {
+          "title": "Propuesta base",
+          "items": [
+            "PostgreSQL en sucursal",
+            "Autoridad compartida",
+            "Terminal sin segunda venta local"
+          ]
+        },
+        {
+          "title": "Perfil futuro posible",
+          "items": [
+            "SQLite local evaluada",
+            "Durabilidad explícita",
+            "Conflictos y recuperación propios"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s12",
+      "chapter": "c03",
+      "title": "Una transacción confirma un conjunto completo",
+      "kicker": "03 · SQL ilustrativo",
+      "kind": "code",
+      "narration": "SQL es el lenguaje con que expresamos operaciones en esta base. Una transacción agrupa cambios que se confirman o se deshacen juntos. Aquí, venta, movimiento de caja, auditoría y mensaje pendiente pertenecen a la misma unidad. Las instrucciones abreviadas representan escrituras validadas; no son un programa para copiar. Todas usan la misma conexión. Si una falla, revertimos el conjunto. No mantenemos esta transacción abierta mientras esperamos internet, una impresora o un proveedor de pagos: mezclaríamos demoras externas con bloqueos locales.",
+      "takeaway": "Los cambios relacionados se confirman juntos y sin esperar servicios externos.",
+      "code": "BEGIN;\n-- Misma conexión; parámetros ya validados\nINSERT INTO sale (...) VALUES (...);\nINSERT INTO cash_movement (...) VALUES (...);\nINSERT INTO audit (...) VALUES (...);\nINSERT INTO outbox (...) VALUES (...);\nCOMMIT; -- Ante error: ROLLBACK",
+      "highlightLines": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "bullets": [
+        "SQL abreviado: ilustra el límite transaccional",
+        "Sin llamadas externas dentro de la transacción"
+      ]
+    },
+    {
+      "id": "s13",
+      "chapter": "c04",
+      "title": "C3: las reglas viven dentro del servidor",
+      "kicker": "04 · Componentes · Vista general",
+      "kind": "diagram",
+      "diagram": "03-backend-sucursal",
+      "narration": "El backend recomendado de sucursal es un monolito modular: sus componentes comparten un proceso. Acceso y permisos recibe el contexto del comando y autoriza usuario, perfil y sucursal. Ventas y devoluciones coordina el ciclo de la operación y sus reglas de negocio. Precios y ofertas calcula la cotización desde una versión comercial local que sigue vigente. Turnos y caja controla apertura, movimientos y cierre, manteniendo coherente la operación de caja. El puerto de pagos gestiona intentos y evidencia. Se comunica con el proveedor mediante su contrato. El puerto fiscal aplica la modalidad del país y conversa con su proveedor mediante otro contrato. Persistencia transaccional delimita las escrituras locales: negocio, auditoría y salida pendiente se confirman juntos. La API de comandos recibe las solicitudes del cliente. La interfaz no decide por su cuenta las reglas financieras.",
+      "takeaway": "Separar módulos no obliga a multiplicar procesos.",
+      "bullets": [
+        "NestJS y Fastify como servidor recomendado",
+        "Reglas y autorización fuera de la interfaz"
+      ],
+      "focus": {
+        "x": 0.31386930768918414,
+        "y": 0.4202418364140087,
+        "w": 0.16860458421289642,
+        "h": 0.04039210415612571
+      },
+      "focusLabel": "Detalle: unidad de trabajo y límite transaccional local",
+      "overviewFocus": {
+        "x": 0.027539944738288708,
+        "y": 0.08141766382023487,
+        "w": 0.944919940823059,
+        "h": 0.44756817547620015
+      }
+    },
+    {
+      "id": "s14",
+      "chapter": "c04",
+      "title": "La intención de venta recibe una identidad estable",
+      "kicker": "04 · Preparación",
+      "kind": "flow",
+      "narration": "El cajero confirma una compra de dos productos. El cliente envía una intención identificable, no una orden genérica de cobrar cualquier monto. El servidor valida artículos, versión de precios, permisos y sesión de caja; después conserva una referencia estable para la operación de pago cuando corresponda. Esa referencia nos permite reconocer un reintento después de una caída. Si el mismo identificador llega con un monto distinto, no lo tratamos como repetición válida. La identidad debe acompañar el contenido y el alcance autorizado, no sustituir sus comprobaciones.",
+      "takeaway": "Un reintento conserva identidad, contenido y alcance.",
+      "nodes": [
+        {
+          "id": "client",
+          "label": "Cliente",
+          "detail": "Intención y referencia"
+        },
+        {
+          "id": "access",
+          "label": "Autorización",
+          "detail": "Usuario, caja y alcance"
+        },
+        {
+          "id": "rules",
+          "label": "Reglas",
+          "detail": "Importe y versión válidos"
+        },
+        {
+          "id": "intent",
+          "label": "Intención persistida",
+          "detail": "Antes del efecto externo"
+        }
+      ],
+      "edges": [
+        {
+          "from": "client",
+          "to": "access",
+          "label": "Comando"
+        },
+        {
+          "from": "access",
+          "to": "rules",
+          "label": "Permiso válido"
+        },
+        {
+          "from": "rules",
+          "to": "intent",
+          "label": "Guardar referencia"
+        }
+      ],
+      "active": [
+        "access",
+        "rules",
+        "intent"
+      ],
+      "highlightEdges": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s15",
+      "chapter": "c04",
+      "title": "Cobrar y confirmar son pasos separados",
+      "kicker": "04 · Coordinación",
+      "kind": "flow",
+      "narration": "Con la intención guardada, el sistema solicita el pago por la ruta autorizada y registra la evidencia recibida. Si el resultado permite continuar, ejecuta una transacción corta para confirmar la venta y sus efectos locales. La llamada al proveedor ocurre fuera de esa transacción. Esto deja una situación importante por resolver: el proveedor podría aprobar y la confirmación local podría fallar. La intención y la evidencia deben permitir recuperar el caso, conciliarlo o tramitar una reversa trazable. Lanzar otro cobro para arreglar el error agravaría el problema.",
+      "takeaway": "Una aprobación externa exige recuperación, incluso si falla la confirmación local.",
+      "nodes": [
+        {
+          "id": "intent",
+          "label": "Intención",
+          "detail": "Referencia duradera"
+        },
+        {
+          "id": "provider",
+          "label": "Proveedor",
+          "detail": "Efecto externo autorizado"
+        },
+        {
+          "id": "evidence",
+          "label": "Evidencia",
+          "detail": "Resultado conservado"
+        },
+        {
+          "id": "commit",
+          "label": "Confirmación local",
+          "detail": "Venta, auditoría y salida"
+        }
+      ],
+      "edges": [
+        {
+          "from": "intent",
+          "to": "provider",
+          "label": "Solicitar"
+        },
+        {
+          "from": "provider",
+          "to": "evidence",
+          "label": "Resultado"
+        },
+        {
+          "from": "evidence",
+          "to": "commit",
+          "label": "Si procede"
+        }
+      ],
+      "active": [
+        "provider",
+        "evidence",
+        "commit"
+      ],
+      "highlightEdges": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s16",
+      "chapter": "c04",
+      "title": "El contrato de confirmación en ocho líneas",
+      "kicker": "04 · Pseudocódigo de negocio",
+      "kind": "code",
+      "narration": "Leamos el ejemplo después de entender el recorrido. Confirmar venta recibe una intención cuya evidencia de pago y política fiscal ya permiten avanzar. La función transacción representa una misma conexión local y revierte todas las escrituras si alguna falla. Dentro guardamos venta, caja, estado fiscal, auditoría y salida pendiente. Fuera queda cualquier llamada al proveedor. Estos nombres describen contratos del diseño; no corresponden a una biblioteca existente. Antes de responder éxito, el servidor debe haber confirmado el conjunto y poder devolver la misma respuesta ante una repetición válida.",
+      "takeaway": "El éxito local se responde después de confirmar las escrituras coherentes.",
+      "code": "await transaccion(async tx => {\n  await validarConfirmacion(tx, intencion);\n  await guardarVenta(tx, intencion);\n  await registrarCaja(tx, intencion);\n  await registrarEstadoFiscal(tx, intencion);\n  await guardarAuditoria(tx, intencion);\n  await agregarSalida(tx, evento);\n});",
+      "highlightLines": [
+        2,
+        3,
+        7
+      ],
+      "bullets": [
+        "Funciones contractuales, no una aplicación ejecutable",
+        "La evidencia externa existe antes de esta transacción"
+      ]
+    },
+    {
+      "id": "s17",
+      "chapter": "c05",
+      "title": "El proveedor no respondió: resultado desconocido",
+      "kicker": "05 · Pago incierto",
+      "kind": "compare",
+      "narration": "La terminal envía un cobro y vence el tiempo de espera. Eso describe la comunicación, no el resultado financiero: el proveedor podría haber aprobado. Conservamos la intención y marcamos el pago como desconocido. Si la integración homologada permite consultar por referencia, consultamos; de lo contrario, seguimos el procedimiento de conciliación e intervención. Mientras exista incertidumbre, bloqueamos otro intento incompatible. Cambiar automáticamente de proveedor tampoco elimina el posible primer cargo: podría crear un segundo cobro.",
+      "takeaway": "Un tiempo de espera agotado no demuestra un rechazo.",
+      "columns": [
+        {
+          "title": "Lo que sabemos",
+          "items": [
+            "La respuesta no llegó",
+            "La referencia existe",
+            "El cargo podría existir"
+          ]
+        },
+        {
+          "title": "Lo que hacemos",
+          "items": [
+            "Conservar evidencia",
+            "Consultar si está homologado",
+            "Conciliar antes de otro intento"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s18",
+      "chapter": "c05",
+      "title": "Fiscalidad e impresión también tienen su estado",
+      "kicker": "05 · Excepciones visibles",
+      "kind": "flow",
+      "narration": "Supongamos que la venta quedó registrada, pero la impresora dejó de responder. Reimprimir el comprobante no debe crear otra venta. Si el problema es fiscal, debemos mostrar el estado fiscal real y aplicar la modalidad permitida para ese país y operación. Una entrega pendiente al país no autoriza emisión fiscal pendiente por sí sola. Cada paso conserva su referencia y su historial. Así soporte distingue una falla del dispositivo, una respuesta externa pendiente y una operación local todavía no confirmada.",
+      "takeaway": "Repetir una salida física no debe repetir el efecto financiero.",
+      "nodes": [
+        {
+          "id": "sale",
+          "label": "Venta registrada",
+          "detail": "Identidad estable"
+        },
+        {
+          "id": "fiscal",
+          "label": "Estado fiscal",
+          "detail": "Modalidad autorizada"
+        },
+        {
+          "id": "print",
+          "label": "Impresión",
+          "detail": "Intento y resultado propios"
+        },
+        {
+          "id": "reprint",
+          "label": "Reimpresión",
+          "detail": "Misma operación"
+        }
+      ],
+      "edges": [
+        {
+          "from": "sale",
+          "to": "fiscal",
+          "label": "Referencia"
+        },
+        {
+          "from": "fiscal",
+          "to": "print",
+          "label": "Documento"
+        },
+        {
+          "from": "print",
+          "to": "reprint",
+          "label": "Recuperar salida"
+        }
+      ],
+      "active": [
+        "sale",
+        "fiscal",
+        "print",
+        "reprint"
+      ],
+      "highlightEdges": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s19",
+      "chapter": "c05",
+      "title": "El puente nativo ejecuta una intención autorizada",
+      "kicker": "05 · Dispositivos",
+      "kind": "flow",
+      "narration": "Algunos equipos de pago requieren un SDK, un kit de desarrollo que entrega el proveedor para controlar el dispositivo. Si ese camino se homologa, Tauri puede alojar un puente nativo. El cliente transmite el comando original autorizado por el servidor: importe, referencia y alcance. El puente no inventa otro monto ni concede permisos. La ruta directa desde el servidor es una alternativa según la integración; no debemos ejecutar ambas para un mismo intento. El resultado vuelve como evidencia verificable.",
+      "takeaway": "Acceso al dispositivo no equivale a autoridad para cobrar.",
+      "nodes": [
+        {
+          "id": "api",
+          "label": "Servidor",
+          "detail": "Autoriza la intención"
+        },
+        {
+          "id": "client",
+          "label": "Cliente Tauri",
+          "detail": "Conserva el comando"
+        },
+        {
+          "id": "bridge",
+          "label": "Puente nativo",
+          "detail": "SDK homologado"
+        },
+        {
+          "id": "provider",
+          "label": "Proveedor",
+          "detail": "Resultado y referencia"
+        }
+      ],
+      "edges": [
+        {
+          "from": "api",
+          "to": "client",
+          "label": "Comando"
+        },
+        {
+          "from": "client",
+          "to": "bridge",
+          "label": "Mismo intento"
+        },
+        {
+          "from": "bridge",
+          "to": "provider",
+          "label": "Ruta autorizada"
+        }
+      ],
+      "active": [
+        "api",
+        "bridge",
+        "provider"
+      ],
+      "highlightEdges": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s20",
+      "chapter": "c05",
+      "title": "¿Y si el pago se aprobó y luego se apagó el servidor?",
+      "kicker": "05 · Pregunta junior",
+      "kind": "question",
+      "narration": "La respuesta no es volver a cobrar. Primero buscamos la intención duradera y la evidencia disponible. Después consultamos el proveedor si existe esa capacidad homologada, o conciliamos mediante el procedimiento acordado. Debemos determinar si corresponde completar la operación local, revertir el pago o intervenir con trazabilidad. Por eso guardamos la intención antes del efecto externo. La recuperación debe soportar una interrupción entre cualquier par de pasos; suponer que el proceso siempre llegará a la última línea ocultaría este caso.",
+      "takeaway": "La recuperación continúa la misma operación y no inventa otra.",
+      "bullets": [
+        "Buscar intención y evidencia",
+        "Consultar o conciliar",
+        "Completar, revertir o intervenir con trazabilidad"
+      ],
+      "answer": "Nunca repetir el cobro sin resolver la incertidumbre del intento original."
+    },
+    {
+      "id": "s21",
+      "chapter": "c06",
+      "title": "La secuencia completa: venta y entrega al país",
+      "kicker": "06 · Diagrama dinámico · Vista general",
+      "kind": "diagram",
+      "diagram": "07-flujo-venta",
+      "narration": "La secuencia de venta usa los mismos participantes de ejecución que la vista de contenedores. Primero, el servidor consulta PostgreSQL y valida turno, permisos, precios y capacidad para operar. Después persiste una intención con identidad estable, antes de producir cualquier efecto de pago. El proveedor devuelve un resultado y una referencia. Esta continuación requiere evidencia suficiente para confirmar. El servidor confirma venta, caja, auditoría y salida pendiente dentro de una sola transacción local. El sincronizador envía el lote a la API de país, conservando identidades y secuencia. El país reconoce duplicados y confirma entrada, efecto y salida en una transacción local. Solo después de confirmar, la API devuelve el acuse de aplicación al sincronizador de sucursal. El cliente consulta venta y entrega. La integración empresarial continúa después, fuera de esta secuencia; no existe una transacción distribuida.",
+      "takeaway": "La secuencia complementa C4; no agrega un nuevo nivel de arquitectura.",
+      "bullets": [
+        "Intención → evidencia → confirmación local",
+        "Entrega al país con referencias estables"
+      ],
+      "focus": {
+        "x": 0.22437569884457698,
+        "y": 0.3552792272676807,
+        "w": 0.15430488259411107,
+        "h": 0.034972798934162316
+      },
+      "focusLabel": "Detalle: servidor → PostgreSQL sucursal; confirmación local",
+      "overviewFocus": {
+        "x": 0.029444651509504285,
+        "y": 0.09659153991340069,
+        "w": 0.9366380916884085,
+        "h": 0.6986788053735983
+      }
+    },
+    {
+      "id": "s22",
+      "chapter": "c06",
+      "title": "La bandeja de salida evita una escritura olvidada",
+      "kicker": "06 · Outbox",
+      "kind": "compare",
+      "narration": "Una bandeja de salida transaccional, llamada outbox, guarda el mensaje pendiente en la misma transacción que la venta. Imagina que guardamos la venta y luego intentamos publicar un mensaje: una caída entre ambas acciones puede dejar la venta sin entrega. Con la bandeja, la intención de envío ya está confirmada localmente. Otro proceso la recoge después. Esto no vuelve infalible a la red ni elimina duplicados; asegura que exista trabajo duradero para reintentar, sujeto a las garantías de almacenamiento y recuperación configuradas.",
+      "takeaway": "La venta y su intención de entrega nacen juntas.",
+      "columns": [
+        {
+          "title": "Dos escrituras separadas",
+          "items": [
+            "Guardar venta",
+            "Publicar después",
+            "Riesgo entre ambos pasos"
+          ]
+        },
+        {
+          "title": "Una transacción local",
+          "items": [
+            "Guardar venta y salida",
+            "Confirmar juntas",
+            "Entregar y reintentar después"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s23",
+      "chapter": "c06",
+      "title": "El país confirmó, pero se perdió el acuse",
+      "kicker": "06 · Reenvío esperado",
+      "kind": "flow",
+      "narration": "ACK significa acuse de recibo; aquí hablaremos de un acuse de aplicación. El país aplica el mensaje y confirma su transacción, pero la respuesta se pierde. La sucursal no puede saberlo y reenvía el mismo identificador. El registro de entrada, o inbox, reconoce la repetición y devuelve el resultado anterior sin repetir el efecto. Esta entrega admite más de un intento. Decimos al menos una vez, con aplicación idempotente: repetir la misma solicitud válida conserva el resultado de negocio.",
+      "takeaway": "Perder la respuesta obliga a tolerar el reenvío.",
+      "nodes": [
+        {
+          "id": "out",
+          "label": "Salida sucursal"
+        },
+        {
+          "id": "country",
+          "label": "País"
+        },
+        {
+          "id": "lost",
+          "label": "Acuse perdido"
+        },
+        {
+          "id": "retry",
+          "label": "Reenvío E42"
+        },
+        {
+          "id": "in",
+          "label": "Entrada país"
+        }
+      ],
+      "edges": [
+        {
+          "from": "out",
+          "to": "country",
+          "label": "HTTPS"
+        },
+        {
+          "from": "country",
+          "to": "lost",
+          "label": "Respuesta"
+        },
+        {
+          "from": "lost",
+          "to": "retry",
+          "label": "Reintento"
+        },
+        {
+          "from": "retry",
+          "to": "in",
+          "label": "Detectar repetición"
+        }
+      ],
+      "active": [
+        "retry",
+        "in"
+      ],
+      "highlightEdges": [
+        2,
+        3
+      ]
+    },
+    {
+      "id": "s24",
+      "chapter": "c06",
+      "title": "Entrada, efecto y nueva salida se confirman juntos",
+      "kicker": "06 · Pseudocódigo del receptor",
+      "kind": "code",
+      "narration": "En este pseudocódigo, el país ya autenticó el origen. La entrada tiene una clave única dentro de su alcance y se protege frente a receptores concurrentes. Comparamos el contenido: reutilizar una identidad con otros datos es un conflicto. Si ya fue aplicada, devolvemos la respuesta guardada. Si es nueva, validamos orden y reglas, aplicamos el efecto local, registramos la salida posterior y marcamos la entrada. Todo ocurre en una transacción. El acuse se envía únicamente después de confirmarla.",
+      "takeaway": "Registrar recepción sin el efecto requerido no alcanza para responder aplicado.",
+      "code": "const respuesta = await transaccion(async tx => {\n  const entrada = await bloquearEntrada(tx, evento);\n  exigirMismoContenido(entrada, evento);\n  if (entrada.aplicada) return entrada.respuesta;\n  const efecto = await aplicarEfectoLocal(tx, evento);\n  await agregarSalida(tx, efecto);\n  return marcarAplicada(tx, entrada, efecto);\n});",
+      "highlightLines": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "bullets": [
+        "Helpers contractuales: validan reglas y concurrencia",
+        "El acuse sale después de confirmar esta transacción"
+      ]
+    },
+    {
+      "id": "s25",
+      "chapter": "c07",
+      "title": "C3: el sincronizador tiene dos direcciones",
+      "kicker": "07 · Componentes · Vista general",
+      "kind": "diagram",
+      "diagram": "04-sincronizador",
+      "narration": "Un proceso supervisado ejecuta el sincronizador. Su planificador decide cuándo admitir trabajo según ventanas y límites. El emisor entrega operaciones pendientes al país mediante lotes que conservan identidades estables. El receptor consulta deltas y acuses, recibiendo versiones comerciales autorizadas para la sucursal. El módulo de entrada y deduplicación comprueba identidad y orden. Reconocer un mensaje no permite publicar sin validación. La carga completa prepara una versión aislada. Los cambios incrementales también conservan intacta la versión activa. Ambos caminos pasan por el validador, que revisa integridad, cobertura y vigencia antes de publicar. La activación cambia atómicamente la versión y confirma juntos el efecto y su avance aplicado. Los permisos sobre PostgreSQL alcanzan registros técnicos y publicaciones, no la modificación libre de ventas históricas. Separar estas etapas permite observar atrasos, localizar la falla y ejecutar una recuperación concreta.",
+      "takeaway": "Enviar, recibir, validar y activar son trabajos distintos.",
+      "bullets": [
+        "Proceso supervisado con permisos acotados",
+        "Planificación común; contratos separados"
+      ],
+      "focus": {
+        "x": 0.632088214928774,
+        "y": 0.413487555653681,
+        "w": 0.17828012498628726,
+        "h": 0.047052331548245924
+      },
+      "focusLabel": "Detalle: activación de versión y avance aplicado",
+      "overviewFocus": {
+        "x": 0.027332949414870217,
+        "y": 0.09484256866505282,
+        "w": 0.9453339237226348,
+        "h": 0.45104933643498396
+      }
+    },
+    {
+      "id": "s26",
+      "chapter": "c07",
+      "title": "Reclamar trabajo sin bloquear la base durante la red",
+      "kicker": "07 · Salida y planificación",
+      "kind": "flow",
+      "narration": "Dos ejecutores podrían recoger la misma salida. Necesitamos una reclamación temporal y recuperación del trabajo abandonado. Una transacción corta reclama un lote y termina antes del envío por HTTPS, el protocolo web cifrado. Otra registra resultados, verificando que la reclamación siga vigente y pertenezca al ejecutor. PostgreSQL ofrece bloqueo de filas y omisión de filas ya bloqueadas, pero esto no garantiza orden global. El planificador limita concurrencia, espera entre fallos y busca pendientes después de reiniciarse.",
+      "takeaway": "La red trabaja fuera de la transacción que reclama el lote.",
+      "nodes": [
+        {
+          "id": "schedule",
+          "label": "Planificar",
+          "detail": "Límites y espera"
+        },
+        {
+          "id": "claim",
+          "label": "Reclamar lote",
+          "detail": "Transacción corta"
+        },
+        {
+          "id": "send",
+          "label": "Enviar HTTPS",
+          "detail": "Sin transacción abierta"
+        },
+        {
+          "id": "record",
+          "label": "Guardar resultados",
+          "detail": "Por mensaje y referencia"
+        }
+      ],
+      "edges": [
+        {
+          "from": "schedule",
+          "to": "claim",
+          "label": "Buscar pendientes"
+        },
+        {
+          "from": "claim",
+          "to": "send",
+          "label": "Reclamación válida"
+        },
+        {
+          "from": "send",
+          "to": "record",
+          "label": "Resultado"
+        }
+      ],
+      "active": [
+        "claim",
+        "send",
+        "record"
+      ],
+      "highlightEdges": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s27",
+      "chapter": "c07",
+      "title": "Un duplicado y un hueco son problemas diferentes",
+      "kicker": "07 · Orden y continuidad",
+      "kind": "compare",
+      "narration": "Si llega dos veces el evento cuarenta y dos, buscamos su identidad y resultado. Si llega el cuarenta y cuatro sin el cuarenta y tres, puede existir un hueco relevante. El orden se define por entidad o flujo cuando el negocio lo necesita, no por el reloj de todas las máquinas. El receptor debe retener, rechazar o solicitar recuperación según el contrato. Un lote puede contener mensajes aplicados y otros pendientes; responder un éxito global ocultaría errores. Los cursores de recibido y aplicado permanecen separados.",
+      "takeaway": "Deduplicar no demuestra que una secuencia esté completa.",
+      "columns": [
+        {
+          "title": "Duplicado",
+          "items": [
+            "Misma identidad y contenido",
+            "Resultado previamente confirmado",
+            "No repetir el efecto"
+          ]
+        },
+        {
+          "title": "Hueco",
+          "items": [
+            "Falta un predecesor requerido",
+            "Recuperar según el contrato",
+            "No adelantar el cursor aplicado"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s28",
+      "chapter": "c07",
+      "title": "Supervisar también significa saber recuperar",
+      "kicker": "07 · Operación del sincronizador",
+      "kind": "checklist",
+      "narration": "Reiniciar un proceso no basta para declarar recuperado el sistema. Revisamos antigüedad de pendientes, reclamaciones vencidas, errores persistentes y diferencia entre recibido y aplicado. Un reintento manual conserva la identidad original y exige autorización y registro. Los mensajes problemáticos necesitan un estado visible, sin desaparecer del seguimiento. Además, conservamos entradas y salidas durante una ventana compatible con reenvíos y restauraciones. Si un respaldo antiguo elimina el registro de deduplicación, una repetición antes inocua podría volver a producir un efecto.",
+      "takeaway": "La retención técnica forma parte de la garantía de recuperación.",
+      "bullets": [
+        "Observar atraso y mensajes problemáticos",
+        "Recuperar reclamaciones vencidas",
+        "Reintentar con la misma identidad",
+        "Retención compatible con restauraciones"
+      ]
+    },
+    {
+      "id": "s29",
+      "chapter": "c08",
+      "title": "Un precio comienza en una autoridad comercial",
+      "kicker": "08 · Publicación de precios",
+      "kind": "flow",
+      "narration": "Un precio nuevo no se vuelve válido porque apareció en un mensaje. Una autoridad comercial definida por país y atributo aprueba una versión inmutable. El paquete identifica alcance, referencias, compatibilidad y condiciones de vigencia. Su publicación deja una salida transaccional para distribución. La sucursal conserva una copia de lectura que permite cotizar sin consultar al país por cada artículo. Esa copia no admite edición local arbitraria ni convierte al POS en dueño de todos los datos maestros o promociones.",
+      "takeaway": "La copia local publica decisiones comerciales previamente autorizadas.",
+      "nodes": [
+        {
+          "id": "authority",
+          "label": "Autoridad comercial",
+          "detail": "Aprueba alcance y vigencia"
+        },
+        {
+          "id": "package",
+          "label": "Versión inmutable",
+          "detail": "Manifiesto y referencias"
+        },
+        {
+          "id": "out",
+          "label": "Salida duradera",
+          "detail": "Distribución trazable"
+        },
+        {
+          "id": "branch",
+          "label": "Sucursal",
+          "detail": "Copia de lectura"
+        }
+      ],
+      "edges": [
+        {
+          "from": "authority",
+          "to": "package",
+          "label": "Aprobar"
+        },
+        {
+          "from": "package",
+          "to": "out",
+          "label": "Publicar"
+        },
+        {
+          "from": "out",
+          "to": "branch",
+          "label": "Distribuir"
+        }
+      ],
+      "active": [
+        "authority",
+        "package",
+        "branch"
+      ],
+      "highlightEdges": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s30",
+      "chapter": "c08",
+      "title": "Un delta construye una candidata, no altera la activa",
+      "kicker": "08 · Cambios incrementales",
+      "kind": "flow",
+      "narration": "Un delta es un conjunto de cambios desde una base conocida. Por ejemplo, modifica el precio de dos artículos y agrega una promoción. El receptor conserva el mensaje y lo aplica sobre una candidata aislada. Después comprueba cobertura, referencias, orden, esquema y compatibilidad. La versión activa sigue atendiendo ventas mientras esto ocurre. Recibir o deduplicar el mensaje no permite saltarse la validación. Solo una candidata completa y válida puede publicarse mediante un cambio atómico de la referencia activa.",
+      "takeaway": "Las ventas nunca leen una actualización comercial a medio construir.",
+      "nodes": [
+        {
+          "id": "receive",
+          "label": "Recibir delta",
+          "detail": "Identidad y base conocidas"
+        },
+        {
+          "id": "candidate",
+          "label": "Candidata aislada",
+          "detail": "Sin tocar la versión activa"
+        },
+        {
+          "id": "validate",
+          "label": "Validar conjunto",
+          "detail": "Cobertura y coherencia"
+        },
+        {
+          "id": "publish",
+          "label": "Publicar versión",
+          "detail": "Cambio atómico"
+        }
+      ],
+      "edges": [
+        {
+          "from": "receive",
+          "to": "candidate",
+          "label": "Cambios"
+        },
+        {
+          "from": "candidate",
+          "to": "validate",
+          "label": "Completa"
+        },
+        {
+          "from": "validate",
+          "to": "publish",
+          "label": "Válida"
+        }
+      ],
+      "active": [
+        "candidate",
+        "validate"
+      ],
+      "highlightEdges": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "s31",
+      "chapter": "c08",
+      "title": "Las bajas también viajan y también se recuerdan",
+      "kicker": "08 · Eliminaciones y repetición",
+      "kind": "compare",
+      "narration": "Supongamos que una promoción dejó de existir. Si solo enviamos altas y cambios, una sucursal desconectada podría conservarla para siempre. Por eso el contrato incluye bajas explícitas, a veces llamadas marcas de eliminación. También define cuánto conservarlas para impedir que una repetición antigua resucite contenido retirado. Una carga completa declara su cobertura, de modo que ausencia y eliminación tengan significado claro. El identificador del mensaje evita duplicados; la versión, las bajas y el orden evitan reconstruir un estado comercial incorrecto.",
+      "takeaway": "Eliminar es un cambio del negocio que necesita identidad y retención.",
+      "columns": [
+        {
+          "title": "Contrato incompleto",
+          "items": [
+            "Solo altas y cambios",
+            "La baja no llega",
+            "Contenido antiguo reaparece"
+          ]
+        },
+        {
+          "title": "Contrato explícito",
+          "items": [
+            "Altas, cambios y bajas",
+            "Cobertura de la versión",
+            "Retención para repetición segura"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s32",
+      "chapter": "c08",
+      "title": "Cada cotización conserva su versión de precios",
+      "kicker": "08 · Consistencia de la venta",
+      "kind": "flow",
+      "narration": "Mientras el cajero arma una compra, puede activarse una nueva lista. Cambiar silenciosamente una línea del carrito produciría una venta difícil de explicar. La cotización fija una versión y conserva sus referencias. Las nuevas cotizaciones usan la versión recién publicada; las abiertas siguen la política de validez y reconfirmación acordada. Antes de confirmar revisamos que todavía sea admisible. No basta con guardar el número de versión: debemos retener el contenido necesario para justificar precios, descuentos e impuestos aplicados a esa operación.",
+      "takeaway": "La versión fijada hace explicable el precio de cada venta.",
+      "nodes": [
+        {
+          "id": "v1",
+          "label": "Versión 12",
+          "detail": "Cotización ya abierta"
+        },
+        {
+          "id": "sale",
+          "label": "Venta A",
+          "detail": "Conserva su referencia válida"
+        },
+        {
+          "id": "v2",
+          "label": "Versión 13",
+          "detail": "Nueva versión publicada"
+        },
+        {
+          "id": "new",
+          "label": "Venta B",
+          "detail": "Nueva cotización"
+        }
+      ],
+      "edges": [
+        {
+          "from": "v1",
+          "to": "sale",
+          "label": "Versión fijada"
+        },
+        {
+          "from": "v2",
+          "to": "new",
+          "label": "Versión vigente"
+        }
+      ],
+      "active": [
+        "sale",
+        "new"
+      ],
+      "highlightEdges": [
+        0,
+        1
+      ],
+      "bullets": [
+        "Revalidar la política al confirmar"
+      ]
+    },
+    {
+      "id": "s33",
+      "chapter": "c09",
+      "title": "La secuencia de precios combina eventos y lotes",
+      "kicker": "09 · Diagrama dinámico · Vista general",
+      "kind": "diagram",
+      "diagram": "06-flujo-precios",
+      "narration": "La distribución parte de una publicación autorizada en el país y combina eventos con cargas completas. Los eventos acompañan la publicación de versión y manifiesto, reduciendo la demora entre cambios. Las cargas programadas y la recuperación manual solicitan el mismo contrato de deltas o copia completa. La API lee la publicación y su corte consistente, identificando qué cambios quedaron incluidos. El sincronizador recibe el contenido y guarda recepción y área temporal, sin cambiar la versión activa. Después prepara una candidata aislada y reproduce los cambios posteriores al corte de origen. La candidata completa se valida antes de publicarse: integridad, referencias, orden, compatibilidad y vigencia. Solo entonces una transacción activa la versión y confirma entrada aplicada y cursor aplicado juntos. La sucursal conserva una copia autorizada de lectura. Este recorrido distribuye contenido en una dirección; no replica ambas bases bidireccionalmente.",
+      "takeaway": "Eventos, lotes y recuperación manual comparten validación y publicación.",
+      "bullets": [
+        "Eventos para cambios; lotes para reconstrucción",
+        "Distribución comercial en una dirección"
+      ],
+      "focus": {
+        "x": 0.5487162606978275,
+        "y": 0.579564290788539,
+        "w": 0.13627386438446346,
+        "h": 0.03729576130712763
+      },
+      "focusLabel": "Detalle: sincronizador → PostgreSQL sucursal; publicación",
+      "overviewFocus": {
+        "x": 0.026003949967083606,
+        "y": 0.10300734075301918,
+        "w": 0.9440421329822252,
+        "h": 0.6786644565474781
+      }
+    },
+    {
+      "id": "s34",
+      "chapter": "c09",
+      "title": "El corte separa lo incluido de lo que llegó después",
+      "kicker": "09 · Copia completa y área temporal",
+      "kind": "flow",
+      "narration": "Una copia completa, llamada snapshot, necesita un corte consistente: incluye, por ejemplo, cambios hasta la posición cien. Mientras se descarga, conservamos los eventos posteriores. En un área temporal reconstruimos la base, aplicamos cambios desde ciento uno y comprobamos manifiesto, integridad y referencias. El corte corresponde al origen, no al reloj del descargador. Si faltan eventos, solicitamos recuperación; no activamos una mezcla sin continuidad demostrada.",
+      "takeaway": "La copia y los eventos posteriores deben reconstruir un estado coherente.",
+      "nodes": [
+        {
+          "id": "cut",
+          "label": "Corte 100",
+          "detail": "Copia consistente del origen"
+        },
+        {
+          "id": "stage",
+          "label": "Área temporal",
+          "detail": "Carga aislada"
+        },
+        {
+          "id": "delta",
+          "label": "Eventos 101…",
+          "detail": "Continuidad comprobada"
+        },
+        {
+          "id": "valid",
+          "label": "Candidata completa",
+          "detail": "Integridad y reglas válidas"
+        }
+      ],
+      "edges": [
+        {
+          "from": "cut",
+          "to": "stage",
+          "label": "Descargar"
+        },
+        {
+          "from": "stage",
+          "to": "delta",
+          "label": "Reconstruir"
+        },
+        {
+          "from": "delta",
+          "to": "valid",
+          "label": "Validar"
+        }
+      ],
+      "active": [
+        "stage",
+        "delta",
+        "valid"
+      ],
+      "highlightEdges": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s35",
+      "chapter": "c09",
+      "title": "La activación es corta y no permite retroceder",
+      "kicker": "09 · Pseudocódigo de publicación",
+      "kind": "code",
+      "narration": "La descarga y validación pesada terminaron fuera de esta transacción. La candidata validada es inmutable. Bloqueamos el alcance y comprobamos que base y avance sigan siendo compatibles. Una copia atrasada no puede reemplazar una versión reciente. Marcamos entradas aplicadas, cambiamos la referencia activa y avanzamos el cursor juntos. Si falla una condición, no publicamos parcialmente. Estos contratos deben probarse frente a concurrencia y reinicios.",
+      "takeaway": "La publicación une efecto, entradas aplicadas y cursor sin retroceso.",
+      "code": "await transaccion(async tx => {\n  const actual = await bloquearAlcance(tx, alcance);\n  exigirBaseCompatible(actual, candidata);\n  exigirAvanceSinRetroceso(actual, candidata);\n  await marcarEntradasAplicadas(tx, candidata);\n  await activarVersion(tx, candidata);\n  await avanzarCursorAplicado(tx, candidata);\n});",
+      "highlightLines": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "bullets": [
+        "Candidata completa, validada e inmutable",
+        "Revalidar condiciones dentro de la transacción"
+      ]
+    },
+    {
+      "id": "s36",
+      "chapter": "c09",
+      "title": "Antigüedad y vigencia comercial no son lo mismo",
+      "kicker": "09 · TTL y vencimiento",
+      "kind": "compare",
+      "narration": "TTL significa tiempo de vida; aquí expresa el límite de antigüedad autorizado. La vigencia comercial indica cuándo un precio o promoción tiene efecto. Una promoción puede estar vigente y su copia resultar demasiado antigua. Descargar la misma versión no renueva ninguno de esos plazos. Si falla una actualización, mantenemos la anterior solo mientras siga permitida. Al confirmar una venta comprobamos ambas condiciones por separado.",
+      "takeaway": "La conectividad no extiende automáticamente la validez de los datos.",
+      "columns": [
+        {
+          "title": "Antigüedad autorizada",
+          "items": [
+            "Frescura de la información",
+            "Referencia temporal definida",
+            "Misma versión no renueva el plazo"
+          ]
+        },
+        {
+          "title": "Vigencia comercial",
+          "items": [
+            "Inicio y fin del beneficio",
+            "Reglas del negocio",
+            "Validación al confirmar"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s37",
+      "chapter": "c10",
+      "title": "BullMQ organiza trabajos, no confirma ventas",
+      "kicker": "10 · Una cola de trabajos",
+      "kind": "compare",
+      "narration": "BullMQ programa y ejecuta trabajos, como reconciliar precios de madrugada. La evaluamos como opción en el país, usando Redis en este ejemplo. Redis coordina la cola y requiere configurar persistencia y memoria. BullMQ también ofrece PostgreSQL como motor alternativo; elegirlo no vuelve atómica cualquier escritura de negocio. La base de la sucursal sigue siendo su bandeja transaccional. No agregamos una cola obligatoria en cada tienda.",
+      "takeaway": "Programar un trabajo y confirmar una operación de negocio son responsabilidades distintas.",
+      "columns": [
+        {
+          "title": "BullMQ opcional en país",
+          "items": [
+            "Programar reconciliaciones",
+            "Distribuir trabajo",
+            "Controlar reintentos"
+          ]
+        },
+        {
+          "title": "PostgreSQL del negocio",
+          "items": [
+            "Autoridad y restricciones",
+            "Solicitudes duraderas",
+            "Idempotencia del efecto"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s38",
+      "chapter": "c10",
+      "title": "Programar una reconciliación con zona horaria",
+      "kicker": "10 · API de BullMQ",
+      "kind": "code",
+      "narration": "Queremos reconciliar diariamente a las tres de la mañana en Chile. La API, o interfaz de programación, de BullMQ recibe identidad del planificador, horario y plantilla. La conexión ya está configurada. Esto programa intención de ejecución; no garantiza puntualidad bajo carga ni reproduce automáticamente las ventanas perdidas. El trabajo debe detectar qué período o versión necesita reconciliar y registrar su resultado de forma idempotente.",
+      "takeaway": "El horario dispara trabajo; el dominio decide qué falta procesar.",
+      "code": "import { Queue } from 'bullmq';\nconst queue = new Queue('prices', { connection });\nawait queue.upsertJobScheduler(\n  'prices-nightly',\n  { pattern: '0 0 3 * * *', tz: 'America/Santiago' },\n  { name: 'reconcile', data: { country: 'CL' } }\n);",
+      "highlightLines": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "bullets": [
+        "Ejemplo de API; conexión y operación no incluidas",
+        "El horario no garantiza ejecución puntual"
+      ]
+    },
+    {
+      "id": "s39",
+      "chapter": "c10",
+      "title": "Una solicitud manual también debe sobrevivir",
+      "kicker": "10 · Trabajo solicitado por una persona",
+      "kind": "flow",
+      "narration": "Un supervisor solicita reconciliar una sucursal. Registramos la solicitud autorizada y su salida en PostgreSQL. Un publicador recuperable agrega el trabajo a BullMQ con referencia estable. Si repite el envío, la identidad de la cola ayuda mientras ese trabajo exista. Al eliminarlo, esa protección termina; el dominio conserva su propia idempotencia. La solicitud manual y la programada ejecutan las mismas validaciones y generan evidencia comparable.",
+      "takeaway": "La cola no debe ser el único registro de una solicitud importante.",
+      "nodes": [
+        {
+          "id": "request",
+          "label": "Solicitud autorizada"
+        },
+        {
+          "id": "pg",
+          "label": "PostgreSQL país"
+        },
+        {
+          "id": "relay",
+          "label": "Publicador"
+        },
+        {
+          "id": "queue",
+          "label": "BullMQ"
+        },
+        {
+          "id": "effect",
+          "label": "Efecto idempotente"
+        }
+      ],
+      "edges": [
+        {
+          "from": "request",
+          "to": "pg",
+          "label": "Confirmar"
+        },
+        {
+          "from": "pg",
+          "to": "relay",
+          "label": "Recoger"
+        },
+        {
+          "from": "relay",
+          "to": "queue",
+          "label": "Agregar"
+        },
+        {
+          "from": "queue",
+          "to": "effect",
+          "label": "Ejecutar"
+        }
+      ],
+      "active": [
+        "pg",
+        "queue",
+        "effect"
+      ],
+      "highlightEdges": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "s40",
+      "chapter": "c10",
+      "title": "Reintentar tiene presupuesto y puede repetirse",
+      "kicker": "10 · Fallo transitorio y recuperación",
+      "kind": "code",
+      "narration": "Permitimos tres intentos y espera creciente entre fallos. La reconciliación es un contrato del negocio: repetirla debe ser seguro. Un reinicio o pérdida de la reclamación puede provocar otra ejecución. Al agotar el presupuesto, mostramos el fallo y recuperamos con autorización. Un reintento manual no reinicia automáticamente el contador acumulado. Una implementación completa también necesita manejo de errores de conexión, alertas y cierre ordenado.",
+      "takeaway": "La repetición se controla en la cola y se tolera en el negocio.",
+      "code": "await queue.add('reconcile', { requestId }, {\n  jobId: requestId, attempts: 3,\n  backoff: { type: 'exponential', delay: 1000 }\n});\nnew Worker('prices', async job => {\n  await reconcileIdempotently(job.data);\n}, { connection: workerRedis });",
+      "highlightLines": [
+        2,
+        3,
+        6
+      ],
+      "bullets": [
+        "Worker importado de BullMQ; conexiones configuradas",
+        "La referencia de trabajo usa un formato admitido",
+        "La función de negocio es un contrato ilustrativo"
+      ]
+    },
+    {
+      "id": "s41",
+      "chapter": "c11",
+      "title": "RabbitMQ distribuye mensajes entre consumidores",
+      "kicker": "11 · Intermediario opcional",
+      "kind": "compare",
+      "narration": "RabbitMQ es un intermediario de mensajes. Puede servir cuando varios consumidores necesitan eventos: por ejemplo, integración empresarial e informes. BullMQ organiza trabajos; RabbitMQ enruta mensajes hacia colas. Ninguno reemplaza las reglas transaccionales del consumidor. La propuesta base usa PostgreSQL y lotes por HTTPS sin exigir un intermediario. Incorporarlo en el país debe responder a una necesidad medida y contemplar operación, monitoreo y recuperación explícitos.",
+      "takeaway": "Un intermediario opcional cambia el transporte, no la autoridad del negocio.",
+      "columns": [
+        {
+          "title": "Base propuesta",
+          "items": [
+            "Salida y entrada en PostgreSQL",
+            "Lotes por HTTPS",
+            "Reintentos con identidad estable"
+          ]
+        },
+        {
+          "title": "Extensión en país",
+          "items": [
+            "RabbitMQ para distribución",
+            "Colas por consumidor lógico",
+            "Operación y recuperación adicionales"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s42",
+      "chapter": "c11",
+      "title": "Una cola por consumidor lógico conserva las copias",
+      "kicker": "11 · Enrutamiento de eventos",
+      "kind": "flow",
+      "narration": "Un exchange enruta mensajes hacia colas según sus enlaces. Usamos tipo topic: una clave como venta confirmada coincide con reglas de suscripción. Las colas empresarial y de informes reciben copias independientes si ambas coinciden. Los ejecutores de una misma cola compiten por mensajes; no reciben todos una copia. Configuramos durabilidad y tipo de cola. Difundir a varios consumidores no exige específicamente un exchange de tipo fanout.",
+      "takeaway": "Las copias se separan por cola; los ejecutores comparten trabajo dentro de ella.",
+      "nodes": [
+        {
+          "id": "publisher",
+          "label": "Publicador país",
+          "detail": "Evento confirmado"
+        },
+        {
+          "id": "exchange",
+          "label": "Exchange topic",
+          "detail": "Reglas de suscripción"
+        },
+        {
+          "id": "erp",
+          "label": "Cola empresarial",
+          "detail": "Consumidor lógico independiente"
+        },
+        {
+          "id": "reports",
+          "label": "Cola de informes",
+          "detail": "Consumidor lógico independiente"
+        }
+      ],
+      "edges": [
+        {
+          "from": "publisher",
+          "to": "exchange",
+          "label": "sale.confirmed"
+        },
+        {
+          "from": "exchange",
+          "to": "erp",
+          "label": "Coincide sale.*"
+        },
+        {
+          "from": "exchange",
+          "to": "reports",
+          "label": "Coincide sale.*"
+        }
+      ],
+      "active": [
+        "exchange",
+        "erp",
+        "reports"
+      ],
+      "highlightEdges": [
+        1,
+        2
+      ],
+      "bullets": [
+        "Durabilidad y seguridad de entrega se configuran"
+      ]
+    },
+    {
+      "id": "s43",
+      "chapter": "c11",
+      "title": "La confirmación del intermediario no es aplicación",
+      "kicker": "11 · Confirmación y ausencia de ruta",
+      "kind": "code",
+      "narration": "Este fragmento supone un canal de confirmación y un solo mensaje en vuelo. Esperamos la confirmación del intermediario y observamos devoluciones. La opción mandatory permite detectar que no hubo ninguna cola de destino. No demuestra que todas las suscripciones esperadas existan. Incluso un mensaje sin ruta puede recibir confirmación; por eso comprobamos ambas señales. Registrar custodia del intermediario no afirma que el consumidor aplicó el negocio. El valor booleano de publicar expresa presión de salida, no ese resultado.",
+      "takeaway": "Custodia del intermediario, enrutamiento y efecto consumidor son señales diferentes.",
+      "code": "const returned = new Set();\npub.on('return', m => returned.add(m.properties.messageId));\npub.publish('pos-events', 'sale.confirmed', body,\n  { messageId: event.id, persistent: true, mandatory: true });\nawait pub.waitForConfirms();\nif (returned.has(event.id)) throw new Error('Sin ruta');\nawait markBrokerCustody(event.id);",
+      "highlightLines": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "bullets": [
+        "API amqplib; canal de confirmación ya creado",
+        "Un mensaje en vuelo; manejo de conexión omitido",
+        "markBrokerCustody es un contrato de persistencia"
+      ]
+    },
+    {
+      "id": "s44",
+      "chapter": "c11",
+      "title": "El consumidor confirma después de su transacción",
+      "kicker": "11 · Acuse y fallos persistentes",
+      "kind": "code",
+      "narration": "El consumidor usa acuse manual. Primero confirma entrada, efecto y salida en su base; después reconoce el mensaje. Si cae entre ambos pasos, tolerará una entrega repetida. La política de fallos limita reintentos y deriva casos persistentes a una cola de mensajes problemáticos, conocida como DLQ. Esa transferencia necesita configuración y verificación: no es segura por defecto en cualquier topología. Conservamos referencias y mecanismos de recuperación; reenviar sin límite solo escondería el incidente.",
+      "takeaway": "El acuse posterior al efecto necesita idempotencia y una política de fallos.",
+      "code": "await sub.consume('erp', msg => {\n  if (!msg) return;\n  applyInboxEffectOutbox(msg)\n    .then(() => sub.ack(msg))\n    .catch(err => handleFailure(sub, msg, err));\n}, { noAck: false });",
+      "highlightLines": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "bullets": [
+        "Helpers contractuales: transacción y fallo acotado",
+        "Canal, límites y topología ya configurados",
+        "La cola de fallos necesita una recuperación probada"
+      ]
+    },
+    {
+      "id": "s45",
+      "chapter": "c12",
+      "title": "Una fachada ofrece una capacidad estable",
+      "kicker": "12 · Fachadas",
+      "kind": "flow",
+      "narration": "Una fachada reúne una capacidad y oculta detalles de coordinación. Registrar una operación empresarial puede exigir transformar datos, elegir destino y guardar referencias. El resto del POS solicita esa capacidad mediante un contrato estable, sin conocer cada dirección del proveedor. La fachada no borra pendientes ni convierte operaciones remotas en una transacción. Tampoco exige otro proceso: su ubicación depende de los límites de la integración.",
+      "takeaway": "La fachada simplifica el uso sin esconder resultados ni fallos.",
+      "nodes": [
+        {
+          "id": "domain",
+          "label": "Proceso de negocio",
+          "detail": "Solicita una capacidad"
+        },
+        {
+          "id": "facade",
+          "label": "Fachada",
+          "detail": "Contrato estable"
+        },
+        {
+          "id": "integration",
+          "label": "Integración",
+          "detail": "Coordina destino y referencias"
+        }
+      ],
+      "edges": [
+        {
+          "from": "domain",
+          "to": "facade",
+          "label": "Solicitud"
+        },
+        {
+          "from": "facade",
+          "to": "integration",
+          "label": "Coordinación"
+        }
+      ],
+      "active": [
+        "facade"
+      ],
+      "highlightEdges": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "s46",
+      "chapter": "c12",
+      "title": "ACL aquí significa capa anticorrupción",
+      "kicker": "12 · Traducción de significado",
+      "kind": "compare",
+      "narration": "ACL viene del inglés Anti-Corruption Layer: capa anticorrupción, no lista de permisos. Impide que el vocabulario externo deforme nuestro modelo. Por ejemplo, emitido puede significar algo distinto en cada sistema empresarial. La capa traduce y valida ese significado. La fachada presenta la capacidad; el adaptador resuelve el acceso técnico; la capa anticorrupción protege la semántica. Pueden colaborar dentro de una integración sin crear tres servicios.",
+      "takeaway": "La capa anticorrupción traduce significado; la autorización se resuelve aparte.",
+      "columns": [
+        {
+          "title": "Fachada",
+          "items": [
+            "Capacidad estable",
+            "Resultado explícito"
+          ]
+        },
+        {
+          "title": "Adaptador",
+          "items": [
+            "Protocolo y conexión",
+            "Detalles del proveedor"
+          ]
+        },
+        {
+          "title": "Capa anticorrupción",
+          "items": [
+            "Estados, moneda e impuestos",
+            "Reglas de traducción"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s47",
+      "chapter": "c12",
+      "title": "Traducir datos también exige rechazar ambigüedades",
+      "kicker": "12 · Pseudocódigo de integración",
+      "kind": "code",
+      "narration": "Un destino espera importes en unidades mínimas y códigos fiscales propios. La traducción respeta moneda, precisión, redondeo y equivalencias aprobadas. Si falta una equivalencia, detenemos la integración con un motivo visible; no inventamos un valor. El ejemplo usa funciones contractuales, no conversiones universales. Conservamos la identidad original para conciliar respuestas y reintentos. La traducción necesita pruebas con casos reales del país y del destino homologado.",
+      "takeaway": "Una equivalencia ausente produce un caso pendiente, no una suposición silenciosa.",
+      "code": "const externo = {\n  referencia: venta.id,\n  importe: convertirImporteExacto(venta, contrato),\n  moneda: exigirMonedaAdmitida(venta.moneda),\n  impuesto: exigirEquivalencia(venta.impuesto),\n  estado: traducirEstado(venta.estado, contrato)\n};",
+      "highlightLines": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "bullets": [
+        "Pseudocódigo: reglas homologadas por país y destino",
+        "Sin adivinar precisión, impuestos ni estados"
+      ]
+    },
+    {
+      "id": "s48",
+      "chapter": "c12",
+      "title": "Cambiar de ERP no es cambiar una dirección web",
+      "kicker": "12 · Evolución del sistema empresarial",
+      "kind": "compare",
+      "narration": "ERP significa planificación de recursos empresariales: aquí, el sistema de procesos administrativos. Una migración puede cambiar identificadores, impuestos, estados y reversas. Cada operación conserva su destino y versión contractual, incluso si llega tarde por desconexión. Debemos resolver referencias históricas y conciliación durante la transición. Publicar la venta a todos los destinos o cambiar una dirección web global no define una estrategia de migración segura.",
+      "takeaway": "La evolución conserva trazabilidad por operación, destino y versión contractual.",
+      "columns": [
+        {
+          "title": "Operación histórica",
+          "items": [
+            "Destino y contrato originales",
+            "Referencias conservadas",
+            "Conciliación trazable"
+          ]
+        },
+        {
+          "title": "Nueva operación",
+          "items": [
+            "Regla de enrutamiento vigente",
+            "Destino homologado",
+            "Transición explícita"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s49",
+      "chapter": "c13",
+      "title": "Nx organiza dependencias, no decide la topología",
+      "kicker": "13 · Desarrollo",
+      "kind": "compare",
+      "narration": "Nx organiza proyectos, dependencias y tareas de construcción. Podemos separar dominio, contratos y adaptadores, y prohibir dependencias indebidas. Una pantalla no debería importar un repositorio SQL del servidor. Esto mejora la estructura del código, pero no autentica solicitudes ni crea aislamiento de ejecución. Un monorepositorio puede producir varios procesos; muchas bibliotecas pueden terminar en uno. La topología de ejecución sigue siendo una decisión arquitectónica distinta.",
+      "takeaway": "Los límites del código complementan los límites de ejecución.",
+      "columns": [
+        {
+          "title": "Nx",
+          "items": [
+            "Proyectos y dependencias",
+            "Reglas de importación",
+            "Construcción y validación"
+          ]
+        },
+        {
+          "title": "Arquitectura en ejecución",
+          "items": [
+            "Procesos y permisos",
+            "Autoridad de datos",
+            "Redes y recuperación"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s50",
+      "chapter": "c13",
+      "title": "Tauri entrega escritorio; el servidor conserva autoridad",
+      "kicker": "13 · Cliente y distribución",
+      "kind": "checklist",
+      "narration": "Tauri empaqueta la interfaz y la conecta con capacidades nativas controladas. Eso no garantiza compatibilidad con impresoras o terminales de pago: debemos validar dispositivos y bibliotecas. El cliente envía comandos al servidor compartido. Las actualizaciones respetan compatibilidad de contratos y procedimientos de instalación y recuperación. Una interfaz nueva no puede asumir capacidades que el servidor todavía no ofrece ni guardar otra historia financiera para compensarlo.",
+      "takeaway": "El paquete de escritorio requiere compatibilidad probada y mantiene el límite de autoridad.",
+      "bullets": [
+        "Validar dispositivos y bibliotecas",
+        "Limitar capacidades nativas",
+        "Compatibilidad entre cliente y servidor",
+        "Sin segunda historia financiera en la caja"
+      ]
+    },
+    {
+      "id": "s51",
+      "chapter": "c13",
+      "title": "Observar la operación completa con referencias comunes",
+      "kicker": "13 · Observabilidad",
+      "kind": "flow",
+      "narration": "Observabilidad significa explicar lo que ocurre mediante señales del sistema. Seguimos referencias de venta, pago, evento y destino. Medimos pendientes antiguos, reintentos, huecos, pagos desconocidos y versiones próximas a vencer. Un proceso vivo no demuestra que el negocio esté al día. Los registros necesitan contexto y acceso controlado, sin datos sensibles innecesarios. Soporte debe distinguir un atraso recuperable de una operación que requiere intervención.",
+      "takeaway": "Las señales deben explicar estados del negocio, además de la salud del proceso.",
+      "nodes": [
+        {
+          "id": "sale",
+          "label": "Venta",
+          "detail": "Referencia operativa"
+        },
+        {
+          "id": "event",
+          "label": "Entrega",
+          "detail": "Evento y resultados"
+        },
+        {
+          "id": "destination",
+          "label": "Destino",
+          "detail": "Aceptación o rechazo"
+        },
+        {
+          "id": "support",
+          "label": "Soporte",
+          "detail": "Diagnóstico y recuperación"
+        }
+      ],
+      "edges": [
+        {
+          "from": "sale",
+          "to": "event",
+          "label": "Correlación"
+        },
+        {
+          "from": "event",
+          "to": "destination",
+          "label": "Referencia"
+        },
+        {
+          "from": "destination",
+          "to": "support",
+          "label": "Evidencia"
+        }
+      ],
+      "active": [
+        "support"
+      ],
+      "highlightEdges": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s52",
+      "chapter": "c13",
+      "title": "Restaurar debe probar datos y entregas pendientes",
+      "kicker": "13 · Recuperación",
+      "kind": "checklist",
+      "narration": "RPO expresa pérdida tolerable de historial medida en tiempo; RTO expresa tiempo de recuperación aceptable. Acordamos esos objetivos y comprobamos si el diseño los cumple. Una restauración debe revisar ventas, evidencias, entradas, salidas, cursores y versiones. También considera lo que otros sistemas ya recibieron para evitar repetir efectos. Respaldo, conmutación y recuperación operativa están relacionados, pero no quedan demostrados por dibujar una copia adicional.",
+      "takeaway": "Los objetivos de recuperación se acuerdan y se validan con restauraciones reales.",
+      "bullets": [
+        "RPO: pérdida tolerable",
+        "RTO: tiempo de recuperación aceptable",
+        "Restaurar también entradas, salidas y referencias",
+        "Conciliar lo ya recibido por otros sistemas"
+      ]
+    },
+    {
+      "id": "s53",
+      "chapter": "c14",
+      "title": "¿Puedo vender si no hay internet?",
+      "kicker": "14 · Comprobación junior",
+      "kind": "question",
+      "narration": "Depende de la falla y de la operación. Con red local, servidor y PostgreSQL disponibles, podrías confirmar una venta permitida usando datos y autorización válidos. El ejemplo en efectivo exige modalidad fiscal aprobada. Si falta la autoridad local o una capacidad externa necesaria, detenemos los comandos afectados. La respuesta enumera condiciones comprobables: decir solamente que funciona sin conexión oculta los límites que el cajero necesita conocer.",
+      "takeaway": "La continuidad se explica con condiciones concretas.",
+      "bullets": [
+        "Identificar WAN, LAN o servidor",
+        "Verificar datos, autorización y modalidad",
+        "Detener solo operaciones sin condiciones suficientes"
+      ],
+      "answer": "Sí, únicamente cuando todas las capacidades requeridas por esa operación siguen disponibles y válidas."
+    },
+    {
+      "id": "s54",
+      "chapter": "c14",
+      "title": "¿Un mensaje confirmado ya quedó aplicado?",
+      "kicker": "14 · Comprobación junior",
+      "kind": "question",
+      "narration": "Pregunta quién confirmó. RabbitMQ puede confirmar custodia sin aplicación del mensaje. El consumidor reconoce después de confirmar su efecto local. El país, en nuestro contrato HTTPS, responde aplicado después de confirmar entrada, efecto y salida. Si se pierde la respuesta, puede haber repetición. La protección viene de identidades estables y efectos idempotentes en cada límite, no de ejecutar mágicamente una sola vez entre sistemas.",
+      "takeaway": "Cada confirmación tiene un emisor y un alcance.",
+      "bullets": [
+        "Intermediario: custodia",
+        "Consumidor: efecto local confirmado",
+        "País: contrato de aplicación cumplido"
+      ],
+      "answer": "No siempre. Hay que distinguir custodia, recepción y aplicación del negocio."
+    },
+    {
+      "id": "s55",
+      "chapter": "c14",
+      "title": "¿Basta descargar la lista de precios otra vez?",
+      "kicker": "14 · Comprobación junior",
+      "kind": "question",
+      "narration": "No basta. Necesitamos una candidata completa, compatible y validada. Debe publicarse sin retroceder la versión activa ni separar el efecto de su cursor aplicado. Descargar los mismos datos no extiende antigüedad autorizada ni vigencia comercial. Una venta conserva su versión y comprueba la política al confirmar. La respuesta conecta integridad, orden y reglas comerciales: tener un archivo en disco es solo una etapa del contrato.",
+      "takeaway": "Archivo recibido, versión publicada y precio utilizable son estados diferentes.",
+      "bullets": [
+        "Validar contenido y continuidad",
+        "Publicar sin retroceso",
+        "Comprobar antigüedad y vigencia"
+      ],
+      "answer": "No. La descarga no reemplaza validación, activación ni comprobación de validez."
+    },
+    {
+      "id": "s56",
+      "chapter": "c14",
+      "title": "El piloto debe demostrar estas cuatro propiedades",
+      "kicker": "14 · Criterios de aceptación",
+      "kind": "checklist",
+      "narration": "Antes de aceptar el piloto, provoquemos cortes después de cobrar, después de confirmar y antes del acuse. Verifiquemos que repetir no duplica efectos, que ninguna lista incompleta se publica y que restaurar conserva trazabilidad. Midamos los objetivos acordados con carga y fallas representativas. Los diagramas y ejemplos ayudan a formular estas pruebas. La evidencia del piloto permitirá ajustar la propuesta y explicar qué puede prometer la operación.",
+      "takeaway": "La arquitectura se acepta con evidencia de sus contratos frente a fallas.",
+      "bullets": [
+        "Recuperar pagos inciertos sin duplicar cobros",
+        "Repetir entregas sin duplicar efectos",
+        "Publicar precios completos y válidos",
+        "Restaurar dentro de objetivos acordados"
+      ]
+    }
+  ]
+}

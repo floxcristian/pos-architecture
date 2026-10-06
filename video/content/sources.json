@@ -1,0 +1,375 @@
+{
+  "title": "Fuentes del guion técnico POS",
+  "checkedAt": "2026-10-05",
+  "scope": "Referencias primarias para explicar la propuesta. No certifican implementación, homologación ni operación productiva. Los contratos específicos del POS proceden de los documentos locales; los fragmentos abreviados no constituyen una aplicación ejecutable.",
+  "localDocuments": [
+    {
+      "path": "docs/propuesta-arquitectura.md",
+      "topic": "Autoridad de datos, topología recomendada, límites de continuidad y contratos de integración"
+    },
+    {
+      "path": "docs/c4-arquitectura-propuesta.md",
+      "topic": "Contexto, contenedores, componentes de servidor y sincronizador, despliegue"
+    },
+    {
+      "path": "docs/opciones-tecnologicas.md",
+      "topic": "Angular, Tauri, Nx y evaluación de almacenamiento y transporte"
+    },
+    {
+      "path": "docs/operacion-caja-y-evolucion.md",
+      "topic": "Venta, pagos inciertos, precios por eventos y cargas completas, evolución y recuperación"
+    },
+    {
+      "path": "presentation/architecture-labs.js",
+      "topic": "Contratos y escenarios educativos de venta, entrega, precios, BullMQ y RabbitMQ"
+    },
+    {
+      "path": "presentation/c4-data.js",
+      "topic": "Participantes y relaciones canónicas de los diagramas estructurales"
+    },
+    {
+      "path": "presentation/excalidraw/dynamic-data.cjs",
+      "topic": "Secuencias de distribución de precios y venta con entrega al país"
+    },
+    {
+      "path": "docs/diagramas-excalidraw/README.md",
+      "topic": "Inventario, lectura y edición de los siete diagramas originales"
+    },
+    {
+      "path": "presentation/architecture-diagrams/bounds.json",
+      "topic": "Regiones verificadas del área diagramática de los cinco pósteres estructurales"
+    }
+  ],
+  "references": [
+    {
+      "id": "c4-model",
+      "topic": "Niveles del modelo C4 y significado de contenedor",
+      "label": "C4 model — Diagrams",
+      "url": "https://c4model.com/diagrams",
+      "scenes": [
+        "s03",
+        "s05",
+        "s13",
+        "s25"
+      ]
+    },
+    {
+      "id": "c4-dynamic",
+      "topic": "Vistas dinámicas como complemento del modelo estructural",
+      "label": "C4 model — Dynamic diagram",
+      "url": "https://c4model.com/diagrams/dynamic",
+      "scenes": [
+        "s21",
+        "s33"
+      ]
+    },
+    {
+      "id": "pg-transactions",
+      "topic": "Confirmación y reversión de cambios relacionados",
+      "label": "PostgreSQL — Transactions",
+      "url": "https://www.postgresql.org/docs/current/tutorial-transactions.html",
+      "scenes": [
+        "s10",
+        "s12",
+        "s16"
+      ]
+    },
+    {
+      "id": "pg-json",
+      "topic": "Documentos JSONB dentro de PostgreSQL",
+      "label": "PostgreSQL — JSON Types",
+      "url": "https://www.postgresql.org/docs/current/datatype-json.html",
+      "scenes": [
+        "s10"
+      ]
+    },
+    {
+      "id": "mongo-transactions",
+      "topic": "MongoDB sí admite transacciones sobre varios documentos",
+      "label": "MongoDB — Transactions",
+      "url": "https://www.mongodb.com/docs/manual/core/transactions/",
+      "scenes": [
+        "s10"
+      ]
+    },
+    {
+      "id": "sqlite-wal",
+      "topic": "Procesos en el mismo equipo y restricciones de WAL sobre archivos de red",
+      "label": "SQLite — Write-Ahead Logging",
+      "url": "https://www.sqlite.org/wal.html",
+      "scenes": [
+        "s11"
+      ]
+    },
+    {
+      "id": "sqlite-durability",
+      "topic": "La durabilidad depende también del modo síncrono configurado",
+      "label": "SQLite — PRAGMA synchronous",
+      "url": "https://www.sqlite.org/pragma.html#pragma_synchronous",
+      "scenes": [
+        "s11"
+      ]
+    },
+    {
+      "id": "nodepg-transactions",
+      "topic": "Misma conexión para todas las instrucciones de una transacción",
+      "label": "node-postgres — Transactions",
+      "url": "https://node-postgres.com/features/transactions",
+      "scenes": [
+        "s12",
+        "s16",
+        "s24",
+        "s35"
+      ]
+    },
+    {
+      "id": "pg-locks",
+      "topic": "Bloqueo de filas, SKIP LOCKED y límites de orden y consistencia",
+      "label": "PostgreSQL — SELECT",
+      "url": "https://www.postgresql.org/docs/current/sql-select.html",
+      "scenes": [
+        "s26",
+        "s27"
+      ]
+    },
+    {
+      "id": "bull-schedulers",
+      "topic": "upsertJobScheduler, patrón horario y límites de programación",
+      "label": "BullMQ — Job Schedulers",
+      "url": "https://docs.bullmq.io/guide/job-schedulers/",
+      "scenes": [
+        "s38"
+      ]
+    },
+    {
+      "id": "bull-postgres",
+      "topic": "PostgreSQL como alternativa a Redis en BullMQ",
+      "label": "BullMQ — PostgreSQL",
+      "url": "https://docs.bullmq.io/guide/postgresql",
+      "scenes": [
+        "s37"
+      ]
+    },
+    {
+      "id": "bull-production",
+      "topic": "Configuración y operación de BullMQ con Redis",
+      "label": "BullMQ — Going to production",
+      "url": "https://docs.bullmq.io/guide/going-to-production",
+      "scenes": [
+        "s37",
+        "s40"
+      ]
+    },
+    {
+      "id": "redis-persistence",
+      "topic": "Persistencia de Redis y sus compromisos operativos",
+      "label": "Redis — Persistence",
+      "url": "https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/",
+      "scenes": [
+        "s37"
+      ]
+    },
+    {
+      "id": "bull-job-ids",
+      "topic": "Alcance temporal de la deduplicación por identificador de trabajo",
+      "label": "BullMQ — Job Ids",
+      "url": "https://docs.bullmq.io/guide/jobs/job-ids",
+      "scenes": [
+        "s39",
+        "s40"
+      ]
+    },
+    {
+      "id": "bull-retries",
+      "topic": "Número de intentos y espera creciente entre fallos",
+      "label": "BullMQ — Retrying failing jobs",
+      "url": "https://docs.bullmq.io/guide/retrying-failing-jobs",
+      "scenes": [
+        "s40"
+      ]
+    },
+    {
+      "id": "bull-stalled",
+      "topic": "Trabajo que pierde su reclamación y puede ejecutarse otra vez",
+      "label": "BullMQ — Stalled Jobs",
+      "url": "https://docs.bullmq.io/guide/workers/stalled-jobs",
+      "scenes": [
+        "s40"
+      ]
+    },
+    {
+      "id": "bull-retry-source",
+      "topic": "retry de un trabajo fallido y contador acumulado de intentos",
+      "label": "BullMQ v6.3.11 — Job implementation",
+      "url": "https://github.com/taskforcesh/bullmq/blob/v6.3.11/src/classes/job.ts",
+      "scenes": [
+        "s40"
+      ]
+    },
+    {
+      "id": "rabbit-exchanges",
+      "topic": "Enrutamiento topic, enlaces y difusión a varias colas",
+      "label": "RabbitMQ — Exchanges",
+      "url": "https://www.rabbitmq.com/docs/exchanges",
+      "scenes": [
+        "s41",
+        "s42"
+      ]
+    },
+    {
+      "id": "rabbit-confirms",
+      "topic": "Confirmación de publicación, acuse consumidor y mensajes sin ruta",
+      "label": "RabbitMQ — Consumer Acknowledgements and Publisher Confirms",
+      "url": "https://www.rabbitmq.com/docs/confirms",
+      "scenes": [
+        "s43",
+        "s44",
+        "s54"
+      ]
+    },
+    {
+      "id": "amqplib-api",
+      "topic": "Canal de confirmación, return, publish, waitForConfirms, consume y ack",
+      "label": "amqplib — Channel API reference",
+      "url": "https://amqp-node.github.io/amqplib/channel_api.html",
+      "scenes": [
+        "s43",
+        "s44"
+      ]
+    },
+    {
+      "id": "rabbit-reliability",
+      "topic": "Reentrega, deduplicación y responsabilidades de aplicaciones",
+      "label": "RabbitMQ — Reliability Guide",
+      "url": "https://www.rabbitmq.com/docs/reliability",
+      "scenes": [
+        "s41",
+        "s44",
+        "s54"
+      ]
+    },
+    {
+      "id": "rabbit-dlx",
+      "topic": "Condiciones de seguridad de la transferencia a colas de fallos",
+      "label": "RabbitMQ — Dead Letter Exchanges",
+      "url": "https://www.rabbitmq.com/docs/dlx",
+      "scenes": [
+        "s44"
+      ]
+    },
+    {
+      "id": "acl-pattern",
+      "topic": "Traducción semántica para proteger el modelo propio frente a sistemas externos",
+      "label": "Microsoft Azure Architecture Center — Anti-corruption Layer pattern",
+      "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer",
+      "scenes": [
+        "s46",
+        "s47",
+        "s48"
+      ]
+    },
+    {
+      "id": "nx-boundaries",
+      "topic": "Reglas de dependencias e importaciones entre proyectos",
+      "label": "Nx — Enforce Module Boundaries",
+      "url": "https://nx.dev/docs/features/enforce-module-boundaries",
+      "scenes": [
+        "s49"
+      ]
+    },
+    {
+      "id": "tauri-architecture",
+      "topic": "Responsabilidades del cliente de escritorio y capacidades nativas",
+      "label": "Tauri — Architecture",
+      "url": "https://v2.tauri.app/concept/architecture/",
+      "scenes": [
+        "s19",
+        "s50"
+      ]
+    }
+  ],
+  "diagramAssets": [
+    {
+      "basename": "01-contexto",
+      "scene": "s03",
+      "source": "docs/diagramas-excalidraw/01-contexto.svg",
+      "nativeSource": "docs/diagramas-excalidraw/01-contexto.excalidraw",
+      "focusElements": [
+        "cashier",
+        "supervisor"
+      ],
+      "focusMargin": 16
+    },
+    {
+      "basename": "02-contenedores",
+      "scene": "s05",
+      "source": "docs/diagramas-excalidraw/02-contenedores.svg",
+      "nativeSource": "docs/diagramas-excalidraw/02-contenedores.excalidraw",
+      "focusElements": [
+        "syncWorker",
+        "branchApi"
+      ],
+      "focusMargin": 16
+    },
+    {
+      "basename": "03-backend-sucursal",
+      "scene": "s13",
+      "source": "docs/diagramas-excalidraw/03-backend-sucursal.svg",
+      "nativeSource": "docs/diagramas-excalidraw/03-backend-sucursal.excalidraw",
+      "focusElements": [
+        "unitOfWork"
+      ],
+      "focusMargin": 28
+    },
+    {
+      "basename": "04-sincronizador",
+      "scene": "s25",
+      "source": "docs/diagramas-excalidraw/04-sincronizador.svg",
+      "nativeSource": "docs/diagramas-excalidraw/04-sincronizador.excalidraw",
+      "focusElements": [
+        "activation"
+      ],
+      "focusMargin": 28
+    },
+    {
+      "basename": "05-despliegue",
+      "scene": "s08",
+      "source": "docs/diagramas-excalidraw/05-despliegue.svg",
+      "nativeSource": "docs/diagramas-excalidraw/05-despliegue.excalidraw",
+      "focusElements": [
+        "syncWorker",
+        "branchApi"
+      ],
+      "focusMargin": 16
+    },
+    {
+      "basename": "06-flujo-precios",
+      "scene": "s33",
+      "source": "docs/diagramas-excalidraw/06-flujo-precios.svg",
+      "nativeSource": "docs/diagramas-excalidraw/06-flujo-precios.excalidraw",
+      "focusElements": [
+        "step-9",
+        "step-9-label"
+      ],
+      "focusMargin": 30
+    },
+    {
+      "basename": "07-flujo-venta",
+      "scene": "s21",
+      "source": "docs/diagramas-excalidraw/07-flujo-venta.svg",
+      "nativeSource": "docs/diagramas-excalidraw/07-flujo-venta.excalidraw",
+      "focusElements": [
+        "step-5",
+        "step-5-label"
+      ],
+      "focusMargin": 30
+    }
+  ],
+  "codeConventions": [
+    "Los fragmentos SQL con puntos suspensivos son ilustrativos y no son sintaxis ejecutable completa.",
+    "Las funciones de negocio y persistencia representan contratos explicados en la narración; no se presentan como APIs de bibliotecas.",
+    "Los fragmentos de BullMQ y amqplib muestran APIs reales con conexiones, topología y operación abreviadas explícitamente.",
+    "El fragmento de publicación RabbitMQ usa un canal de confirmación ya creado y un único mensaje en vuelo para hacer inequívoca la comprobación de devolución.",
+    "Los diagramas son los originales existentes; los acercamientos solo cambian el área visible, no los elementos ni sus relaciones."
+  ]
+}

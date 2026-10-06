@@ -6,6 +6,9 @@
 /presentation/architecture-diagrams/qa/
 /presentation/tools/excalidraw-runtime/generator.js
 /public/
+/video/.venv/
+/video/work/
+/video/output/
 /.vercel/
 
 # Dependencies, runtime caches and local configuration.

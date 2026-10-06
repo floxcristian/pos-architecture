@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>POS Atlas · Renderer de video</title>
+  <link rel="stylesheet" href="renderer.css">
+  <script defer src="renderer.js"></script>
+</head>
+<body>
+  <main id="video-stage" aria-label="Cuadro de la presentación de arquitectura POS">
+    <div class="stage-grid" aria-hidden="true"></div>
+    <header class="film-header">
+      <div class="film-brand"><span aria-hidden="true">P</span><strong>POS Atlas</strong></div>
+      <p id="chapter-rail"></p>
+    </header>
+    <div id="scene-root"></div>
+    <footer class="film-footer">
+      <div id="subtitle" class="subtitle"></div>
+      <div class="footer-rail"><span>Arquitectura del POS corporativo</span><span id="scene-rail"></span></div>
+      <div class="film-progress" aria-hidden="true"><span id="film-progress-fill"></span></div>
+    </footer>
+  </main>
+</body>
+</html>

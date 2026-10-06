@@ -1,0 +1,2250 @@
+1
+00:00:00,753 --> 00:00:02,953
+Imagina una tienda con tres cajas.
+
+2
+00:00:03,729 --> 00:00:07,361
+Una persona paga, la conexión con la oficina
+central se corta y el
+
+3
+00:00:07,361 --> 00:00:10,153
+cajero necesita saber si puede entregar el
+producto.
+
+4
+00:00:10,887 --> 00:00:14,466
+Un punto de venta, o POS por sus siglas en
+inglés, debe responder
+
+5
+00:00:14,466 --> 00:00:19,324
+esa pregunta con evidencia. No basta con mostrar
+una pantalla de éxito.
+
+6
+00:00:20,071 --> 00:00:24,045
+Durante este recorrido separaremos lo que
+ocurrió en la tienda, lo que recibió
+
+7
+00:00:24,045 --> 00:00:26,587
+el país y lo que aceptó el sistema empresarial.
+
+8
+00:00:27,321 --> 00:00:30,824
+Esa separación evita cobrar dos veces y perder
+operaciones.
+
+9
+00:00:33,378 --> 00:00:37,312
+La dirección de producto ya contempla Angular
+para la interfaz, Tauri para el
+
+10
+00:00:37,312 --> 00:00:40,749
+cliente de escritorio y Nx para organizar el
+desarrollo.
+
+11
+00:00:41,499 --> 00:00:45,657
+El servidor de sucursal, las bases de datos y
+los contratos de sincronización
+
+12
+00:00:45,657 --> 00:00:47,988
+son recomendaciones de esta arquitectura.
+
+13
+00:00:48,722 --> 00:00:51,962
+Todavía requieren implementación, pruebas y
+homologación.
+
+14
+00:00:52,709 --> 00:00:56,225
+Existe una aplicación de demostración separada
+con datos simulados;
+
+15
+00:00:56,314 --> 00:01:00,764
+verla funcionar no prueba que un pago o una
+recuperación reales estén resueltos.
+
+16
+00:01:01,538 --> 00:01:05,893
+A lo largo del video distinguiremos decisiones
+de diseño, ejemplos y garantías que
+
+17
+00:01:05,893 --> 00:01:07,251
+necesitan evidencia.
+
+18
+00:01:09,794 --> 00:01:15,110
+Esta vista de contexto pertenece al modelo C4:
+contexto, contenedores, componentes y
+
+19
+00:01:15,110 --> 00:01:19,744
+código. El cajero vende, cobra y gestiona su
+turno desde el punto de
+
+20
+00:01:19,744 --> 00:01:23,928
+venta. El supervisor autoriza excepciones y
+revisa cierres;
+
+21
+00:01:23,928 --> 00:01:26,431
+su responsabilidad es distinta de la del cajero.
+
+22
+00:01:27,178 --> 00:01:31,757
+Operación de plataforma supervisa incidentes,
+sincronización y recuperación mediante
+
+23
+00:01:31,757 --> 00:01:36,955
+soporte autorizado. La fuente externa de
+maestros y precios publica datos y reglas
+
+24
+00:01:36,955 --> 00:01:42,534
+comerciales autorizados. El proveedor de pagos
+autoriza o informa resultados mediante
+
+25
+00:01:42,534 --> 00:01:47,771
+un contrato propio. El proveedor fiscal emite o
+transmite documentos según el país
+
+26
+00:01:47,771 --> 00:01:53,165
+y la modalidad permitida. El sistema empresarial
+del país recibe y concilia documentos
+
+27
+00:01:53,165 --> 00:01:56,365
+financieros, conservando su responsabilidad
+externa.
+
+28
+00:01:57,086 --> 00:02:01,231
+La flecha de maestros al POS expresa una
+responsabilidad, no una llamada de
+
+29
+00:02:01,231 --> 00:02:06,494
+programación. Recibir datos no transfiere
+propiedad sobre precios, inventario o
+
+30
+00:02:06,494 --> 00:02:07,418
+contabilidad.
+
+31
+00:02:09,961 --> 00:02:12,358
+Pensemos en una venta pagada con tarjeta.
+
+32
+00:02:13,095 --> 00:02:16,582
+El proveedor puede autorizar el pago antes de
+que la venta quede confirmada
+
+33
+00:02:16,582 --> 00:02:21,621
+en la base local. Después, el país puede
+recibirla y el sistema empresarial
+
+34
+00:02:21,621 --> 00:02:26,348
+puede aceptarla más tarde. El resultado fiscal
+tiene su propio estado.
+
+35
+00:02:27,121 --> 00:02:30,914
+Por eso una etiqueta única, como sincronizado,
+sería ambigua.
+
+36
+00:02:31,661 --> 00:02:36,043
+Necesitamos referencias y estados separados para
+explicar qué pasó, qué falta y quién
+
+37
+00:02:36,043 --> 00:02:40,243
+debe resolverlo. Las flechas ilustran
+dependencias del ejemplo;
+
+38
+00:02:40,266 --> 00:02:43,690
+no significan que todo ocurra dentro de una sola
+transacción.
+
+39
+00:02:46,211 --> 00:02:51,185
+Un contenedor C4 representa una aplicación o un
+almacén de datos, no necesariamente
+
+40
+00:02:51,185 --> 00:02:55,006
+Docker. La terminal ejecuta Angular dentro de
+Tauri.
+
+41
+00:02:55,727 --> 00:02:58,414
+Presenta la caja y envía comandos del operador.
+
+42
+00:02:59,148 --> 00:03:03,266
+El backend de sucursal recibe esos comandos,
+aplica las reglas y confirma la
+
+43
+00:03:03,266 --> 00:03:08,635
+operación compartida. PostgreSQL de sucursal
+guarda el negocio, la salida
+
+44
+00:03:08,635 --> 00:03:11,098
+pendiente y el espejo comercial autorizado.
+
+45
+00:03:11,858 --> 00:03:14,900
+El sincronizador entrega eventos y actualiza
+espejos.
+
+46
+00:03:15,674 --> 00:03:18,348
+Intercambia información con la interfaz del
+país.
+
+47
+00:03:19,121 --> 00:03:22,203
+La API de país recibe lotes y sirve
+publicaciones.
+
+48
+00:03:22,977 --> 00:03:25,887
+Confirma sus efectos en PostgreSQL de país.
+
+49
+00:03:26,674 --> 00:03:31,437
+La base de país conserva proyecciones,
+publicaciones y referencias duraderas de entrega
+
+50
+00:03:31,437 --> 00:03:36,477
+e integración. Los workers de país publican
+versiones e integran los pendientes que
+
+51
+00:03:36,477 --> 00:03:41,582
+ya quedaron confirmados. El adaptador
+empresarial traduce contratos y concilia
+
+52
+00:03:41,582 --> 00:03:46,782
+resultados. Cambiar esa conexión no reparte
+reglas de venta entre las cajas.
+
+53
+00:03:49,336 --> 00:03:53,615
+WAN significa red de área amplia: aquí conecta
+la sucursal con el país.
+
+54
+00:03:54,404 --> 00:03:58,736
+LAN significa red de área local: aquí conecta
+las cajas con su servidor.
+
+55
+00:03:59,483 --> 00:04:04,341
+Si cae la WAN, una venta permitida podría
+continuar usando datos locales válidos.
+
+56
+00:04:05,115 --> 00:04:08,852
+Si cae la LAN o el servidor, la caja pierde la
+autoridad compartida
+
+57
+00:04:08,852 --> 00:04:12,802
+que necesita para confirmar. Son fallas
+diferentes.
+
+58
+00:04:13,562 --> 00:04:17,891
+La propuesta base no convierte cada terminal en
+un servidor independiente al detectar
+
+59
+00:04:17,891 --> 00:04:23,075
+una desconexión. Esa autonomía adicional
+exigiría otro diseño y nuevas reglas de
+
+60
+00:04:23,075 --> 00:04:23,946
+coordinación.
+
+61
+00:04:26,461 --> 00:04:31,685
+Tomemos un ejemplo acotado: pago en efectivo,
+sesión autorizada, precios vigentes y una
+
+62
+00:04:31,685 --> 00:04:34,964
+modalidad fiscal previamente aprobada para ese
+escenario.
+
+63
+00:04:35,714 --> 00:04:38,032
+La caja envía el comando por la red local.
+
+64
+00:04:38,753 --> 00:04:41,045
+El servidor valida y registra la venta;
+
+65
+00:04:41,056 --> 00:04:43,071
+la entrega al país queda pendiente.
+
+66
+00:04:43,832 --> 00:04:48,045
+La falta de internet no renueva permisos
+vencidos ni promociones caducadas.
+
+67
+00:04:48,806 --> 00:04:53,595
+Tampoco habilita tarjetas desconectadas, cupones
+compartidos o saldos globales por sí
+
+68
+00:04:53,595 --> 00:04:58,664
+sola. Cada capacidad necesita una política y una
+autoridad disponibles.
+
+69
+00:04:59,424 --> 00:05:04,098
+Continuidad significa conservar estas
+condiciones, no saltarse las validaciones.
+
+70
+00:05:06,669 --> 00:05:11,288
+El despliegue ubica terminales, servidor de
+sucursal y plataforma de país en entornos
+
+71
+00:05:11,288 --> 00:05:16,672
+diferentes. En cada terminal se ejecuta el
+cliente de caja, conectado al servidor
+
+72
+00:05:16,672 --> 00:05:22,161
+compartido de la sucursal. PostgreSQL tiene un
+primario autorizado por sucursal;
+
+73
+00:05:22,198 --> 00:05:25,017
+los puestos comparten ese almacenamiento de
+negocio.
+
+74
+00:05:25,777 --> 00:05:30,475
+La relación del backend con PostgreSQL expresa
+autoridad de escritura, no una sola
+
+75
+00:05:30,475 --> 00:05:36,014
+conexión. El sincronizador funciona como proceso
+supervisado en la sucursal y dispone de
+
+76
+00:05:36,014 --> 00:05:41,264
+permisos acotados. En la plataforma de país, la
+API recibe comunicación de las
+
+77
+00:05:41,264 --> 00:05:46,567
+sucursales y sirve publicaciones. El respaldo
+conserva copias y permite ensayar
+
+78
+00:05:46,567 --> 00:05:52,096
+restauraciones. Tenerlo no demuestra conmutación
+automática ni alta disponibilidad.
+
+79
+00:05:52,856 --> 00:05:57,882
+Redundancia, energía y recuperación deben
+responder a objetivos acordados y comprobarse en
+
+80
+00:05:57,882 --> 00:05:59,030
+el entorno real.
+
+81
+00:06:01,544 --> 00:06:04,771
+La sucursal es responsable de su historia
+operativa de ventas.
+
+82
+00:06:05,547 --> 00:06:10,100
+El país conserva las proyecciones y referencias
+necesarias para recibir e integrar esas
+
+83
+00:06:10,100 --> 00:06:14,313
+operaciones, sin convertirse en otro autor
+concurrente de la misma venta.
+
+84
+00:06:15,047 --> 00:06:19,089
+Los precios y maestros necesitan una autoridad
+definida por atributo y país;
+
+85
+00:06:19,126 --> 00:06:22,050
+no asumimos que todo provenga del sistema
+empresarial.
+
+86
+00:06:22,784 --> 00:06:26,757
+Una copia de lectura permite consultar, pero no
+otorga derecho a gastar un
+
+87
+00:06:26,757 --> 00:06:32,363
+saldo compartido. Separar propiedad, lectura y
+escritura reduce conflictos antes de
+
+88
+00:06:32,363 --> 00:06:34,971
+discutir herramientas o formatos de mensajes.
+
+89
+00:06:37,503 --> 00:06:42,463
+Una venta relaciona cabecera, líneas,
+movimientos de caja, evidencias y mensajes
+
+90
+00:06:42,463 --> 00:06:47,518
+pendientes. PostgreSQL permite expresar
+relaciones, restricciones y
+
+91
+00:06:47,518 --> 00:06:50,429
+transacciones para mantener coherente ese
+conjunto.
+
+92
+00:06:51,163 --> 00:06:55,505
+También ofrece JSONB, un formato de documentos
+que puede alojar cargas variables sin
+
+93
+00:06:55,505 --> 00:07:00,953
+abandonar el modelo relacional. La recomendación
+responde a estas necesidades, no a que
+
+94
+00:07:00,953 --> 00:07:03,192
+otras bases carezcan de transacciones.
+
+95
+00:07:03,953 --> 00:07:07,350
+MongoDB sí soporta transacciones sobre varios
+documentos.
+
+96
+00:07:08,124 --> 00:07:12,560
+Su evaluación debe considerar el modelo, la
+operación y la migración existentes.
+
+97
+00:07:13,321 --> 00:07:17,482
+Tampoco estamos afirmando que las bases actuales
+ya hayan sido reemplazadas.
+
+98
+00:07:20,003 --> 00:07:24,439
+SQLite es una base integrada útil para
+almacenamiento local de una aplicación.
+
+99
+00:07:25,163 --> 00:07:28,574
+Eso no la transforma en un servidor compartido
+entre terminales.
+
+100
+00:07:29,347 --> 00:07:34,176
+Por ejemplo, su modo WAL, que registra cambios
+antes de consolidarlos, requiere que
+
+101
+00:07:34,176 --> 00:07:38,018
+los procesos participantes estén en el mismo
+equipo y no funciona sobre un
+
+102
+00:07:38,018 --> 00:07:39,560
+sistema de archivos de red.
+
+103
+00:07:40,321 --> 00:07:45,347
+Una futura caja con autonomía propia podría
+evaluarla, junto con durabilidad, identidad y
+
+104
+00:07:45,347 --> 00:07:49,916
+conflictos. Ese perfil no está aprobado como
+comportamiento base.
+
+105
+00:07:50,676 --> 00:07:55,429
+Hoy proponemos que las terminales compartan el
+servidor y PostgreSQL de la sucursal.
+
+106
+00:07:57,919 --> 00:08:01,659
+SQL es el lenguaje con que expresamos
+operaciones en esta base.
+
+107
+00:08:02,435 --> 00:08:06,096
+Una transacción agrupa cambios que se confirman
+o se deshacen juntos.
+
+108
+00:08:06,869 --> 00:08:12,238
+Aquí, venta, movimiento de caja, auditoría y
+mensaje pendiente pertenecen a la misma
+
+109
+00:08:12,238 --> 00:08:16,885
+unidad. Las instrucciones abreviadas representan
+escrituras validadas;
+
+110
+00:08:16,896 --> 00:08:18,701
+no son un programa para copiar.
+
+111
+00:08:19,461 --> 00:08:21,122
+Todas usan la misma conexión.
+
+112
+00:08:21,869 --> 00:08:24,346
+Si una falla, revertimos el conjunto.
+
+113
+00:08:25,067 --> 00:08:29,396
+No mantenemos esta transacción abierta mientras
+esperamos internet, una impresora o un
+
+114
+00:08:29,396 --> 00:08:33,477
+proveedor de pagos: mezclaríamos demoras
+externas con bloqueos locales.
+
+115
+00:08:36,003 --> 00:08:40,805
+El backend recomendado de sucursal es un
+monolito modular: sus componentes comparten un
+
+116
+00:08:40,805 --> 00:08:46,282
+proceso. Acceso y permisos recibe el contexto
+del comando y autoriza usuario, perfil
+
+117
+00:08:46,282 --> 00:08:50,834
+y sucursal. Ventas y devoluciones coordina el
+ciclo de la operación y sus
+
+118
+00:08:50,834 --> 00:08:55,979
+reglas de negocio. Precios y ofertas calcula la
+cotización desde una versión comercial
+
+119
+00:08:55,979 --> 00:09:01,482
+local que sigue vigente. Turnos y caja controla
+apertura, movimientos y cierre,
+
+120
+00:09:01,518 --> 00:09:03,955
+manteniendo coherente la operación de caja.
+
+121
+00:09:04,689 --> 00:09:07,389
+El puerto de pagos gestiona intentos y
+evidencia.
+
+122
+00:09:08,124 --> 00:09:10,889
+Se comunica con el proveedor mediante su
+contrato.
+
+123
+00:09:11,624 --> 00:09:15,308
+El puerto fiscal aplica la modalidad del país y
+conversa con su proveedor
+
+124
+00:09:15,308 --> 00:09:20,584
+mediante otro contrato. Persistencia
+transaccional delimita las escrituras locales:
+
+125
+00:09:20,584 --> 00:09:24,337
+negocio, auditoría y salida pendiente se
+confirman juntos.
+
+126
+00:09:25,111 --> 00:09:28,047
+La API de comandos recibe las solicitudes del
+cliente.
+
+127
+00:09:28,795 --> 00:09:32,047
+La interfaz no decide por su cuenta las reglas
+financieras.
+
+128
+00:09:34,586 --> 00:09:37,299
+El cajero confirma una compra de dos productos.
+
+129
+00:09:38,089 --> 00:09:42,733
+El cliente envía una intención identificable, no
+una orden genérica de cobrar cualquier
+
+130
+00:09:42,733 --> 00:09:48,168
+monto. El servidor valida artículos, versión de
+precios, permisos y sesión de
+
+131
+00:09:48,168 --> 00:09:52,339
+caja; después conserva una referencia estable
+para la operación de pago cuando
+
+132
+00:09:52,339 --> 00:09:57,881
+corresponda. Esa referencia nos permite
+reconocer un reintento después de una caída.
+
+133
+00:09:58,628 --> 00:10:02,681
+Si el mismo identificador llega con un monto
+distinto, no lo tratamos como
+
+134
+00:10:02,681 --> 00:10:08,168
+repetición válida. La identidad debe acompañar
+el contenido y el alcance autorizado, no
+
+135
+00:10:08,168 --> 00:10:09,986
+sustituir sus comprobaciones.
+
+136
+00:10:12,503 --> 00:10:16,608
+Con la intención guardada, el sistema solicita
+el pago por la ruta autorizada
+
+137
+00:10:16,608 --> 00:10:18,637
+y registra la evidencia recibida.
+
+138
+00:10:19,374 --> 00:10:24,203
+Si el resultado permite continuar, ejecuta una
+transacción corta para confirmar la venta
+
+139
+00:10:24,203 --> 00:10:29,337
+y sus efectos locales. La llamada al proveedor
+ocurre fuera de esa transacción.
+
+140
+00:10:30,084 --> 00:10:34,413
+Esto deja una situación importante por resolver:
+el proveedor podría aprobar y la
+
+141
+00:10:34,413 --> 00:10:39,834
+confirmación local podría fallar. La intención y
+la evidencia deben permitir recuperar el
+
+142
+00:10:39,834 --> 00:10:42,929
+caso, conciliarlo o tramitar una reversa
+trazable.
+
+143
+00:10:43,689 --> 00:10:47,034
+Lanzar otro cobro para arreglar el error
+agravaría el problema.
+
+144
+00:10:49,586 --> 00:10:52,194
+Leamos el ejemplo después de entender el
+recorrido.
+
+145
+00:10:52,957 --> 00:10:57,286
+Confirmar venta recibe una intención cuya
+evidencia de pago y política fiscal ya
+
+146
+00:10:57,286 --> 00:11:02,825
+permiten avanzar. La función transacción
+representa una misma conexión local y revierte
+
+147
+00:11:02,825 --> 00:11:04,828
+todas las escrituras si alguna falla.
+
+148
+00:11:05,562 --> 00:11:10,525
+Dentro guardamos venta, caja, estado fiscal,
+auditoría y salida pendiente.
+
+149
+00:11:11,286 --> 00:11:13,486
+Fuera queda cualquier llamada al proveedor.
+
+150
+00:11:14,207 --> 00:11:16,644
+Estos nombres describen contratos del diseño;
+
+151
+00:11:16,694 --> 00:11:19,157
+no corresponden a una biblioteca existente.
+
+152
+00:11:19,904 --> 00:11:24,141
+Antes de responder éxito, el servidor debe haber
+confirmado el conjunto y poder
+
+153
+00:11:24,141 --> 00:11:27,289
+devolver la misma respuesta ante una repetición
+válida.
+
+154
+00:11:29,836 --> 00:11:32,733
+La terminal envía un cobro y vence el tiempo de
+espera.
+
+155
+00:11:33,483 --> 00:11:38,141
+Eso describe la comunicación, no el resultado
+financiero: el proveedor podría haber
+
+156
+00:11:38,141 --> 00:11:42,960
+aprobado. Conservamos la intención y marcamos el
+pago como desconocido.
+
+157
+00:11:43,707 --> 00:11:47,920
+Si la integración homologada permite consultar
+por referencia, consultamos;
+
+158
+00:11:47,944 --> 00:11:51,920
+de lo contrario, seguimos el procedimiento de
+conciliación e intervención.
+
+159
+00:11:52,654 --> 00:11:56,446
+Mientras exista incertidumbre, bloqueamos otro
+intento incompatible.
+
+160
+00:11:57,207 --> 00:12:01,983
+Cambiar automáticamente de proveedor tampoco
+elimina el posible primer cargo: podría crear
+
+161
+00:12:01,983 --> 00:12:03,078
+un segundo cobro.
+
+162
+00:12:05,586 --> 00:12:09,891
+Supongamos que la venta quedó registrada, pero
+la impresora dejó de responder.
+
+163
+00:12:10,641 --> 00:12:13,381
+Reimprimir el comprobante no debe crear otra
+venta.
+
+164
+00:12:14,115 --> 00:12:17,996
+Si el problema es fiscal, debemos mostrar el
+estado fiscal real y aplicar
+
+165
+00:12:17,996 --> 00:12:20,920
+la modalidad permitida para ese país y
+operación.
+
+166
+00:12:21,641 --> 00:12:25,960
+Una entrega pendiente al país no autoriza
+emisión fiscal pendiente por sí sola.
+
+167
+00:12:26,707 --> 00:12:29,315
+Cada paso conserva su referencia y su historial.
+
+168
+00:12:30,036 --> 00:12:34,720
+Así soporte distingue una falla del dispositivo,
+una respuesta externa pendiente y una
+
+169
+00:12:34,720 --> 00:12:37,091
+operación local todavía no confirmada.
+
+170
+00:12:39,628 --> 00:12:43,772
+Algunos equipos de pago requieren un SDK, un kit
+de desarrollo que entrega
+
+171
+00:12:43,772 --> 00:12:46,078
+el proveedor para controlar el dispositivo.
+
+172
+00:12:46,841 --> 00:12:50,449
+Si ese camino se homologa, Tauri puede alojar un
+puente nativo.
+
+173
+00:12:51,196 --> 00:12:56,157
+El cliente transmite el comando original
+autorizado por el servidor: importe, referencia
+
+174
+00:12:56,157 --> 00:13:00,778
+y alcance. El puente no inventa otro monto ni
+concede permisos.
+
+175
+00:13:01,551 --> 00:13:05,343
+La ruta directa desde el servidor es una
+alternativa según la integración;
+
+176
+00:13:05,367 --> 00:13:08,014
+no debemos ejecutar ambas para un mismo intento.
+
+177
+00:13:08,736 --> 00:13:11,317
+El resultado vuelve como evidencia verificable.
+
+178
+00:13:13,878 --> 00:13:15,828
+La respuesta no es volver a cobrar.
+
+179
+00:13:16,591 --> 00:13:19,870
+Primero buscamos la intención duradera y la
+evidencia disponible.
+
+180
+00:13:20,630 --> 00:13:25,143
+Después consultamos el proveedor si existe esa
+capacidad homologada, o conciliamos
+
+181
+00:13:25,143 --> 00:13:30,012
+mediante el procedimiento acordado. Debemos
+determinar si corresponde completar la
+
+182
+00:13:30,012 --> 00:13:33,804
+operación local, revertir el pago o intervenir
+con trazabilidad.
+
+183
+00:13:34,564 --> 00:13:37,436
+Por eso guardamos la intención antes del efecto
+externo.
+
+184
+00:13:38,196 --> 00:13:41,946
+La recuperación debe soportar una interrupción
+entre cualquier par de pasos;
+
+185
+00:13:41,946 --> 00:13:46,186
+suponer que el proceso siempre llegará a la
+última línea ocultaría este caso.
+
+186
+00:13:48,711 --> 00:13:52,448
+La secuencia de venta usa los mismos
+participantes de ejecución que la vista
+
+187
+00:13:52,448 --> 00:13:58,019
+de contenedores. Primero, el servidor consulta
+PostgreSQL y valida turno,
+
+188
+00:13:58,069 --> 00:14:00,782
+permisos, precios y capacidad para operar.
+
+189
+00:14:01,543 --> 00:14:06,069
+Después persiste una intención con identidad
+estable, antes de producir cualquier efecto
+
+190
+00:14:06,069 --> 00:14:10,243
+de pago. El proveedor devuelve un resultado y
+una referencia.
+
+191
+00:14:10,977 --> 00:14:14,374
+Esta continuación requiere evidencia suficiente
+para confirmar.
+
+192
+00:14:15,135 --> 00:14:20,095
+El servidor confirma venta, caja, auditoría y
+salida pendiente dentro de una sola
+
+193
+00:14:20,095 --> 00:14:25,174
+transacción local. El sincronizador envía el
+lote a la API de país, conservando
+
+194
+00:14:25,174 --> 00:14:30,621
+identidades y secuencia. El país reconoce
+duplicados y confirma entrada, efecto y
+
+195
+00:14:30,621 --> 00:14:32,506
+salida en una transacción local.
+
+196
+00:14:33,227 --> 00:14:37,621
+Solo después de confirmar, la API devuelve el
+acuse de aplicación al sincronizador
+
+197
+00:14:37,621 --> 00:14:41,282
+de sucursal. El cliente consulta venta y
+entrega.
+
+198
+00:14:42,016 --> 00:14:45,808
+La integración empresarial continúa después,
+fuera de esta secuencia;
+
+199
+00:14:45,819 --> 00:14:48,045
+no existe una transacción distribuida.
+
+200
+00:14:50,586 --> 00:14:55,310
+Una bandeja de salida transaccional, llamada
+outbox, guarda el mensaje pendiente en la
+
+201
+00:14:55,310 --> 00:14:57,036
+misma transacción que la venta.
+
+202
+00:14:57,773 --> 00:15:01,996
+Imagina que guardamos la venta y luego
+intentamos publicar un mensaje: una caída
+
+203
+00:15:01,996 --> 00:15:04,920
+entre ambas acciones puede dejar la venta sin
+entrega.
+
+204
+00:15:05,654 --> 00:15:09,631
+Con la bandeja, la intención de envío ya está
+confirmada localmente.
+
+205
+00:15:10,391 --> 00:15:12,407
+Otro proceso la recoge después.
+
+206
+00:15:13,181 --> 00:15:16,168
+Esto no vuelve infalible a la red ni elimina
+duplicados;
+
+207
+00:15:16,168 --> 00:15:20,431
+asegura que exista trabajo duradero para
+reintentar, sujeto a las garantías de
+
+208
+00:15:20,431 --> 00:15:23,025
+almacenamiento y recuperación configuradas.
+
+209
+00:15:25,586 --> 00:15:27,773
+ACK significa acuse de recibo;
+
+210
+00:15:27,823 --> 00:15:30,141
+aquí hablaremos de un acuse de aplicación.
+
+211
+00:15:30,891 --> 00:15:34,852
+El país aplica el mensaje y confirma su
+transacción, pero la respuesta se
+
+212
+00:15:34,852 --> 00:15:39,618
+pierde. La sucursal no puede saberlo y reenvía
+el mismo identificador.
+
+213
+00:15:40,352 --> 00:15:44,799
+El registro de entrada, o inbox, reconoce la
+repetición y devuelve el resultado
+
+214
+00:15:44,799 --> 00:15:46,670
+anterior sin repetir el efecto.
+
+215
+00:15:47,418 --> 00:15:49,565
+Esta entrega admite más de un intento.
+
+216
+00:15:50,299 --> 00:15:55,483
+Decimos al menos una vez, con aplicación
+idempotente: repetir la misma solicitud válida
+
+217
+00:15:55,483 --> 00:15:57,407
+conserva el resultado de negocio.
+
+218
+00:15:59,961 --> 00:16:03,293
+En este pseudocódigo, el país ya autenticó el
+origen.
+
+219
+00:16:04,016 --> 00:16:07,332
+La entrada tiene una clave única dentro de su
+alcance y se protege
+
+220
+00:16:07,332 --> 00:16:12,898
+frente a receptores concurrentes. Comparamos el
+contenido: reutilizar una identidad con
+
+221
+00:16:12,898 --> 00:16:14,585
+otros datos es un conflicto.
+
+222
+00:16:15,319 --> 00:16:18,466
+Si ya fue aplicada, devolvemos la respuesta
+guardada.
+
+223
+00:16:19,214 --> 00:16:24,056
+Si es nueva, validamos orden y reglas, aplicamos
+el efecto local, registramos la
+
+224
+00:16:24,056 --> 00:16:26,361
+salida posterior y marcamos la entrada.
+
+225
+00:16:27,108 --> 00:16:28,808
+Todo ocurre en una transacción.
+
+226
+00:16:29,556 --> 00:16:32,466
+El acuse se envía únicamente después de
+confirmarla.
+
+227
+00:16:35,003 --> 00:16:37,834
+Un proceso supervisado ejecuta el sincronizador.
+
+228
+00:16:38,571 --> 00:16:42,587
+Su planificador decide cuándo admitir trabajo
+según ventanas y límites.
+
+229
+00:16:43,347 --> 00:16:47,939
+El emisor entrega operaciones pendientes al país
+mediante lotes que conservan identidades
+
+230
+00:16:47,939 --> 00:16:53,282
+estables. El receptor consulta deltas y acuses,
+recibiendo versiones comerciales
+
+231
+00:16:53,282 --> 00:16:58,742
+autorizadas para la sucursal. El módulo de
+entrada y deduplicación comprueba identidad y
+
+232
+00:16:58,742 --> 00:17:03,218
+orden. Reconocer un mensaje no permite publicar
+sin validación.
+
+233
+00:17:03,966 --> 00:17:06,600
+La carga completa prepara una versión aislada.
+
+234
+00:17:07,347 --> 00:17:10,995
+Los cambios incrementales también conservan
+intacta la versión activa.
+
+235
+00:17:11,729 --> 00:17:16,624
+Ambos caminos pasan por el validador, que revisa
+integridad, cobertura y vigencia antes
+
+236
+00:17:16,624 --> 00:17:21,834
+de publicar. La activación cambia atómicamente
+la versión y confirma juntos el efecto
+
+237
+00:17:21,834 --> 00:17:27,268
+y su avance aplicado. Los permisos sobre
+PostgreSQL alcanzan registros técnicos y
+
+238
+00:17:27,268 --> 00:17:30,903
+publicaciones, no la modificación libre de
+ventas históricas.
+
+239
+00:17:31,663 --> 00:17:36,203
+Separar estas etapas permite observar atrasos,
+localizar la falla y ejecutar una
+
+240
+00:17:36,203 --> 00:17:37,639
+recuperación concreta.
+
+241
+00:17:40,169 --> 00:17:43,080
+Dos ejecutores podrían recoger la misma salida.
+
+242
+00:17:43,817 --> 00:17:48,003
+Necesitamos una reclamación temporal y
+recuperación del trabajo abandonado.
+
+243
+00:17:48,751 --> 00:17:53,359
+Una transacción corta reclama un lote y termina
+antes del envío por HTTPS,
+
+244
+00:17:53,409 --> 00:17:58,909
+el protocolo web cifrado. Otra registra
+resultados, verificando que la reclamación
+
+245
+00:17:58,909 --> 00:18:01,227
+siga vigente y pertenezca al ejecutor.
+
+246
+00:18:01,961 --> 00:18:06,448
+PostgreSQL ofrece bloqueo de filas y omisión de
+filas ya bloqueadas, pero esto
+
+247
+00:18:06,448 --> 00:18:12,053
+no garantiza orden global. El planificador
+limita concurrencia, espera entre fallos y
+
+248
+00:18:12,053 --> 00:18:14,240
+busca pendientes después de reiniciarse.
+
+249
+00:18:16,794 --> 00:18:20,426
+Si llega dos veces el evento cuarenta y dos,
+buscamos su identidad y
+
+250
+00:18:20,426 --> 00:18:24,705
+resultado. Si llega el cuarenta y cuatro sin el
+cuarenta y tres, puede
+
+251
+00:18:24,705 --> 00:18:29,231
+existir un hueco relevante. El orden se define
+por entidad o flujo cuando
+
+252
+00:18:29,231 --> 00:18:32,826
+el negocio lo necesita, no por el reloj de todas
+las máquinas.
+
+253
+00:18:33,600 --> 00:18:38,129
+El receptor debe retener, rechazar o solicitar
+recuperación según el contrato.
+
+254
+00:18:38,850 --> 00:18:42,221
+Un lote puede contener mensajes aplicados y
+otros pendientes;
+
+255
+00:18:42,257 --> 00:18:44,957
+responder un éxito global ocultaría errores.
+
+256
+00:18:45,718 --> 00:18:49,010
+Los cursores de recibido y aplicado permanecen
+separados.
+
+257
+00:18:51,544 --> 00:18:55,086
+Reiniciar un proceso no basta para declarar
+recuperado el sistema.
+
+258
+00:18:55,836 --> 00:19:00,573
+Revisamos antigüedad de pendientes,
+reclamaciones vencidas, errores persistentes y
+
+259
+00:19:00,573 --> 00:19:02,628
+diferencia entre recibido y aplicado.
+
+260
+00:19:03,376 --> 00:19:07,905
+Un reintento manual conserva la identidad
+original y exige autorización y registro.
+
+261
+00:19:08,639 --> 00:19:13,681
+Los mensajes problemáticos necesitan un estado
+visible, sin desaparecer del seguimiento.
+
+262
+00:19:14,402 --> 00:19:19,100
+Además, conservamos entradas y salidas durante
+una ventana compatible con reenvíos y
+
+263
+00:19:19,100 --> 00:19:24,350
+restauraciones. Si un respaldo antiguo elimina
+el registro de deduplicación, una
+
+264
+00:19:24,350 --> 00:19:27,694
+repetición antes inocua podría volver a producir
+un efecto.
+
+265
+00:19:30,211 --> 00:19:33,608
+Un precio nuevo no se vuelve válido porque
+apareció en un mensaje.
+
+266
+00:19:34,358 --> 00:19:38,848
+Una autoridad comercial definida por país y
+atributo aprueba una versión inmutable.
+
+267
+00:19:39,608 --> 00:19:44,624
+El paquete identifica alcance, referencias,
+compatibilidad y condiciones de vigencia.
+
+268
+00:19:45,371 --> 00:19:48,900
+Su publicación deja una salida transaccional
+para distribución.
+
+269
+00:19:49,635 --> 00:19:53,753
+La sucursal conserva una copia de lectura que
+permite cotizar sin consultar al
+
+270
+00:19:53,753 --> 00:19:59,043
+país por cada artículo. Esa copia no admite
+edición local arbitraria ni convierte
+
+271
+00:19:59,043 --> 00:20:02,308
+al POS en dueño de todos los datos maestros o
+promociones.
+
+272
+00:20:04,836 --> 00:20:08,049
+Un delta es un conjunto de cambios desde una
+base conocida.
+
+273
+00:20:08,799 --> 00:20:12,894
+Por ejemplo, modifica el precio de dos artículos
+y agrega una promoción.
+
+274
+00:20:13,641 --> 00:20:17,657
+El receptor conserva el mensaje y lo aplica
+sobre una candidata aislada.
+
+275
+00:20:18,418 --> 00:20:23,065
+Después comprueba cobertura, referencias, orden,
+esquema y compatibilidad.
+
+276
+00:20:23,825 --> 00:20:27,104
+La versión activa sigue atendiendo ventas
+mientras esto ocurre.
+
+277
+00:20:27,852 --> 00:20:31,565
+Recibir o deduplicar el mensaje no permite
+saltarse la validación.
+
+278
+00:20:32,312 --> 00:20:36,562
+Solo una candidata completa y válida puede
+publicarse mediante un cambio atómico de
+
+279
+00:20:36,562 --> 00:20:37,789
+la referencia activa.
+
+280
+00:20:40,294 --> 00:20:42,915
+Supongamos que una promoción dejó de existir.
+
+281
+00:20:43,678 --> 00:20:48,297
+Si solo enviamos altas y cambios, una sucursal
+desconectada podría conservarla para
+
+282
+00:20:48,297 --> 00:20:53,534
+siempre. Por eso el contrato incluye bajas
+explícitas, a veces llamadas marcas de
+
+283
+00:20:53,534 --> 00:20:58,771
+eliminación. También define cuánto conservarlas
+para impedir que una repetición antigua
+
+284
+00:20:58,771 --> 00:21:04,152
+resucite contenido retirado. Una carga completa
+declara su cobertura, de modo que
+
+285
+00:21:04,152 --> 00:21:07,010
+ausencia y eliminación tengan significado claro.
+
+286
+00:21:07,744 --> 00:21:10,352
+El identificador del mensaje evita duplicados;
+
+287
+00:21:10,363 --> 00:21:14,957
+la versión, las bajas y el orden evitan
+reconstruir un estado comercial incorrecto.
+
+288
+00:21:17,503 --> 00:21:21,334
+Mientras el cajero arma una compra, puede
+activarse una nueva lista.
+
+289
+00:21:22,071 --> 00:21:26,876
+Cambiar silenciosamente una línea del carrito
+produciría una venta difícil de explicar.
+
+290
+00:21:27,624 --> 00:21:30,876
+La cotización fija una versión y conserva sus
+referencias.
+
+291
+00:21:31,650 --> 00:21:34,718
+Las nuevas cotizaciones usan la versión recién
+publicada;
+
+292
+00:21:34,755 --> 00:21:38,547
+las abiertas siguen la política de validez y
+reconfirmación acordada.
+
+293
+00:21:39,295 --> 00:21:42,337
+Antes de confirmar revisamos que todavía sea
+admisible.
+
+294
+00:21:43,097 --> 00:21:47,282
+No basta con guardar el número de versión:
+debemos retener el contenido necesario
+
+295
+00:21:47,282 --> 00:21:51,521
+para justificar precios, descuentos e impuestos
+aplicados a esa operación.
+
+296
+00:21:54,044 --> 00:21:58,215
+La distribución parte de una publicación
+autorizada en el país y combina eventos
+
+297
+00:21:58,215 --> 00:22:03,602
+con cargas completas. Los eventos acompañan la
+publicación de versión y manifiesto,
+
+298
+00:22:03,639 --> 00:22:05,602
+reduciendo la demora entre cambios.
+
+299
+00:22:06,389 --> 00:22:10,810
+Las cargas programadas y la recuperación manual
+solicitan el mismo contrato de deltas
+
+300
+00:22:10,810 --> 00:22:16,310
+o copia completa. La API lee la publicación y su
+corte consistente, identificando
+
+301
+00:22:16,310 --> 00:22:21,705
+qué cambios quedaron incluidos. El sincronizador
+recibe el contenido y guarda recepción y
+
+302
+00:22:21,705 --> 00:22:24,378
+área temporal, sin cambiar la versión activa.
+
+303
+00:22:25,113 --> 00:22:29,468
+Después prepara una candidata aislada y
+reproduce los cambios posteriores al corte de
+
+304
+00:22:29,468 --> 00:22:34,484
+origen. La candidata completa se valida antes de
+publicarse: integridad,
+
+305
+00:22:34,494 --> 00:22:37,576
+referencias, orden, compatibilidad y vigencia.
+
+306
+00:22:38,323 --> 00:22:42,573
+Solo entonces una transacción activa la versión
+y confirma entrada aplicada y cursor
+
+307
+00:22:42,573 --> 00:22:47,523
+aplicado juntos. La sucursal conserva una copia
+autorizada de lectura.
+
+308
+00:22:48,257 --> 00:22:51,089
+Este recorrido distribuye contenido en una
+dirección;
+
+309
+00:22:51,139 --> 00:22:53,707
+no replica ambas bases bidireccionalmente.
+
+310
+00:22:56,253 --> 00:23:01,437
+Una copia completa, llamada snapshot, necesita
+un corte consistente: incluye, por
+
+311
+00:23:01,437 --> 00:23:03,926
+ejemplo, cambios hasta la posición cien.
+
+312
+00:23:04,663 --> 00:23:08,034
+Mientras se descarga, conservamos los eventos
+posteriores.
+
+313
+00:23:08,795 --> 00:23:12,926
+En un área temporal reconstruimos la base,
+aplicamos cambios desde ciento uno y
+
+314
+00:23:12,926 --> 00:23:16,008
+comprobamos manifiesto, integridad y
+referencias.
+
+315
+00:23:16,782 --> 00:23:20,258
+El corte corresponde al origen, no al reloj del
+descargador.
+
+316
+00:23:20,992 --> 00:23:23,889
+Si faltan eventos, solicitamos recuperación;
+
+317
+00:23:23,926 --> 00:23:26,732
+no activamos una mezcla sin continuidad
+demostrada.
+
+318
+00:23:29,253 --> 00:23:33,111
+La descarga y validación pesada terminaron fuera
+de esta transacción.
+
+319
+00:23:33,861 --> 00:23:35,942
+La candidata validada es inmutable.
+
+320
+00:23:36,689 --> 00:23:41,021
+Bloqueamos el alcance y comprobamos que base y
+avance sigan siendo compatibles.
+
+321
+00:23:41,782 --> 00:23:45,047
+Una copia atrasada no puede reemplazar una
+versión reciente.
+
+322
+00:23:45,795 --> 00:23:50,982
+Marcamos entradas aplicadas, cambiamos la
+referencia activa y avanzamos el cursor juntos.
+
+323
+00:23:51,755 --> 00:23:54,995
+Si falla una condición, no publicamos
+parcialmente.
+
+324
+00:23:55,742 --> 00:23:59,232
+Estos contratos deben probarse frente a
+concurrencia y reinicios.
+
+325
+00:24:01,794 --> 00:24:03,797
+TTL significa tiempo de vida;
+
+326
+00:24:03,821 --> 00:24:06,494
+aquí expresa el límite de antigüedad autorizado.
+
+327
+00:24:07,257 --> 00:24:11,023
+La vigencia comercial indica cuándo un precio o
+promoción tiene efecto.
+
+328
+00:24:11,771 --> 00:24:15,629
+Una promoción puede estar vigente y su copia
+resultar demasiado antigua.
+
+329
+00:24:16,376 --> 00:24:19,852
+Descargar la misma versión no renueva ninguno de
+esos plazos.
+
+330
+00:24:20,626 --> 00:24:25,128
+Si falla una actualización, mantenemos la
+anterior solo mientras siga permitida.
+
+331
+00:24:25,876 --> 00:24:29,444
+Al confirmar una venta comprobamos ambas
+condiciones por separado.
+
+332
+00:24:31,961 --> 00:24:36,556
+BullMQ programa y ejecuta trabajos, como
+reconciliar precios de madrugada.
+
+333
+00:24:37,306 --> 00:24:40,953
+La evaluamos como opción en el país, usando
+Redis en este ejemplo.
+
+334
+00:24:41,687 --> 00:24:45,374
+Redis coordina la cola y requiere configurar
+persistencia y memoria.
+
+335
+00:24:46,121 --> 00:24:49,729
+BullMQ también ofrece PostgreSQL como motor
+alternativo;
+
+336
+00:24:49,740 --> 00:24:52,835
+elegirlo no vuelve atómica cualquier escritura
+de negocio.
+
+337
+00:24:53,595 --> 00:24:56,900
+La base de la sucursal sigue siendo su bandeja
+transaccional.
+
+338
+00:24:57,621 --> 00:25:00,387
+No agregamos una cola obligatoria en cada
+tienda.
+
+339
+00:25:02,919 --> 00:25:06,146
+Queremos reconciliar diariamente a las tres de
+la mañana en Chile.
+
+340
+00:25:06,896 --> 00:25:12,211
+La API, o interfaz de programación, de BullMQ
+recibe identidad del planificador, horario
+
+341
+00:25:12,211 --> 00:25:15,727
+y plantilla. La conexión ya está configurada.
+
+342
+00:25:16,475 --> 00:25:18,582
+Esto programa intención de ejecución;
+
+343
+00:25:18,632 --> 00:25:23,556
+no garantiza puntualidad bajo carga ni reproduce
+automáticamente las ventanas perdidas.
+
+344
+00:25:24,330 --> 00:25:28,501
+El trabajo debe detectar qué período o versión
+necesita reconciliar y registrar su
+
+345
+00:25:28,501 --> 00:25:30,398
+resultado de forma idempotente.
+
+346
+00:25:32,919 --> 00:25:35,764
+Un supervisor solicita reconciliar una sucursal.
+
+347
+00:25:36,488 --> 00:25:40,372
+Registramos la solicitud autorizada y su salida
+en PostgreSQL.
+
+348
+00:25:41,119 --> 00:25:45,175
+Un publicador recuperable agrega el trabajo a
+BullMQ con referencia estable.
+
+349
+00:25:45,935 --> 00:25:49,725
+Si repite el envío, la identidad de la cola
+ayuda mientras ese trabajo
+
+350
+00:25:49,725 --> 00:25:53,661
+exista. Al eliminarlo, esa protección termina;
+
+351
+00:25:53,685 --> 00:25:56,201
+el dominio conserva su propia idempotencia.
+
+352
+00:25:56,948 --> 00:26:01,593
+La solicitud manual y la programada ejecutan las
+mismas validaciones y generan evidencia
+
+353
+00:26:01,593 --> 00:26:02,359
+comparable.
+
+354
+00:26:04,919 --> 00:26:08,014
+Permitimos tres intentos y espera creciente
+entre fallos.
+
+355
+00:26:08,803 --> 00:26:12,938
+La reconciliación es un contrato del negocio:
+repetirla debe ser seguro.
+
+356
+00:26:13,698 --> 00:26:17,477
+Un reinicio o pérdida de la reclamación puede
+provocar otra ejecución.
+
+357
+00:26:18,225 --> 00:26:22,530
+Al agotar el presupuesto, mostramos el fallo y
+recuperamos con autorización.
+
+358
+00:26:23,277 --> 00:26:27,161
+Un reintento manual no reinicia automáticamente
+el contador acumulado.
+
+359
+00:26:27,922 --> 00:26:32,488
+Una implementación completa también necesita
+manejo de errores de conexión, alertas y
+
+360
+00:26:32,488 --> 00:26:33,543
+cierre ordenado.
+
+361
+00:26:36,086 --> 00:26:38,707
+RabbitMQ es un intermediario de mensajes.
+
+362
+00:26:39,483 --> 00:26:44,023
+Puede servir cuando varios consumidores
+necesitan eventos: por ejemplo, integración
+
+363
+00:26:44,023 --> 00:26:48,091
+empresarial e informes. BullMQ organiza
+trabajos;
+
+364
+00:26:48,181 --> 00:26:50,631
+RabbitMQ enruta mensajes hacia colas.
+
+365
+00:26:51,404 --> 00:26:54,644
+Ninguno reemplaza las reglas transaccionales del
+consumidor.
+
+366
+00:26:55,391 --> 00:27:00,604
+La propuesta base usa PostgreSQL y lotes por
+HTTPS sin exigir un intermediario.
+
+367
+00:27:01,352 --> 00:27:05,960
+Incorporarlo en el país debe responder a una
+necesidad medida y contemplar operación,
+
+368
+00:27:05,996 --> 00:27:08,289
+monitoreo y recuperación explícitos.
+
+369
+00:27:10,836 --> 00:27:14,075
+Un exchange enruta mensajes hacia colas según
+sus enlaces.
+
+370
+00:27:14,852 --> 00:27:19,789
+Usamos tipo topic: una clave como venta
+confirmada coincide con reglas de suscripción.
+
+371
+00:27:20,510 --> 00:27:24,907
+Las colas empresarial y de informes reciben
+copias independientes si ambas coinciden.
+
+372
+00:27:25,628 --> 00:27:28,789
+Los ejecutores de una misma cola compiten por
+mensajes;
+
+373
+00:27:28,812 --> 00:27:30,591
+no reciben todos una copia.
+
+374
+00:27:31,339 --> 00:27:33,657
+Configuramos durabilidad y tipo de cola.
+
+375
+00:27:34,418 --> 00:27:39,078
+Difundir a varios consumidores no exige
+específicamente un exchange de tipo fanout.
+
+376
+00:27:41,628 --> 00:27:45,551
+Este fragmento supone un canal de confirmación y
+un solo mensaje en vuelo.
+
+377
+00:27:46,314 --> 00:27:50,054
+Esperamos la confirmación del intermediario y
+observamos devoluciones.
+
+378
+00:27:50,828 --> 00:27:54,778
+La opción mandatory permite detectar que no hubo
+ninguna cola de destino.
+
+379
+00:27:55,512 --> 00:27:58,699
+No demuestra que todas las suscripciones
+esperadas existan.
+
+380
+00:27:59,446 --> 00:28:02,541
+Incluso un mensaje sin ruta puede recibir
+confirmación;
+
+381
+00:28:02,617 --> 00:28:04,633
+por eso comprobamos ambas señales.
+
+382
+00:28:05,407 --> 00:28:09,883
+Registrar custodia del intermediario no afirma
+que el consumidor aplicó el negocio.
+
+383
+00:28:10,630 --> 00:28:14,896
+El valor booleano de publicar expresa presión de
+salida, no ese resultado.
+
+384
+00:28:17,461 --> 00:28:19,345
+El consumidor usa acuse manual.
+
+385
+00:28:20,069 --> 00:28:23,137
+Primero confirma entrada, efecto y salida en su
+base;
+
+386
+00:28:23,161 --> 00:28:28,214
+después reconoce el mensaje. Si cae entre ambos
+pasos, tolerará una entrega
+
+387
+00:28:28,214 --> 00:28:33,740
+repetida. La política de fallos limita
+reintentos y deriva casos persistentes a una
+
+388
+00:28:33,740 --> 00:28:37,124
+cola de mensajes problemáticos, conocida como
+DLQ.
+
+389
+00:28:37,885 --> 00:28:42,385
+Esa transferencia necesita configuración y
+verificación: no es segura por defecto en
+
+390
+00:28:42,385 --> 00:28:47,269
+cualquier topología. Conservamos referencias y
+mecanismos de recuperación;
+
+391
+00:28:47,293 --> 00:28:50,058
+reenviar sin límite solo escondería el
+incidente.
+
+392
+00:28:52,628 --> 00:28:56,367
+Una fachada reúne una capacidad y oculta
+detalles de coordinación.
+
+393
+00:28:57,117 --> 00:29:01,643
+Registrar una operación empresarial puede exigir
+transformar datos, elegir destino y
+
+394
+00:29:01,643 --> 00:29:07,383
+guardar referencias. El resto del POS solicita
+esa capacidad mediante un contrato estable,
+
+395
+00:29:07,433 --> 00:29:09,699
+sin conocer cada dirección del proveedor.
+
+396
+00:29:10,433 --> 00:29:14,791
+La fachada no borra pendientes ni convierte
+operaciones remotas en una transacción.
+
+397
+00:29:15,525 --> 00:29:20,080
+Tampoco exige otro proceso: su ubicación depende
+de los límites de la integración.
+
+398
+00:29:22,586 --> 00:29:27,812
+ACL viene del inglés Anti-Corruption Layer: capa
+anticorrupción, no lista de permisos.
+
+399
+00:29:28,589 --> 00:29:31,683
+Impide que el vocabulario externo deforme
+nuestro modelo.
+
+400
+00:29:32,444 --> 00:29:37,065
+Por ejemplo, emitido puede significar algo
+distinto en cada sistema empresarial.
+
+401
+00:29:37,786 --> 00:29:40,275
+La capa traduce y valida ese significado.
+
+402
+00:29:41,049 --> 00:29:42,933
+La fachada presenta la capacidad;
+
+403
+00:29:42,957 --> 00:29:45,262
+el adaptador resuelve el acceso técnico;
+
+404
+00:29:45,273 --> 00:29:47,815
+la capa anticorrupción protege la semántica.
+
+405
+00:29:48,549 --> 00:29:52,183
+Pueden colaborar dentro de una integración sin
+crear tres servicios.
+
+406
+00:29:54,753 --> 00:29:58,887
+Un destino espera importes en unidades mínimas y
+códigos fiscales propios.
+
+407
+00:29:59,676 --> 00:30:04,337
+La traducción respeta moneda, precisión,
+redondeo y equivalencias aprobadas.
+
+408
+00:30:05,097 --> 00:30:09,205
+Si falta una equivalencia, detenemos la
+integración con un motivo visible;
+
+409
+00:30:09,216 --> 00:30:14,479
+no inventamos un valor. El ejemplo usa funciones
+contractuales, no conversiones
+
+410
+00:30:14,479 --> 00:30:20,232
+universales. Conservamos la identidad original
+para conciliar respuestas y reintentos.
+
+411
+00:30:21,005 --> 00:30:25,363
+La traducción necesita pruebas con casos reales
+del país y del destino homologado.
+
+412
+00:30:27,919 --> 00:30:32,603
+ERP significa planificación de recursos
+empresariales: aquí, el sistema de procesos
+
+413
+00:30:32,603 --> 00:30:37,711
+administrativos. Una migración puede cambiar
+identificadores, impuestos,
+
+414
+00:30:37,711 --> 00:30:42,819
+estados y reversas. Cada operación conserva su
+destino y versión contractual,
+
+415
+00:30:42,856 --> 00:30:45,161
+incluso si llega tarde por desconexión.
+
+416
+00:30:45,896 --> 00:30:49,793
+Debemos resolver referencias históricas y
+conciliación durante la transición.
+
+417
+00:30:50,540 --> 00:30:54,053
+Publicar la venta a todos los destinos o cambiar
+una dirección web global
+
+418
+00:30:54,053 --> 00:30:56,648
+no define una estrategia de migración segura.
+
+419
+00:30:59,169 --> 00:31:03,106
+Nx organiza proyectos, dependencias y tareas de
+construcción.
+
+420
+00:31:03,856 --> 00:31:08,832
+Podemos separar dominio, contratos y
+adaptadores, y prohibir dependencias indebidas.
+
+421
+00:31:09,606 --> 00:31:13,596
+Una pantalla no debería importar un repositorio
+SQL del servidor.
+
+422
+00:31:14,343 --> 00:31:19,159
+Esto mejora la estructura del código, pero no
+autentica solicitudes ni crea aislamiento
+
+423
+00:31:19,159 --> 00:31:23,569
+de ejecución. Un monorepositorio puede producir
+varios procesos;
+
+424
+00:31:23,606 --> 00:31:25,898
+muchas bibliotecas pueden terminar en uno.
+
+425
+00:31:26,646 --> 00:31:30,977
+La topología de ejecución sigue siendo una
+decisión arquitectónica distinta.
+
+426
+00:31:33,503 --> 00:31:37,834
+Tauri empaqueta la interfaz y la conecta con
+capacidades nativas controladas.
+
+427
+00:31:38,597 --> 00:31:43,111
+Eso no garantiza compatibilidad con impresoras o
+terminales de pago: debemos validar
+
+428
+00:31:43,111 --> 00:31:48,376
+dispositivos y bibliotecas. El cliente envía
+comandos al servidor compartido.
+
+429
+00:31:49,137 --> 00:31:53,505
+Las actualizaciones respetan compatibilidad de
+contratos y procedimientos de instalación y
+
+430
+00:31:53,505 --> 00:31:58,939
+recuperación. Una interfaz nueva no puede asumir
+capacidades que el servidor todavía no
+
+431
+00:31:58,939 --> 00:32:02,232
+ofrece ni guardar otra historia financiera para
+compensarlo.
+
+432
+00:32:04,753 --> 00:32:08,939
+Observabilidad significa explicar lo que ocurre
+mediante señales del sistema.
+
+433
+00:32:09,676 --> 00:32:13,021
+Seguimos referencias de venta, pago, evento y
+destino.
+
+434
+00:32:13,768 --> 00:32:19,203
+Medimos pendientes antiguos, reintentos, huecos,
+pagos desconocidos y versiones próximas a
+
+435
+00:32:19,203 --> 00:32:23,482
+vencer. Un proceso vivo no demuestra que el
+negocio esté al día.
+
+436
+00:32:24,216 --> 00:32:29,311
+Los registros necesitan contexto y acceso
+controlado, sin datos sensibles innecesarios.
+
+437
+00:32:30,084 --> 00:32:34,771
+Soporte debe distinguir un atraso recuperable de
+una operación que requiere intervención.
+
+438
+00:32:37,294 --> 00:32:40,836
+RPO expresa pérdida tolerable de historial
+medida en tiempo;
+
+439
+00:32:40,847 --> 00:32:43,705
+RTO expresa tiempo de recuperación aceptable.
+
+440
+00:32:44,455 --> 00:32:47,905
+Acordamos esos objetivos y comprobamos si el
+diseño los cumple.
+
+441
+00:32:48,652 --> 00:32:53,744
+Una restauración debe revisar ventas,
+evidencias, entradas, salidas, cursores y
+
+442
+00:32:53,744 --> 00:32:58,889
+versiones. También considera lo que otros
+sistemas ya recibieron para evitar repetir
+
+443
+00:32:58,889 --> 00:33:04,300
+efectos. Respaldo, conmutación y recuperación
+operativa están relacionados,
+
+444
+00:33:04,428 --> 00:33:07,550
+pero no quedan demostrados por dibujar una copia
+adicional.
+
+445
+00:33:10,086 --> 00:33:12,168
+Depende de la falla y de la operación.
+
+446
+00:33:12,918 --> 00:33:17,852
+Con red local, servidor y PostgreSQL
+disponibles, podrías confirmar una venta
+
+447
+00:33:17,852 --> 00:33:20,631
+permitida usando datos y autorización válidos.
+
+448
+00:33:21,418 --> 00:33:24,552
+El ejemplo en efectivo exige modalidad fiscal
+aprobada.
+
+449
+00:33:25,299 --> 00:33:30,075
+Si falta la autoridad local o una capacidad
+externa necesaria, detenemos los comandos
+
+450
+00:33:30,075 --> 00:33:35,536
+afectados. La respuesta enumera condiciones
+comprobables: decir solamente que funciona
+
+451
+00:33:35,536 --> 00:33:39,131
+sin conexión oculta los límites que el cajero
+necesita conocer.
+
+452
+00:33:41,669 --> 00:33:47,438
+Pregunta quién confirmó. RabbitMQ puede
+confirmar custodia sin aplicación del mensaje.
+
+453
+00:33:48,185 --> 00:33:51,346
+El consumidor reconoce después de confirmar su
+efecto local.
+
+454
+00:33:52,067 --> 00:33:57,422
+El país, en nuestro contrato HTTPS, responde
+aplicado después de confirmar entrada,
+
+455
+00:33:57,422 --> 00:34:02,214
+efecto y salida. Si se pierde la respuesta,
+puede haber repetición.
+
+456
+00:34:02,961 --> 00:34:07,580
+La protección viene de identidades estables y
+efectos idempotentes en cada límite, no
+
+457
+00:34:07,580 --> 00:34:10,806
+de ejecutar mágicamente una sola vez entre
+sistemas.
+
+458
+00:34:13,378 --> 00:34:18,475
+No basta. Necesitamos una candidata completa,
+compatible y validada.
+
+459
+00:34:19,222 --> 00:34:23,104
+Debe publicarse sin retroceder la versión activa
+ni separar el efecto de su
+
+460
+00:34:23,104 --> 00:34:28,643
+cursor aplicado. Descargar los mismos datos no
+extiende antigüedad autorizada ni vigencia
+
+461
+00:34:28,643 --> 00:34:33,528
+comercial. Una venta conserva su versión y
+comprueba la política al confirmar.
+
+462
+00:34:34,288 --> 00:34:38,933
+La respuesta conecta integridad, orden y reglas
+comerciales: tener un archivo en disco
+
+463
+00:34:38,933 --> 00:34:40,686
+es solo una etapa del contrato.
+
+464
+00:34:43,211 --> 00:34:47,856
+Antes de aceptar el piloto, provoquemos cortes
+después de cobrar, después de confirmar
+
+465
+00:34:47,856 --> 00:34:53,043
+y antes del acuse. Verifiquemos que repetir no
+duplica efectos, que ninguna lista
+
+466
+00:34:53,043 --> 00:34:56,400
+incompleta se publica y que restaurar conserva
+trazabilidad.
+
+467
+00:34:57,148 --> 00:35:01,019
+Midamos los objetivos acordados con carga y
+fallas representativas.
+
+468
+00:35:01,793 --> 00:35:04,900
+Los diagramas y ejemplos ayudan a formular estas
+pruebas.
+
+469
+00:35:05,661 --> 00:35:09,885
+La evidencia del piloto permitirá ajustar la
+propuesta y explicar qué puede prometer
+
+470
+00:35:09,885 --> 00:35:10,782
+la operación.

@@ -1,0 +1,1350 @@
+{
+  "version": 1,
+  "tours": [
+    {
+      "sceneId": "s03",
+      "diagram": "01-contexto",
+      "cues": [
+        {
+          "id": "context-overview",
+          "phrase": "Esta vista de contexto",
+          "label": "C1: el POS y su entorno",
+          "description": "El contexto orienta sobre las personas y sistemas externos; aún no muestra módulos internos.",
+          "targets": [
+            "cashier",
+            "supervisor",
+            "support",
+            "pos",
+            "masters",
+            "payments",
+            "fiscal",
+            "erp"
+          ],
+          "focus": {
+            "x": 0.03604060913705584,
+            "y": 0.12812468724591744,
+            "w": 0.8826964467005076,
+            "h": 0.25115956998247757
+          }
+        },
+        {
+          "id": "context-cashier",
+          "phrase": "El cajero vende",
+          "label": "Cajero: operación de caja",
+          "description": "Este rol humano realiza la venta, el cobro y la gestión de su turno.",
+          "targets": [
+            "cashier"
+          ],
+          "focus": {
+            "x": 0.03807106598984772,
+            "y": 0.13316758111463545,
+            "w": 0.22901374623255075,
+            "h": 0.049256172671199396
+          },
+          "highlight": {
+            "x": 0.048730964467005075,
+            "y": 0.1393246026985354,
+            "w": 0.20769394927823603,
+            "h": 0.03694212950339955
+          }
+        },
+        {
+          "id": "context-supervisor",
+          "phrase": "El supervisor autoriza",
+          "label": "Supervisor: excepciones y cierres",
+          "description": "El supervisor autoriza excepciones y revisa el cierre de la operación.",
+          "targets": [
+            "supervisor"
+          ],
+          "focus": {
+            "x": 0.26708483081178613,
+            "y": 0.12929745326189837,
+            "w": 0.21199861942814083,
+            "h": 0.05699642837667356
+          },
+          "highlight": {
+            "x": 0.2777447292889435,
+            "y": 0.13545447484579828,
+            "w": 0.19067882247382612,
+            "h": 0.044682385208873715
+          }
+        },
+        {
+          "id": "context-support",
+          "phrase": "Operación de plataforma supervisa",
+          "label": "Operación de plataforma",
+          "description": "El soporte autorizado observa incidentes y supervisa sincronización y recuperación.",
+          "targets": [
+            "support"
+          ],
+          "focus": {
+            "x": 0.479083450239927,
+            "y": 0.12929745326189837,
+            "w": 0.19506294366671953,
+            "h": 0.05699642837667356
+          },
+          "highlight": {
+            "x": 0.48974334871708436,
+            "y": 0.13545447484579828,
+            "w": 0.1737431467124048,
+            "h": 0.044682385208873715
+          }
+        },
+        {
+          "id": "context-masters",
+          "phrase": "La fuente externa",
+          "label": "Fuentes de maestros y precios",
+          "description": "Los datos comerciales proceden de una fuente autorizada externa al POS.",
+          "targets": [
+            "masters"
+          ],
+          "focus": {
+            "x": 0.6741463753172589,
+            "y": 0.13105660228586977,
+            "w": 0.24256027918781725,
+            "h": 0.05347813032873075
+          },
+          "highlight": {
+            "x": 0.6848062737944163,
+            "y": 0.1372136238697697,
+            "w": 0.22124048223350254,
+            "h": 0.0411640871609309
+          }
+        },
+        {
+          "id": "context-payments",
+          "phrase": "El proveedor de pagos",
+          "label": "Proveedor de pagos",
+          "description": "Cada intento de pago conserva el contrato y resultado de su proveedor.",
+          "targets": [
+            "payments"
+          ],
+          "focus": {
+            "x": 0.373594047430203,
+            "y": 0.31689311484150334,
+            "w": 0.23910532994923858,
+            "h": 0.06121838603420493
+          },
+          "highlight": {
+            "x": 0.3842539459073604,
+            "y": 0.3230501364254033,
+            "w": 0.21778553299492387,
+            "h": 0.04890434286640508
+          }
+        },
+        {
+          "id": "context-fiscal",
+          "phrase": "El proveedor fiscal",
+          "label": "Proveedor fiscal",
+          "description": "La emisión o transmisión depende del país y de la modalidad fiscal autorizada.",
+          "targets": [
+            "fiscal"
+          ],
+          "focus": {
+            "x": 0.6126993773794461,
+            "y": 0.31689311484150334,
+            "w": 0.21815672588832485,
+            "h": 0.06121838603420493
+          },
+          "highlight": {
+            "x": 0.6233592758566034,
+            "y": 0.3230501364254033,
+            "w": 0.19683692893401014,
+            "h": 0.04890434286640508
+          }
+        },
+        {
+          "id": "context-erp",
+          "phrase": "El sistema empresarial del país",
+          "label": "ERP del país",
+          "description": "El sistema empresarial recibe y concilia documentos; no es un módulo interno del POS.",
+          "targets": [
+            "erp"
+          ],
+          "focus": {
+            "x": 0.15206803220177664,
+            "y": 0.31689311484150334,
+            "w": 0.22152601522842644,
+            "h": 0.06121838603420493
+          },
+          "highlight": {
+            "x": 0.162727930678934,
+            "y": 0.3230501364254033,
+            "w": 0.2002062182741117,
+            "h": 0.04890434286640508
+          }
+        },
+        {
+          "id": "context-authority",
+          "phrase": "La flecha de maestros al POS",
+          "label": "Maestros → POS: datos autorizados",
+          "description": "La relación no convierte al POS en dueño de precios, inventario o contabilidad.",
+          "targets": [
+            "label-masters_pos"
+          ],
+          "focus": {
+            "x": 0.7271014435279187,
+            "y": 0.184429107440508,
+            "w": 0.12248343065910533,
+            "h": 0.03729395930819379
+          },
+          "highlight": {
+            "x": 0.7377613420050761,
+            "y": 0.1905861290244079,
+            "w": 0.1011636337047906,
+            "h": 0.02497991614039395
+          }
+        }
+      ]
+    },
+    {
+      "sceneId": "s05",
+      "diagram": "02-contenedores",
+      "cues": [
+        {
+          "id": "containers-overview",
+          "phrase": "Un contenedor C4 representa",
+          "label": "C2: aplicaciones y datos",
+          "description": "La vista distribuye responsabilidades entre aplicaciones, procesos y almacenes de datos.",
+          "targets": [
+            "systemScope",
+            "client",
+            "branchApi",
+            "branchDb",
+            "syncWorker",
+            "countryApi",
+            "countryDb",
+            "countryWorker",
+            "erpAdapter"
+          ],
+          "focus": {
+            "x": 0.020966515289256818,
+            "y": 0.0841809880708861,
+            "w": 0.958066983263816,
+            "h": 0.4187563025033031
+          }
+        },
+        {
+          "id": "containers-client",
+          "phrase": "La terminal ejecuta",
+          "label": "Cliente de caja: Angular + Tauri",
+          "description": "El cliente presenta la operación y envía los comandos del cajero.",
+          "targets": [
+            "client"
+          ],
+          "focus": {
+            "x": 0.6299474648984474,
+            "y": 0.1932502682670776,
+            "w": 0.12614238151052343,
+            "h": 0.04022194578764536
+          },
+          "highlight": {
+            "x": 0.6361488285755516,
+            "y": 0.19729557890663965,
+            "w": 0.11373965415631518,
+            "h": 0.0321313245085213
+          }
+        },
+        {
+          "id": "containers-backend",
+          "phrase": "El backend de sucursal recibe",
+          "label": "Backend de sucursal",
+          "description": "Todas las cajas comparten este servidor de reglas y confirmación local.",
+          "targets": [
+            "branchApi"
+          ],
+          "focus": {
+            "x": 0.5487538961832198,
+            "y": 0.2658346991712192,
+            "w": 0.14448069981281705,
+            "h": 0.03513641241219596
+          },
+          "highlight": {
+            "x": 0.554955259860324,
+            "y": 0.26988000981078125,
+            "w": 0.13207797245860878,
+            "h": 0.02704579113307189
+          }
+        },
+        {
+          "id": "containers-database",
+          "phrase": "PostgreSQL de sucursal guarda",
+          "label": "PostgreSQL de sucursal",
+          "description": "La base local conserva negocio, entrega pendiente y copias comerciales autorizadas.",
+          "targets": [
+            "branchDb"
+          ],
+          "focus": {
+            "x": 0.6333554464549275,
+            "y": 0.32824805450638467,
+            "w": 0.12245478489538839,
+            "h": 0.04975180780462776
+          },
+          "highlight": {
+            "x": 0.6395568101320316,
+            "y": 0.3322933651459467,
+            "w": 0.11005205754118012,
+            "h": 0.0416611865255037
+          }
+        },
+        {
+          "id": "containers-synchronizer",
+          "phrase": "El sincronizador entrega",
+          "label": "Sincronizador de sucursal",
+          "description": "Este proceso intercambia eventos, acuses y versiones con el país.",
+          "targets": [
+            "syncWorker"
+          ],
+          "focus": {
+            "x": 0.40821410761788385,
+            "y": 0.2632919324834945,
+            "w": 0.11952021101247297,
+            "h": 0.04022194578764534
+          },
+          "highlight": {
+            "x": 0.414415471294988,
+            "y": 0.2673372431230565,
+            "w": 0.1071174836582647,
+            "h": 0.032131324508521276
+          }
+        },
+        {
+          "id": "containers-country-api",
+          "phrase": "La API de país recibe",
+          "label": "API de país",
+          "description": "Recibe lotes de las sucursales y sirve las publicaciones autorizadas.",
+          "targets": [
+            "countryApi"
+          ],
+          "focus": {
+            "x": 0.3714350377739873,
+            "y": 0.3355557522026006,
+            "w": 0.13712765430996504,
+            "h": 0.03513641241219596
+          },
+          "highlight": {
+            "x": 0.3776364014510914,
+            "y": 0.3396010628421626,
+            "w": 0.12472492695575679,
+            "h": 0.02704579113307189
+          }
+        },
+        {
+          "id": "containers-country-data",
+          "phrase": "La base de país conserva",
+          "label": "Datos operativos de país",
+          "description": "PostgreSQL conserva el estado operativo que necesita la plataforma del país.",
+          "targets": [
+            "countryDb"
+          ],
+          "focus": {
+            "x": 0.2925799576217078,
+            "y": 0.4027340458912463,
+            "w": 0.1122003871007483,
+            "h": 0.049386411368135555
+          },
+          "highlight": {
+            "x": 0.2987813212988119,
+            "y": 0.4067793565308083,
+            "w": 0.09979765974654004,
+            "h": 0.04129579008901149
+          }
+        },
+        {
+          "id": "containers-country-workers",
+          "phrase": "Los workers de país",
+          "label": "Workers de país",
+          "description": "Estos procesos atienden publicaciones e integraciones de trabajo previamente confirmado.",
+          "targets": [
+            "countryWorker"
+          ],
+          "focus": {
+            "x": 0.25410139575670304,
+            "y": 0.12829413742611018,
+            "w": 0.11629217974126606,
+            "h": 0.04022194578764534
+          },
+          "highlight": {
+            "x": 0.2603027594338072,
+            "y": 0.1323394480656722,
+            "w": 0.1038894523870578,
+            "h": 0.032131324508521276
+          }
+        },
+        {
+          "id": "containers-adapter",
+          "phrase": "El adaptador empresarial traduce",
+          "label": "Adaptador ERP / capa anticorrupción",
+          "description": "El adaptador conserva el contrato externo fuera de las reglas de las terminales.",
+          "targets": [
+            "erpAdapter"
+          ],
+          "focus": {
+            "x": 0.17727594718735976,
+            "y": 0.1932502682670776,
+            "w": 0.12245478489538834,
+            "h": 0.04022194578764536
+          },
+          "highlight": {
+            "x": 0.18347731086446387,
+            "y": 0.19729557890663965,
+            "w": 0.1100520575411801,
+            "h": 0.0321313245085213
+          }
+        }
+      ]
+    },
+    {
+      "sceneId": "s08",
+      "diagram": "05-despliegue",
+      "cues": [
+        {
+          "id": "deployment-overview",
+          "phrase": "El despliegue ubica",
+          "label": "Terminal, sucursal y entorno de país",
+          "description": "Las fronteras indican dónde se ejecutan las instancias de la propuesta.",
+          "targets": [
+            "terminalNode",
+            "serverNode",
+            "countryNode"
+          ],
+          "focus": {
+            "x": 0.018698113981032258,
+            "y": 0.09005658844903021,
+            "w": 0.9626036629930367,
+            "h": 0.400855682489668
+          }
+        },
+        {
+          "id": "deployment-terminal",
+          "phrase": "En cada terminal se ejecuta",
+          "label": "Cliente de caja en cada terminal",
+          "description": "Los puestos comparten la autoridad operativa del servidor de sucursal.",
+          "targets": [
+            "client"
+          ],
+          "focus": {
+            "x": 0.43338187374421555,
+            "y": 0.13724871374611924,
+            "w": 0.11249483258341818,
+            "h": 0.0430293264717563
+          },
+          "highlight": {
+            "x": 0.4389123018231124,
+            "y": 0.14157637589126715,
+            "w": 0.10143397642562445,
+            "h": 0.03437400218146049
+          }
+        },
+        {
+          "id": "deployment-primary",
+          "phrase": "PostgreSQL tiene un primario",
+          "label": "PostgreSQL de sucursal",
+          "description": "La sucursal tiene un primario autorizado compartido por sus terminales.",
+          "targets": [
+            "branchDb"
+          ],
+          "focus": {
+            "x": 0.8371987949715693,
+            "y": 0.28438922479443707,
+            "w": 0.11694386445760221,
+            "h": 0.05351406608934184
+          },
+          "highlight": {
+            "x": 0.8427292230504663,
+            "y": 0.28871688693958497,
+            "w": 0.10588300829980848,
+            "h": 0.044858741799046024
+          }
+        },
+        {
+          "id": "deployment-writer",
+          "phrase": "La relación del backend",
+          "label": "Backend → PostgreSQL de sucursal",
+          "description": "Un escritor significa autoridad de escritura; pueden existir varias conexiones.",
+          "targets": [
+            "label-branchApi_branchDb"
+          ],
+          "focus": {
+            "x": 0.8897765932347003,
+            "y": 0.26349278120203107,
+            "w": 0.06054826106691279,
+            "h": 0.020772778296709933
+          },
+          "highlight": {
+            "x": 0.8953070213135972,
+            "y": 0.26782044334717897,
+            "w": 0.04948740490911906,
+            "h": 0.012117454006414124
+          }
+        },
+        {
+          "id": "deployment-worker",
+          "phrase": "El sincronizador funciona",
+          "label": "Sincronizador de sucursal",
+          "description": "El proceso supervisado entrega eventos y actualiza espejos con permisos específicos.",
+          "targets": [
+            "syncWorker"
+          ],
+          "focus": {
+            "x": 0.6911902471888405,
+            "y": 0.21353921499058373,
+            "w": 0.10658912545631052,
+            "h": 0.0430293264717563
+          },
+          "highlight": {
+            "x": 0.6967206752677374,
+            "y": 0.21786687713573163,
+            "w": 0.0955282692985168,
+            "h": 0.03437400218146049
+          }
+        },
+        {
+          "id": "deployment-country",
+          "phrase": "En la plataforma de país",
+          "label": "API en la plataforma de país",
+          "description": "La API recibe operaciones y sirve publicaciones a las sucursales.",
+          "targets": [
+            "countryApi"
+          ],
+          "focus": {
+            "x": 0.24148543224446345,
+            "y": 0.29235184126689084,
+            "w": 0.12229159089460692,
+            "h": 0.03758883691785611
+          },
+          "highlight": {
+            "x": 0.24701586032336031,
+            "y": 0.29667950341203875,
+            "w": 0.11123073473681319,
+            "h": 0.028933512627560297
+          }
+        },
+        {
+          "id": "deployment-backup",
+          "phrase": "El respaldo conserva",
+          "label": "Respaldo y recuperación",
+          "description": "Una copia no demuestra conmutación automática ni alta disponibilidad.",
+          "targets": [
+            "backup"
+          ],
+          "focus": {
+            "x": 0.42908622483628217,
+            "y": 0.44705872929744755,
+            "w": 0.12700726840830923,
+            "h": 0.04302932647175635
+          },
+          "highlight": {
+            "x": 0.43461665291517904,
+            "y": 0.45138639144259546,
+            "w": 0.1159464122505155,
+            "h": 0.03437400218146054
+          }
+        },
+        {
+          "id": "deployment-validation",
+          "phrase": "Redundancia, energía y recuperación",
+          "label": "Despliegue sujeto a pruebas",
+          "description": "La propuesta necesita evidencia de recuperación y dimensionamiento en el entorno real.",
+          "targets": [
+            "terminalNode",
+            "serverNode",
+            "countryNode",
+            "backup"
+          ],
+          "focus": {
+            "x": 0.018698113981032258,
+            "y": 0.09005658844903021,
+            "w": 0.9626036629930367,
+            "h": 0.400855682489668
+          }
+        }
+      ]
+    },
+    {
+      "sceneId": "s13",
+      "diagram": "03-backend-sucursal",
+      "cues": [
+        {
+          "id": "backend-overview",
+          "phrase": "El backend recomendado de sucursal",
+          "label": "C3: módulos de un mismo proceso",
+          "description": "Los rectángulos internos son componentes; no exigen un servicio desplegado por cada uno.",
+          "targets": [
+            "backendScope",
+            "entry",
+            "access",
+            "sales",
+            "pricing",
+            "cash",
+            "payPort",
+            "fiscalPort",
+            "unitOfWork"
+          ],
+          "focus": {
+            "x": 0.027539944738288708,
+            "y": 0.08141766382023487,
+            "w": 0.944919940823059,
+            "h": 0.44756817547620015
+          }
+        },
+        {
+          "id": "backend-access",
+          "phrase": "Acceso y permisos recibe",
+          "label": "Acceso y permisos",
+          "description": "La autorización verifica el contexto del operador antes de ejecutar el caso de uso.",
+          "targets": [
+            "access"
+          ],
+          "focus": {
+            "x": 0.0430554065626767,
+            "y": 0.20412172192551334,
+            "w": 0.18113816821790982,
+            "h": 0.03398302489888066
+          },
+          "highlight": {
+            "x": 0.05120102402048041,
+            "y": 0.2080342412395292,
+            "w": 0.1648469333023024,
+            "h": 0.02615798627084893
+          }
+        },
+        {
+          "id": "backend-sales",
+          "phrase": "Ventas y devoluciones coordina",
+          "label": "Ventas y devoluciones",
+          "description": "Este módulo coordina el caso de uso de la venta o devolución.",
+          "targets": [
+            "sales"
+          ],
+          "focus": {
+            "x": 0.32287600297460495,
+            "y": 0.20412172192551334,
+            "w": 0.17863629999872727,
+            "h": 0.03398302489888066
+          },
+          "highlight": {
+            "x": 0.3310216204324087,
+            "y": 0.2080342412395292,
+            "w": 0.16234506508311988,
+            "h": 0.02615798627084893
+          }
+        },
+        {
+          "id": "backend-pricing",
+          "phrase": "Precios y ofertas calcula",
+          "label": "Precios y ofertas",
+          "description": "La cotización usa una versión comercial local y vigente.",
+          "targets": [
+            "pricing"
+          ],
+          "focus": {
+            "x": 0.3095225540874488,
+            "y": 0.36554109019519637,
+            "w": 0.17914540108984,
+            "h": 0.03398302489888066
+          },
+          "highlight": {
+            "x": 0.3176681715452525,
+            "y": 0.36945360950921224,
+            "w": 0.1628541661742326,
+            "h": 0.02615798627084893
+          }
+        },
+        {
+          "id": "backend-cash",
+          "phrase": "Turnos y caja controla",
+          "label": "Turnos y caja",
+          "description": "Este módulo gobierna apertura, movimientos y cierre.",
+          "targets": [
+            "cash"
+          ],
+          "focus": {
+            "x": 0.16641741925747608,
+            "y": 0.3100951022022859,
+            "w": 0.17854629819869125,
+            "h": 0.03890162060792915
+          },
+          "highlight": {
+            "x": 0.17456303671527978,
+            "y": 0.3140076215163018,
+            "w": 0.16225506328308387,
+            "h": 0.03107658197989742
+          }
+        },
+        {
+          "id": "backend-payment",
+          "phrase": "El puerto de pagos gestiona",
+          "label": "Pagos y adaptadores",
+          "description": "El puerto conserva los intentos y la evidencia de la integración de pago.",
+          "targets": [
+            "payPort"
+          ],
+          "focus": {
+            "x": 0.48866795517728534,
+            "y": 0.3630817923406721,
+            "w": 0.17553078334293962,
+            "h": 0.03890162060792915
+          },
+          "highlight": {
+            "x": 0.4968135726350891,
+            "y": 0.366994311654688,
+            "w": 0.1592395484273322,
+            "h": 0.03107658197989742
+          }
+        },
+        {
+          "id": "backend-fiscal",
+          "phrase": "El puerto fiscal aplica",
+          "label": "Fiscalidad y adaptadores",
+          "description": "La fiscalidad tiene un contrato y una modalidad propios por país.",
+          "targets": [
+            "fiscalPort"
+          ],
+          "focus": {
+            "x": 0.6033047933685948,
+            "y": 0.2571084120638996,
+            "w": 0.17494168065179488,
+            "h": 0.03398302489888066
+          },
+          "highlight": {
+            "x": 0.6114504108263984,
+            "y": 0.2610209313779155,
+            "w": 0.15865044573618747,
+            "h": 0.02615798627084893
+          }
+        },
+        {
+          "id": "backend-transaction",
+          "phrase": "Persistencia transaccional delimita",
+          "label": "Persistencia transaccional",
+          "description": "La unidad de trabajo confirma juntas las escrituras locales relacionadas.",
+          "targets": [
+            "unitOfWork"
+          ],
+          "focus": {
+            "x": 0.31542085387162294,
+            "y": 0.42098707818810693,
+            "w": 0.16550149184801882,
+            "h": 0.03890162060792919
+          },
+          "highlight": {
+            "x": 0.3235664713294266,
+            "y": 0.4248995975021228,
+            "w": 0.1492102569324114,
+            "h": 0.03107658197989746
+          }
+        },
+        {
+          "id": "backend-client-boundary",
+          "phrase": "La API de comandos recibe",
+          "label": "API de comandos: límite con el cliente",
+          "description": "El cliente envía comandos; la validación y las reglas financieras quedan en el servidor.",
+          "targets": [
+            "entry"
+          ],
+          "focus": {
+            "x": 0.16399100709286915,
+            "y": 0.14621643607807855,
+            "w": 0.16393782421102973,
+            "h": 0.03890162060792915
+          },
+          "highlight": {
+            "x": 0.17213662455067283,
+            "y": 0.15012895539209442,
+            "w": 0.14764658929542232,
+            "h": 0.03107658197989742
+          }
+        }
+      ]
+    },
+    {
+      "sceneId": "s21",
+      "diagram": "07-flujo-venta",
+      "cues": [
+        {
+          "id": "sale-participants",
+          "phrase": "La secuencia de venta",
+          "label": "Venta: participantes y secuencia",
+          "description": "El mapa orienta sobre los participantes; los pasos siguientes amplían cada interacción.",
+          "targets": [
+            "client",
+            "branchApi",
+            "branchDb",
+            "payments",
+            "syncWorker",
+            "countryApi",
+            "countryDb"
+          ],
+          "focus": {
+            "x": 0.029444651509504285,
+            "y": 0.09659153991340069,
+            "w": 0.9366380916884085,
+            "h": 0.6986788053735983
+          }
+        },
+        {
+          "id": "sale-validation",
+          "phrase": "Primero, el servidor consulta",
+          "label": "Servidor → PostgreSQL: validar",
+          "description": "El paso 02 verifica las condiciones de la operación antes de continuar.",
+          "targets": [
+            "step-1-label"
+          ],
+          "focus": {
+            "x": 0.2331345508758852,
+            "y": 0.19917841678694348,
+            "w": 0.13639480642005217,
+            "h": 0.022871100255356946
+          },
+          "highlight": {
+            "x": 0.24096161013790532,
+            "y": 0.2038414566448318,
+            "w": 0.12074068789601193,
+            "h": 0.013545020539580326
+          }
+        },
+        {
+          "id": "sale-intent",
+          "phrase": "Después persiste una intención",
+          "label": "Servidor → PostgreSQL: intención",
+          "description": "El paso 03 conserva una referencia recuperable antes del efecto externo.",
+          "targets": [
+            "step-2-label"
+          ],
+          "focus": {
+            "x": 0.2331345508758852,
+            "y": 0.24158987454202288,
+            "w": 0.13640281401416324,
+            "h": 0.022871100255356946
+          },
+          "highlight": {
+            "x": 0.24096161013790532,
+            "y": 0.24625291439991118,
+            "w": 0.120748695490123,
+            "h": 0.013545020539580326
+          }
+        },
+        {
+          "id": "sale-evidence",
+          "phrase": "El proveedor devuelve un resultado",
+          "label": "Pago → servidor: resultado y referencia",
+          "description": "El paso 05 devuelve el resultado; rechazo o incertidumbre siguen su recuperación propia.",
+          "targets": [
+            "step-4-label"
+          ],
+          "focus": {
+            "x": 0.2331345508758852,
+            "y": 0.32030642833351836,
+            "w": 0.20248548441576594,
+            "h": 0.016764738536693684
+          },
+          "highlight": {
+            "x": 0.24096161013790532,
+            "y": 0.3249694681914067,
+            "w": 0.1868313658917257,
+            "h": 0.007438658820917064
+          }
+        },
+        {
+          "id": "sale-local-commit",
+          "phrase": "El servidor confirma venta",
+          "label": "Servidor → PostgreSQL: confirmar venta",
+          "description": "El paso 06 confirma la operación local junto con su intención de entrega.",
+          "targets": [
+            "step-5-label"
+          ],
+          "focus": {
+            "x": 0.2331345508758852,
+            "y": 0.3566115243699345,
+            "w": 0.1288716717527022,
+            "h": 0.028977461974020208
+          },
+          "highlight": {
+            "x": 0.24096161013790532,
+            "y": 0.3612745642278228,
+            "w": 0.11321755322866195,
+            "h": 0.019651382258243588
+          }
+        },
+        {
+          "id": "sale-country-delivery",
+          "phrase": "El sincronizador envía el lote",
+          "label": "Sincronizador → API de país: envío",
+          "description": "El paso 09 entrega el lote autenticado con identidades estables.",
+          "targets": [
+            "step-8-label"
+          ],
+          "focus": {
+            "x": 0.6300782705926202,
+            "y": 0.48384589763517266,
+            "w": 0.13365620923406635,
+            "h": 0.022871100255356946
+          },
+          "highlight": {
+            "x": 0.6379053298546403,
+            "y": 0.48850893749306096,
+            "w": 0.11800209071002608,
+            "h": 0.013545020539580326
+          }
+        },
+        {
+          "id": "sale-inbox",
+          "phrase": "El país reconoce duplicados",
+          "label": "API país → PostgreSQL: aplicar",
+          "description": "El paso 11 confirma inbox, efecto y outbox; un duplicado conserva su resultado.",
+          "targets": [
+            "step-10-label"
+          ],
+          "focus": {
+            "x": 0.7623928438315318,
+            "y": 0.5707782835572333,
+            "w": 0.13306364726984718,
+            "h": 0.022871100255356946
+          },
+          "highlight": {
+            "x": 0.770219903093552,
+            "y": 0.5754413234151216,
+            "w": 0.11740952874580693,
+            "h": 0.013545020539580326
+          }
+        },
+        {
+          "id": "sale-ack",
+          "phrase": "Solo después de confirmar,",
+          "label": "API país → sincronizador: acuse",
+          "description": "El paso 13 responde aplicación después del resultado durable del país.",
+          "targets": [
+            "step-12-label"
+          ],
+          "focus": {
+            "x": 0.6300782705926202,
+            "y": 0.655601199067392,
+            "w": 0.13503351542117034,
+            "h": 0.022871100255356946
+          },
+          "highlight": {
+            "x": 0.6379053298546403,
+            "y": 0.6602642389252803,
+            "w": 0.11937939689713008,
+            "h": 0.013545020539580326
+          }
+        },
+        {
+          "id": "sale-state",
+          "phrase": "El cliente consulta venta y entrega.",
+          "label": "Cliente → servidor: estados separados",
+          "description": "El paso 15 distingue estado local e integración ERP pendiente, posterior a esta secuencia.",
+          "targets": [
+            "step-14-label"
+          ],
+          "focus": {
+            "x": 0.10081997763697353,
+            "y": 0.7343177528588876,
+            "w": 0.1304691867778606,
+            "h": 0.028977461974020208
+          },
+          "highlight": {
+            "x": 0.10864703689899366,
+            "y": 0.7389807927167759,
+            "w": 0.11481506825382035,
+            "h": 0.019651382258243588
+          }
+        }
+      ]
+    },
+    {
+      "sceneId": "s25",
+      "diagram": "04-sincronizador",
+      "cues": [
+        {
+          "id": "sync-plan",
+          "phrase": "Un proceso supervisado ejecuta",
+          "label": "Planificador y supervisor",
+          "description": "El sincronizador es un proceso supervisado con planificación y límites de trabajo.",
+          "targets": [
+            "schedule"
+          ],
+          "focus": {
+            "x": 0.4603764340832075,
+            "y": 0.14454267901813542,
+            "w": 0.1596929374115911,
+            "h": 0.04531608315163163
+          },
+          "highlight": {
+            "x": 0.46846082757211277,
+            "y": 0.1491003310592478,
+            "w": 0.14352415043378053,
+            "h": 0.03620077906940688
+          }
+        },
+        {
+          "id": "sync-outgoing",
+          "phrase": "El emisor entrega operaciones",
+          "label": "Emisor de outbox",
+          "description": "La salida envía operaciones pendientes sin fabricar otra identidad en cada intento.",
+          "targets": [
+            "sender"
+          ],
+          "focus": {
+            "x": 0.2168782917568285,
+            "y": 0.2765843695806483,
+            "w": 0.17884555131661248,
+            "h": 0.03958646344280467
+          },
+          "highlight": {
+            "x": 0.22496268524573376,
+            "y": 0.2811420216217607,
+            "w": 0.16267676433880193,
+            "h": 0.030471159360579918
+          }
+        },
+        {
+          "id": "sync-incoming",
+          "phrase": "El receptor consulta deltas",
+          "label": "Receptor de deltas y acuses",
+          "description": "La recepción conserva el contrato y los cursores de entrega.",
+          "targets": [
+            "receiver"
+          ],
+          "focus": {
+            "x": 0.4578595350165444,
+            "y": 0.21199592922659857,
+            "w": 0.1647267355449172,
+            "h": 0.04531608315163166
+          },
+          "highlight": {
+            "x": 0.4659439285054497,
+            "y": 0.21655358126771096,
+            "w": 0.14855794856710666,
+            "h": 0.0362007790694069
+          }
+        },
+        {
+          "id": "sync-dedup",
+          "phrase": "El módulo de entrada y deduplicación",
+          "label": "Inbox y deduplicación",
+          "description": "La deduplicación prepara la candidata; no sustituye la validación de publicación.",
+          "targets": [
+            "dedup"
+          ],
+          "focus": {
+            "x": 0.5153597837063831,
+            "y": 0.2765843695806483,
+            "w": 0.18654737975648925,
+            "h": 0.03958646344280467
+          },
+          "highlight": {
+            "x": 0.5234441771952885,
+            "y": 0.2811420216217607,
+            "w": 0.1703785927786787,
+            "h": 0.030471159360579918
+          }
+        },
+        {
+          "id": "sync-bulk",
+          "phrase": "La carga completa prepara",
+          "label": "Carga de snapshot",
+          "description": "Las cargas completas preparan candidatas fuera de servicio.",
+          "targets": [
+            "snapshot"
+          ],
+          "focus": {
+            "x": 0.7570905928021379,
+            "y": 0.2737195597262348,
+            "w": 0.1644506390708541,
+            "h": 0.04531608315163163
+          },
+          "highlight": {
+            "x": 0.7651749862910432,
+            "y": 0.27827721176734715,
+            "w": 0.14828185209304354,
+            "h": 0.03620077906940688
+          }
+        },
+        {
+          "id": "sync-validation",
+          "phrase": "Ambos caminos pasan por el validador,",
+          "label": "Validador de publicación",
+          "description": "Deltas y cargas completas comparten la validación del conjunto.",
+          "targets": [
+            "validation"
+          ],
+          "focus": {
+            "x": 0.5702644097434085,
+            "y": 0.341172809934698,
+            "w": 0.16387228011701616,
+            "h": 0.04531608315163163
+          },
+          "highlight": {
+            "x": 0.5783488032323137,
+            "y": 0.34573046197581037,
+            "w": 0.1477034931392056,
+            "h": 0.03620077906940688
+          }
+        },
+        {
+          "id": "sync-activation",
+          "phrase": "La activación cambia atómicamente",
+          "label": "Activación de versión",
+          "description": "La publicación confirma versión, entrada aplicada y cursor aplicado juntos.",
+          "targets": [
+            "activation"
+          ],
+          "focus": {
+            "x": 0.6336280994028513,
+            "y": 0.4143556798519881,
+            "w": 0.17520035603813286,
+            "h": 0.04531608315163168
+          },
+          "highlight": {
+            "x": 0.6417124928917565,
+            "y": 0.41891333189310054,
+            "w": 0.15903156906032231,
+            "h": 0.03620077906940693
+          }
+        },
+        {
+          "id": "sync-permissions",
+          "phrase": "Los permisos sobre PostgreSQL",
+          "label": "Datos de sucursal: acceso acotado",
+          "description": "El sincronizador no recibe autoridad para reescribir arbitrariamente el negocio.",
+          "targets": [
+            "branchDb"
+          ],
+          "focus": {
+            "x": 0.5033538728959172,
+            "y": 0.4889709447615921,
+            "w": 0.15963789857199023,
+            "h": 0.056052908810568285
+          },
+          "highlight": {
+            "x": 0.5114382663848224,
+            "y": 0.4935285968027045,
+            "w": 0.1434691115941797,
+            "h": 0.046937604728343525
+          }
+        },
+        {
+          "id": "sync-observation",
+          "phrase": "Separar estas etapas permite",
+          "label": "Etapas observables del sincronizador",
+          "description": "La vista de conjunto permite ubicar la etapa que requiere recuperación.",
+          "targets": [
+            "syncScope",
+            "schedule",
+            "sender",
+            "receiver",
+            "dedup",
+            "snapshot",
+            "validation",
+            "activation"
+          ],
+          "focus": {
+            "x": 0.027332949414870217,
+            "y": 0.09484256866505282,
+            "w": 0.9453339237226348,
+            "h": 0.45104933643498396
+          }
+        }
+      ]
+    },
+    {
+      "sceneId": "s33",
+      "diagram": "06-flujo-precios",
+      "cues": [
+        {
+          "id": "prices-origin",
+          "phrase": "La distribución parte",
+          "label": "Datos de país: publicación autorizada",
+          "description": "El país conserva la publicación que se distribuirá hacia las sucursales.",
+          "targets": [
+            "countryDb"
+          ],
+          "focus": {
+            "x": 0.26234364713627384,
+            "y": 0.10206014681506038,
+            "w": 0.12475312705727452,
+            "h": 0.061094008998342414
+          },
+          "highlight": {
+            "x": 0.26925608953258723,
+            "y": 0.10703291498934407,
+            "w": 0.1109282422646478,
+            "h": 0.05114847264977504
+          }
+        },
+        {
+          "id": "prices-events",
+          "phrase": "Los eventos acompañan",
+          "label": "Worker país → datos: versión y salida",
+          "description": "El paso 03 publica versión, manifiesto y outbox en una transacción.",
+          "targets": [
+            "step-2-label"
+          ],
+          "focus": {
+            "x": 0.20589203423304805,
+            "y": 0.25988633672744493,
+            "w": 0.11964690740207373,
+            "h": 0.024390243902439025
+          },
+          "highlight": {
+            "x": 0.21280447662936142,
+            "y": 0.26485910490172865,
+            "w": 0.10582202260944701,
+            "h": 0.014444707553871654
+          }
+        },
+        {
+          "id": "prices-bulk",
+          "phrase": "Las cargas programadas",
+          "label": "Sincronizador → API: deltas o copia",
+          "description": "El paso 04 solicita contenido autorizado por HTTPS.",
+          "targets": [
+            "step-3-label"
+          ],
+          "focus": {
+            "x": 0.43959842001316657,
+            "y": 0.3051148472649775,
+            "w": 0.11442432315668202,
+            "h": 0.024390243902439025
+          },
+          "highlight": {
+            "x": 0.4465108624094799,
+            "y": 0.31008761543926117,
+            "w": 0.1005994383640553,
+            "h": 0.014444707553871654
+          }
+        },
+        {
+          "id": "prices-cut",
+          "phrase": "La API lee la publicación",
+          "label": "API país → datos: corte consistente",
+          "description": "El paso 05 lee el corte del origen, no una hora arbitraria del descargador.",
+          "targets": [
+            "step-4-label"
+          ],
+          "focus": {
+            "x": 0.3227452271231073,
+            "y": 0.3503433578025101,
+            "w": 0.11925795393762344,
+            "h": 0.024390243902439025
+          },
+          "highlight": {
+            "x": 0.32965766951942066,
+            "y": 0.35531612597679374,
+            "w": 0.10543306914499671,
+            "h": 0.014444707553871654
+          }
+        },
+        {
+          "id": "prices-receive",
+          "phrase": "El sincronizador recibe el contenido",
+          "label": "Sincronizador → datos: recepción",
+          "description": "El paso 07 conserva inbox recibida, staging y progreso para reanudar.",
+          "targets": [
+            "step-6-label"
+          ],
+          "focus": {
+            "x": 0.5564516129032258,
+            "y": 0.44080037887757517,
+            "w": 0.11844468760286372,
+            "h": 0.024390243902439025
+          },
+          "highlight": {
+            "x": 0.5633640552995391,
+            "y": 0.4457731470518589,
+            "w": 0.104619802810237,
+            "h": 0.014444707553871654
+          }
+        },
+        {
+          "id": "prices-candidate",
+          "phrase": "Después prepara una candidata",
+          "label": "Sincronizador: preparar candidata",
+          "description": "El paso 08 reconstruye una candidata sin parchear la versión activa.",
+          "targets": [
+            "step-7-label",
+            "step-7"
+          ],
+          "focus": {
+            "x": 0.5503620803159973,
+            "y": 0.48602888941510775,
+            "w": 0.22214128847103357,
+            "h": 0.03279659010182335
+          },
+          "highlight": {
+            "x": 0.5572745227123107,
+            "y": 0.4910016575893914,
+            "w": 0.20831640367840684,
+            "h": 0.022851053753255978
+          }
+        },
+        {
+          "id": "prices-validation",
+          "phrase": "La candidata completa se valida",
+          "label": "Sincronizador: validar el conjunto",
+          "description": "El paso 09 valida la candidata completa antes de su publicación.",
+          "targets": [
+            "step-8-label",
+            "step-8"
+          ],
+          "focus": {
+            "x": 0.5503620803159973,
+            "y": 0.5335069855552924,
+            "w": 0.1934329868540158,
+            "h": 0.03279659010182335
+          },
+          "highlight": {
+            "x": 0.5572745227123107,
+            "y": 0.5384797537295761,
+            "w": 0.17960810206138908,
+            "h": 0.022851053753255978
+          }
+        },
+        {
+          "id": "prices-activation",
+          "phrase": "Solo entonces una transacción",
+          "label": "Sincronizador → datos: activación",
+          "description": "El paso 10 publica el efecto y su avance aplicado en un commit corto.",
+          "targets": [
+            "step-9-label"
+          ],
+          "focus": {
+            "x": 0.5564516129032258,
+            "y": 0.5809850816954771,
+            "w": 0.10455904892198815,
+            "h": 0.030902202225905753
+          },
+          "highlight": {
+            "x": 0.5633640552995391,
+            "y": 0.5859578498697608,
+            "w": 0.09073416412936142,
+            "h": 0.020956665877338385
+          }
+        },
+        {
+          "id": "prices-local-copy",
+          "phrase": "La sucursal conserva una copia",
+          "label": "Datos de sucursal: copia de lectura",
+          "description": "La distribución mantiene una copia local autorizada; no crea réplica bidireccional.",
+          "targets": [
+            "branchDb"
+          ],
+          "focus": {
+            "x": 0.6129032258064516,
+            "y": 0.10206014681506038,
+            "w": 0.12475312705727452,
+            "h": 0.061094008998342414
+          },
+          "highlight": {
+            "x": 0.619815668202765,
+            "y": 0.10703291498934407,
+            "w": 0.1109282422646478,
+            "h": 0.05114847264977504
+          }
+        }
+      ]
+    }
+  ]
+}

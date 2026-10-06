@@ -2,6 +2,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const {publishVideo} = require('./video-publication.cjs');
 const root = path.resolve(__dirname, '../..');
 const output = path.resolve(root, 'public');
 const files = [];
@@ -22,6 +23,7 @@ for (const entry of fs.readdirSync(path.join(root, 'presentation'), {withFileTyp
 }
 collect('presentation/diagrams', file => file.endsWith('.mmd'));
 collect('presentation/architecture-diagrams', file => /^presentation\/architecture-diagrams\/[^/]+\.svg$/.test(file));
+collect('presentation/video-assets', file => /^presentation\/video-assets\/[^/]+\.(jpg|json|vtt|srt|md|txt)$/.test(file));
 files.push('README.md');
 for (const name of ['concentrador-ingress-evidence.json', 'concentrador-masters-evidence.json']) {
   files.push('tools/' + name);
@@ -46,3 +48,7 @@ for (const file of files) {
   fs.copyFileSync(source, destination);
 }
 console.log(`Static output: ${files.length} files in public/ (presentation, documents and linked evidence).`);
+publishVideo(root, output).catch(error => {
+  console.error(`Video publication failed: ${error.message}`);
+  process.exitCode = 1;
+});

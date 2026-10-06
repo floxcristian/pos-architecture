@@ -111,6 +111,7 @@ kbd { margin-left: 7px; color: var(--quiet); font-size: 12px; font-weight: 400; 
 .header-divider { width: 1px; height: 24px; background: var(--line); }
 .deck-label { color: var(--muted); font-size: 14px; }
 .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.header-actions .video-entry { padding-inline:10px; font-size:14px; white-space:nowrap; }
 .header-actions button { border-color: transparent; background: transparent; font-size: 14px; }
 .header-actions button:hover:not(:disabled) { border-color: var(--line); background: var(--surface); }
 .deck-main { min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; scrollbar-color: var(--line-strong) var(--canvas); }
@@ -498,6 +499,7 @@ summary { min-height: 44px; align-content: center; cursor: pointer; }
   .deck-header { gap: 4px; }
   .deck-brand { gap: 6px; font-size: 15px; }
   .header-actions button { padding-inline: 8px; font-size: 13px; }
+  .header-actions .video-entry { padding-inline:8px; font-size:13px; }
   .deck-footer { gap: 8px; }
   .slide-actions button { padding-inline: 10px; font-size: 12px; }
   .deck-location { font-size: 10px; }

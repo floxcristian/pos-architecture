@@ -36,6 +36,12 @@ Tras **Deploy**, Vercel asigna una URL al proyecto; un dominio propio es opciona
 
 Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`. `public/` es una carpeta generada e ignorada por Git; el build solo la reemplaza cuando tiene su marcador de generación. El despliegue real y su URL se verifican después de importar el repositorio en la cuenta de Vercel.
 
+### Video público
+
+**https://presentation-gamma-rust.vercel.app/video** abre el video narrado en español con 14 capítulos. «Copiar enlace» copia el enlace público; la opción del instante actual agrega `?t=segundos`. Los enlaces al video también aparecen en el atlas y en la presentación detallada.
+
+El MP4 se conserva en una release pública de `floxcristian/pos-architecture`. Durante el build, Node.js 22+ lo descarga y verifica contra `video/publication.json` antes de incluirlo en `public/media/`. No requiere tokens ni otros servicios. La [guía del video](../video/README.md) explica cómo generar y publicar nuevas revisiones. El servidor ligero `server.cjs` sigue destinado al atlas; para comprobar reproducción y saltos usa la salida de Vercel o `node presentation/tools/check-public-video.cjs` después del build.
+
 ## Recorrer la presentación
 
 ### Presentación detallada de la propuesta

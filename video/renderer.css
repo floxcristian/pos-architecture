@@ -1,0 +1,165 @@
+:root {
+  color-scheme: dark;
+  --primary: #0545ba;
+  --primary-soft: #153969;
+  --accent: #a7c8ff;
+  --canvas: #0b1220;
+  --surface: #111f34;
+  --raised: #172d4c;
+  --line: #354e72;
+  --ink: #f6f8ff;
+  --muted: #c0cee2;
+  --quiet: #94a9c5;
+  --confirm: #b3ead9;
+  --mono: "Cascadia Code", "Consolas", "Courier New", monospace;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-synthesis: none;
+}
+* { box-sizing: border-box; }
+html, body { width: 1920px; height: 1080px; margin: 0; overflow: hidden; background: var(--canvas); }
+body { color: var(--ink); -webkit-font-smoothing: antialiased; }
+img, svg { display: block; }
+p, h1, h2, h3, figure, pre, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+strong { font-weight: 650; }
+#video-stage { position: relative; isolation: isolate; width: 1920px; height: 1080px; overflow: hidden; background: var(--canvas); }
+.stage-grid { position: absolute; z-index: -1; inset: 0; opacity: .23; background-image: linear-gradient(#1e314b 1px, transparent 1px), linear-gradient(90deg, #1e314b 1px, transparent 1px); background-size: 120px 120px; mask-image: linear-gradient(90deg, transparent 15%, #000 100%); }
+.film-header { position: absolute; inset: 44px 88px auto; height: 80px; display: flex; align-items: start; justify-content: space-between; gap: 40px; border-bottom: 1px solid #344b6b; }
+.film-brand { display: flex; align-items: center; gap: 17px; font-size: 30px; letter-spacing: -.6px; }
+.film-brand > span { display: grid; place-items: center; width: 44px; height: 47px; border-radius: 7px; background: var(--primary); color: #fff; font-size: 34px; font-weight: 700; }
+.film-brand strong { font-weight: 620; }
+#chapter-rail { max-width: 1220px; padding-top: 7px; color: var(--muted); font-size: 25px; line-height: 1.4; text-align: right; }
+.chapter-index { color: var(--accent); font-family: var(--mono); font-size: 24px; }
+.scene { position: absolute; inset: 155px 88px 174px; }
+.scene-heading { min-height: 163px; }
+.scene-kicker { margin-bottom: 14px; color: var(--accent); font-size: 25px; line-height: 1.4; font-weight: 600; letter-spacing: 2.2px; text-transform: uppercase; }
+.scene-title { max-width: 1744px; color: var(--ink); font-size: 66px; line-height: 1.07; font-weight: 660; letter-spacing: -2px; text-wrap: balance; }
+.scene-content { position: absolute; inset: 188px 0 0; }
+.scene-content.has-takeaway { bottom: 88px; }
+.scene-takeaway { position: absolute; inset: auto 0 0; display: flex; align-items: center; min-height: 66px; padding: 8px 0 8px 23px; border-left: 5px solid #82aefd; color: #deebff; font-size: 31px; line-height: 1.35; }
+.scene-takeaway:empty { display: none; }
+.film-footer { position: absolute; inset: auto 0 0; height: 136px; background: #080f1c; border-top: 1px solid #304868; }
+.subtitle { position: absolute; top: 8px; left: 88px; right: 88px; height: 84px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 32px; line-height: 1.25; font-weight: 500; text-align: center; white-space: pre-line; }
+.footer-rail { position: absolute; inset: auto 88px 8px; display: flex; align-items: center; justify-content: space-between; gap: 32px; color: var(--quiet); font-size: 19px; line-height: 1.3; }
+#scene-rail { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.film-progress { position: absolute; inset: auto 0 0; height: 4px; background: #253a5a; }
+#film-progress-fill { display: block; height: 100%; background: #6a9cf5; }
+.motion-item { transform-origin: 50% 50%; }
+.bullet-list { display: grid; gap: 21px; align-content: start; }
+.bullet { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 18px; color: var(--muted); font-size: 32px; line-height: 1.36; text-wrap: pretty; }
+.bullet::before { width: 9px; height: 9px; margin-top: 17px; background: #84b0ff; content: ""; }
+.bullet strong { color: var(--ink); }
+
+/* Chapter openings combine an editorial statement and a quiet chapter figure. */
+.scene-title-kind .scene-title { max-width: 1550px; font-size: 80px; line-height: 1.07; }
+.scene-title-kind .scene-heading { max-width: 1560px; }
+.scene-title-kind .scene-content { top: 233px; }
+.title-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 80px; align-items: center; height: 100%; }
+.title-statements { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 37px 50px; }
+.title-statement { display: grid; gap: 13px; padding-top: 20px; border-top: 1px solid #5778a6; }
+.statement-index { color: #90b5f3; font: 26px/1.4 var(--mono); }
+.title-statement p { color: #e0e9f8; font-size: 35px; line-height: 1.35; }
+.title-figure { position: relative; width: 340px; height: 340px; display: grid; place-content: center; border: 1px solid #5176af; border-radius: 50%; }
+.title-figure::before, .title-figure::after { position: absolute; width: 17px; height: 17px; background: #83b0ff; border: 5px solid var(--canvas); content: ""; }
+.title-figure::before { top: 48px; right: 38px; }
+.title-figure::after { bottom: 48px; left: 38px; }
+.title-figure-number { color: #e7efff; font: 600 154px/.95 "Segoe UI", sans-serif; letter-spacing: -10px; text-align: center; }
+.title-figure-label { margin-top: 20px; color: var(--accent); font-size: 24px; text-align: center; letter-spacing: 3px; text-transform: uppercase; }
+.title-empty { max-width: 1120px; color: #d3e3ff; font-size: 46px; line-height: 1.35; }
+
+/* Flow positions and paths are measured once; render progress changes only pose. */
+.flow-layout { position: relative; height: 100%; }
+.flow-graph { position: absolute; inset: 0 0 auto; height: 376px; }
+.flow-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.flow-nodes { position: absolute; inset: 0; }
+.flow-node { position: absolute; display: flex; flex-direction: column; justify-content: center; gap: 15px; padding: 22px; border: 2px solid #51709d; border-radius: 9px; background: #13253f; }
+.flow-node.is-active { border-color: #b5d1ff; background: #193f77; }
+.flow-node-index { color: #a3bce0; font: 22px/1.2 var(--mono); }
+.flow-node h2 { color: #fff; font-size: 33px; line-height: 1.14; font-weight: 650; letter-spacing: -.5px; overflow-wrap: break-word; }
+.flow-node p { color: #cfdef3; font-size: 30px; line-height: 1.22; text-wrap: pretty; }
+.flow-node.is-active .flow-node-index { color: #e5efff; }
+.flow-edge { fill: none; stroke: #607b9f; stroke-width: 3; }
+.flow-edge.is-highlight { stroke: #9ac1ff; stroke-width: 5; }
+.flow-edge-label { color: #d9e7ff; font: 500 30px/1.25 "Segoe UI", sans-serif; text-align: center; background: var(--canvas); }
+.flow-edge-label > span { display: inline-block; padding: 4px 10px; background: var(--canvas); }
+.flow-packet { fill: #f1f6ff; stroke: #5d9afa; stroke-width: 4; }
+.flow-node-arrival { position: absolute; inset: -2px; border: 3px solid #dbe8ff; border-radius: 9px; opacity: 0; pointer-events: none; }
+.flow-bullets { position: absolute; inset: auto 0 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 56px; }
+.flow-bullets .bullet { font-size: 30px; }
+.flow-layout.with-bullets .flow-graph { height: 334px; }
+
+/* Code is deliberately short and typeset for video rather than an editor UI. */
+.code-layout { display: grid; grid-template-columns: minmax(0, 2.15fr) minmax(0, 1fr); align-items: start; gap: 42px; height: 100%; }
+.code-panel { overflow: hidden; border: 1px solid #4c6891; background: #080f1c; }
+.code-caption { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 58px; padding: 9px 24px; border-bottom: 1px solid #344d70; background: #12243e; color: #c1d6f9; font-size: 26px; }
+.code-caption span:last-child { color: #e4eeff; font-size: 24px; }
+.video-code { padding-block: 22px; color: #d4e4f7; font: 27px/1.63 var(--mono); tab-size: 2; white-space: pre; }
+.video-code-line { display: flex; min-height: 44px; padding-right: 24px; border-left: 5px solid transparent; }
+.video-code-line.is-highlight { background: #163868; border-left-color: #c6dbff; color: #fff; }
+.video-line-number { flex: 0 0 58px; width: 58px; padding-right: 15px; color: #91a8c8; text-align: right; font-size: 24px; }
+.video-code-text { min-width: 0; }
+.code-bullets { padding-top: 4px; gap: 25px; }
+.code-bullets .bullet { font-size: 31px; }
+
+/* Comparisons give each option the same typographic weight. */
+.compare-layout { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 32px; height: 100%; }
+.compare-column { padding: 29px 31px; border-top: 5px solid #699bed; background: #112039; }
+.compare-column:nth-child(2) { border-top-color: #b4a2e0; background: #201f36; }
+.compare-column:nth-child(3) { border-top-color: #c6ae81; background: #2b281f; }
+.compare-column h2 { margin-bottom: 28px; color: #f3f7ff; font-size: 39px; line-height: 1.18; letter-spacing: -.7px; }
+.compare-column .bullet-list { gap: 24px; }
+.compare-column .bullet { font-size: 31px; line-height: 1.38; }
+.compare-column:nth-child(2) .bullet::before { background: #c7b5f4; }
+.compare-column:nth-child(3) .bullet::before { background: #e9c991; }
+
+/* Original Excalidraw crops are framed, never redrawn or re-labelled. */
+.diagram-layout { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 38px; height: 100%; padding-bottom: 43px; align-items: stretch; }
+.diagram-layout.without-bullets { grid-template-columns: minmax(0, 1fr); }
+.video-diagram { position: relative; height: 100%; min-width: 0; overflow: hidden; border: 1px solid #b7c9e4; border-radius: 5px; background: #fff; }
+.diagram-window { position: absolute; overflow: hidden; }
+.video-diagram img { position: absolute; max-width: none; user-select: none; }
+.diagram-bullets { padding-top: 8px; gap: 30px; }
+.diagram-bullets .bullet { font-size: 31px; }
+.diagram-label { position: absolute; top: -39px; left: 0; color: #b7cdee; font-size: 23px; line-height: 1.3; }
+.diagram-credit { position: absolute; bottom: 0; left: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 36px; width: 100%; color: #b8cdeb; font-size: 26px; line-height: 1.3; }
+.diagram-focus-label { color: #d7e7ff; font-size: 30px; font-weight: 550; }
+.diagram-layout .video-diagram-error { display: grid; place-items: center; height: 100%; padding: 60px; color: #172b46; font-size: 32px; text-align: center; }
+
+/* Guided cameras follow narration time; only tour scenes use this composition. */
+.diagram-tour-layout { grid-template-columns: minmax(0, 1fr) 440px; grid-template-rows: minmax(0, 1fr); gap: 32px; }
+.diagram-tour-layout .video-diagram { min-height: 0; }
+.diagram-tour-guide { min-width: 0; min-height: 0; height: 100%; display: grid; grid-template-rows: 30px auto minmax(0, 1fr) 138px; gap: 10px; align-content: start; }
+.tour-step-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--accent); font-size: 23px; line-height: 1.3; }
+.tour-step-counter { color: #eff5ff; font-variant-numeric: tabular-nums; }
+.tour-step-state { color: #aec8ef; font-size: 21px; }
+.tour-cue-label { color: #fff; font-size: 35px; font-weight: 650; line-height: 1.24; letter-spacing: -.6px; text-wrap: balance; }
+.tour-cue-description { min-height: 0; color: #d2e1f7; font-size: 30px; line-height: 1.23; text-wrap: pretty; }
+.tour-minimap { min-height: 0; display: grid; grid-template-rows: 30px minmax(0, 1fr); gap: 9px; }
+.tour-minimap figcaption { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #c1d5f4; font-size: 24px; line-height: 1.25; }
+.tour-map-key { width: 28px; height: 19px; border: 3px solid #82b0ff; background: #153969; }
+.tour-map-canvas { position: relative; overflow: hidden; background: #f7f9fd; border: 1px solid #789bc9; border-radius: 3px; }
+.tour-map-window { position: absolute; overflow: hidden; }
+.tour-map-window img { position: absolute; max-width: none; }
+.tour-map-viewport { position: absolute; border: 3px solid #0545ba; outline: 2px solid #fff; outline-offset: -5px; background: rgb(5 69 186 / 9%); }
+.tour-highlight { position: absolute; display: none; border: 4px solid #0545ba; outline: 2px solid #fff; outline-offset: 1px; border-radius: 6px; pointer-events: none; }
+.diagram-tour-layout .diagram-credit { font-size: 24px; }
+.tour-step-dots { display: flex; align-items: center; justify-content: flex-end; gap: 9px; }
+.tour-step-dots > span { width: 20px; height: 5px; background: #385374; }
+.tour-step-dots > .is-complete { background: #789ed8; }
+.tour-step-dots > .is-current { width: 38px; background: #e0edff; }
+
+/* Numbered principles and a question/answer composition break the card rhythm. */
+.checklist-layout { display: grid; align-content: center; gap: 18px; height: 100%; }
+.checklist-item { display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: center; gap: 23px; min-height: 99px; padding: 18px 28px; border-left: 3px solid #628cca; background: #12223a; }
+.checklist-item:nth-child(even) { background: #172b47; }
+.checklist-number { color: #a9c6f6; font: 32px/1.3 var(--mono); }
+.checklist-item p { color: #e3ecfa; font-size: 35px; line-height: 1.3; }
+.question-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 68px; align-items: center; height: 100%; }
+.question-prompt { position: relative; padding-left: 26px; border-left: 5px solid #80aaf0; color: #f3f7ff; font-size: 51px; line-height: 1.18; font-weight: 600; letter-spacing: -1px; }
+.question-answer { padding: 30px 34px; background: #142c4f; border-top: 2px solid #8aafe7; }
+.answer-label { margin-bottom: 18px; color: #bbd5ff; font-size: 24px; letter-spacing: 1.8px; text-transform: uppercase; }
+.answer-text { color: #e6effd; font-size: 35px; line-height: 1.37; }
+.question-answer .bullet-list { margin-top: 20px; gap: 14px; }
+.question-answer .bullet { font-size: 30px; }
+
+/* No clock-driven animations or transitions: every frame is set by renderer.js. */
