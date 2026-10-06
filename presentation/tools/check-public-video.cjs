@@ -37,9 +37,12 @@ async function main() {
     assert.equal(range.headers()['content-range'], `bytes 0-63/${publication.bytes}`);
     assert.equal((await range.body()).length, 64);
     assert.match(range.headers()['content-type'], /video\/mp4/);
-    for (const forbidden of ['/video/publication.json','/video/output/manifest.json','/.git/config','/presentation/tools/build-vercel.cjs','/%2e%2e%2f.git/config']) {
+    for (const forbidden of ['/video/publication.json','/video/output/manifest.json','/.git/config','/presentation/tools/build-vercel.cjs']) {
       assert.equal((await http.get(forbidden)).status(), 404, `Repository file exposed: ${forbidden}`);
     }
+    // Vercel rejects encoded traversal as a bad request before static routing;
+    // the local parity server returns not found. Both must deny the request.
+    assert.ok([400,403,404].includes((await http.get('/%2e%2e%2f.git/config')).status()), 'Encoded traversal was not rejected');
     report.checks.push('Same-origin media, CSP, 206 byte ranges, repository files inaccessible');
 
     for (const width of [1440,768,375]) {
