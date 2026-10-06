@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1220">
-  <meta name="description" content="La arquitectura propuesta del POS, explicada en español: 35 minutos con diagramas C4, animaciones, sincronizadores, BullMQ, RabbitMQ y casos de fallo.">
-  <title>POS Atlas · La propuesta en video</title>
+  <meta name="description" content="Una plataforma POS corporativa para distintos países: núcleo común, configuración y adaptadores, con continuidad offline como uno de sus requisitos.">
+  <title>POS Atlas · Plataforma POS corporativa</title>
   <link rel="canonical" href="https://presentation-gamma-rust.vercel.app/video">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_CL">
-  <meta property="og:title" content="POS Atlas · La propuesta en video">
-  <meta property="og:description" content="De la venta local a la integración central: 35 minutos, 14 capítulos y diagramas explicados paso a paso.">
+  <meta property="og:title" content="POS Atlas · Plataforma POS corporativa">
+  <meta property="og:description" content="Un producto común, extensiones por país y evolución coordinada. 14 capítulos con diagramas explicados paso a paso.">
   <meta property="og:url" content="https://presentation-gamma-rust.vercel.app/video">
   <meta property="og:image" content="https://presentation-gamma-rust.vercel.app/presentation/video-assets/portada.jpg">
   <meta property="og:image:width" content="1920">
@@ -32,19 +32,19 @@
   <main id="main">
     <section class="intro" aria-labelledby="page-title">
       <p class="eyebrow">ARQUITECTURA DEL POS · VIDEO EXPLICATIVO</p>
-      <h1 id="page-title">La propuesta, paso a paso.</h1>
-      <p class="description">Desde una venta en la sucursal hasta su integración central. Diagramas C4, animaciones, ejemplos de código y casos de fallo para entender qué hace cada pieza.</p>
-      <ul class="metadata" aria-label="Información del video"><li>35 min 13 s</li><li>14 capítulos</li><li>Español de Chile</li><li>1080p</li></ul>
+      <h1 id="page-title">Una plataforma POS para distintos países.</h1>
+      <p class="description">Qué comparte el producto, cómo se adapta a cada país y cómo se gestionan las integraciones, las versiones y la continuidad operativa. Diagramas C4, ejemplos de código y casos de fallo explicados paso a paso.</p>
+      <ul class="metadata" aria-label="Información del video"><li>37 min 54 s</li><li>14 capítulos</li><li>Español de Chile</li><li>1080p</li></ul>
     </section>
     <div class="watch-layout">
       <section class="watch" aria-label="Reproductor y material de apoyo">
         <video id="film" controls playsinline preload="metadata" poster="/presentation/video-assets/portada.jpg" aria-label="La arquitectura propuesta del POS, explicada en español" aria-describedby="playback-hint">
-          <source src="/media/pos-propuesta-explicada-es-v2.mp4" type="video/mp4">
-          Tu navegador no reproduce este formato. <a href="/media/pos-propuesta-explicada-es-v2.mp4">Descargar el video</a>.
+          <source src="/media/pos-propuesta-explicada-es-v3.mp4" type="video/mp4">
+          Tu navegador no reproduce este formato. <a href="/media/pos-propuesta-explicada-es-v3.mp4">Descargar el video</a>.
         </video>
-        <div class="player-meta"><p id="current-chapter">El problema y el mapa</p><span>Versión 2</span></div>
+        <div class="player-meta"><p id="current-chapter">La plataforma corporativa y su mapa</p><span>Versión 3</span></div>
         <p id="playback-hint" class="hint">Subtítulos integrados en la imagen. Usa los controles para ajustar la velocidad, ampliar el video o ir a un momento específico.</p>
-        <p id="media-error" class="notice" role="status" hidden>No se pudo cargar el video. Intenta recargar la página o usa <a href="/media/pos-propuesta-explicada-es-v2.mp4">el enlace directo al MP4</a>.</p>
+        <p id="media-error" class="notice" role="status" hidden>No se pudo cargar el video. Intenta recargar la página o usa <a href="/media/pos-propuesta-explicada-es-v3.mp4">el enlace directo al MP4</a>.</p>
         <noscript><p class="notice">Puedes reproducir el video con sus controles. Activa JavaScript para saltar entre capítulos y compartir un momento específico.</p></noscript>
         <section class="share-panel" aria-labelledby="share-title">
           <div><h2 id="share-title">Comparte el recorrido</h2><p>Envía el video completo o el momento que estás viendo.</p></div>
@@ -54,26 +54,26 @@
         </section>
         <section class="resources" aria-labelledby="resources-title">
           <h2 id="resources-title">Para seguir la explicación</h2>
-          <div class="resource-links"><a href="/presentation/video-assets/guion-es.md" download>Guion completo</a><a href="/presentation/video-assets/ejemplos-codigo.md" download>Ejemplos de código</a><a href="/presentation/video-assets/pos-propuesta-es.srt" download>Subtítulos SRT</a><a href="/media/pos-propuesta-explicada-es-v2.mp4" download>Descargar video · 153 MB</a></div>
+          <div class="resource-links"><a href="/presentation/video-assets/guion-es.md" download>Guion completo</a><a href="/presentation/video-assets/ejemplos-codigo.md" download>Ejemplos de código</a><a href="/presentation/video-assets/pos-propuesta-es.srt" download>Subtítulos SRT</a><a href="/media/pos-propuesta-explicada-es-v3.mp4" download>Descargar video · 165 MB</a></div>
         </section>
       </section>
       <aside class="chapters" aria-labelledby="chapters-title">
         <div class="chapter-heading"><h2 id="chapters-title">El recorrido</h2><span>14 capítulos</span></div>
         <ol>
-          <li><button type="button" data-time="0" disabled><span>00:00</span><strong>El problema y el mapa</strong></button></li>
-          <li><button type="button" data-time="165.45833333333331" disabled><span>02:45</span><strong>Sucursal, país y conectividad</strong></button></li>
-          <li><button type="button" data-time="360.79166666666663" disabled><span>06:00</span><strong>Datos y transacciones</strong></button></li>
-          <li><button type="button" data-time="515.25" disabled><span>08:35</span><strong>Una venta paso a paso</strong></button></li>
-          <li><button type="button" data-time="689.0833333333334" disabled><span>11:29</span><strong>Pagos y estados inciertos</strong></button></li>
-          <li><button type="button" data-time="827.9583333333334" disabled><span>13:47</span><strong>Entrega sin duplicar efectos</strong></button></li>
-          <li><button type="button" data-time="994.25" disabled><span>16:34</span><strong>El sincronizador</strong></button></li>
-          <li><button type="button" data-time="1169.4583333333335" disabled><span>19:29</span><strong>Precios por eventos</strong></button></li>
-          <li><button type="button" data-time="1313.2916666666667" disabled><span>21:53</span><strong>Precios por lotes y vigencia</strong></button></li>
-          <li><button type="button" data-time="1471.2083333333335" disabled><span>24:31</span><strong>Trabajos con BullMQ</strong></button></li>
-          <li><button type="button" data-time="1595.3333333333335" disabled><span>26:35</span><strong>Mensajes con RabbitMQ</strong></button></li>
-          <li><button type="button" data-time="1731.8750000000002" disabled><span>28:51</span><strong>Fachadas e integración empresarial</strong></button></li>
-          <li><button type="button" data-time="1858.416666666667" disabled><span>30:58</span><strong>Construcción y operación</strong></button></li>
-          <li><button type="button" data-time="1989.3333333333337" disabled><span>33:09</span><strong>Preguntas para comprobar el diseño</strong></button></li>
+          <li><button type="button" data-time="0" disabled><span>00:00</span><strong>La plataforma corporativa y su mapa</strong></button></li>
+          <li><button type="button" data-time="204.29166666666666" disabled><span>03:24</span><strong>Sucursal, país y conectividad</strong></button></li>
+          <li><button type="button" data-time="399.62499999999994" disabled><span>06:39</span><strong>Datos y transacciones</strong></button></li>
+          <li><button type="button" data-time="554.0833333333333" disabled><span>09:14</span><strong>Una venta paso a paso</strong></button></li>
+          <li><button type="button" data-time="727.9166666666666" disabled><span>12:07</span><strong>Pagos y estados inciertos</strong></button></li>
+          <li><button type="button" data-time="866.7916666666666" disabled><span>14:26</span><strong>Entrega sin duplicar efectos</strong></button></li>
+          <li><button type="button" data-time="1033.0833333333333" disabled><span>17:13</span><strong>El sincronizador</strong></button></li>
+          <li><button type="button" data-time="1208.2916666666667" disabled><span>20:08</span><strong>Precios por eventos</strong></button></li>
+          <li><button type="button" data-time="1352.125" disabled><span>22:32</span><strong>Precios por lotes y vigencia</strong></button></li>
+          <li><button type="button" data-time="1510.0416666666667" disabled><span>25:10</span><strong>Trabajos con BullMQ</strong></button></li>
+          <li><button type="button" data-time="1634.1666666666667" disabled><span>27:14</span><strong>Mensajes con RabbitMQ</strong></button></li>
+          <li><button type="button" data-time="1770.7083333333335" disabled><span>29:30</span><strong>Fachadas e integración empresarial</strong></button></li>
+          <li><button type="button" data-time="1950.416666666667" disabled><span>32:30</span><strong>Construcción y operación</strong></button></li>
+          <li><button type="button" data-time="2118.5833333333335" disabled><span>35:18</span><strong>Preguntas para comprobar el diseño</strong></button></li>
         </ol>
       </aside>
     </div>

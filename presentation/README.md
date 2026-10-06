@@ -1,6 +1,6 @@
 # POS Atlas: presentación web interactiva
 
-Recorrido de ocho capítulos en español para presentar al equipo y explorar individualmente la arquitectura actual de Chile y la propuesta para Chile, Perú y España.
+Recorrido de ocho capítulos en español sobre la arquitectura actual de Chile y la propuesta de una plataforma POS corporativa reutilizable entre países. El núcleo común, la configuración, las extensiones y el gobierno permiten adaptarla; la continuidad offline es uno de sus requisitos.
 
 ## Abrir
 

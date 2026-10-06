@@ -1,12 +1,14 @@
 # POS enterprise para Chile, Perú y España
 
-La **[presentación web POS Atlas](presentation/index.html)** reúne ocho capítulos sobre el sistema actual y la arquitectura propuesta. Ecosistema comienza con la vista general; Propuesta abre el modelo C4 y sus decisiones de backend, persistencia y sincronización; Datos comienza con los maestros. Los recorridos de interacciones se abren cuando se necesita profundizar.
+El objetivo es una **plataforma POS corporativa reutilizable en múltiples países**, con un núcleo común de negocio, módulos y contratos versionados, configuración por país/entidad/sucursal y adaptadores fiscales, de pago, ERP y periféricos. La operación offline es uno de sus requisitos, junto con integridad, seguridad, experiencia común, reportes y evolución gobernada. Expandirse debe reutilizar el producto sin mantener un POS independiente por país; las reglas y protocolos nuevos siguen requiriendo desarrollo, pruebas y homologación.
+
+La **[presentación web POS Atlas](presentation/index.html)** reúne ocho capítulos sobre el sistema actual y la arquitectura propuesta. Ecosistema comienza con la vista general; Propuesta explica el núcleo común, las variantes por país y el modelo C4; Datos comienza con los maestros. Los recorridos de interacciones se abren cuando se necesita profundizar.
 
 La [colección C4 editable en Excalidraw](docs/diagramas-excalidraw/index.html) incluye contexto, contenedores, componentes, despliegue y flujos detallados de precios y venta, con archivos individuales y un atlas completo.
 
-La **[presentación detallada de arquitectura](presentation/architecture.html)** conecta esos diagramas en 19 diapositivas, con cinco laboratorios sobre venta, entrega HTTPS, precios, BullMQ y RabbitMQ. Permite recorrer 15 casos con código resaltado, reproducir y pausar cada secuencia, consultar notas y descargar los diagramas editables. Comparte la publicación de Vercel de POS Atlas mediante `/arquitectura`; los laboratorios usan datos sintéticos y no conectan sistemas reales.
+La **[presentación detallada de arquitectura](presentation/architecture.html)** explica cómo reutilizar el producto entre países y conecta esos diagramas en 19 diapositivas, con cinco laboratorios sobre venta, entrega HTTPS, precios, BullMQ y RabbitMQ. Permite recorrer 15 casos con código resaltado, reproducir y pausar cada secuencia, consultar notas y descargar los diagramas editables. Comparte la publicación de Vercel de POS Atlas mediante `/arquitectura`; los laboratorios usan datos sintéticos y no conectan sistemas reales.
 
-El **[video público de la propuesta](https://presentation-gamma-rust.vercel.app/video)** explica la arquitectura en español durante 35 minutos, con 14 capítulos y diagramas sincronizados con la narración. Permite compartir el video completo o un instante mediante `?t=segundos`. La [guía de producción y publicación](video/README.md) documenta el MP4 conservado en GitHub Releases y su verificación al desplegar en Vercel.
+El **[video público de la propuesta](https://presentation-gamma-rust.vercel.app/video)** explica una plataforma POS corporativa multipaís en español durante unos 38 minutos, con 14 capítulos y diagramas sincronizados con la narración. Permite compartir el video completo o un instante mediante `?t=segundos`. La [guía de producción y publicación](video/README.md) documenta el MP4 conservado en GitHub Releases y su verificación al desplegar en Vercel.
 
 Para una consulta concreta: [venta actual](presentation/index.html#mapa?flujo=sale), [entrega ERP propuesta](presentation/index.html#propuesta?flujo=proposed-erp) o [maestros y tablas](presentation/index.html#datos?flujo=D03). La [guía breve de la presentación](presentation/README.md) explica cómo abrir y recorrer el material; la [guía canónica del visor](docs/visor-interacciones-componentes.md) concentra sus controles y convenciones.
 
@@ -72,13 +74,13 @@ El [análisis de repositorios](docs/analisis-repositorios/README.md) incorpora i
 
 ## 1. Objetivo y alcance
 
-**Informado:** se debe entregar una propuesta de arquitectura enterprise-grade para un POS que opere en los tres países, tomando como punto de partida la arquitectura existente en Chile.
+**Informado:** se debe entregar una propuesta de arquitectura para una plataforma POS corporativa que opere en múltiples países sin rehacer el producto completo. Chile, Perú y España son el alcance inicial, tomando como punto de partida la arquitectura existente en Chile. La reutilización del núcleo, las extensiones controladas y el gobierno del producto son objetivos centrales; offline es uno de sus requisitos operativos.
 
 Requisitos iniciales:
 
 | ID | Requisito | Alcance conocido |
 | --- | --- | --- |
-| REQ-01 | Operación en Chile, Perú y España | La propuesta debe contemplar los sistemas existentes de cada país. |
+| REQ-01 | Plataforma corporativa multipaís | Núcleo y módulos reutilizables, perfiles por país/entidad/sucursal y adaptadores homologados, sin forks nacionales. El alcance inicial contempla los sistemas existentes de Chile, Perú y España. |
 | REQ-02 | Funcionamiento offline | Es obligatorio. La presentación documenta que hoy la consulta de precios online bloquea continuar o finalizar la venta si no está disponible. El alcance objetivo y la duración de la desconexión están por definir. |
 | REQ-03 | Módulo de ofertas local | Actualmente las ofertas son solo de lectura en caja y el módulo está centralizado. Se requiere un módulo local. |
 | REQ-04 | Arquitectura enterprise-grade | Los criterios medibles de disponibilidad, seguridad, rendimiento, recuperación y operación están por definir. |

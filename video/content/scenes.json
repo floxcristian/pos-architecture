@@ -1,10 +1,10 @@
 {
-  "title": "Cómo funciona la arquitectura propuesta del POS",
-  "description": "Guion técnico en español latino para desarrolladores junior. Explica una propuesta pendiente de implementación y validación, con ejemplos didácticos y siete diagramas C4 existentes. Los fragmentos con funciones de negocio son contratos ilustrativos, no una aplicación ejecutable.",
+  "title": "Una plataforma POS corporativa para múltiples países",
+  "description": "Guion técnico en español latino para desarrolladores junior. Explica una plataforma POS corporativa con núcleo común, perfiles de país e integraciones delimitadas; continuidad, consistencia y recuperación son requisitos de esa plataforma. La arquitectura requiere implementación y validación. Incluye ejemplos didácticos y siete diagramas C4 existentes. Los fragmentos con funciones de negocio son contratos ilustrativos, no una aplicación ejecutable.",
   "chapters": [
     {
       "id": "c01",
-      "title": "El problema y el mapa"
+      "title": "La plataforma corporativa y su mapa"
     },
     {
       "id": "c02",
@@ -63,39 +63,40 @@
     {
       "id": "s01",
       "chapter": "c01",
-      "title": "Una venta debe sobrevivir a una mala conexión",
+      "title": "Una plataforma POS para crecer en varios países",
       "kicker": "01 · El problema",
       "kind": "title",
-      "narration": "Imagina una tienda con tres cajas. Una persona paga, la conexión con la oficina central se corta y el cajero necesita saber si puede entregar el producto. Un punto de venta, o POS por sus siglas en inglés, debe responder esa pregunta con evidencia. No basta con mostrar una pantalla de éxito. Durante este recorrido separaremos lo que ocurrió en la tienda, lo que recibió el país y lo que aceptó el sistema empresarial. Esa separación evita cobrar dos veces y perder operaciones.",
-      "takeaway": "Cada confirmación debe decir qué ocurrió y dónde quedó registrado.",
+      "narration": "Imagina una empresa que opera tiendas en varios países. Cada país tiene reglas fiscales, medios de pago, dispositivos y sistemas empresariales diferentes. Queremos una plataforma corporativa de punto de venta, o POS, que comparta su núcleo y permita incorporar esas diferencias sin rehacer toda la aplicación. Ese es el objetivo principal. También necesitamos administrar sucursales, controlar permisos, consultar reportes y evolucionar versiones con trazabilidad. Mantener operaciones permitidas cuando falla internet es uno de sus requisitos de continuidad. En este recorrido veremos cómo se conectan la reutilización del producto, las extensiones por país y la confiabilidad de cada operación.",
+      "takeaway": "Un producto común, con variaciones delimitadas y operación corporativa.",
       "bullets": [
-        "Tres cajas, una sucursal, una venta real",
-        "Continuidad con límites explícitos",
-        "Evidencia antes de mostrar éxito"
+        "Núcleo compartido entre países",
+        "Reglas e integraciones adaptables",
+        "Continuidad, control y trazabilidad"
       ]
     },
     {
       "id": "s02",
       "chapter": "c01",
-      "title": "Leemos una propuesta, no una promesa de producción",
+      "title": "Producto corporativo; arquitectura por validar",
       "kicker": "01 · Alcance",
       "kind": "compare",
-      "narration": "La dirección de producto ya contempla Angular para la interfaz, Tauri para el cliente de escritorio y Nx para organizar el desarrollo. El servidor de sucursal, las bases de datos y los contratos de sincronización son recomendaciones de esta arquitectura. Todavía requieren implementación, pruebas y homologación. Existe una aplicación de demostración separada con datos simulados; verla funcionar no prueba que un pago o una recuperación reales estén resueltos. A lo largo del video distinguiremos decisiones de diseño, ejemplos y garantías que necesitan evidencia.",
-      "takeaway": "Una demostración visual no demuestra las garantías del sistema completo.",
+      "narration": "El producto abarca venta, caja, devoluciones, maestros, precios, reportes y administración de la operación. La misma plataforma debe poder habilitar capacidades según país, entidad legal y sucursal, conservando reglas y contratos comunes. Angular y Tauri son la dirección elegida para el cliente, y Nx organiza el desarrollo. El servidor de sucursal, PostgreSQL, los perfiles y las integraciones siguen siendo una propuesta por implementar y validar. La aplicación de demostración usa datos simulados. No acredita compatibilidad fiscal, de pagos o de dispositivos en todos los países. Esa cobertura se construye y se homologa de forma explícita.",
+      "takeaway": "Compartir el producto requiere contratos y compatibilidad comprobada por país.",
       "columns": [
         {
-          "title": "Dirección elegida",
+          "title": "Capacidades corporativas",
           "items": [
-            "Angular y Tauri",
-            "Organización con Nx"
+            "Venta, caja y devoluciones",
+            "Maestros, precios y ofertas",
+            "Reportes, permisos y operación"
           ]
         },
         {
           "title": "Propuesta por validar",
           "items": [
-            "Servidor y PostgreSQL",
-            "Contratos y recuperación",
-            "Integraciones por país"
+            "Núcleo y contratos comunes",
+            "Perfiles y adaptadores de país",
+            "Pruebas y homologación"
           ]
         }
       ]
@@ -103,12 +104,12 @@
     {
       "id": "s03",
       "chapter": "c01",
-      "title": "C4: primero vemos quién se relaciona con quién",
+      "title": "C1: la plataforma y sus integraciones por país",
       "kicker": "01 · Contexto · Vista general",
       "kind": "diagram",
       "diagram": "01-contexto",
       "narration": "Esta vista de contexto pertenece al modelo C4: contexto, contenedores, componentes y código. El cajero vende, cobra y gestiona su turno desde el punto de venta. El supervisor autoriza excepciones y revisa cierres; su responsabilidad es distinta de la del cajero. Operación de plataforma supervisa incidentes, sincronización y recuperación mediante soporte autorizado. La fuente externa de maestros y precios publica datos y reglas comerciales autorizados. El proveedor de pagos autoriza o informa resultados mediante un contrato propio. El proveedor fiscal emite o transmite documentos según el país y la modalidad permitida. El sistema empresarial del país recibe y concilia documentos financieros, conservando su responsabilidad externa. La flecha de maestros al POS expresa una responsabilidad, no una llamada de programación. Recibir datos no transfiere propiedad sobre precios, inventario o contabilidad.",
-      "takeaway": "El contexto muestra responsabilidades y sistemas externos.",
+      "takeaway": "El POS comparte responsabilidades; cada país conserva autoridades externas explícitas.",
       "bullets": [
         "Personas y sistemas externos",
         "Cada dato necesita una autoridad"
@@ -130,66 +131,36 @@
     {
       "id": "s04",
       "chapter": "c01",
-      "title": "Cinco éxitos distintos en una sola venta",
-      "kicker": "01 · Vocabulario",
-      "kind": "flow",
-      "narration": "Pensemos en una venta pagada con tarjeta. El proveedor puede autorizar el pago antes de que la venta quede confirmada en la base local. Después, el país puede recibirla y el sistema empresarial puede aceptarla más tarde. El resultado fiscal tiene su propio estado. Por eso una etiqueta única, como sincronizado, sería ambigua. Necesitamos referencias y estados separados para explicar qué pasó, qué falta y quién debe resolverlo. Las flechas ilustran dependencias del ejemplo; no significan que todo ocurra dentro de una sola transacción.",
-      "takeaway": "Pago, venta, fiscalidad y entrega tienen estados independientes.",
-      "nodes": [
+      "title": "Compartir el núcleo, aislar las variaciones",
+      "kicker": "01 · Límites del producto",
+      "kind": "compare",
+      "narration": "Separaremos tres responsabilidades. El núcleo comparte los casos de uso y las reglas realmente comunes: venta, caja, identidad de operación y auditoría. Un perfil aprobado selecciona políticas y módulos de país, con moneda, impuestos, documentos y capacidades permitidas. Los adaptadores conectan proveedores fiscales, pagos, impresoras y sistemas empresariales mediante contratos tipados. Por ejemplo, otra sucursal puede seleccionar una impresora ya homologada. Un proveedor con protocolo distinto puede requerir un adaptador nuevo. Configurar sirve cuando la capacidad ya existe. Una regla nueva puede exigir un módulo o cambiar un contrato, con desarrollo y pruebas. Buscamos cambios delimitados y verificables, sin copiar el POS por país ni repartir condiciones por todas las pantallas.",
+      "takeaway": "Configurar lo soportado; desarrollar y homologar las diferencias nuevas.",
+      "columns": [
         {
-          "id": "pay",
-          "label": "Pago"
+          "title": "Núcleo común",
+          "items": [
+            "Venta, caja y devoluciones",
+            "Identidad y auditoría",
+            "Contratos y estados comunes"
+          ]
         },
         {
-          "id": "sale",
-          "label": "Venta local"
+          "title": "Perfil de país",
+          "items": [
+            "Moneda y reglas fiscales",
+            "Documentos y políticas",
+            "Módulos y permisos válidos"
+          ]
         },
         {
-          "id": "fiscal",
-          "label": "Estado fiscal"
-        },
-        {
-          "id": "country",
-          "label": "Recepción país"
-        },
-        {
-          "id": "erp",
-          "label": "Aceptación ERP"
+          "title": "Adaptadores",
+          "items": [
+            "Fiscalidad y pagos",
+            "Impresión y dispositivos",
+            "ERP y maestros externos"
+          ]
         }
-      ],
-      "edges": [
-        {
-          "from": "pay",
-          "to": "sale",
-          "label": "Evidencia"
-        },
-        {
-          "from": "sale",
-          "to": "fiscal",
-          "label": "Política fiscal"
-        },
-        {
-          "from": "sale",
-          "to": "country",
-          "label": "Entrega posterior"
-        },
-        {
-          "from": "country",
-          "to": "erp",
-          "label": "Integración"
-        }
-      ],
-      "active": [
-        "pay",
-        "sale",
-        "fiscal",
-        "country",
-        "erp"
-      ],
-      "highlightEdges": [
-        0,
-        2,
-        3
       ]
     },
     {
@@ -426,12 +397,12 @@
     {
       "id": "s13",
       "chapter": "c04",
-      "title": "C3: las reglas viven dentro del servidor",
+      "title": "C3: núcleo común y puertos de integración",
       "kicker": "04 · Componentes · Vista general",
       "kind": "diagram",
       "diagram": "03-backend-sucursal",
       "narration": "El backend recomendado de sucursal es un monolito modular: sus componentes comparten un proceso. Acceso y permisos recibe el contexto del comando y autoriza usuario, perfil y sucursal. Ventas y devoluciones coordina el ciclo de la operación y sus reglas de negocio. Precios y ofertas calcula la cotización desde una versión comercial local que sigue vigente. Turnos y caja controla apertura, movimientos y cierre, manteniendo coherente la operación de caja. El puerto de pagos gestiona intentos y evidencia. Se comunica con el proveedor mediante su contrato. El puerto fiscal aplica la modalidad del país y conversa con su proveedor mediante otro contrato. Persistencia transaccional delimita las escrituras locales: negocio, auditoría y salida pendiente se confirman juntos. La API de comandos recibe las solicitudes del cliente. La interfaz no decide por su cuenta las reglas financieras.",
-      "takeaway": "Separar módulos no obliga a multiplicar procesos.",
+      "takeaway": "El núcleo comparte reglas; los puertos delimitan las integraciones externas.",
       "bullets": [
         "NestJS y Fastify como servidor recomendado",
         "Reglas y autorización fuera de la interfaz"
@@ -1596,15 +1567,15 @@
     {
       "id": "s45",
       "chapter": "c12",
-      "title": "Una fachada ofrece una capacidad estable",
+      "title": "La fachada conserva una capacidad común",
       "kicker": "12 · Fachadas",
       "kind": "flow",
-      "narration": "Una fachada reúne una capacidad y oculta detalles de coordinación. Registrar una operación empresarial puede exigir transformar datos, elegir destino y guardar referencias. El resto del POS solicita esa capacidad mediante un contrato estable, sin conocer cada dirección del proveedor. La fachada no borra pendientes ni convierte operaciones remotas en una transacción. Tampoco exige otro proceso: su ubicación depende de los límites de la integración.",
-      "takeaway": "La fachada simplifica el uso sin esconder resultados ni fallos.",
+      "narration": "Una fachada ofrece una capacidad estable al núcleo POS. Imagina dos países que usan sistemas empresariales diferentes. Ambos solicitan registrar una operación mediante el mismo contrato de negocio, y la integración selecciona el destino aprobado. La fachada coordina esa capacidad; los adaptadores resuelven los detalles externos. Esto permite cambiar una integración sin reescribir las pantallas y los casos de uso comunes. El resultado sigue siendo explícito: recibido, pendiente o aceptado tienen significados distintos. La fachada no convierte llamadas remotas en una transacción ni exige crear otro servicio. Su ubicación responde al límite operativo de la integración.",
+      "takeaway": "Una capacidad común permite adaptar destinos sin rehacer el flujo POS.",
       "nodes": [
         {
           "id": "domain",
-          "label": "Proceso de negocio",
+          "label": "Núcleo POS común",
           "detail": "Solicita una capacidad"
         },
         {
@@ -1614,8 +1585,8 @@
         },
         {
           "id": "integration",
-          "label": "Integración",
-          "detail": "Coordina destino y referencias"
+          "label": "Integración de país",
+          "detail": "Adapta destino y referencias"
         }
       ],
       "edges": [
@@ -1644,8 +1615,8 @@
       "title": "ACL aquí significa capa anticorrupción",
       "kicker": "12 · Traducción de significado",
       "kind": "compare",
-      "narration": "ACL viene del inglés Anti-Corruption Layer: capa anticorrupción, no lista de permisos. Impide que el vocabulario externo deforme nuestro modelo. Por ejemplo, emitido puede significar algo distinto en cada sistema empresarial. La capa traduce y valida ese significado. La fachada presenta la capacidad; el adaptador resuelve el acceso técnico; la capa anticorrupción protege la semántica. Pueden colaborar dentro de una integración sin crear tres servicios.",
-      "takeaway": "La capa anticorrupción traduce significado; la autorización se resuelve aparte.",
+      "narration": "ACL viene del inglés Anti-Corruption Layer: capa anticorrupción, no lista de permisos. Protege el modelo común frente al vocabulario de cada país y proveedor. Por ejemplo, emitido puede significar algo distinto en dos sistemas empresariales. Traducimos y validamos esa equivalencia sin convertir todos los resultados externos en éxito. La fachada presenta una capacidad; el adaptador resuelve protocolo y conexión; la capa anticorrupción protege el significado. Pueden colaborar dentro del mismo módulo. Las reglas fiscales propias del país necesitan políticas explícitas: la capa de traducción no sustituye ese negocio ni vuelve equivalentes operaciones que son diferentes.",
+      "takeaway": "Cada integración traduce su significado y conserva las reglas propias del país.",
       "columns": [
         {
           "title": "Fachada",
@@ -1673,11 +1644,11 @@
     {
       "id": "s47",
       "chapter": "c12",
-      "title": "Traducir datos también exige rechazar ambigüedades",
+      "title": "El contrato conserva moneda y significado",
       "kicker": "12 · Pseudocódigo de integración",
       "kind": "code",
-      "narration": "Un destino espera importes en unidades mínimas y códigos fiscales propios. La traducción respeta moneda, precisión, redondeo y equivalencias aprobadas. Si falta una equivalencia, detenemos la integración con un motivo visible; no inventamos un valor. El ejemplo usa funciones contractuales, no conversiones universales. Conservamos la identidad original para conciliar respuestas y reintentos. La traducción necesita pruebas con casos reales del país y del destino homologado.",
-      "takeaway": "Una equivalencia ausente produce un caso pendiente, no una suposición silenciosa.",
+      "narration": "Para reutilizar el POS entre países, un importe conserva moneda y precisión explícitas. No asumimos que todas las monedas, reglas de redondeo o clasificaciones fiscales sean iguales. Este destino de ejemplo espera unidades mínimas y códigos propios. La traducción usa las equivalencias aprobadas para su contrato. Si falta una equivalencia, dejamos un pendiente visible; no inventamos un impuesto ni redondeamos por conveniencia. Conservamos la identidad original para conciliar respuestas y reintentos. Estas funciones son ilustrativas. Una nueva combinación de país y destino requiere pruebas de contrato y regresión de las combinaciones que ya soportamos.",
+      "takeaway": "Contratos explícitos permiten reutilizar el modelo sin borrar diferencias del país.",
       "code": "const externo = {\n  referencia: venta.id,\n  importe: convertirImporteExacto(venta, contrato),\n  moneda: exigirMonedaAdmitida(venta.moneda),\n  impuesto: exigirEquivalencia(venta.impuesto),\n  estado: traducirEstado(venta.estado, contrato)\n};",
       "highlightLines": [
         3,
@@ -1693,26 +1664,26 @@
     {
       "id": "s48",
       "chapter": "c12",
-      "title": "Cambiar de ERP no es cambiar una dirección web",
-      "kicker": "12 · Evolución del sistema empresarial",
+      "title": "Incorporar un país: configurar o extender",
+      "kicker": "12 · Evolución del producto",
       "kind": "compare",
-      "narration": "ERP significa planificación de recursos empresariales: aquí, el sistema de procesos administrativos. Una migración puede cambiar identificadores, impuestos, estados y reversas. Cada operación conserva su destino y versión contractual, incluso si llega tarde por desconexión. Debemos resolver referencias históricas y conciliación durante la transición. Publicar la venta a todos los destinos o cambiar una dirección web global no define una estrategia de migración segura.",
-      "takeaway": "La evolución conserva trazabilidad por operación, destino y versión contractual.",
+      "narration": "Agregar un país empieza por identificar sus diferencias. Si la combinación ya está soportada, resolvemos un perfil aprobado: base corporativa, país, entidad legal, sucursal y caja, con excepciones limitadas a campos permitidos. Una caja puede seleccionar una impresora compatible; no ampliar su permiso fiscal. Si aparecen reglas, proveedores o capacidades nuevas, desarrollamos la extensión o el contrato necesario y lo homologamos. No todo se resuelve cambiando configuración. Al migrar un ERP, el sistema empresarial administrativo, también conservamos destino y versión contractual de las operaciones históricas. Publicamos el perfil nuevo con compatibilidad y conciliación comprobadas.",
+      "takeaway": "La configuración selecciona soporte existente; una capacidad nueva requiere trabajo explícito.",
       "columns": [
         {
-          "title": "Operación histórica",
+          "title": "Soporte ya homologado",
           "items": [
-            "Destino y contrato originales",
-            "Referencias conservadas",
-            "Conciliación trazable"
+            "Perfil aprobado por alcance",
+            "Módulos y proveedores compatibles",
+            "Activación controlada"
           ]
         },
         {
-          "title": "Nueva operación",
+          "title": "Diferencia todavía no soportada",
           "items": [
-            "Regla de enrutamiento vigente",
-            "Destino homologado",
-            "Transición explícita"
+            "Política, módulo o adaptador nuevo",
+            "Contrato y pruebas de regresión",
+            "Homologación antes de habilitar"
           ]
         }
       ]
@@ -1720,26 +1691,26 @@
     {
       "id": "s49",
       "chapter": "c13",
-      "title": "Nx organiza dependencias, no decide la topología",
+      "title": "Nx protege el núcleo y sus extensiones",
       "kicker": "13 · Desarrollo",
       "kind": "compare",
-      "narration": "Nx organiza proyectos, dependencias y tareas de construcción. Podemos separar dominio, contratos y adaptadores, y prohibir dependencias indebidas. Una pantalla no debería importar un repositorio SQL del servidor. Esto mejora la estructura del código, pero no autentica solicitudes ni crea aislamiento de ejecución. Un monorepositorio puede producir varios procesos; muchas bibliotecas pueden terminar en uno. La topología de ejecución sigue siendo una decisión arquitectónica distinta.",
-      "takeaway": "Los límites del código complementan los límites de ejecución.",
+      "narration": "Nx organiza proyectos, dependencias y tareas. Podemos separar el núcleo POS compartido, los contratos por capacidad y las extensiones de país o proveedor. El núcleo depende de esos contratos; los adaptadores implementan las conexiones particulares. Las reglas de importación evitan que una pantalla o una biblioteca de negocio incorpore directamente el SDK de un proveedor. Al cambiar una extensión, comprobamos su contrato y la regresión del producto común. Nx ayuda a aplicar esos límites, pero no autentica solicitudes ni decide cuántos procesos existen. Mantener una plataforma exige también responsables de módulos, versiones y pruebas de compatibilidad.",
+      "takeaway": "Las dependencias delimitadas permiten evolucionar países sin copiar el producto.",
       "columns": [
         {
-          "title": "Nx",
+          "title": "Producto compartido",
           "items": [
-            "Proyectos y dependencias",
-            "Reglas de importación",
-            "Construcción y validación"
+            "Núcleo y contratos por capacidad",
+            "Reglas de importación con Nx",
+            "Pruebas comunes y regresión"
           ]
         },
         {
-          "title": "Arquitectura en ejecución",
+          "title": "Extensiones delimitadas",
           "items": [
-            "Procesos y permisos",
-            "Autoridad de datos",
-            "Redes y recuperación"
+            "Políticas y adaptadores de país",
+            "Versiones y responsables explícitos",
+            "Compatibilidad antes de publicar"
           ]
         }
       ]
@@ -1747,31 +1718,31 @@
     {
       "id": "s50",
       "chapter": "c13",
-      "title": "Tauri entrega escritorio; el servidor conserva autoridad",
-      "kicker": "13 · Cliente y distribución",
+      "title": "Gobernar módulos, dispositivos y versiones",
+      "kicker": "13 · Cliente y flota corporativa",
       "kind": "checklist",
-      "narration": "Tauri empaqueta la interfaz y la conecta con capacidades nativas controladas. Eso no garantiza compatibilidad con impresoras o terminales de pago: debemos validar dispositivos y bibliotecas. El cliente envía comandos al servidor compartido. Las actualizaciones respetan compatibilidad de contratos y procedimientos de instalación y recuperación. Una interfaz nueva no puede asumir capacidades que el servidor todavía no ofrece ni guardar otra historia financiera para compensarlo.",
-      "takeaway": "El paquete de escritorio requiere compatibilidad probada y mantiene el límite de autoridad.",
+      "narration": "Tauri empaqueta la interfaz y permite capacidades nativas controladas. La plataforma mantiene un catálogo de combinaciones homologadas: cliente, servidor, contrato, adaptador, sistema operativo y dispositivo. Un perfil aprobado habilita los módulos que corresponden a cada alcance. Ocultar un botón no revoca un permiso: el servidor también autoriza la operación y comprueba su disponibilidad. Una actualización se prueba y se despliega gradualmente, con recuperación compatible y trazabilidad de versiones. Retirar un adaptador exige resolver o conservar el acceso a sus operaciones pendientes. Esa gestión permite evolucionar la flota corporativa sin instalar una aplicación distinta para cada país.",
+      "takeaway": "Habilitar una capacidad exige soporte, autorización y disponibilidad reales.",
       "bullets": [
-        "Validar dispositivos y bibliotecas",
-        "Limitar capacidades nativas",
-        "Compatibilidad entre cliente y servidor",
-        "Sin segunda historia financiera en la caja"
+        "Catálogo de combinaciones homologadas",
+        "Módulos y permisos por perfil aprobado",
+        "Versiones y despliegue gradual",
+        "Pendientes recuperables al cambiar adaptadores"
       ]
     },
     {
       "id": "s51",
       "chapter": "c13",
-      "title": "Observar la operación completa con referencias comunes",
+      "title": "Operar varios países con contexto y trazabilidad",
       "kicker": "13 · Observabilidad",
       "kind": "flow",
-      "narration": "Observabilidad significa explicar lo que ocurre mediante señales del sistema. Seguimos referencias de venta, pago, evento y destino. Medimos pendientes antiguos, reintentos, huecos, pagos desconocidos y versiones próximas a vencer. Un proceso vivo no demuestra que el negocio esté al día. Los registros necesitan contexto y acceso controlado, sin datos sensibles innecesarios. Soporte debe distinguir un atraso recuperable de una operación que requiere intervención.",
-      "takeaway": "Las señales deben explicar estados del negocio, además de la salud del proceso.",
+      "narration": "Una plataforma corporativa necesita localizar una operación por país, entidad legal, sucursal y caja, además de sus referencias de venta, pago y evento. Los reportes y el soporte respetan el alcance de cada rol. No sumamos importes de monedas distintas como si fueran equivalentes: una consolidación requiere reglas explícitas. Para operar, medimos pendientes, reintentos, pagos desconocidos y versiones próximas a vencer. Un proceso vivo no demuestra que el negocio esté al día. Los registros conservan contexto y acceso controlado, sin datos sensibles innecesarios. Así podemos administrar varios países y explicar sus diferencias desde una plataforma común.",
+      "takeaway": "Operación y reportes conservan alcance, moneda y referencias de cada país.",
       "nodes": [
         {
           "id": "sale",
-          "label": "Venta",
-          "detail": "Referencia operativa"
+          "label": "Operación",
+          "detail": "País, entidad y sucursal"
         },
         {
           "id": "event",
@@ -1785,8 +1756,8 @@
         },
         {
           "id": "support",
-          "label": "Soporte",
-          "detail": "Diagnóstico y recuperación"
+          "label": "Soporte corporativo",
+          "detail": "Contexto y permisos"
         }
       ],
       "edges": [
@@ -1833,17 +1804,17 @@
     {
       "id": "s53",
       "chapter": "c14",
-      "title": "¿Puedo vender si no hay internet?",
+      "title": "¿Un nuevo país exige rehacer el POS?",
       "kicker": "14 · Comprobación junior",
       "kind": "question",
-      "narration": "Depende de la falla y de la operación. Con red local, servidor y PostgreSQL disponibles, podrías confirmar una venta permitida usando datos y autorización válidos. El ejemplo en efectivo exige modalidad fiscal aprobada. Si falta la autoridad local o una capacidad externa necesaria, detenemos los comandos afectados. La respuesta enumera condiciones comprobables: decir solamente que funciona sin conexión oculta los límites que el cajero necesita conocer.",
-      "takeaway": "La continuidad se explica con condiciones concretas.",
+      "narration": "La propuesta busca conservar el núcleo POS y delimitar el cambio. Primero identificamos moneda, reglas fiscales, documentos, proveedores y dispositivos del nuevo país. Si existe una combinación homologada, la seleccionamos mediante un perfil aprobado. Si falta una capacidad, implementamos y probamos su política, módulo o adaptador; podemos necesitar evolucionar un contrato. Luego verificamos que los países ya soportados sigan funcionando. No prometemos incorporar cualquier país sin desarrollo. El éxito consiste en reutilizar el producto y controlar sus variaciones. La continuidad sin internet sigue siendo un requisito adicional, condicionado por las capacidades permitidas en cada operación.",
+      "takeaway": "Reutilizar el núcleo y delimitar el cambio es el objetivo de la plataforma.",
       "bullets": [
-        "Identificar WAN, LAN o servidor",
-        "Verificar datos, autorización y modalidad",
-        "Detener solo operaciones sin condiciones suficientes"
+        "Identificar las diferencias",
+        "Configurar o extender con pruebas",
+        "Conservar regresión y compatibilidad"
       ],
-      "answer": "Sí, únicamente cuando todas las capacidades requeridas por esa operación siguen disponibles y válidas."
+      "answer": "Reutilizamos el núcleo y adaptamos diferencias mediante contratos explícitos."
     },
     {
       "id": "s54",
@@ -1878,16 +1849,16 @@
     {
       "id": "s56",
       "chapter": "c14",
-      "title": "El piloto debe demostrar estas cuatro propiedades",
+      "title": "El piloto debe demostrar una plataforma reutilizable",
       "kicker": "14 · Criterios de aceptación",
       "kind": "checklist",
-      "narration": "Antes de aceptar el piloto, provoquemos cortes después de cobrar, después de confirmar y antes del acuse. Verifiquemos que repetir no duplica efectos, que ninguna lista incompleta se publica y que restaurar conserva trazabilidad. Midamos los objetivos acordados con carga y fallas representativas. Los diagramas y ejemplos ayudan a formular estas pruebas. La evidencia del piloto permitirá ajustar la propuesta y explicar qué puede prometer la operación.",
-      "takeaway": "La arquitectura se acepta con evidencia de sus contratos frente a fallas.",
+      "narration": "El piloto debe demostrar el objetivo corporativo: incorporar una segunda variante de país aprobada sin duplicar el POS. Usaremos configuración para soporte existente y extensiones delimitadas cuando haga falta, verificando que la primera variante conserve su comportamiento. También probaremos permisos, reportes, contratos y compatibilidad de proveedores y dispositivos. Una actualización debe poder desplegarse gradualmente y conservar trazabilidad. Y mantendremos las pruebas de confiabilidad: cortes después del pago, reenvíos, precios incompletos y restauraciones. Operar sin internet es parte de esta evidencia. El resultado esperado es una plataforma reutilizable, gobernable y confiable para crecer entre países.",
+      "takeaway": "Éxito: crecer entre países con reutilización, gobierno y confiabilidad comprobables.",
       "bullets": [
-        "Recuperar pagos inciertos sin duplicar cobros",
-        "Repetir entregas sin duplicar efectos",
-        "Publicar precios completos y válidos",
-        "Restaurar dentro de objetivos acordados"
+        "Incorporar otro país sin duplicar el POS",
+        "Homologar reglas, proveedores y dispositivos",
+        "Evolucionar versiones con trazabilidad",
+        "Probar continuidad y recuperación ante fallas"
       ]
     }
   ]

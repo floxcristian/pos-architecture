@@ -1,12 +1,32 @@
 /* Source-backed tutorial; deployed versions remain unverified. */
 window.POS_CONTENT = {
   "meta": {
-    "title": "Del POS actual a una plataforma que puede operar offline",
-    "date": "2026-10-02",
+    "title": "Del POS actual a una plataforma corporativa para múltiples países",
+    "date": "2026-10-06",
     "scope": "Chile: presentación, apuntes y código revisado. Perú y España: antecedentes iniciales. La arquitectura futura es una propuesta.",
     "evidenceNote": "El análisis combina versiones de los repositorios y antecedentes del equipo. Los diagramas muestran responsabilidades y conexiones lógicas; las versiones instaladas y los servidores se validarán con el equipo de operación.",
     "stockNote": "Según la aclaración operativa, la caja no maneja stock. La reserva mencionada debe atribuirse al sistema responsable.",
-    "offlineNote": "Primero debemos acordar qué desconexión tolerar: Internet, red de la sucursal o ambos. Pagos, crédito y documentos fiscales tienen límites propios."
+    "offlineNote": "La continuidad offline es un requisito del producto corporativo. Hay que acordar qué desconexión tolerar: Internet, red de la sucursal o ambos. Pagos, crédito y documentos fiscales tienen límites propios."
+  },
+  "platformModel": {
+    "title": "Un mismo producto, con diferencias controladas",
+    "lead": "El objetivo es incorporar países, sucursales y proveedores sin rehacer el POS completo ni mantener forks nacionales.",
+    "layers": [
+      {
+        "title": "Núcleo común",
+        "detail": "Ventas, turnos, caja, devoluciones, maestros, precios y ofertas; contratos de pagos, fiscalidad, auditoría y reportes. Módulos con reglas y datos propios."
+      },
+      {
+        "title": "Configuración aprobada",
+        "detail": "Perfiles por país, entidad legal, sucursal y caja: moneda, permisos, módulos habilitados y combinaciones de proveedores ya homologadas."
+      },
+      {
+        "title": "Extensiones por contrato",
+        "detail": "Adaptadores fiscales, de pago, ERP y periféricos. Un protocolo o una regla nuevos requieren desarrollo y pruebas; pueden exigir evolucionar el contrato común."
+      }
+    ],
+    "governance": "Propietarios de módulos, contratos versionados, matriz de compatibilidad, homologación por país y despliegue gradual con reversión sostienen la evolución compartida.",
+    "continuity": "Offline es uno de los requisitos de la plataforma, junto con integridad, seguridad, experiencia común y reportes. Sus límites dependen de las capacidades autorizadas de cada perfil."
   },
   "statusLabels": {
     "code": "Observado en código",
@@ -2293,7 +2313,7 @@ window.POS_CONTENT = {
         {
           "text": "Compartir el núcleo común y adaptar reglas y conexiones fiscales, de pago y ERP según el país.",
           "correct": true,
-          "feedback": "Los procesos comunes pueden reutilizarse mediante contratos propios. Impuestos, moneda, documentos y capacidades de proveedores se validan para cada país y entidad."
+          "feedback": "El objetivo corporativo es reutilizar el núcleo sin forks nacionales. Se configuran combinaciones soportadas; una regla o un protocolo nuevos requieren desarrollo, pruebas y homologación. Impuestos, moneda, documentos y proveedores se validan por país y entidad."
         },
         {
           "text": "Copiar la configuración de Chile y cambiar solo la moneda y el nombre del país.",
@@ -2309,6 +2329,12 @@ window.POS_CONTENT = {
     }
   ],
   "comparisons": [
+    {
+      "topic": "Producto multipaís",
+      "before": "El POS chileno tiene código y flujos revisados; Perú y España parten de antecedentes e interfaces pendientes de validar.",
+      "after": "Un núcleo de negocio y módulos compartidos, con perfiles por país/entidad/sucursal y extensiones mediante contratos propios.",
+      "caveat": "Una combinación soportada se configura; una regla o un protocolo nuevos exigen implementación, pruebas y homologación. No se duplica todo el POS por país."
+    },
     {
       "topic": "Horarios y mantenimiento",
       "before": "El equipo informa L–V 07:00–22:00 y sábado 07:00–16:00; el snapshot no aplica esa regla a todas las rutas.",
@@ -2361,7 +2387,7 @@ window.POS_CONTENT = {
       "topic": "Plataforma corporativa",
       "before": "core ya usa Nx, NestJS/Fastify, Pino, Sentry y workers.",
       "after": "Reutilizar convenciones y componentes seleccionados con versiones y responsables.",
-      "caveat": "Las dependencias cloud y garantías existentes no acreditan una caja offline; el stack POS sigue siendo candidato."
+      "caveat": "Reutilizar bibliotecas de core no equivale a tener un producto POS multipaís. Backend y operación siguen por validar; cliente Angular + Tauri y Nx son la dirección indicada."
     }
   ],
   "reuse": [

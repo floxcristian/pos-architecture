@@ -1,14 +1,14 @@
-00:00:00 El problema y el mapa
-00:02:45 Sucursal, país y conectividad
-00:06:00 Datos y transacciones
-00:08:35 Una venta paso a paso
-00:11:29 Pagos y estados inciertos
-00:13:47 Entrega sin duplicar efectos
-00:16:34 El sincronizador
-00:19:29 Precios por eventos
-00:21:53 Precios por lotes y vigencia
-00:24:31 Trabajos con BullMQ
-00:26:35 Mensajes con RabbitMQ
-00:28:51 Fachadas e integración empresarial
-00:30:58 Construcción y operación
-00:33:09 Preguntas para comprobar el diseño
+00:00:00 La plataforma corporativa y su mapa
+00:03:24 Sucursal, país y conectividad
+00:06:39 Datos y transacciones
+00:09:14 Una venta paso a paso
+00:12:07 Pagos y estados inciertos
+00:14:26 Entrega sin duplicar efectos
+00:17:13 El sincronizador
+00:20:08 Precios por eventos
+00:22:32 Precios por lotes y vigencia
+00:25:10 Trabajos con BullMQ
+00:27:14 Mensajes con RabbitMQ
+00:29:30 Fachadas e integración empresarial
+00:32:30 Construcción y operación
+00:35:18 Preguntas para comprobar el diseño

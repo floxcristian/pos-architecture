@@ -1,18 +1,18 @@
 # Propuesta POS narrada en español
 
-Producción reproducible del video educativo: 56 escenas y 14 capítulos, voz sintética en español de Chile, diagramas C4/Excalidraw, animación de mensajes y código breve. La explicación parte de una venta y desarrolla los contratos antes de mostrar herramientas de integración.
+Producción reproducible del video educativo: 56 escenas y 14 capítulos, voz sintética en español de Chile, diagramas C4/Excalidraw, animación de mensajes y código breve. El objetivo es un producto corporativo reutilizable entre países. La explicación conecta núcleo común, perfiles, adaptadores y gobierno con integridad, continuidad y recuperación.
 
 El video explica una propuesta. Los ejemplos de BullMQ y RabbitMQ son extensiones centrales opcionales; no ejecutan colas, pagos ni infraestructura real. Las fuentes del modelo siguen en `docs/`; `content/sources.json` registra la documentación utilizada. El renderer reutiliza los SVG del repositorio y acerca regiones reales, sin cambiar sus relaciones.
 
 ## Entrega
 
-`output/index.html` es el reproductor local con capítulos. El archivo principal es `output/pos-propuesta-explicada-es-v2.mp4`, H.264/AAC, 1920 × 1080 a 24 fps. Incluye subtítulos visibles y capítulos MP4. También se generan SRT, WebVTT, guion, índice con tiempos y un manifiesto SHA-256. Se puede compartir toda la carpeta `output/` para conservar la navegación sin conexión.
+`output/index.html` es el reproductor local con capítulos. El archivo principal es `output/pos-propuesta-explicada-es-v3.mp4`, H.264/AAC, 1920 × 1080 a 24 fps. Incluye subtítulos visibles y capítulos MP4. También se generan SRT, WebVTT, guion, índice con tiempos y un manifiesto SHA-256. Se puede compartir toda la carpeta `output/` para conservar la navegación sin conexión.
 
-`output/pos-atlas-video-completo-v2.zip` reúne la entrega y el manifiesto en una carpeta. Al extraerlo, abre `pos-atlas-video/index.html` para navegar por capítulos o reproduce directamente el MP4.
+`output/pos-atlas-video-completo-v3.zip` reúne la entrega y el manifiesto en una carpeta. Al extraerlo, abre `pos-atlas-video/index.html` para navegar por capítulos o reproduce directamente el MP4.
 
 `output/ejemplos-codigo.md` conserva los nueve fragmentos mostrados en pantalla, junto con la explicación y el tiempo de aparición.
 
-`output/muestra-recorrido-c4-v2.mp4` permite revisar el recorrido narrado por los componentes del backend sin buscarlo dentro del video completo.
+`output/muestra-plataforma-corporativa-v3.mp4` permite revisar la apertura: una plataforma POS reutilizable en múltiples países, con continuidad offline como uno de sus requisitos.
 
 La carpeta de salida, las voces, los cuadros intermedios y las dependencias instaladas se excluyen de Git. La publicación web utiliza el MP4 final y los materiales indicados abajo.
 
@@ -20,11 +20,11 @@ La carpeta de salida, las voces, los cuadros intermedios y las dependencias inst
 
 Enlace público: **https://presentation-gamma-rust.vercel.app/video**. El reproductor conserva los 14 capítulos y permite copiar un enlace al instante actual (`?t=segundos`). La página y sus materiales están versionados en `presentation/video.html`, `video.css`, `video.js` y `video-assets/`.
 
-El MP4 de 153 MB supera el límite de un archivo Git ordinario. Se conserva íntegro como asset de la release `pos-video-v2` del mismo repositorio. `publication.json` fija su URL, tamaño y SHA-256; el build de Vercel lo descarga, verifica y publica en `/media/pos-propuesta-explicada-es-v2.mp4`. La reproducción se sirve desde Vercel, con el mismo origen que la página y sin cuentas ni credenciales para el visitante. Si falla la descarga o la integridad, el build falla y no publica un video parcial.
+El MP4 supera el límite de un archivo Git ordinario. Se conserva íntegro como asset de la release `pos-video-v3` del mismo repositorio. `publication.json` fija su URL, tamaño y SHA-256; el build de Vercel lo descarga, verifica y publica en `/media/pos-propuesta-explicada-es-v3.mp4`. La reproducción se sirve desde Vercel, con el mismo origen que la página y sin cuentas ni credenciales para el visitante. Si falla la descarga o la integridad, el build falla y no publica un video parcial.
 
 El build usa Node.js 22 o posterior y no necesita Python, FFmpeg, síntesis de voz ni tokens. Para verificar localmente sin descargar de nuevo, puede apuntarse `POS_VIDEO_SOURCE` al MP4 original; se aplica la misma verificación. `node presentation/tools/build-vercel.cjs` genera `public/`.
 
-Para publicar otra revisión: generar y validar el video, subirlo con un nombre y tag nuevos a GitHub Releases, actualizar `publication.json`, los capítulos y los materiales públicos, comprobar el build y subir los cambios a `main`. Evitar reemplazar silenciosamente un asset ya publicado: el hash fijado detectaría el cambio. El paquete descargable de la entrega local permanece independiente del reproductor público.
+Para publicar otra revisión: generar y validar el video y su paquete, ejecutar `python video/tools/sync-publication.py` para actualizar el hash, capítulos y materiales públicos, subir el MP4 con un nombre y tag nuevos a GitHub Releases, comprobar el build y subir los cambios a `main`. Evitar reemplazar silenciosamente un asset ya publicado: el hash fijado detectaría el cambio. El paquete descargable de la entrega local permanece independiente del reproductor público.
 
 ## Herramientas
 
@@ -79,5 +79,6 @@ Los recorridos de los diagramas se definen en `content/diagram-tours.json`. Cada
 - `tools/render.cjs`: captura y codificación por escena.
 - `tools/finalize.py`: unión y mezcla final.
 - `tools/package_video.py`: reproductor y archivos de entrega.
+- `tools/sync-publication.py`: archivo fijado por hash, capítulos, portada y materiales del reproductor público.
 
 Los ejemplos de código omiten infraestructura auxiliar para ser legibles y deben interpretarse con la narración. Los ayudantes didácticos representan contratos que habría que implementar y probar; no constituyen código listo para producción.

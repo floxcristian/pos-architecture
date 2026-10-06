@@ -2,7 +2,9 @@
 
 **Fuente de decisión vigente:** este documento y sus [ADR](#decisiones-de-arquitectura) gobiernan la recomendación objetivo. La dirección de cliente **Angular empaquetado en Tauri** y el uso de **Nx** fueron indicados por el usuario; esto no acredita homologación ni despliegue. Backend, datos, topología y operación mantienen el estado de recomendación pendiente de aprobación. Las revisiones conservan motivos, alternativas y pruebas; las guías y diagramas la sintetizan. Un cambio de recomendación debe actualizar aquí su decisión y alcance antes de propagarse a las síntesis.
 
-Se propone evolucionar el POS hacia una operación local autónoma, sincronización asíncrona y una plataforma operativa separada por país. Los sistemas actuales se integran mediante adaptadores: Dynamics AX on-premise en Chile, Gira en España y un sistema custom en Perú. La venta no depende de estos sistemas para completar las operaciones habilitadas durante una desconexión.
+El objetivo es construir una **plataforma POS corporativa que pueda operar en múltiples países sin rehacer el producto completo en cada expansión**. Se propone un núcleo de negocio compartido, módulos con contratos explícitos, configuración por país, entidad legal y sucursal, y extensiones para las diferencias fiscales, de pago, ERP y periféricos. Chile, Perú y España son el alcance inicial; incorporar otro país debe reutilizar ese producto y validar sus variantes, sin crear un fork nacional del POS.
+
+La continuidad offline es uno de los requisitos de esta plataforma, junto con integridad financiera, experiencia común, seguridad, extensibilidad, reportes y operación gobernada. La autonomía local y la sincronización asíncrona responden al requisito de continuidad. Los sistemas actuales se integran mediante adaptadores: Dynamics AX on-premise en Chile, Gira en España y un sistema custom en Perú. La venta no depende de estos sistemas para completar las operaciones habilitadas durante una desconexión.
 
 La recomendación inicial es aprovechar la persistencia por sucursal documentada para Chile si offline significa perder Internet. La vista principal desarrolla ese perfil WAN. La autonomía por terminal ante pérdida de LAN o servidor sigue como perfil ampliado sujeto a aprobación; no se prescribe una nueva base por caja para resolver únicamente una caída de Internet.
 
@@ -10,9 +12,9 @@ La recomendación inicial es aprovechar la persistencia por sucursal documentada
 
 La [revisión crítica corporativa](revision-arquitectura-corporativa.md) incorpora horario/mantenimiento, evaluación WSO2/RabbitMQ/BullMQ, consolidación de datos, expansión y protección de la inversión ante cambio de ERP. La [investigación de mensajería](investigacion-mensajeria-pos.md), el [inventario público de tiendas](cobertura-publica-sucursales.md) y los [casos adversos](revision-resiliencia-datos-pos.md) documentan fuentes, alternativas y límites de esta revisión.
 
-La condición para considerar la solución enterprise es demostrar integridad de ventas y pagos, recuperación ante fallos, trazabilidad, controles de acceso y conciliación. El número de microservicios no constituye un criterio de calidad.
+La condición para considerar la solución enterprise es demostrar reutilización entre países con extensiones controladas, integridad de ventas y pagos, recuperación ante fallos, trazabilidad, controles de acceso y conciliación. También requiere responsables de módulos, compatibilidad de versiones y homologación por combinación operativa. El número de microservicios no constituye un criterio de calidad.
 
-Estado: propuesta inicial del 1 de octubre de 2026, precisada el 5 de octubre de 2026. Destinatarios: arquitectura, operaciones de tiendas, finanzas, seguridad y responsables de integración de cada país. La dirección de cliente se distingue de las recomendaciones técnicas aún abiertas; los objetivos numéricos son propuestas que deben validarse. Este documento no acredita una implementación del producto objetivo.
+Estado: propuesta inicial del 1 de octubre de 2026, precisada el 6 de octubre de 2026 para situar la plataforma corporativa multipaís como objetivo principal. Destinatarios: arquitectura, operaciones de tiendas, finanzas, seguridad y responsables de integración de cada país. La dirección de cliente se distingue de las recomendaciones técnicas aún abiertas; los objetivos numéricos son propuestas que deben validarse. Este documento no acredita una implementación del producto objetivo.
 
 Nivel de definición: arquitectura de referencia. Este repositorio `pos-enterprise` contiene análisis y presentación; la maqueta funcional separada `corporate-pos` usa datos sintéticos y no acredita el backend, PostgreSQL o la sincronización objetivo. El diseño de implementación, la topología definitiva, el dimensionamiento y los compromisos operativos se cerrarán con las decisiones y evidencias de la [solicitud al equipo](solicitud-informacion-equipo.md). Las correcciones al sistema vigente son un frente de estabilización; la arquitectura objetivo y el plan para llegar a ella deben tener entregables y criterios propios.
 
@@ -22,10 +24,22 @@ Las [vistas técnicas](vistas-arquitectura-y-flujos.md) separan despliegue y sec
 
 Las [vistas C4 de la propuesta](c4-arquitectura-propuesta.md) detallan C1 de contexto, C2 de contenedores y C3 de componentes del backend y del worker de sucursal. Añaden una vista de despliegue complementaria para distinguir puesto, servidor de sucursal y plataforma de país; esa vista no es C4 de código ni acredita infraestructura implementada.
 
+## Objetivo de producto y criterios de evolución
+
+| Capa del producto | Qué se comparte o cambia | Evidencia de éxito |
+| --- | --- | --- |
+| Núcleo común | Casos de uso de venta, turnos y caja, devoluciones, clientes y maestros, precios y ofertas; contratos de pago, fiscalidad, integración, auditoría y reportes. Cada módulo conserva sus reglas y propiedad de datos. | El mismo caso de uso se ejecuta en perfiles de países distintos sin copiar su implementación. Las reglas nacionales entran mediante contratos y extensiones explícitos. |
+| Configuración aprobada | País/régimen, entidad legal, sucursal y caja determinan moneda, formatos, permisos, módulos habilitados y combinaciones de proveedores ya soportadas. La configuración es versionada, validada y auditable. | Una combinación homologada se activa con un perfil compatible; las capacidades no autorizadas o no disponibles se explican en la interfaz. |
+| Extensiones e integraciones | Adaptadores fiscales, de pago, ERP y periféricos implementan puertos comunes; una ACL traduce significado cuando el sistema externo usa otro modelo. | Un proveedor o protocolo nuevo exige código y pruebas del adaptador. Una regla de negocio nueva puede requerir evolucionar contratos y módulos; no se promete resolverla cambiando parámetros. |
+| Gobierno y operación | Propietarios de módulos, contratos versionados, matriz de compatibilidad, pruebas comunes, homologación por país y despliegue gradual con reversión. Aislamiento de datos y recursos por país/entidad. | Incorporar un segundo país conserva el núcleo y sus pruebas, identifica las extensiones necesarias y demuestra conciliación, recuperación y actualización compatible. |
+
+La continuidad ante pérdida de WAN se valida dentro de esa matriz de capacidades, con límites de pago, fiscalidad, datos y permisos. También deben validarse experiencia de usuario, accesibilidad, reportes, seguridad y operación. El piloto necesita demostrar **reutilización entre perfiles nacionales y calidad operativa**; superar una prueba de desconexión por sí sola no cumple el objetivo del producto.
+
 ## Alcance y supuestos
 
 | Aspecto | Base de la propuesta |
 | --- | --- |
+| Producto corporativo | Núcleo y módulos reutilizables, configuración por país/entidad/sucursal/caja y extensiones homologadas; expansión sin duplicar todo el POS ni mantener forks nacionales |
 | Países y sistemas | Chile con Dynamics AX on-premise; España con Gira, capacidades e interfaces por validar; Perú con custom |
 | Evolución ERP | La empresa busca un ERP común para los tres países. Posible inicio por Chile el próximo año, interpretado tentativamente como 2027 con referencia a esta conversación de 2026. Producto, alcance y calendario sin confirmar |
 | Offline | Requisito confirmado. Perfil inicial: caída de Internet con sucursal disponible. Perfil ampliado por confirmar: aislamiento de caja respecto de la red y servidor de tienda |

@@ -1,10 +1,10 @@
 {
-  "revision": 2,
-  "file": "pos-propuesta-explicada-es-v2.mp4",
-  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-video-v2/pos-propuesta-explicada-es-v2.mp4",
-  "bytes": 153325784,
-  "sha256": "47f27971a01d10796b822de14b2665e86be8235d2963b09ea98975b2fcc6c945",
-  "durationSeconds": 2112.5416666666674,
+  "revision": 3,
+  "file": "pos-propuesta-explicada-es-v3.mp4",
+  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-video-v3/pos-propuesta-explicada-es-v3.mp4",
+  "bytes": 165233450,
+  "sha256": "b6d141e191d99e78c2706d35287e493ff08b4a3383a66cf2743635597c71b78c",
+  "durationSeconds": 2274.3750000000005,
   "width": 1920,
   "height": 1080
 }

@@ -2,7 +2,7 @@
 
 Fragmentos didácticos abreviados. Las funciones auxiliares representan contratos que deben implementarse y probarse; no son una aplicación ejecutable.
 
-## 07:57 · Una transacción confirma un conjunto completo
+## 08:35 · Una transacción confirma un conjunto completo
 
 SQL es el lenguaje con que expresamos operaciones en esta base. Una transacción agrupa cambios que se confirman o se deshacen juntos. Aquí, venta, movimiento de caja, auditoría y mensaje pendiente pertenecen a la misma unidad. Las instrucciones abreviadas representan escrituras validadas; no son un programa para copiar. Todas usan la misma conexión. Si una falla, revertimos el conjunto. No mantenemos esta transacción abierta mientras esperamos internet, una impresora o un proveedor de pagos: mezclaríamos demoras externas con bloqueos locales.
 
@@ -16,7 +16,7 @@ INSERT INTO outbox (...) VALUES (...);
 COMMIT; -- Ante error: ROLLBACK
 ```
 
-## 10:48 · El contrato de confirmación en ocho líneas
+## 11:27 · El contrato de confirmación en ocho líneas
 
 Leamos el ejemplo después de entender el recorrido. Confirmar venta recibe una intención cuya evidencia de pago y política fiscal ya permiten avanzar. La función transacción representa una misma conexión local y revierte todas las escrituras si alguna falla. Dentro guardamos venta, caja, estado fiscal, auditoría y salida pendiente. Fuera queda cualquier llamada al proveedor. Estos nombres describen contratos del diseño; no corresponden a una biblioteca existente. Antes de responder éxito, el servidor debe haber confirmado el conjunto y poder devolver la misma respuesta ante una repetición válida.
 
@@ -31,7 +31,7 @@ await transaccion(async tx => {
 });
 ```
 
-## 15:59 · Entrada, efecto y nueva salida se confirman juntos
+## 16:38 · Entrada, efecto y nueva salida se confirman juntos
 
 En este pseudocódigo, el país ya autenticó el origen. La entrada tiene una clave única dentro de su alcance y se protege frente a receptores concurrentes. Comparamos el contenido: reutilizar una identidad con otros datos es un conflicto. Si ya fue aplicada, devolvemos la respuesta guardada. Si es nueva, validamos orden y reglas, aplicamos el efecto local, registramos la salida posterior y marcamos la entrada. Todo ocurre en una transacción. El acuse se envía únicamente después de confirmarla.
 
@@ -46,7 +46,7 @@ const respuesta = await transaccion(async tx => {
 });
 ```
 
-## 23:28 · La activación es corta y no permite retroceder
+## 24:07 · La activación es corta y no permite retroceder
 
 La descarga y validación pesada terminaron fuera de esta transacción. La candidata validada es inmutable. Bloqueamos el alcance y comprobamos que base y avance sigan siendo compatibles. Una copia atrasada no puede reemplazar una versión reciente. Marcamos entradas aplicadas, cambiamos la referencia activa y avanzamos el cursor juntos. Si falla una condición, no publicamos parcialmente. Estos contratos deben probarse frente a concurrencia y reinicios.
 
@@ -61,7 +61,7 @@ await transaccion(async tx => {
 });
 ```
 
-## 25:02 · Programar una reconciliación con zona horaria
+## 25:41 · Programar una reconciliación con zona horaria
 
 Queremos reconciliar diariamente a las tres de la mañana en Chile. La API, o interfaz de programación, de BullMQ recibe identidad del planificador, horario y plantilla. La conexión ya está configurada. Esto programa intención de ejecución; no garantiza puntualidad bajo carga ni reproduce automáticamente las ventanas perdidas. El trabajo debe detectar qué período o versión necesita reconciliar y registrar su resultado de forma idempotente.
 
@@ -75,7 +75,7 @@ await queue.upsertJobScheduler(
 );
 ```
 
-## 26:04 · Reintentar tiene presupuesto y puede repetirse
+## 26:43 · Reintentar tiene presupuesto y puede repetirse
 
 Permitimos tres intentos y espera creciente entre fallos. La reconciliación es un contrato del negocio: repetirla debe ser seguro. Un reinicio o pérdida de la reclamación puede provocar otra ejecución. Al agotar el presupuesto, mostramos el fallo y recuperamos con autorización. Un reintento manual no reinicia automáticamente el contador acumulado. Una implementación completa también necesita manejo de errores de conexión, alertas y cierre ordenado.
 
@@ -89,7 +89,7 @@ new Worker('prices', async job => {
 }, { connection: workerRedis });
 ```
 
-## 27:40 · La confirmación del intermediario no es aplicación
+## 28:19 · La confirmación del intermediario no es aplicación
 
 Este fragmento supone un canal de confirmación y un solo mensaje en vuelo. Esperamos la confirmación del intermediario y observamos devoluciones. La opción mandatory permite detectar que no hubo ninguna cola de destino. No demuestra que todas las suscripciones esperadas existan. Incluso un mensaje sin ruta puede recibir confirmación; por eso comprobamos ambas señales. Registrar custodia del intermediario no afirma que el consumidor aplicó el negocio. El valor booleano de publicar expresa presión de salida, no ese resultado.
 
@@ -103,7 +103,7 @@ if (returned.has(event.id)) throw new Error('Sin ruta');
 await markBrokerCustody(event.id);
 ```
 
-## 28:16 · El consumidor confirma después de su transacción
+## 28:55 · El consumidor confirma después de su transacción
 
 El consumidor usa acuse manual. Primero confirma entrada, efecto y salida en su base; después reconoce el mensaje. Si cae entre ambos pasos, tolerará una entrega repetida. La política de fallos limita reintentos y deriva casos persistentes a una cola de mensajes problemáticos, conocida como DLQ. Esa transferencia necesita configuración y verificación: no es segura por defecto en cualquier topología. Conservamos referencias y mecanismos de recuperación; reenviar sin límite solo escondería el incidente.
 
@@ -116,9 +116,9 @@ await sub.consume('erp', msg => {
 }, { noAck: false });
 ```
 
-## 29:54 · Traducir datos también exige rechazar ambigüedades
+## 31:00 · El contrato conserva moneda y significado
 
-Un destino espera importes en unidades mínimas y códigos fiscales propios. La traducción respeta moneda, precisión, redondeo y equivalencias aprobadas. Si falta una equivalencia, detenemos la integración con un motivo visible; no inventamos un valor. El ejemplo usa funciones contractuales, no conversiones universales. Conservamos la identidad original para conciliar respuestas y reintentos. La traducción necesita pruebas con casos reales del país y del destino homologado.
+Para reutilizar el POS entre países, un importe conserva moneda y precisión explícitas. No asumimos que todas las monedas, reglas de redondeo o clasificaciones fiscales sean iguales. Este destino de ejemplo espera unidades mínimas y códigos propios. La traducción usa las equivalencias aprobadas para su contrato. Si falta una equivalencia, dejamos un pendiente visible; no inventamos un impuesto ni redondeamos por conveniencia. Conservamos la identidad original para conciliar respuestas y reintentos. Estas funciones son ilustrativas. Una nueva combinación de país y destino requiere pruebas de contrato y regresión de las combinaciones que ya soportamos.
 
 ```typescript
 const externo = {
