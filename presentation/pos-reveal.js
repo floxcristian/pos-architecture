@@ -211,7 +211,7 @@
     let title,content;
     if(kind==='index') {
       title='El recorrido, capítulo por capítulo';
-      content=`<p>Siguiente y Anterior recorren todas las láminas en orden. Sus flechas muestran la dirección: ↓ / ↑ dentro del capítulo y → / ← al cambiar de capítulo.</p><p>Teclado: → / ← recorren toda la presentación; ↓ / ↑ recorren solo el capítulo actual. Espacio avanza los bloques resaltados del código y luego la lámina; Mayús + Espacio retrocede. En modo lectura, ↓ / ↑ desplazan el documento. El índice permite saltar a cualquier tema.</p><div class="index-chapters">${C.chapters.map(chapter=>`<div class="index-chapter"><h3>${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
+      content=`<p>La cruceta de Reveal.js muestra las direcciones disponibles: ← / → cambian de capítulo; ↑ / ↓ recorren las láminas del capítulo actual. Las teclas de flecha hacen lo mismo. En las láminas de código, las flechas recorren primero los bloques resaltados antes de salir de la lámina.</p><p>Espacio recorre toda la presentación en orden, incluidos los bloques resaltados; Mayús + Espacio retrocede. Av Pág / Re Pág pasan directamente a la siguiente o anterior lámina. En modo lectura, ↑ / ↓ desplazan el documento; Anterior / Siguiente y ← / → recorren sus láminas. El índice permite saltar a cualquier tema.</p><div class="index-chapters">${C.chapters.map(chapter=>`<div class="index-chapter"><h3>${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
     } else if(kind==='notes') {
       title=current().title;
       content=`<p>Notas para quien presenta. Los ejemplos son didácticos y usan datos simulados.</p><ol>${(current().notes || []).map(note=>`<li>${esc(note)}</li>`).join('')}</ol>${current().source?`<p><a href="${esc(current().source.url)}">${esc(current().source.label)}</a></p>`:''}`;
@@ -259,12 +259,14 @@
     if(document.querySelector('dialog[open]'))return;
     if(event.target.closest('#narrator-caption'))return;
     if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||event.target.closest(navigationWidget))return;
-    // Navigation remains available after clicking a button or following an index link.
-    const direction={ArrowRight:1,PageDown:1,ArrowLeft:-1,PageUp:-1}[event.key];
+    // Match the native directional controls, including their fragment behavior.
+    // Capture arrows so they still navigate after a button or link receives focus.
+    const spatial={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'}[event.key];
+    if(!reading && spatial){event.preventDefault();event.stopImmediatePropagation();Reveal[spatial]();return;}
+    const direction={PageDown:1,PageUp:-1,...(reading?{ArrowRight:1,ArrowLeft:-1}:{})}[event.key];
     if(direction){event.preventDefault();event.stopImmediatePropagation();navigate(direction);return;}
     const vertical={ArrowDown:1,ArrowUp:-1}[event.key];
     if(reading && (vertical || (['Home','End',' '].includes(event.key) && !event.target.closest('button,a'))))notifyInteraction('reading-scroll');
-    if(!reading && vertical){event.preventDefault();event.stopImmediatePropagation();navigate(vertical,true);return;}
     // Preserve native Space/Enter activation for focused controls.
     if(event.target.closest('button,a'))return;
     const action={o:'index',n:'notes',g:'glossary'}[event.key.toLowerCase()];
@@ -287,7 +289,14 @@
       Reveal.on('overviewshown',()=>{stop();notifyInteraction('overview');});
       Reveal.on('fragmentshown',()=>notifyInteraction('fragment'));
       Reveal.on('fragmenthidden',()=>notifyInteraction('fragment'));
-      await Reveal.initialize({width:1280,height:780,margin:.035,minScale:.2,maxScale:1.6,center:false,display:'flex',navigationMode:'linear',controls:false,progress:true,hash:true,hashOneBasedIndex:false,history:true,respondToHashChanges:true,transition:reduced.matches?'none':'slide',transitionSpeed:'fast',backgroundTransition:'none',autoAnimate:!reduced.matches,autoAnimateDuration:.45,autoSlide:0,loop:false,embedded:true,scrollActivationWidth:null,help:true,disableLayout:false,pdfSeparateFragments:false,plugins:[RevealHighlight],keyboardCondition:()=>!document.querySelector('dialog[open]')&&!document.activeElement?.closest(`button,a,#narrator-panel,${navigationWidget}`)});
+      await Reveal.initialize({width:1280,height:780,margin:.035,minScale:.2,maxScale:1.6,center:false,display:'flex',navigationMode:'default',controls:true,controlsLayout:'bottom-right',controlsBackArrows:'visible',controlsTutorial:false,progress:true,hash:true,hashOneBasedIndex:false,history:true,respondToHashChanges:true,transition:reduced.matches?'none':'slide',transitionSpeed:'fast',backgroundTransition:'none',autoAnimate:!reduced.matches,autoAnimateDuration:.45,autoSlide:0,loop:false,embedded:true,scrollActivationWidth:null,help:true,disableLayout:false,pdfSeparateFragments:false,plugins:[RevealHighlight],keyboardCondition:()=>!document.querySelector('dialog[open]')&&!document.activeElement?.closest(`button,a,#narrator-panel,${navigationWidget}`)});
+      const controls=$('.controls',main);
+      controls.setAttribute('role','group');
+      controls.setAttribute('aria-label','Navegación de diapositivas');
+      for(const [direction,label] of Object.entries({left:'Capítulo o fragmento anterior',right:'Capítulo o fragmento siguiente',up:'Lámina o fragmento anterior del capítulo',down:'Lámina o fragmento siguiente del capítulo'})) {
+        const button=$(`.navigate-${direction}`,controls);
+        button.setAttribute('aria-label',label);button.title=label;
+      }
       update(Reveal.getCurrentSlide().id,false);
     }
     document.body.dataset.ready='true';

@@ -3,7 +3,7 @@
   "inputs": [
     {
       "file": "presentation/pos-reveal-content.js",
-      "sha256": "e2ade722094e86a0b6755bb6fe894c5925c8e8904b3f0d15d4b026ff6cce51ed"
+      "sha256": "7e132e96553bdc8cecc75dc2c3327e8c345ee4690d856aec4d8f5b608ec84a2c"
     },
     {
       "file": "presentation/pos-reveal-narration-content.js",
@@ -131,7 +131,7 @@
       "title": "De una venta al sistema completo",
       "url": "/presentation/pos-corporativo-reveal.html#/ruta-de-aprendizaje",
       "slideId": "ruta-de-aprendizaje",
-      "text": "De una venta al sistema completo\n\nPrimero entenderemos las responsabilidades. Después seguiremos los datos, el código y la recuperación.\n\n01–02\n\nProducto y arquitectura\n\nQué compartimos y dónde se ejecuta cada responsabilidad.\n\n03–04\n\nVenta y precios\n\nConfirmación local y reglas que funcionan con una versión conocida.\n\n05–06\n\nSincronización e integración\n\nEntrega durable, trabajos, eventos y traducción entre sistemas.\n\n07–08\n\nCódigo y operación\n\nMonorepo, versiones, evidencia y pruebas del piloto.\n\nCada tecnología aparece después del problema que necesita resolver.\n\nSiguiente y Anterior muestran flechas verticales dentro del capítulo y horizontales al cruzar a otro. Las teclas derecha e izquierda recorren todas las láminas; arriba y abajo recorren solo el capítulo actual. Espacio avanza por los bloques resaltados del código antes de cambiar de lámina. En modo lectura, arriba y abajo desplazan el documento.\n\nLos laboratorios usan datos sintéticos y permiten recorrer pasos o fallos. No se conectan a bancos, servicios fiscales, colas ni sistemas corporativos.\n\nConviene detenerse en las preguntas antes de mostrar la respuesta. El objetivo es justificar decisiones, no memorizar nombres de herramientas."
+      "text": "De una venta al sistema completo\n\nPrimero entenderemos las responsabilidades. Después seguiremos los datos, el código y la recuperación.\n\n01–02\n\nProducto y arquitectura\n\nQué compartimos y dónde se ejecuta cada responsabilidad.\n\n03–04\n\nVenta y precios\n\nConfirmación local y reglas que funcionan con una versión conocida.\n\n05–06\n\nSincronización e integración\n\nEntrega durable, trabajos, eventos y traducción entre sistemas.\n\n07–08\n\nCódigo y operación\n\nMonorepo, versiones, evidencia y pruebas del piloto.\n\nCada tecnología aparece después del problema que necesita resolver.\n\nLa cruceta de Reveal.js muestra las direcciones disponibles. Las flechas derecha e izquierda cambian de capítulo; arriba y abajo recorren las láminas y bloques resaltados del capítulo actual. Las teclas de flecha hacen lo mismo; cuando hay bloques resaltados pendientes, las flechas los recorren antes de salir de la lámina. Espacio recorre toda la presentación en orden; Av Pág y Re Pág pasan directamente entre láminas. En modo lectura, arriba y abajo desplazan el documento.\n\nLos laboratorios usan datos sintéticos y permiten recorrer pasos o fallos. No se conectan a bancos, servicios fiscales, colas ni sistemas corporativos.\n\nConviene detenerse en las preguntas antes de mostrar la respuesta. El objetivo es justificar decisiones, no memorizar nombres de herramientas."
     },
     {
       "id": "ruta-de-aprendizaje:narration:1",

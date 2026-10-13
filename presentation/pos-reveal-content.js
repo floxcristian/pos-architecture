@@ -51,7 +51,7 @@
         ],
         takeaway: 'Cada tecnología aparece después del problema que necesita resolver.',
         notes: [
-          'Siguiente y Anterior muestran flechas verticales dentro del capítulo y horizontales al cruzar a otro. Las teclas derecha e izquierda recorren todas las láminas; arriba y abajo recorren solo el capítulo actual. Espacio avanza por los bloques resaltados del código antes de cambiar de lámina. En modo lectura, arriba y abajo desplazan el documento.',
+          'La cruceta de Reveal.js muestra las direcciones disponibles. Las flechas derecha e izquierda cambian de capítulo; arriba y abajo recorren las láminas y bloques resaltados del capítulo actual. Las teclas de flecha hacen lo mismo; cuando hay bloques resaltados pendientes, las flechas los recorren antes de salir de la lámina. Espacio recorre toda la presentación en orden; Av Pág y Re Pág pasan directamente entre láminas. En modo lectura, arriba y abajo desplazan el documento.',
           'Los laboratorios usan datos sintéticos y permiten recorrer pasos o fallos. No se conectan a bancos, servicios fiscales, colas ni sistemas corporativos.',
           'Conviene detenerse en las preguntas antes de mostrar la respuesta. El objetivo es justificar decisiones, no memorizar nombres de herramientas.'
         ], source: proposal

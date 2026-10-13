@@ -364,6 +364,52 @@ async function mobile(browser, data) {
   } finally { await page.close(); }
 }
 
+async function nativeNavigationLayout(browser) {
+  const page = await browser.newPage({ reducedMotion: 'reduce' });
+  observe(page);
+  try {
+    for (const viewport of [{ width: 1440, height: 1000 }, { width: 768, height: 1024 }, { width: 375, height: 812 }]) {
+      await page.setViewportSize(viewport);
+      await ready(page, '?lectura=0');
+      await page.evaluate(() => {
+        const slide = Reveal.getSlides().find(element => { const { h, v } = Reveal.getIndices(element); return h > 0 && h < Reveal.getHorizontalSlides().length - 1 && v > 0 && v < element.parentElement.children.length - 1 && !element.querySelector('.fragment'); });
+        POSCourse.goTo(slide.id);
+      });
+      assert.equal(await page.locator('.controls button:enabled').count(), 4, 'Narration layout must exercise the full native arrow cluster');
+      await page.locator('[data-narrator-toggle]').click();
+      await mediaReady(page);
+      await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
+      await paused(page);
+      const measure = () => page.evaluate(() => {
+        const box = selector => { const { left, right, top, bottom } = document.querySelector(selector).getBoundingClientRect(); return { left, right, top, bottom }; };
+        const buttons = [...document.querySelectorAll('.controls button:enabled')].map(element => element.getBoundingClientRect());
+        const controls = { left: Math.min(...buttons.map(button => button.left)), right: Math.max(...buttons.map(button => button.right)), top: Math.min(...buttons.map(button => button.top)), bottom: Math.max(...buttons.map(button => button.bottom)) };
+        return { presentation: box('#presentation'), panel: box('#narrator-panel'), footer: box('.course-footer'), info: box('.course-footer > div'), controls, width: innerWidth, height: innerHeight, documentWidth: document.documentElement.scrollWidth };
+      });
+      const layout = await measure();
+      assert.ok(layout.documentWidth <= layout.width + 1, 'Native navigation and narrator must not create horizontal overflow');
+      assert.ok(layout.presentation.bottom <= layout.panel.top + 2, 'Narrator must reserve space above the navigation footer');
+      assert.ok(layout.panel.bottom <= layout.footer.top + 2, 'Narrator must end above the footer at every presentation viewport');
+      assert.ok(layout.controls.top >= layout.footer.top && layout.controls.bottom <= layout.height + 1, `Native Reveal arrows must remain in the footer below the narrator: ${JSON.stringify(layout)}`);
+      assert.ok(layout.controls.left >= 0 && layout.controls.right <= layout.width + 1, 'Native arrows stay inside the viewport with narration open');
+      assert.ok(layout.info.right <= layout.controls.left + 1, 'Footer text must not overlap any of the four native arrow hit areas');
+      await page.screenshot({ path: path.join(output, `native-navigation-${viewport.width}.png`) });
+      const before = await page.evaluate(() => POSCourse.getState().currentId);
+      await page.locator(action('play')).click();
+      await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
+      await page.locator('.controls .navigate-down').click();
+      await page.waitForFunction(id => POSCourse.getState().currentId !== id, before);
+      assert.equal((await state(page)).status, 'paused', 'Native arrows must pause narration on manual slide changes');
+      assert.ok((await measure()).panel.bottom <= layout.footer.top + 2, 'Narration layout must remain stable after clicking a native arrow');
+      await page.locator(action('close')).click();
+      const closed = await measure();
+      assert.ok(closed.presentation.bottom <= closed.footer.top + 2, 'Closing the narrator must preserve the reserved arrow footer');
+      report.viewports.push({ ...viewport, reading: false, nativeNavigation: layout });
+    }
+    report.checks.push('Native Reveal arrows with actual narrator media at 1440/768/375: no content/panel/footer overlap; manual arrow pauses audio; close restores reserved slide space');
+  } finally { await page.close(); }
+}
+
 async function run() {
   await fs.mkdir(output, { recursive: true });
   const server = remote ? null : spawn(process.execPath, [path.join(root, 'tools/serve-public.cjs')], { env: { ...process.env, POS_PUBLIC_PORT: String(port) }, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -393,6 +439,7 @@ async function run() {
     await auditAllCues(page, data);
     await checkManualInteractions(page, data);
     await mobile(browser, data);
+    await nativeNavigationLayout(browser);
     await page.locator(action('close')).click();
     assert.equal((await state(page)).open, false);
     assert.equal(await page.locator('#narrator-audio').evaluateAll(elements => elements.every(audio => audio.paused)), true);
@@ -412,4 +459,4 @@ async function run() {
 }
 
 if (require.main === module) run().catch(error => { console.error(error); process.exitCode = 1; });
-module.exports = { validateManifest, controls, checkAdvance, checkPlayRejection, auditAllCues, checkManualInteractions, mobile };
+module.exports = { validateManifest, controls, checkAdvance, checkPlayRejection, auditAllCues, checkManualInteractions, mobile, nativeNavigationLayout };

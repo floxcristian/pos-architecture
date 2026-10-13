@@ -1,6 +1,6 @@
 /* The narrator reserves its own space; captions never cover a slide or its navigation. */
 .narrator-panel[hidden]{display:none}
-.narrator-panel{position:fixed;left:0;right:0;bottom:66px;z-index:19;padding:14px 28px 12px;background:var(--panel);border-top:1px solid var(--line);font-size:14px}
+.narrator-panel{position:fixed;left:0;right:0;bottom:var(--course-footer-height);z-index:19;padding:14px 28px 12px;background:var(--panel);border-top:1px solid var(--line);font-size:14px}
 .narrator-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .narrator-heading{display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:180px}
 .narrator-heading strong{color:var(--cyan);font-size:16px}
@@ -14,7 +14,7 @@
 #narrator-progress{flex:1;min-width:60px;height:24px;accent-color:var(--cyan);cursor:pointer}
 #narrator-time{white-space:nowrap}
 #narrator-caption{font-size:17px;line-height:1.5;margin:8px 0 0;max-height:4.5em;overflow:auto;scrollbar-gutter:stable;color:var(--ink)}
-body.narrator-open .reveal{height:calc(100dvh - 140px - var(--narrator-height,180px))}
+body.narrator-open .reveal{height:calc(100dvh - var(--course-header-height) - var(--course-footer-height) - var(--narrator-height,180px))}
 body.narrator-open [data-narrator-toggle]{border-color:var(--cyan);background:#153638;color:var(--cyan)}
 .narrator-focus{outline:3px solid var(--cyan);outline-offset:5px;background-color:#153638!important}
 .diagram-svg g.narrator-focus{outline:none;background:none!important}
@@ -25,7 +25,5 @@ body.narrator-open [data-narrator-toggle]{border-color:var(--cyan);background:#1
 .narrator-code-open pre .hljs-ln-line{opacity:1!important}
 @media(max-width:1200px){.course-subtitle{display:none}.narrator-toolbar{gap:10px}.narrator-heading{min-width:150px}}
 @media(max-width:800px){.narrator-panel{padding:10px 18px}.narrator-heading{width:calc(100% - 100px);flex:1}.narrator-playback{order:2;width:100%}.narrator-speed,.narrator-auto{order:3}.narrator-timeline{gap:8px}.narrator-playback button[data-narrator-action=play]{min-width:104px}#narrator-caption{font-size:15px;max-height:4.5em}}
-@media(max-width:600px){.narrator-panel{bottom:74px;padding:8px 14px}.narrator-panel button{padding:8px 10px}.narrator-heading strong{font-size:14px}#narrator-status{font-size:11px}.narrator-timeline{font-size:10px}.narrator-panel label{font-size:12px}body.narrator-open .reveal{height:calc(100dvh - 182px - var(--narrator-height,280px))}}
+@media(max-width:600px){.narrator-panel{padding:8px 14px}.narrator-panel button{padding:8px 10px}.narrator-heading strong{font-size:14px}#narrator-status{font-size:11px}.narrator-timeline{font-size:10px}.narrator-panel label{font-size:12px}}
 @media print{.narrator-panel,[data-narrator-toggle]{display:none!important}.narrator-focus{outline:none!important;background:none!important}}
-
-@media(max-width:374px){body.narrator-open .reveal{height:calc(100dvh - 230px - var(--narrator-height,280px))}}
