@@ -37,7 +37,7 @@ async function ready(page, suffix = '') {
   const response = await page.goto(entry + suffix);
   assert.equal(response.status(), 200);
   assert.match(response.headers()['content-security-policy'] || '', /media-src 'self'/);
-  assert.match(response.headers()['content-security-policy'] || '', /connect-src 'none'/);
+  assert.match(response.headers()['content-security-policy'] || '', /connect-src 'self'/);
   await page.waitForFunction(() => document.body.dataset.ready === 'true' && window.POSNarrator && window.POS_REVEAL_NARRATION_CONTENT && window.POS_REVEAL_NARRATION_AUDIO);
 }
 

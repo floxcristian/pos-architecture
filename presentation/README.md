@@ -11,8 +11,12 @@ Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En prod
 - **Navegación:** Siguiente / Anterior muestran ↓ / ↑ dentro del capítulo y → / ← al cambiar de capítulo. Los botones y las teclas → / ← recorren todas las láminas en orden, sin saltarse contenido ni detenerse en fragmentos. Las teclas ↓ / ↑ recorren solo el capítulo actual, incluso tras usar un botón o enlace; en modo lectura conservan el desplazamiento del documento. Espacio recorre los bloques resaltados del código antes de pasar de lámina; Mayús + Espacio retrocede. Av Pág / Re Pág equivalen a siguiente / anterior lámina. Índice (`O`) abre cualquier tema.
 - **Notas (`N`) y glosario (`G`):** explicaciones para quien presenta, límites, preguntas y fuentes. Se abren en la misma página, con navegación por teclado.
 - **Laboratorios:** elige escenario y usa Paso, Reproducir/Pausar o Reiniciar. La reproducción se detiene al cambiar de lámina, abrir un diálogo u ocultar la pestaña. Nunca conecta infraestructura ni ejecuta los snippets.
-- **Lectura:** el enlace Leer conserva la lámina actual y cambia a documento continuo. En pantallas menores de 700 px se activa por defecto; `?lectura=0` fuerza presentación y `?lectura=1` lectura. Los laboratorios funcionan en ambos modos. Las preferencias de movimiento reducido se respetan.
+- **Lectura:** el botón Leer / Presentar conserva la lámina actual y cambia a documento continuo. En pantallas menores de 700 px se activa por defecto; `?lectura=0` fuerza presentación y `?lectura=1` lectura. Los laboratorios funcionan en ambos modos. Las preferencias de movimiento reducido se respetan.
 - **Fuentes:** las vistas C4 simplifican las relaciones para enseñar; cada una permite descargar el Excalidraw completo. Los ejemplos de código se identifican como contratos o pseudocódigo educativo.
+
+### Asistente para preguntas
+
+El botón **Asistente** abre una conversación sobre la lámina actual y la arquitectura de la propuesta, con enlaces a las fuentes. Incluye preguntas sugeridas, historial de la sesión y cancelación. Abrirlo pausa el narrador. La conexión se realiza desde una función de Vercel; las claves nunca se envían al navegador. Sin proveedor y protección configurados, el diálogo informa que todavía no está conectado. Consulta [Activar y mantener el asistente](tools/assistant-setup.md).
 
 ### Modo narrador
 
@@ -61,10 +65,10 @@ La configuración está en [`vercel.json`](https://github.com/floxcristian/pos-a
 | Production Branch | `main` |
 | Build Command | `node presentation/tools/build-vercel.cjs` |
 | Output Directory | `public` |
-| Install Command | Vacío; no requiere instalar dependencias |
-| Variables de entorno | Ninguna |
+| Install Command | `npm ci` (dependencia del límite de solicitudes del asistente) |
+| Variables de entorno | Ninguna para ver o narrar; el asistente requiere [configuración del servidor](tools/assistant-setup.md#activar-en-vercel) |
 
-`vercel.json` define framework, comandos y salida. El build prepara los archivos estáticos, documentos originales y JSON de evidencia enlazados. No publica los clones, QA, herramientas ejecutables ni el servidor local. `/` redirige a `/presentation/index.html`, conservando las rutas relativas y los capítulos por hash. Los documentos Markdown se sirven como archivos de texto, igual que en la previsualización local; no se transforman en páginas HTML.
+`vercel.json` define framework, comandos y salida. El build prepara los archivos estáticos, documentos originales y JSON de evidencia enlazados. No publica los clones, QA, herramientas ejecutables ni el servidor local. Además de los archivos estáticos, Vercel crea la función `/api/assistant`; el corpus de consulta queda en su paquete de servidor, fuera de `public/`. `/` redirige a `/presentation/index.html`, conservando las rutas relativas y los capítulos por hash. Los documentos Markdown se sirven como archivos de texto, igual que en la previsualización local; no se transforman en páginas HTML.
 
 Tras **Deploy**, Vercel asigna una URL al proyecto; un dominio propio es opcional. La conexión Git permite desplegar nuevas versiones al actualizar `main`. Para uso corporativo, utiliza un plan que admita ese uso: Hobby está limitado a uso personal no comercial. Referencias oficiales: [configuración de build](https://vercel.com/docs/builds/configure-a-build), [integración Git](https://vercel.com/docs/git) y [alcance de Hobby](https://vercel.com/docs/plans/hobby).
 
@@ -86,7 +90,7 @@ Incluye siete diagramas C4/dinámicos de Excalidraw con zoom y descarga editable
 
 Usa Anterior/Siguiente o las flechas para cambiar de diapositiva; `O` abre el índice y `N` las notas. Cada laboratorio permite elegir escenario, avanzar, retroceder, reproducir, pausar y reiniciar. El hash conserva enlaces a diapositiva, caso y paso. No hay reproducción automática al abrir una página; al salir del laboratorio o esconder la pestaña se pausa. Se respeta movimiento reducido y se conserva el relato textual.
 
-El código está en `architecture.html`, `architecture.css`, `architecture.js`, `architecture-content.js` y `architecture-labs.js`. Los pósteres y editables proceden de `docs/diagramas-excalidraw/`. Las vistas previas de `architecture-diagrams/` recortan únicamente el viewport del SVG según los elementos del modelo, sin alterar el original; se regeneran con `node presentation/tools/generate-architecture-previews.cjs --verify`. No necesita CDN. Verificación: `node presentation/tools/check-architecture.cjs`. La CSP mantiene `connect-src 'none'`: las simulaciones no ejecutan solicitudes a infraestructura.
+El código está en `architecture.html`, `architecture.css`, `architecture.js`, `architecture-content.js` y `architecture-labs.js`. Los pósteres y editables proceden de `docs/diagramas-excalidraw/`. Las vistas previas de `architecture-diagrams/` recortan únicamente el viewport del SVG según los elementos del modelo, sin alterar el original; se regeneran con `node presentation/tools/generate-architecture-previews.cjs --verify`. No necesita CDN. Verificación: `node presentation/tools/check-architecture.cjs`. La CSP permite `connect-src 'self'` para el asistente de Reveal; las simulaciones siguen sin ejecutar solicitudes a infraestructura.
 
 ### Atlas de la situación actual y evolución
 

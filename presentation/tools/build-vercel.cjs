@@ -1,12 +1,14 @@
-/* Assemble static presentation and linked evidence. No dependencies or corporate code. */
+/* Assemble the public presentation; the assistant corpus remains server-side. */
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
 const {publishVideo} = require('./video-publication.cjs');
 const {publishNarration} = require('./narration-publication.cjs');
+const {buildAssistantContext} = require('./build-assistant-context.cjs');
 const root = path.resolve(__dirname, '../..');
 const output = path.resolve(root, 'public');
 const files = [];
+buildAssistantContext({root});
 
 function collect(directory, accept) {
   for (const entry of fs.readdirSync(path.join(root, directory), {withFileTypes:true})) {
@@ -27,6 +29,7 @@ collect('presentation/architecture-diagrams', file => /^presentation\/architectu
 collect('presentation/video-assets', file => /^presentation\/video-assets\/[^/]+\.(jpg|json|vtt|srt|md|txt)$/.test(file));
 collect('presentation/vendor/reveal', file => /\.(js|css)$/.test(file) || path.posix.basename(file) === 'LICENSE');
 files.push('README.md');
+files.push('presentation/tools/assistant-setup.md');
 for (const name of ['concentrador-ingress-evidence.json', 'concentrador-masters-evidence.json']) {
   files.push('tools/' + name);
 }

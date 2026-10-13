@@ -3,6 +3,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const {serveAssistant} = require('./assistant-preview.cjs');
 const root = path.resolve(__dirname, '../..');
 const output = path.join(root, 'public');
 const configuration = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
@@ -13,10 +14,11 @@ function servePublic(port = Number(process.env.POS_PUBLIC_PORT || 4199)) {
   if (!fs.statSync(output).isDirectory() || fs.lstatSync(output).isSymbolicLink()) throw new Error('Build public/ before previewing it');
   const server = http.createServer((request, response) => {
     for (const item of configuration.headers || []) for (const header of item.headers) response.setHeader(header.key, header.value);
-    if (!['GET','HEAD'].includes(request.method)) { response.writeHead(405); return response.end(); }
     let pathname;
     try { pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname); }
     catch { response.writeHead(400); return response.end(); }
+    if (pathname === '/api/assistant') { void serveAssistant(request, response); return; }
+    if (!['GET','HEAD'].includes(request.method)) { response.writeHead(405); return response.end(); }
     const redirect = configuration.redirects?.find(item => item.source === pathname);
     if (redirect) { response.writeHead(307, {Location:redirect.destination}); return response.end(); }
     pathname = configuration.rewrites?.find(item => item.source === pathname)?.destination || pathname;

@@ -189,9 +189,8 @@
       const destination=!target?(forward?'fin de la presentación':'inicio de la presentación'):sameChapter?'lámina del mismo capítulo':forward?'primer tema del capítulo siguiente':'último tema del capítulo anterior';
       button.setAttribute('aria-label',`${forward?'Siguiente':'Anterior'}: ${destination}`);
     }
-    const params=new URLSearchParams(location.search);params.set('lectura',reading?'0':'1');params.delete('print-pdf');
-    $('#reading-link').href=`?${params}#/${id}`;
-    $('#reading-link').textContent=reading?'Presentar':'Leer';
+    $('#reading-toggle').textContent=reading?'Presentar':'Leer';
+    $('#reading-toggle').setAttribute('aria-label',reading?'Presentar: cambiar a diapositivas':'Leer: cambiar a documento continuo');
     if(announce)$('#course-announcement').textContent=`${index+1} de ${C.slides.length}. ${slide.title}`;
     if(changed)document.dispatchEvent(new CustomEvent('poscourse:slidechange',{detail:{id}}));
   }
@@ -231,6 +230,10 @@
       const action=ui.dataset.ui;
       if(action==='previous'||action==='next')navigate(action==='next'?1:-1);
       else if(action==='close')dialog.close();
+      else if(action==='reading') {
+        const params=new URLSearchParams(location.search);params.set('lectura',reading?'0':'1');params.delete('print-pdf');
+        location.assign(`?${params}#/${currentId}`);
+      }
       else if(action==='fullscreen') {if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else document.documentElement.requestFullscreen?.().catch(()=>{});}
       else openDialog(action,ui);
       return;
@@ -253,7 +256,7 @@
     if(answer){const quiz=answer.closest('.quiz'),slide=slideById.get(quiz.dataset.owner),option=slide.options[Number(answer.dataset.answer)];$$('[data-answer]',quiz).forEach(button=>button.setAttribute('aria-pressed',String(button===answer)));const feedback=$('.quiz-feedback',quiz);feedback.className=`quiz-feedback ${option.correct?'success':'warning'}`;feedback.textContent=`${option.correct?'Correcto.':'Revisa este punto.'} ${option.feedback}`;}
   });
   document.addEventListener('keydown',event=>{
-    if(dialog.open){event.stopPropagation();return;}
+    if(document.querySelector('dialog[open]'))return;
     if(event.target.closest('#narrator-caption'))return;
     if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||event.target.closest(navigationWidget))return;
     // Navigation remains available after clicking a button or following an index link.
@@ -284,7 +287,7 @@
       Reveal.on('overviewshown',()=>{stop();notifyInteraction('overview');});
       Reveal.on('fragmentshown',()=>notifyInteraction('fragment'));
       Reveal.on('fragmenthidden',()=>notifyInteraction('fragment'));
-      await Reveal.initialize({width:1280,height:780,margin:.035,minScale:.2,maxScale:1.6,center:false,display:'flex',navigationMode:'linear',controls:false,progress:true,hash:true,hashOneBasedIndex:false,history:true,respondToHashChanges:true,transition:reduced.matches?'none':'slide',transitionSpeed:'fast',backgroundTransition:'none',autoAnimate:!reduced.matches,autoAnimateDuration:.45,autoSlide:0,loop:false,embedded:true,scrollActivationWidth:null,help:true,disableLayout:false,pdfSeparateFragments:false,plugins:[RevealHighlight],keyboardCondition:()=>!dialog.open&&!document.activeElement?.closest(`button,a,#narrator-panel,${navigationWidget}`)});
+      await Reveal.initialize({width:1280,height:780,margin:.035,minScale:.2,maxScale:1.6,center:false,display:'flex',navigationMode:'linear',controls:false,progress:true,hash:true,hashOneBasedIndex:false,history:true,respondToHashChanges:true,transition:reduced.matches?'none':'slide',transitionSpeed:'fast',backgroundTransition:'none',autoAnimate:!reduced.matches,autoAnimateDuration:.45,autoSlide:0,loop:false,embedded:true,scrollActivationWidth:null,help:true,disableLayout:false,pdfSeparateFragments:false,plugins:[RevealHighlight],keyboardCondition:()=>!document.querySelector('dialog[open]')&&!document.activeElement?.closest(`button,a,#narrator-panel,${navigationWidget}`)});
       update(Reveal.getCurrentSlide().id,false);
     }
     document.body.dataset.ready='true';

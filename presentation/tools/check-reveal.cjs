@@ -35,7 +35,7 @@ async function ready(page, suffix = '') {
   const response = await page.goto(entry + suffix);
   assert.equal(response.status(), 200);
   assert.match(response.headers()['content-security-policy'] || '', /script-src 'self'/);
-  assert.match(response.headers()['content-security-policy'] || '', /connect-src 'none'/);
+  assert.match(response.headers()['content-security-policy'] || '', /connect-src 'self'/);
   await page.waitForFunction(() => document.body.dataset.ready === 'true' && window.POS_REVEAL_CONTENT && window.POS_REVEAL_LABS);
   assert.equal(await page.evaluate(() => Reveal.VERSION), '5.1.0');
 }

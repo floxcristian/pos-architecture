@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="vendor/reveal/plugin/highlight/monokai.css">
   <link rel="stylesheet" href="pos-reveal.css">
   <link rel="stylesheet" href="pos-reveal-narrator.css">
+  <link rel="stylesheet" href="pos-reveal-assistant.css">
   <script defer src="vendor/reveal/dist/reveal.js"></script>
   <script defer src="vendor/reveal/plugin/highlight/highlight.js"></script>
   <script defer src="pos-reveal-content.js"></script>
@@ -20,6 +21,7 @@
   <script defer src="pos-reveal-narration-content.js"></script>
   <script defer src="pos-reveal-narration-audio.js"></script>
   <script defer src="pos-reveal-narrator.js"></script>
+  <script defer src="pos-reveal-assistant.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#presentation">Saltar al contenido</a>
@@ -28,10 +30,11 @@
     <span class="course-subtitle">DEL NEGOCIO AL CÓDIGO</span>
     <nav aria-label="Herramientas">
       <button type="button" data-narrator-toggle aria-pressed="false" aria-controls="narrator-panel">Narrador</button>
+      <button type="button" data-assistant-toggle aria-haspopup="dialog" aria-controls="assistant-dialog">Asistente</button>
       <button type="button" data-ui="index">Índice <kbd>O</kbd></button>
       <button type="button" data-ui="notes">Notas <kbd>N</kbd></button>
       <button type="button" data-ui="glossary">Glosario</button>
-      <a id="reading-link" href="?lectura=1">Leer</a>
+      <button type="button" id="reading-toggle" data-ui="reading">Leer</button>
       <button type="button" data-ui="fullscreen" aria-label="Activar pantalla completa">Pantalla completa</button>
     </nav>
   </header>

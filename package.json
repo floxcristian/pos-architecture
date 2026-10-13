@@ -1,0 +1,16 @@
+{
+  "name": "pos-platform-architecture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "POS Platform presentation and grounded question assistant",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "build": "node presentation/tools/build-vercel.cjs",
+    "check:assistant-api": "node --test presentation/tools/check-assistant-api.cjs"
+  },
+  "dependencies": {
+    "@vercel/firewall": "1.2.6"
+  }
+}

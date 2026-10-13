@@ -2,14 +2,16 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const {serveAssistant} = require('./tools/assistant-preview.cjs');
 const root = __dirname;
 const docs = path.resolve(root, '..', 'docs');
 const port = Number(process.env.POS_ATLAS_PORT || 4173);
 const types = {'.excalidraw':'application/json; charset=utf-8','.zip':'application/zip','.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.mmd':'text/plain; charset=utf-8','.md':'text/plain; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation'};
 const server = http.createServer((req,res)=>{
-  if(!['GET','HEAD'].includes(req.method)){res.writeHead(405,{'Allow':'GET, HEAD'});res.end();return;}
   let url;
   try{url=decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname);}catch{res.writeHead(400);res.end('Bad request');return;}
+  if(url==='/api/assistant'){void serveAssistant(req,res);return;}
+  if(!['GET','HEAD'].includes(req.method)){res.writeHead(405,{'Allow':'GET, HEAD'});res.end();return;}
   const isDocs=url.startsWith('/docs/');
   const base=isDocs?docs:root;
   const suffix=isDocs?url.slice(6):url==='/'?'index.html':url.replace(/^\/presentation\//,'').replace(/^\//,'');
@@ -21,7 +23,7 @@ const server = http.createServer((req,res)=>{
     fs.realpath(file,(realErr,real)=>{
       const relReal=realErr?'..':path.relative(base,real);
       if(realErr||relReal.startsWith('..')||path.isAbsolute(relReal)){res.writeHead(403);res.end('Forbidden');return;}
-      res.writeHead(200,{'Content-Type':types[path.extname(file).toLowerCase()],'X-Content-Type-Options':'nosniff','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"});
+      res.writeHead(200,{'Content-Type':types[path.extname(file).toLowerCase()],'X-Content-Type-Options':'nosniff','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"});
       if(req.method==='HEAD'){res.end();return;}
       const stream=fs.createReadStream(file);stream.on('error',()=>res.destroy());stream.pipe(res);
     });
