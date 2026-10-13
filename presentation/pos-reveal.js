@@ -18,6 +18,7 @@
   let timer = null;
   let playingId = null;
   let dialogOpener = null;
+  const notifyInteraction = kind => document.dispatchEvent(new CustomEvent('poscourse:interaction',{detail:{kind}}));
 
   const diagramModels = {
     context: {file:'01-contexto',caption:'C1 · Personas y sistemas. Las flechas nombran relaciones; no representan orden de ejecución.',nodes:[
@@ -57,10 +58,10 @@
         const sx=ax+(bx>ax?1:-1)*a[3]/2, ex=bx+(bx>ax?-1:1)*b[3]/2;
         d=`M${sx} ${ay} C${(sx+ex)/2} ${ay} ${(sx+ex)/2} ${by} ${ex} ${by}`;
       } else { const sy=ay+(by>ay?1:-1)*a[4]/2,ey=by+(by>ay?-1:1)*b[4]/2; d=`M${ax} ${sy} L${bx} ${ey}`; }
-      return `<path class="edge" d="${model.routes?.[`${from}-${to}`] || d}" marker-end="url(#${arrowId})"/><text class="edge-label" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`;
+      return `<path class="edge" data-edge="${from}-${to}" d="${model.routes?.[`${from}-${to}`] || d}" marker-end="url(#${arrowId})"/><text class="edge-label" data-edge="${from}-${to}" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`;
     }).join('');
-    const boxes = model.nodes.map(([,x,y,w,h,title,detail,tone])=>`<g class="${tone==='main'?'main-node':tone==='data'?'data-node':''}"><rect class="node-rect" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/><text class="node-title" x="${x+w/2}" y="${y+38}" text-anchor="middle">${esc(title)}</text><text class="node-detail" x="${x+w/2}" y="${y+69}" text-anchor="middle">${esc(detail)}</text></g>`).join('');
-    const mobile=`<div class="diagram-reading-list"><dl>${model.nodes.map(node=>`<div><dt>${esc(node[5])}</dt><dd>${esc(node[6])}</dd></div>`).join('')}</dl><h3>Relaciones del mapa</h3><ul>${model.edges.map(([a,b,label])=>`<li><strong>${esc(nodes.get(a)[5])} → ${esc(nodes.get(b)[5])}</strong><span>${esc(label)}</span></li>`).join('')}</ul></div>`;
+    const boxes = model.nodes.map(([nodeId,x,y,w,h,title,detail,tone])=>`<g data-node="${nodeId}" class="${tone==='main'?'main-node':tone==='data'?'data-node':''}"><rect class="node-rect" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/><text class="node-title" x="${x+w/2}" y="${y+38}" text-anchor="middle">${esc(title)}</text><text class="node-detail" x="${x+w/2}" y="${y+69}" text-anchor="middle">${esc(detail)}</text></g>`).join('');
+    const mobile=`<div class="diagram-reading-list"><dl>${model.nodes.map(node=>`<div data-node="${node[0]}"><dt>${esc(node[5])}</dt><dd>${esc(node[6])}</dd></div>`).join('')}</dl><h3>Relaciones del mapa</h3><ul>${model.edges.map(([a,b,label])=>`<li data-edge="${a}-${b}"><strong>${esc(nodes.get(a)[5])} → ${esc(nodes.get(b)[5])}</strong><span>${esc(label)}</span></li>`).join('')}</ul></div>`;
     return `<svg class="diagram-svg" viewBox="0 0 1260 500" role="img" aria-labelledby="diagram-title-${id} diagram-desc-${id}"><title id="diagram-title-${id}">${esc(model.caption)}</title><desc id="diagram-desc-${id}">${esc(model.edges.map(([a,b,l])=>`${nodes.get(a)[5]} → ${nodes.get(b)[5]}: ${l}`).join('. '))}</desc><defs><marker id="${arrowId}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#7f99bd"/></marker></defs>${boundary}${edges}${boxes}</svg>${mobile}<div class="diagram-caption"><span>${esc(model.caption)}</span><a href="../docs/diagramas-excalidraw/${model.file}.excalidraw" download>Excalidraw completo ↓</a></div>`;
   }
   function cards(items = []) { return `<div class="card-grid count-${items.length}">${items.map((item,i)=>`<article class="concept-card"><div class="card-number">${esc(item.kicker || `0${i+1}`)}</div><h3>${esc(item.title)}</h3><p>${esc(item.text)}</p></article>`).join('')}</div>`; }
@@ -145,9 +146,36 @@
     },Math.max(4200,Math.min(9000,steps[state.step].text.length*33)));
   }
   function current() { return slideById.get(currentId); }
+  function clearNarrationCue() {
+    $$('.narrator-focus').forEach(element=>element.classList.remove('narrator-focus'));
+    $$('.narrator-code-open').forEach(element=>element.classList.remove('narrator-code-open'));
+  }
+  function applyNarrationCue(cue) {
+    clearNarrationCue();
+    const slide=document.getElementById(currentId);
+    if(cue.lab) {
+      const root=$('.lab',slide),scenario=L[root?.dataset.lab]?.scenarios[cue.lab.scenario];
+      if(!scenario?.steps[cue.lab.step])throw new Error('Invalid narrated laboratory step');
+      stop();states.set(currentId,{scenario:cue.lab.scenario,step:cue.lab.step});paintLab(root);
+    }
+    if(current().kind==='code'||current().kind==='tree')slide.classList.add('narrator-code-open');
+    let targets=[];
+    if(cue.focus?.selector)targets.push(...$$(cue.focus.selector,slide));
+    for(const id of cue.focus?.nodes || [])targets.push(...$$(`[data-node="${CSS.escape(id)}"]`,slide));
+    for(const id of cue.focus?.edges || [])targets.push(...$$(`[data-edge="${CSS.escape(id)}"]`,slide));
+    if(cue.focus && !targets.length)throw new Error(`Narration focus does not exist: ${cue.id}`);
+    targets.forEach(element=>element.classList.add('narrator-focus'));
+    if(reading) {
+      // A mobile relationship row names both endpoints and its purpose together.
+      const relationship=targets.find(element=>element.matches('.diagram-reading-list [data-edge]') && element.getClientRects().length);
+      const visible=relationship || targets.find(element=>element.getClientRects().length) || (cue.lab?$('.lab-step-title',slide):$('.slide-head',slide));
+      visible?.scrollIntoView({behavior:'instant',block:'nearest'});
+    }
+  }
   function update(id,announce=true) {
     if(!slideById.has(id))return;
-    if(currentId!==id) stop();
+    const changed=currentId!==id;
+    if(changed) stop();
     currentId=id;
     const slide=current(),index=C.slides.indexOf(slide),chapter=C.chapters.find(c=>c.id===slide.chapter);
     $('#chapter-label').textContent=chapter.title;
@@ -165,10 +193,11 @@
     $('#reading-link').href=`?${params}#/${id}`;
     $('#reading-link').textContent=reading?'Presentar':'Leer';
     if(announce)$('#course-announcement').textContent=`${index+1} de ${C.slides.length}. ${slide.title}`;
+    if(changed)document.dispatchEvent(new CustomEvent('poscourse:slidechange',{detail:{id}}));
   }
-  function goTo(id) {
+  function goTo(id,options={}) {
     if(!locations.has(id))return;
-    if(reading){document.getElementById(id).scrollIntoView({behavior:reduced.matches?'instant':'smooth',block:'start'});history.replaceState(null,'',`#/${id}`);update(id);}
+    if(reading){document.getElementById(id).scrollIntoView({behavior:reduced.matches||options.instant?'instant':'smooth',block:'start'});history.replaceState(null,'',`#/${id}`);update(id);}
     else {const p=locations.get(id);Reveal.slide(p.h,p.v,-1);}
   }
   function navigate(direction,withinChapter=false) {
@@ -178,6 +207,7 @@
     goTo(target.id);
   }
   function openDialog(kind,opener) {
+    notifyInteraction('dialog');
     stop();dialogOpener=opener || document.activeElement;
     let title,content;
     if(kind==='index') {
@@ -207,6 +237,7 @@
     }
     const root=event.target.closest('.lab');
     if(root){
+      notifyInteraction('laboratory');
       const scenario=event.target.closest('button[data-scenario]'),action=event.target.closest('[data-lab-action]')?.dataset.labAction;
       const state=stateOf(root),steps=L[root.dataset.lab].scenarios[state.scenario].steps;
       if(scenario){stop();state.scenario=Number(scenario.dataset.scenario);state.step=0;}
@@ -218,15 +249,18 @@
       return;
     }
     const answer=event.target.closest('[data-answer]');
+    if(answer)notifyInteraction('quiz');
     if(answer){const quiz=answer.closest('.quiz'),slide=slideById.get(quiz.dataset.owner),option=slide.options[Number(answer.dataset.answer)];$$('[data-answer]',quiz).forEach(button=>button.setAttribute('aria-pressed',String(button===answer)));const feedback=$('.quiz-feedback',quiz);feedback.className=`quiz-feedback ${option.correct?'success':'warning'}`;feedback.textContent=`${option.correct?'Correcto.':'Revisa este punto.'} ${option.feedback}`;}
   });
   document.addEventListener('keydown',event=>{
     if(dialog.open){event.stopPropagation();return;}
+    if(event.target.closest('#narrator-caption'))return;
     if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||event.target.closest(navigationWidget))return;
     // Navigation remains available after clicking a button or following an index link.
     const direction={ArrowRight:1,PageDown:1,ArrowLeft:-1,PageUp:-1}[event.key];
     if(direction){event.preventDefault();event.stopImmediatePropagation();navigate(direction);return;}
     const vertical={ArrowDown:1,ArrowUp:-1}[event.key];
+    if(reading && (vertical || (['Home','End',' '].includes(event.key) && !event.target.closest('button,a'))))notifyInteraction('reading-scroll');
     if(!reading && vertical){event.preventDefault();event.stopImmediatePropagation();navigate(vertical,true);return;}
     // Preserve native Space/Enter activation for focused controls.
     if(event.target.closest('button,a'))return;
@@ -241,18 +275,21 @@
   async function initialize() {
     if(reading) {
       document.body.classList.add('reading-mode');
-      const observer=new IntersectionObserver(entries=>{const best=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(best){update(best.target.id,false);history.replaceState(null,'',`#/${best.target.id}`);}},{root:main,threshold:[0,.1,.3,.5,.7]});
+      const observer=new IntersectionObserver(entries=>{if(['playing','loading'].includes(window.POSNarrator?.getState().status))return;const best=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(best){update(best.target.id,false);history.replaceState(null,'',`#/${best.target.id}`);}},{root:main,threshold:[0,.1,.3,.5,.7]});
       $$('.course-slide').forEach(slide=>observer.observe(slide));
       const id=decodeURIComponent(location.hash.replace(/^#\/?/,''));
       if(slideById.has(id))goTo(id);else update(currentId,false);
     } else {
       Reveal.on('slidechanged',event=>update(event.currentSlide.id));
-      Reveal.on('overviewshown',stop);
-      await Reveal.initialize({width:1280,height:780,margin:.035,minScale:.2,maxScale:1.6,center:false,display:'flex',navigationMode:'linear',controls:false,progress:true,hash:true,hashOneBasedIndex:false,history:true,respondToHashChanges:true,transition:reduced.matches?'none':'slide',transitionSpeed:'fast',backgroundTransition:'none',autoAnimate:!reduced.matches,autoAnimateDuration:.45,autoSlide:0,loop:false,embedded:true,scrollActivationWidth:null,help:true,disableLayout:false,pdfSeparateFragments:false,plugins:[RevealHighlight],keyboardCondition:()=>!dialog.open&&!document.activeElement?.closest(`button,a,${navigationWidget}`)});
+      Reveal.on('overviewshown',()=>{stop();notifyInteraction('overview');});
+      Reveal.on('fragmentshown',()=>notifyInteraction('fragment'));
+      Reveal.on('fragmenthidden',()=>notifyInteraction('fragment'));
+      await Reveal.initialize({width:1280,height:780,margin:.035,minScale:.2,maxScale:1.6,center:false,display:'flex',navigationMode:'linear',controls:false,progress:true,hash:true,hashOneBasedIndex:false,history:true,respondToHashChanges:true,transition:reduced.matches?'none':'slide',transitionSpeed:'fast',backgroundTransition:'none',autoAnimate:!reduced.matches,autoAnimateDuration:.45,autoSlide:0,loop:false,embedded:true,scrollActivationWidth:null,help:true,disableLayout:false,pdfSeparateFragments:false,plugins:[RevealHighlight],keyboardCondition:()=>!dialog.open&&!document.activeElement?.closest(`button,a,#narrator-panel,${navigationWidget}`)});
       update(Reveal.getCurrentSlide().id,false);
     }
     document.body.dataset.ready='true';
+    document.dispatchEvent(new CustomEvent('poscourse:ready'));
   }
-  window.POSCourse={goTo,stop,getState:()=>({currentId,reading,playingId,labs:Object.fromEntries([...states].map(([id,state])=>[id,{...state}]))})};
+  window.POSCourse={goTo,stop,applyNarrationCue,clearNarrationCue,getState:()=>({currentId,reading,playingId,labs:Object.fromEntries([...states].map(([id,state])=>[id,{...state}]))})};
   initialize().catch(error=>{console.error(error);$('#course-announcement').textContent='No se pudo iniciar la presentación. Recarga la página.';});
 })();

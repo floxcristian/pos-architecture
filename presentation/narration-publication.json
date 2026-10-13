@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "contentHash": "17bdb3703abf42c752e2a764d45f331015b0cadcc213163bd695929f113ecb73",
+  "voice": "es-CL-LorenzoNeural",
+  "language": "es-CL",
+  "rate": "-5%",
+  "slides": 88,
+  "cues": 539,
+  "duration": 7722.72,
+  "scriptHash": "0427fb1ec03ea8e22d2bdef6066af6eee2293b4dad89b5acf1adee91fcd6c28d",
+  "file": "pos-narration-17bdb3703abf42c7.zip",
+  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-narration-17bdb3703abf42c7/pos-narration-17bdb3703abf42c7.zip",
+  "bytes": 61813866,
+  "sha256": "4f4196fe48765609c94b2290bbd328ed93c3c82f63b59796c9cefeebd1ae7c70",
+  "files": [
+    {
+      "file": "acl-ejemplo-antes-despues.mp3",
+      "bytes": 535916,
+      "sha256": "6406cf820f6b54045b838eb6ccca591a9d3c04aa72f192313d11c9f2ddb93c3c"
+    },
+    {
+      "file": "acl-traduce-significado.mp3",
+      "bytes": 563372,
+      "sha256": "75aa51646c5d994ff00c0ed231768f71d499f8f6fbcb83d8cb3ddd05b17dc236"
+    },
+    {
+      "file": "activacion-atomica.mp3",
+      "bytes": 576044,
+      "sha256": "c4d65e58a8acc16f97b67e131cc5806baed921c415e959740bd909b737f31302"
+    },
+    {
+      "file": "api-conversacion-definida.mp3",
+      "bytes": 511148,
+      "sha256": "b5239251a460606bab1e7e9c28e6b3e4bcf4bc20e7d5ef2844f35fab1c3cde12"
+    },
+    {
+      "file": "arbol-nx.mp3",
+      "bytes": 645548,
+      "sha256": "719d549a95672c37261fa73ca308298b04fbec444e4408bfef809d38103b4735"
+    },
+    {
+      "file": "autoridades-del-dinero.mp3",
+      "bytes": 574892,
+      "sha256": "6ef00e8a67607cabcfc80761ea105b42c55fe0a2bec2ed7152af3896abd58908"
+    },
+    {
+      "file": "backend-modular.mp3",
+      "bytes": 669548,
+      "sha256": "2f8b9a6adbeb8841b2d333498e1d2a70bd9b67b8a70e6ae31d7c0a08a4822d38"
+    },
+    {
+      "file": "base-de-datos-y-memoria.mp3",
+      "bytes": 443372,
+      "sha256": "db7cf25c65977c6d914350bf6a3d9a14a593fb8cbfdc2272604b74131383a809"
+    },
+    {
+      "file": "c4-contenedor-no-es-docker.mp3",
+      "bytes": 449708,
+      "sha256": "01c1c0a10f73c6f24254185f6b99656b660872b47ba17fc4b4779a5a12d2bef3"
+    },
+    {
+      "file": "cadena-de-verificacion.mp3",
+      "bytes": 591020,
+      "sha256": "1e1847206fd09de914a6bd6bed1c393e4917785f395dd9e24ded7307297ecac7"
+    },
+    {
+      "file": "cambio-de-erp.mp3",
+      "bytes": 632876,
+      "sha256": "f7796160a512779a72f1dca6ad9c2fa065008939b725926e8747bf8021f965fb"
+    },
+    {
+      "file": "capacidad-del-backlog.mp3",
+      "bytes": 516716,
+      "sha256": "1039086257a21c48942f61006042db586d9ea070939880b3bcce7c0028f76608"
+    },
+    {
+      "file": "codigo-frontera-erp.mp3",
+      "bytes": 589676,
+      "sha256": "9df5795af6111659a634cf2e54a98210158530e133fa0909898e1ba9929d51a8"
+    },
+    {
+      "file": "comando-y-evento-desde-cero.mp3",
+      "bytes": 465644,
+      "sha256": "5e987c7c2123bf8e6a86d2f29b97c4ccbe542bc95e6f43d07553cd9777636a14"
+    },
+    {
+      "file": "commit-y-ack-desde-cero.mp3",
+      "bytes": 617516,
+      "sha256": "c6e02abeb2f736ef5be2f860bb2bf42efefe401ac86bc2dc0dd2b4e5806be76c"
+    },
+    {
+      "file": "commit-y-outbox.mp3",
+      "bytes": 582956,
+      "sha256": "ad8fb7406fcf2accd0fbd2517406f139c7246c505e044084be1ab587232d9d22"
+    },
+    {
+      "file": "como-aprender-la-arquitectura.mp3",
+      "bytes": 571628,
+      "sha256": "d9d8ec2c2b1297913510c193665e0d37eef14e945e15e65cfeba9611579e5d3a"
+    },
+    {
+      "file": "compartir-configurar-extender.mp3",
+      "bytes": 578156,
+      "sha256": "c413a33eee611b6a86b4816b73ca2d6e3cff4ee85e51e65b7cd963096c6586ad"
+    },
+    {
+      "file": "compra-hilo-conductor.mp3",
+      "bytes": 610028,
+      "sha256": "bc139c364ddaeb5ba7410eefddc6f5130fc1d09427e558d6953b1a4434a715cf"
+    },
+    {
+      "file": "contenedores-del-pos.mp3",
+      "bytes": 929708,
+      "sha256": "f652afcda0d967545647d7101955298cec96990411c3a961dea2cf890083827c"
+    },
+    {
+      "file": "contexto-del-pos.mp3",
+      "bytes": 843308,
+      "sha256": "903d5a8997bec6548b3875d72dc47e5b0a8868b35601f0ba6f1cb31306a53424"
+    },
+    {
+      "file": "contrato-del-calculo.mp3",
+      "bytes": 590828,
+      "sha256": "71d7f8d824908f200ffbd84256fe5feda17868d56ef33ef6ac2d5626d89fc898"
+    },
+    {
+      "file": "contrato-pos-independiente.mp3",
+      "bytes": 642860,
+      "sha256": "31570634f5133db0c8411f4d73d55beb431568ae482d4f033da148bd934c15da"
+    },
+    {
+      "file": "criterios-del-piloto.mp3",
+      "bytes": 538028,
+      "sha256": "aafa97d2412edca9a467c8ff6fda9033b21cb2333f2fd3a6eafba88f30165b9e"
+    },
+    {
+      "file": "ejecucion-manual-programada.mp3",
+      "bytes": 626156,
+      "sha256": "6abcfa09a9735c3388e82e11a63a7f3ea5f0a976fab59dc97b8a5ad93e0eaddd"
+    },
+    {
+      "file": "ejercicio-cerrar-interfaz.mp3",
+      "bytes": 551852,
+      "sha256": "838dbe13f26efcdf43e0871362be7fa12db55fca800bc8153869be3dfeac2c2f"
+    },
+    {
+      "file": "ejercicio-leer-relacion.mp3",
+      "bytes": 486572,
+      "sha256": "6068546b9cae1f78f9400637b02b7575830e170310c02122d070e8e2c6f61cdd"
+    },
+    {
+      "file": "elegir-mensajeria.mp3",
+      "bytes": 542444,
+      "sha256": "229498545be9f3ab710ccabcd6ac73f4c929f011efc23a18a3ad1e5e0c38d94e"
+    },
+    {
+      "file": "espejo-de-precios.mp3",
+      "bytes": 658028,
+      "sha256": "76d70f2a131d8637cfc2ebe65146ce274f6dc4fb85ab4cb6e4e87fe6fdf2a936"
+    },
+    {
+      "file": "esperar-o-continuar.mp3",
+      "bytes": 498668,
+      "sha256": "5a02cc04be5f7d58ba269c00ff1c140c2d5b0a4a0a2d9f71145f2fa06f51ae3f"
+    },
+    {
+      "file": "estado-de-las-decisiones.mp3",
+      "bytes": 526508,
+      "sha256": "c74007c6102e78699533ab7ee1caa9ac38586cd525835a8d5b3b1b88b328a32d"
+    },
+    {
+      "file": "estructura-ejercicio-ubicar-cambio.mp3",
+      "bytes": 527084,
+      "sha256": "10493f43984acd9c95aa8444aa526dcff23d1af5be235d9b34dcce70c36bdba4"
+    },
+    {
+      "file": "estructura-importar-no-es-llamar.mp3",
+      "bytes": 526508,
+      "sha256": "a8c1ba2c3685cfcf281ca7f618a9f84eeab8e4ab4f82783462db76319538b701"
+    },
+    {
+      "file": "estructura-leer-responsabilidades.mp3",
+      "bytes": 561644,
+      "sha256": "467f592ae5b4cfbb2fea54acb17ced5a1bad48b1cb2e8e04db12f56ce6035de5"
+    },
+    {
+      "file": "estructura-piezas-del-repositorio.mp3",
+      "bytes": 558380,
+      "sha256": "11862dcd327b9c1260f03851a7511cccc507ca7901a21c402615fd4f4d0d64b4"
+    },
+    {
+      "file": "explicar-tu-diseno.mp3",
+      "bytes": 624428,
+      "sha256": "54c89d951044cd0907680aa96b7e846b61285aa8c860f77e5cf04980b3a8f6da"
+    },
+    {
+      "file": "fachada-acl-adaptador.mp3",
+      "bytes": 567020,
+      "sha256": "79df2d5b1cb24373047c5b1ec2deae363acb8e464e24a1268b827fc6b7ab4e99"
+    },
+    {
+      "file": "fachada-e-interfaz-en-codigo.mp3",
+      "bytes": 543788,
+      "sha256": "6be0059edb8f785307ad72552d918f5abc67e8558139f0343fce150ced8089db"
+    },
+    {
+      "file": "fachada-paso-a-paso.mp3",
+      "bytes": 620012,
+      "sha256": "abc7570c14dce9fc822e6c1a2063b1ad9646e54a5915312ea1bbf5db91e77b97"
+    },
+    {
+      "file": "fallos-de-precios.mp3",
+      "bytes": 596012,
+      "sha256": "4119e028784fdc8369695a743327c4e801e8cec4339a3d2e30928f92f8c1384c"
+    },
+    {
+      "file": "frontend-y-backend.mp3",
+      "bytes": 443564,
+      "sha256": "cd4f95b243c41fc5c0198228ba7fc1376cf87b8fe6a112dc8d40ad2a8a93cc60"
+    },
+    {
+      "file": "guia-lectura-contenedores-pos.mp3",
+      "bytes": 499628,
+      "sha256": "64c534513181ff729af8bf0d7745b42bc6f81662e52e73c22ad22e8fd0c8d36f"
+    },
+    {
+      "file": "guia-lectura-contexto-pos.mp3",
+      "bytes": 555308,
+      "sha256": "8e2c56d371297e23d1fe12b80738f4f3d3487019161d76e920570aa757c995d8"
+    },
+    {
+      "file": "idempotencia-desde-cero.mp3",
+      "bytes": 545324,
+      "sha256": "ccadef1e7ce7b7e691dcc561884a3e551f98298fa1742717ff336c8170d8e98f"
+    },
+    {
+      "file": "incorporar-pais.mp3",
+      "bytes": 508460,
+      "sha256": "3518dd77299d64822ab019f1a26097fd75d941ada43d91e2bfe812e6d830ca01"
+    },
+    {
+      "file": "job-cola-worker-desde-cero.mp3",
+      "bytes": 587564,
+      "sha256": "cf2145beda052c78d424a7abcc7aa5e830f963b9ace8f7de96694cb4d4a3e5c5"
+    },
+    {
+      "file": "laboratorio-bullmq.mp3",
+      "bytes": 2244908,
+      "sha256": "3d4d26c5a42d962033246c73e7a19bec47abc451f56b613ff180d3121a3640e9"
+    },
+    {
+      "file": "laboratorio-entrega.mp3",
+      "bytes": 1709804,
+      "sha256": "f4c017ca6c7bd05723e1d075de5e2915b7a4d97d3efae40c842da39d2a0f5108"
+    },
+    {
+      "file": "laboratorio-eventos-precios.mp3",
+      "bytes": 2502572,
+      "sha256": "79d6ead26fb91e2f6f8ec047db475dc6bf06e5a2e28b8dadb81f4b3c22bc7fda"
+    },
+    {
+      "file": "laboratorio-frontera-erp.mp3",
+      "bytes": 2533676,
+      "sha256": "4327ad3893c70ec89ec3bc9e6969b4a91315d3555c265979143d801a87e37da9"
+    },
+    {
+      "file": "laboratorio-rabbitmq.mp3",
+      "bytes": 1896428,
+      "sha256": "1bb51f93343821d17400ac8e43542e532d24084a3c11f266ba40966deabc360b"
+    },
+    {
+      "file": "laboratorio-snapshot-precios.mp3",
+      "bytes": 2642540,
+      "sha256": "5be95788043750cd0e2899775efc92c65ccaeb1ec3bc545ab463210a6098c6d0"
+    },
+    {
+      "file": "laboratorio-venta.mp3",
+      "bytes": 2158892,
+      "sha256": "8d6f43a4c6abab6665b8cc3ba6985024d7752ba9a1a97520edcaa9fe1731ef75"
+    },
+    {
+      "file": "leer-c4.mp3",
+      "bytes": 600812,
+      "sha256": "05ee0673167ba657d75689ec23ab007aef3d6235c99a43060299e059fc322813"
+    },
+    {
+      "file": "leer-flechas-c4.mp3",
+      "bytes": 454316,
+      "sha256": "c4d8d7c41ae23842c8c303a7d2feffd4b73a0b02c4d1b006c2f6ee88df319b45"
+    },
+    {
+      "file": "leer-limites-c4.mp3",
+      "bytes": 507116,
+      "sha256": "25217a7cf85cc5aeb9f5cd38594f4f54342bda7cfb473ea2ff5d7f15e079d188"
+    },
+    {
+      "file": "limites-de-continuidad.mp3",
+      "bytes": 577964,
+      "sha256": "2d6a6ac9796644f03125d51a8003ead3f7695df47031532946e8267a627ed04e"
+    },
+    {
+      "file": "limites-nx-en-ci.mp3",
+      "bytes": 511340,
+      "sha256": "da3d7d1051d04e573fb4878c54b4998d3021f6a1b02693efdda3206118625ab7"
+    },
+    {
+      "file": "lugares-de-ejecucion.mp3",
+      "bytes": 744428,
+      "sha256": "3f9df22e9fddc1e2ac882d312c8d68441c06f629cf49940405a1575fd41f1216"
+    },
+    {
+      "file": "modulo-proceso-servidor.mp3",
+      "bytes": 514796,
+      "sha256": "94a78ce2ef8208f7ab35fe45f623b2def67cef6a9d6d25d397a27492625654fb"
+    },
+    {
+      "file": "modulos-antes-que-servidores.mp3",
+      "bytes": 539948,
+      "sha256": "8c9b0cc0c3cf93d389b5d794bf7dbb723e1a5eaab23420e93480382cfb43d81b"
+    },
+    {
+      "file": "objetivos-del-producto.mp3",
+      "bytes": 570860,
+      "sha256": "5f775c6fffefb144c60db5bde45ea3a0599430db12cea0c147e1bb6617e2b239"
+    },
+    {
+      "file": "observabilidad-y-recuperacion.mp3",
+      "bytes": 597164,
+      "sha256": "a2f2fa5e69a35df1807961de286d93e22400fd8ad261ded3f939159a64cd362c"
+    },
+    {
+      "file": "outbox-inbox-desde-cero.mp3",
+      "bytes": 518252,
+      "sha256": "7b75df498f2a8780589604a1130dac58792018aedcbb52115b448071fbabb975"
+    },
+    {
+      "file": "pago-desconocido.mp3",
+      "bytes": 519212,
+      "sha256": "18dea923c0d17bab6b1adacda4fb63ef7ad84a51fb2a9e1e317df3e7efdf71ec"
+    },
+    {
+      "file": "paquete-de-precios-desde-cero.mp3",
+      "bytes": 609452,
+      "sha256": "a26ec200ea407bea4ea84e75c91a8c5a2fe9058c48584ef03fd4a3281deba589"
+    },
+    {
+      "file": "patron-y-acoplamiento-desde-cero.mp3",
+      "bytes": 528236,
+      "sha256": "8d8babb6c876c0ec9813b7d7dcb8d68115692109949d51db9e4caa022cb86e80"
+    },
+    {
+      "file": "pregunta-ack-perdido.mp3",
+      "bytes": 508460,
+      "sha256": "d4a0f300f67b9911186f68c54208bb3674385451c6b5ef41939c27912bb013e4"
+    },
+    {
+      "file": "pregunta-frontera-de-integracion.mp3",
+      "bytes": 507500,
+      "sha256": "2345c76ff96bedbc1cfb9a00cbbb4b8abb71ffbde5f83310fa69a21656ed76d8"
+    },
+    {
+      "file": "pregunta-guardar-y-avisar.mp3",
+      "bytes": 474860,
+      "sha256": "507433596a500991bac36ae52c536e3307a9d53cced1341022034c62b25d501f"
+    },
+    {
+      "file": "pregunta-hueco-de-precios.mp3",
+      "bytes": 470828,
+      "sha256": "70e1f896c6ce975ff223d3aa39dd18ab070fe66ecc27ebd1334a503f439618bb"
+    },
+    {
+      "file": "pregunta-pais-nuevo.mp3",
+      "bytes": 501164,
+      "sha256": "28af8b21c135ee9de7434aced60fd33ccff9fd32c4f1f6c9bf8b64c04e2308cf"
+    },
+    {
+      "file": "pregunta-precios.mp3",
+      "bytes": 488108,
+      "sha256": "2e0b3ccf635b6bfd0d09e133655e352b1316726724c66b7c33803c2ef0a6c5c1"
+    },
+    {
+      "file": "preparar-y-activar-desde-cero.mp3",
+      "bytes": 641900,
+      "sha256": "92215ed480df1d333b74ceb10d8dbb721daa80a1bb0d8f73913c1dc9c5785f72"
+    },
+    {
+      "file": "puerto-interfaz-adaptador-desde-cero.mp3",
+      "bytes": 621548,
+      "sha256": "6020f1b7f3fcc292c29c5201dadfd716964abb0baedfcf1434186aa8cabdd48e"
+    },
+    {
+      "file": "que-es-arquitectura.mp3",
+      "bytes": 596780,
+      "sha256": "3c1efd2063f7f9ebec62cce23a70adcf50c4e6a77e48fb0ef649d24366db7397"
+    },
+    {
+      "file": "recibido-versus-aplicado.mp3",
+      "bytes": 562412,
+      "sha256": "7ca0fc915ccb2f73982f648f37e6810d6ec036eb88e5620639f20d61a539c72e"
+    },
+    {
+      "file": "recorrido-del-negocio.mp3",
+      "bytes": 592940,
+      "sha256": "639c253eec497b69feec5f96e840439d9612b59e10649ca8db48e5be8d0a7862"
+    },
+    {
+      "file": "reglas-de-dependencia.mp3",
+      "bytes": 548972,
+      "sha256": "dce9f1ae425dca25430330f4cdc2d8cd0305176271e0a77e093955f7f5b951da"
+    },
+    {
+      "file": "responsabilidad-y-contrato.mp3",
+      "bytes": 518444,
+      "sha256": "e3d8e797d088049e06dd2efc4513cb561179b1913e8d63b070bfa36ca89d166f"
+    },
+    {
+      "file": "reutilizar-plataforma.mp3",
+      "bytes": 559724,
+      "sha256": "f4a3c1a2b13cb08da071f8ff32f9454ac6fc3c34de2b0a3a520afb93e787f24d"
+    },
+    {
+      "file": "ruta-de-aprendizaje.mp3",
+      "bytes": 603692,
+      "sha256": "0a54810a02014573544ac2c992774b2810b1239c2bdb8609dfe09970924b932b"
+    },
+    {
+      "file": "significado-de-acuses.mp3",
+      "bytes": 587180,
+      "sha256": "c511727b1f113d50e174d265bae97d6ca862453e8c8f592bc62075f1b649ce57"
+    },
+    {
+      "file": "sincronizador-por-dentro.mp3",
+      "bytes": 791084,
+      "sha256": "ec48db5ba8ee062f6c810ac74889ff83c4265c5d7bc3191632629babb33dcf82"
+    },
+    {
+      "file": "snapshot-y-delta-desde-cero.mp3",
+      "bytes": 573932,
+      "sha256": "3e2144a3bd2288dd23dbf5789b0794ca48b4896da653801c9b307e070a9d3c5a"
+    },
+    {
+      "file": "un-producto-varios-paises.mp3",
+      "bytes": 593516,
+      "sha256": "f7697f301b40f6fc9385ec10f1743c30c1684963530ab515f5bd4f0694ef40f5"
+    },
+    {
+      "file": "version-fijada.mp3",
+      "bytes": 524012,
+      "sha256": "ec080cea90ec8cabcb61177cfc44a75415731a676daa6fc912d4a7be170a58f3"
+    },
+    {
+      "file": "versiones-y-anillos.mp3",
+      "bytes": 627308,
+      "sha256": "fc31b44ef143240641b770a5d5e97e2cd8622ef70ed9b3924f458f597b77428d"
+    }
+  ]
+}

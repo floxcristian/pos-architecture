@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, '../..');
 const output = path.join(root, 'public');
 const configuration = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
 const types = {'.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.svg':'image/svg+xml', '.jpg':'image/jpeg', '.png':'image/png', '.mp4':'video/mp4', '.vtt':'text/vtt; charset=utf-8', '.srt':'text/plain; charset=utf-8', '.md':'text/plain; charset=utf-8', '.txt':'text/plain; charset=utf-8', '.json':'application/json', '.ico':'image/x-icon'};
+types['.mp3'] = 'audio/mpeg';
 
 function servePublic(port = Number(process.env.POS_PUBLIC_PORT || 4199)) {
   if (!fs.statSync(output).isDirectory() || fs.lstatSync(output).isSymbolicLink()) throw new Error('Build public/ before previewing it');

@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const {publishVideo} = require('./video-publication.cjs');
+const {publishNarration} = require('./narration-publication.cjs');
 const root = path.resolve(__dirname, '../..');
 const output = path.resolve(root, 'public');
 const files = [];
@@ -49,7 +50,7 @@ for (const file of files) {
   fs.copyFileSync(source, destination);
 }
 console.log(`Static output: ${files.length} files in public/ (presentation, documents and linked evidence).`);
-publishVideo(root, output).catch(error => {
-  console.error(`Video publication failed: ${error.message}`);
+Promise.all([publishVideo(root, output), publishNarration(root, output)]).catch(error => {
+  console.error(`Media publication failed: ${error.message}`);
   process.exitCode = 1;
 });
