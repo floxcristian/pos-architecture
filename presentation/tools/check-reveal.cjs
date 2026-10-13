@@ -208,8 +208,8 @@ async function checkNavigation(page, slides) {
   }
   assert.equal(await page.evaluate(() => Reveal.getConfig().transition), 'none');
   assert.ok(await page.evaluate(() => document.getAnimations().filter(animation => animation.effect?.target?.closest?.('.slides')).length === 0), 'Reduced motion must not create slide animations');
-  report.checks.push('47 exact Right advances + 47 exact Left returns; boundaries; Next/Right/Enter/Space; fragments; Page keys; link focus; dialog/input/slider isolation; reduced motion');
-  console.log('Navigation regression: all 94 exact slide moves, native controls, fragments and focus guards PASS.');
+  report.checks.push('87 exact Right advances + 87 exact Left returns; boundaries; Next/Right/Enter/Space; fragments; Page keys; link focus; dialog/input/slider isolation; reduced motion');
+  console.log('Navigation regression: all 174 exact slide moves, native controls, fragments and focus guards PASS.');
 }
 
 async function checkSlideTransitions(browser) {
@@ -283,15 +283,15 @@ async function run() {
       chapters: document.querySelectorAll('.slides > section').length
     }));
     assert.deepEqual(data.config, { width: 1280, height: 780 });
-    assert.equal(data.slides.length, 48);
+    assert.equal(data.slides.length, 88);
     assert.equal(data.chapters, 8);
-    assert.equal(new Set(data.slides.map(slide => slide.id)).size, 48);
+    assert.equal(new Set(data.slides.map(slide => slide.id)).size, 88);
     assert.ok(data.slides.every(slide => slide.id && slide.title));
-    assert.equal(Object.keys(data.labs).length, 6);
+    assert.equal(Object.keys(data.labs).length, 7);
     report.chapters = data.chapters;
     const contentSlides = data.content.slides || data.content.chapters?.flatMap(chapter => chapter.slides) || [];
-    assert.equal(contentSlides.length, 48);
-    assert.deepEqual(new Set(data.slides.map(slide => slide.id)), new Set(contentSlides.map(slide => slide.id)));
+    assert.equal(contentSlides.length, 88);
+    assert.deepEqual(data.slides.map(slide => slide.id), contentSlides.map(slide => slide.id), "Rendered chapters must preserve the declared learning sequence");
     await checkNavigation(page, data.slides);
     await checkSlideTransitions(browser);
     if (navigationOnly) {
@@ -318,10 +318,10 @@ async function run() {
       report.slides++;
     }
     assert.deepEqual(layoutFailures, [], 'Desktop layout failures:\n' + layoutFailures.join('\n'));
-    console.log('All 48 slides: IDs, regions, readable heading sizes and 1280 × 780 bounds PASS.');
+    console.log('All 88 slides: IDs, regions, readable heading sizes and 1280 × 780 bounds PASS.');
 
     const labSlides = data.slides.filter(slide => slide.lab);
-    assert.equal(labSlides.length, 6);
+    assert.equal(labSlides.length, 7);
     const labLayoutFailures = [];
     for (const slide of labSlides) {
       await go(page, slide);

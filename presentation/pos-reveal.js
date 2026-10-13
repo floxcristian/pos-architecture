@@ -31,7 +31,7 @@
       ['ui','api','Comandos · LAN',393,80],['api','db','Transacción local',637,237],['db','sync','Trabajo durable',389,344],['sync','country','HTTPS por lotes',530,466],['country','country-db','Commit de país',1090,162],['country-db','workers','Lee trabajo',1090,341]],routes:{'sync-country':'M165 405 V480 H850 V67 H950'}},
     backend: {file:'03-backend-sucursal',caption:'C3 · Componentes dentro del mismo backend. Las reglas nacionales entran por contratos explícitos.',boundary:[20,10,1210,430,'Un proceso · Backend de sucursal'],nodes:[
       ['entry',55,170,250,100,'Entrada autorizada','Identidad · validación'],['usecase',490,65,285,100,'Aplicación','Venta · caja · devolución','main'],['pricing',490,285,285,100,'Dominio / precios','Reglas puras versionadas','data'],
-      ['ports',930,65,265,100,'Puertos de negocio','Pago · fiscalidad'],['store',930,285,265,100,'Persistencia','Venta · auditoría · outbox']],edges:[
+      ['ports',930,65,265,100,'Contratos POS','Pago · fiscalidad'],['store',930,285,265,100,'Persistencia','Venta · auditoría · outbox']],edges:[
       ['entry','usecase','Caso de uso',387,127],['usecase','ports','Contrato',850,99],['usecase','pricing','Calcula',638,235],['usecase','store','Guarda',846,293]]},
     sync: {file:'04-sincronizador',caption:'C3 · Salida e ingreso tienen estados propios. Recibir una publicación no la vuelve utilizable para vender.',nodes:[
       ['schedule',35,45,290,100,'Planificación / manual','Permiso · exclusión · auditoría'],['outbox',485,45,290,100,'Salida de operaciones','Outbox → HTTPS → acuse','main'],['remote',935,45,290,100,'Plataforma de país','Recepción / publicaciones'],
@@ -67,7 +67,7 @@
   function code(slide) {
     const block = slide.code || {};
     const aside = (slide.items || []).map(item=>`<article><h3>${esc(item.title)}</h3><p>${esc(item.text)}</p></article>`).join('');
-    return `<div class="code-layout ${aside?'':'solo'}"><div><div class="code-label">${esc(block.label || (slide.kind==='tree'?'Estructura ilustrativa del producto':'Fragmento educativo'))}</div><pre data-id="${esc(slide.autoAnimate || slide.id)}"><code class="language-${esc(block.language || 'plaintext')}" ${!reading && block.highlights?`data-line-numbers="${esc(block.highlights)}"`:''}>${esc(block.source)}</code></pre><p class="code-caption">${slide.kind==='tree'?'Carpetas ilustrativas; los límites requieren proyectos, contratos y pruebas.':'Ejemplo abreviado: los contratos auxiliares deben implementarse y probarse.'}</p></div>${aside?`<div class="code-aside">${aside}</div>`:''}</div>`;
+    return `<div class="code-layout ${aside?'':'solo'}"><div><div class="code-label">${esc(block.label || (slide.kind==='tree'?'Estructura ilustrativa del producto':'Fragmento educativo'))}</div><pre data-id="${esc(slide.autoAnimate || slide.id)}"><code class="language-${esc(block.language || 'plaintext')}" ${!reading && block.highlights?`data-line-numbers="${esc(block.highlights)}"`:''}>${esc(block.source)}</code></pre><p class="code-caption">${slide.kind==='tree'?'Carpetas orientativas: responsabilidades, no servidores.':'Ejemplo conceptual: sigue entradas, llamada y resultado.'}</p></div>${aside?`<div class="code-aside">${aside}</div>`:''}</div>`;
   }
   function labMarkup(slide) {
     const lab=L[slide.lab];
@@ -174,7 +174,7 @@
     let title,content;
     if(kind==='index') {
       title='El recorrido, capítulo por capítulo';
-      content=`<p>→ o Siguiente: siguiente lámina. ← o Anterior: lámina anterior. Recorren toda la presentación en orden, también al cambiar de capítulo. Espacio avanza los bloques resaltados del código y luego la lámina; Mayús + Espacio retrocede. El índice permite saltar a cualquier tema. En móvil, el modo lectura conserva los laboratorios.</p><div class="index-chapters">${C.chapters.map((chapter,i)=>`<div class="index-chapter"><h3>0${i+1} · ${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
+      content=`<p>→ o Siguiente: siguiente lámina. ← o Anterior: lámina anterior. Recorren toda la presentación en orden, también al cambiar de capítulo. Espacio avanza los bloques resaltados del código y luego la lámina; Mayús + Espacio retrocede. El índice permite saltar a cualquier tema. En móvil, el modo lectura conserva los laboratorios.</p><div class="index-chapters">${C.chapters.map((chapter,i)=>`<div class="index-chapter"><h3>${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
     } else if(kind==='notes') {
       title=current().title;
       content=`<p>Notas para quien presenta. Los ejemplos son didácticos y usan datos simulados.</p><ol>${(current().notes || []).map(note=>`<li>${esc(note)}</li>`).join('')}</ol>${current().source?`<p><a href="${esc(current().source.url)}">${esc(current().source.label)}</a></p>`:''}`;

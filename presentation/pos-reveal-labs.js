@@ -714,3 +714,529 @@ window.POS_REVEAL_LABS = {
     ]
   }
 };
+
+// Educational architecture walkthrough; all provider contracts are fictitious.
+window.POS_REVEAL_LABS['architecture-patterns'] = {
+  "title": "La misma capacidad, dos respuestas del ERP",
+  "nodes": [
+    {
+      "id": "worker",
+      "label": "Worker POS",
+      "detail": "Procesa una venta pendiente"
+    },
+    {
+      "id": "facade",
+      "label": "Fachada",
+      "detail": "Ofrece registrar venta"
+    },
+    {
+      "id": "acl",
+      "label": "ACL",
+      "detail": "Traduce modelos y estados"
+    },
+    {
+      "id": "adapter",
+      "label": "Adaptador",
+      "detail": "Envía y recibe por HTTP"
+    },
+    {
+      "id": "erp",
+      "label": "ERP demo",
+      "detail": "Proveedor ficticio"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "received",
+      "label": "Recibido: seguimiento pendiente",
+      "steps": [
+        {
+          "title": "El worker pide una capacidad",
+          "text": "El worker llama registrar venta con el ID V-42 y el cliente C-17. No necesita conocer campos ni códigos internos del ERP.",
+          "active": [
+            "worker",
+            "facade"
+          ],
+          "links": [
+            [
+              "worker",
+              "facade"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "Sin respuesta"
+            },
+            {
+              "label": "Integración",
+              "value": "Pendiente"
+            }
+          ],
+          "log": "POS → registrarVenta(V-42)",
+          "code": "integration.registerSale({\n  saleId: \"V-42\", customerId: \"C-17\",\n  amount: { currency: \"CLP\", value: \"12900\" }\n});\n// Valor decimal conceptual en unidades de la moneda."
+        },
+        {
+          "title": "La fachada coordina la traducción",
+          "text": "La fachada ofrece una entrada estable. Pide a la ACL preparar la solicitud del proveedor asignado; no reparte sus detalles entre los consumidores.",
+          "active": [
+            "facade",
+            "acl"
+          ],
+          "links": [
+            [
+              "facade",
+              "acl"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "Sin respuesta"
+            },
+            {
+              "label": "Integración",
+              "value": "Pendiente"
+            }
+          ],
+          "log": "Fachada → ACL.toRequest(venta)",
+          "code": "const request = acl.toRequest(operation);\n// La implementación concreta queda dentro del módulo."
+        },
+        {
+          "title": "La ACL conoce las equivalencias",
+          "text": "El cliente C-17 del POS corresponde a la cuenta A-901 del ERP demo. Es una equivalencia validada, no solo cambiar el nombre de una propiedad.",
+          "active": [
+            "acl",
+            "adapter"
+          ],
+          "links": [
+            [
+              "acl",
+              "adapter"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "Sin respuesta"
+            },
+            {
+              "label": "Integración",
+              "value": "Pendiente"
+            }
+          ],
+          "log": "ACL: cliente C-17 → cuenta A-901",
+          "code": "// Contrato ficticio del ERP demo\n{ reference: \"V-42\", account: \"A-901\",\n  amountPesos: 12900, currencyCode: \"CLP\" }"
+        },
+        {
+          "title": "El adaptador realiza la llamada",
+          "text": "El adaptador envía la solicitud por HTTP. Un HTTP 200 indica una respuesta HTTP satisfactoria; el contrato y su contenido determinan el resultado de negocio.",
+          "active": [
+            "adapter",
+            "erp"
+          ],
+          "links": [
+            [
+              "adapter",
+              "erp"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "Sin respuesta"
+            },
+            {
+              "label": "Integración",
+              "value": "Esperando evidencia"
+            }
+          ],
+          "log": "Adaptador → HTTP POST /demo/sales",
+          "code": "// Petición ilustrativa; no se ejecuta\nconst raw = await erpHttp.post(\"/demo/sales\", request);"
+        },
+        {
+          "title": "Vuelve una respuesta del proveedor",
+          "text": "El ERP demo devuelve HTTP 200 y el estado RECEIVED. El adaptador conserva esa evidencia; todavía falta interpretarla según el contrato.",
+          "active": [
+            "erp",
+            "adapter"
+          ],
+          "links": [
+            [
+              "erp",
+              "adapter"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "RECEIVED"
+            },
+            {
+              "label": "Integración",
+              "value": "Por interpretar"
+            }
+          ],
+          "log": "ERP → 200 { status: \"RECEIVED\" }",
+          "code": "{ reference: \"V-42\", status: \"RECEIVED\" }"
+        },
+        {
+          "title": "La ACL interpreta el significado",
+          "text": "RECEIVED significa recibido para procesar. La ACL devuelve received; el registro sigue pendiente y requiere seguimiento.",
+          "active": [
+            "adapter",
+            "acl"
+          ],
+          "links": [
+            [
+              "adapter",
+              "acl"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "RECEIVED"
+            },
+            {
+              "label": "Integración",
+              "value": "Recibido"
+            }
+          ],
+          "log": "ACL: RECEIVED → received (Recibido)",
+          "code": "// Equivalencias del contrato demo\nRECEIVED → status: \"received\"\nBOOKED   → status: \"registered\"\notro     → status: \"unknown\""
+        },
+        {
+          "title": "La fachada devuelve un resultado del POS",
+          "text": "Quien llamó recibe un estado del contrato POS. No debe aprender los códigos del proveedor ni tratarlos como si fueran una regla de venta.",
+          "active": [
+            "acl",
+            "facade"
+          ],
+          "links": [
+            [
+              "acl",
+              "facade"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "RECEIVED"
+            },
+            {
+              "label": "Integración",
+              "value": "Recibido"
+            }
+          ],
+          "log": "Fachada → { status: \"received\" }",
+          "code": "{ saleId: \"V-42\", status: \"received\",\n  externalReference: \"V-42\" }"
+        },
+        {
+          "title": "El worker conserva el resultado",
+          "text": "El worker guarda received (Recibido) y programa la consulta acordada: todavía falta confirmar el registro. La venta local sigue confirmada; no vuelve a cobrar.",
+          "active": [
+            "facade",
+            "worker"
+          ],
+          "links": [
+            [
+              "facade",
+              "worker"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "RECEIVED"
+            },
+            {
+              "label": "Integración",
+              "value": "Recibido"
+            }
+          ],
+          "log": "Worker: guardar status=received; seguimiento pendiente",
+          "code": "await outcomes.persist(operation.id, result);\n// Recuperación e idempotencia requieren implementación."
+        }
+      ]
+    },
+    {
+      "id": "booked",
+      "label": "Registrado: resultado confirmado",
+      "steps": [
+        {
+          "title": "El worker pide una capacidad",
+          "text": "El worker llama registrar venta con el ID V-42 y el cliente C-17. No necesita conocer campos ni códigos internos del ERP.",
+          "active": [
+            "worker",
+            "facade"
+          ],
+          "links": [
+            [
+              "worker",
+              "facade"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "Sin respuesta"
+            },
+            {
+              "label": "Integración",
+              "value": "Pendiente"
+            }
+          ],
+          "log": "POS → registrarVenta(V-42)",
+          "code": "integration.registerSale({\n  saleId: \"V-42\", customerId: \"C-17\",\n  amount: { currency: \"CLP\", value: \"12900\" }\n});\n// Valor decimal conceptual en unidades de la moneda."
+        },
+        {
+          "title": "La fachada coordina la traducción",
+          "text": "La fachada ofrece una entrada estable. Pide a la ACL preparar la solicitud del proveedor asignado; no reparte sus detalles entre los consumidores.",
+          "active": [
+            "facade",
+            "acl"
+          ],
+          "links": [
+            [
+              "facade",
+              "acl"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "Sin respuesta"
+            },
+            {
+              "label": "Integración",
+              "value": "Pendiente"
+            }
+          ],
+          "log": "Fachada → ACL.toRequest(venta)",
+          "code": "const request = acl.toRequest(operation);\n// La implementación concreta queda dentro del módulo."
+        },
+        {
+          "title": "La ACL conoce las equivalencias",
+          "text": "El cliente C-17 del POS corresponde a la cuenta A-901 del ERP demo. Es una equivalencia validada, no solo cambiar el nombre de una propiedad.",
+          "active": [
+            "acl",
+            "adapter"
+          ],
+          "links": [
+            [
+              "acl",
+              "adapter"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "Sin respuesta"
+            },
+            {
+              "label": "Integración",
+              "value": "Pendiente"
+            }
+          ],
+          "log": "ACL: cliente C-17 → cuenta A-901",
+          "code": "// Contrato ficticio del ERP demo\n{ reference: \"V-42\", account: \"A-901\",\n  amountPesos: 12900, currencyCode: \"CLP\" }"
+        },
+        {
+          "title": "El adaptador realiza la llamada",
+          "text": "El adaptador envía la solicitud por HTTP. Un HTTP 200 indica una respuesta HTTP satisfactoria; el contrato y su contenido determinan el resultado de negocio.",
+          "active": [
+            "adapter",
+            "erp"
+          ],
+          "links": [
+            [
+              "adapter",
+              "erp"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "Sin respuesta"
+            },
+            {
+              "label": "Integración",
+              "value": "Esperando evidencia"
+            }
+          ],
+          "log": "Adaptador → HTTP POST /demo/sales",
+          "code": "// Petición ilustrativa; no se ejecuta\nconst raw = await erpHttp.post(\"/demo/sales\", request);"
+        },
+        {
+          "title": "Vuelve una respuesta del proveedor",
+          "text": "El ERP demo devuelve HTTP 200 y el estado BOOKED. El adaptador conserva esa evidencia; todavía falta interpretarla según el contrato.",
+          "active": [
+            "erp",
+            "adapter"
+          ],
+          "links": [
+            [
+              "erp",
+              "adapter"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "BOOKED"
+            },
+            {
+              "label": "Integración",
+              "value": "Por interpretar"
+            }
+          ],
+          "log": "ERP → 200 { status: \"BOOKED\" }",
+          "code": "{ reference: \"V-42\", status: \"BOOKED\" }"
+        },
+        {
+          "title": "La ACL interpreta el significado",
+          "text": "BOOKED significa registrado en el contrato ficticio. La ACL devuelve registered y conserva la referencia externa como evidencia.",
+          "active": [
+            "adapter",
+            "acl"
+          ],
+          "links": [
+            [
+              "adapter",
+              "acl"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "BOOKED"
+            },
+            {
+              "label": "Integración",
+              "value": "Registrado"
+            }
+          ],
+          "log": "ACL: BOOKED → registered (Registrado)",
+          "code": "// Equivalencias del contrato demo\nRECEIVED → status: \"received\"\nBOOKED   → status: \"registered\"\notro     → status: \"unknown\""
+        },
+        {
+          "title": "La fachada devuelve un resultado del POS",
+          "text": "Quien llamó recibe un estado del contrato POS. No debe aprender los códigos del proveedor ni tratarlos como si fueran una regla de venta.",
+          "active": [
+            "acl",
+            "facade"
+          ],
+          "links": [
+            [
+              "acl",
+              "facade"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "BOOKED"
+            },
+            {
+              "label": "Integración",
+              "value": "Registrado"
+            }
+          ],
+          "log": "Fachada → { status: \"registered\" }",
+          "code": "{ saleId: \"V-42\", status: \"registered\",\n  externalReference: \"V-42\" }"
+        },
+        {
+          "title": "El worker conserva el resultado",
+          "text": "El worker guarda registered (Registrado) con su evidencia. Esto confirma integración bajo el contrato demo, no liquidación del pago ni emisión fiscal.",
+          "active": [
+            "facade",
+            "worker"
+          ],
+          "links": [
+            [
+              "facade",
+              "worker"
+            ]
+          ],
+          "values": [
+            {
+              "label": "Venta local",
+              "value": "V-42 confirmada"
+            },
+            {
+              "label": "Respuesta ERP",
+              "value": "BOOKED"
+            },
+            {
+              "label": "Integración",
+              "value": "Registrado"
+            }
+          ],
+          "log": "Worker: guardar status=registered",
+          "code": "await outcomes.persist(operation.id, result);\n// Recuperación e idempotencia requieren implementación."
+        }
+      ]
+    }
+  ]
+};

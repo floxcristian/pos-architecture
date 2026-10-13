@@ -6,7 +6,7 @@ Recorrido de ocho capítulos en español sobre la arquitectura actual de Chile y
 
 ### Curso en Reveal.js
 
-Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En producción: **[presentación para desarrolladores](https://presentation-gamma-rust.vercel.app/reveal)**. Está pensada para enseñar la propuesta a juniors: 48 láminas, ocho capítulos, seis laboratorios, 15 escenarios, 81 pasos, tres preguntas y 28 términos de glosario. El bloque de precios desarrolla espejo local, cálculo versionado, eventos, snapshot con watermark, candidata aislada, validación, publicación atómica y vigencias.
+Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En producción: **[presentación para desarrolladores](https://presentation-gamma-rust.vercel.app/reveal)**. Parte de funciones y objetos para enseñar arquitectura, responsabilidades, límites y estructura a juniors: 88 láminas, ocho capítulos, siete laboratorios, 17 escenarios, 97 pasos, nueve preguntas y 66 términos de glosario. El bloque de precios desarrolla espejo local, cálculo versionado, eventos, snapshot con watermark, candidata aislada, validación, publicación atómica y vigencias.
 
 - **Navegación:** → / ← y Siguiente / Anterior recorren las láminas en orden, sin saltar capítulos ni detenerse en fragmentos; también funcionan después de usar los controles. Espacio recorre los bloques resaltados del código antes de pasar de lámina; Mayús + Espacio retrocede. Av Pág / Re Pág equivalen a siguiente / anterior lámina. Índice (`O`) abre cualquier tema.
 - **Notas (`N`) y glosario (`G`):** explicaciones para quien presenta, límites, preguntas y fuentes. Se abren en la misma página, con navegación por teclado.
@@ -17,6 +17,12 @@ Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En prod
 Se inspiró en la organización por capítulos de [Integration Platform detallada](https://integration-presentations.vercel.app/architecture/enterprise-integration-platform-detailed.html#/), manteniendo las decisiones propias del POS. Reveal.js 5.1.0 y Highlight se distribuyen localmente en `vendor/reveal/`, con licencias, commits de origen y SHA-256. No se necesitan CDNs ni instalación para ver la presentación. `node presentation/tools/vendor-reveal.cjs --check` verifica los ocho archivos oficiales. La misma herramienta, sin `--check`, restaura únicamente esos archivos desde las fuentes fijadas.
 
 El contenido está en `pos-reveal-content.js`, los estados educativos en `pos-reveal-labs.js`, el render y los controles en `pos-reveal.js`, y el diseño en `pos-reveal.css`. Para verificar: `node presentation/tools/check-reveal.cjs`; admite una URL base como argumento para revisar el despliegue. Reutiliza Playwright de `video/node_modules` o `PLAYWRIGHT_MODULE_PATH`. Las evidencias se guardan en `presentation/qa/reveal/`, fuera de Git.
+
+### Enfoque de aprendizaje
+
+El recorrido introduce primero pantalla, backend, API, datos, módulo y proceso. Después enseña cómo leer C1–C4 y distinguirlos de despliegue. Fachada, ACL, adaptador y puerto se presentan mediante problemas concretos, ejemplos antes/después y un laboratorio con un ERP ficticio. Cada ejercicio explica por qué las alternativas son correctas o incorrectas.
+
+El capítulo de código se centra en aplicaciones, bibliotecas, módulos, contratos y dependencias. Nx aparece solo como contexto; configuración, comandos, caché y uso operativo quedan fuera de este curso. Se puede dividir en tres encuentros: producto y mapas; venta, precios y sincronización; integración, estructura y operación. La actividad final pide dibujar, ubicar cambios y explicar fallos. Ver las láminas no garantiza comprensión: el facilitador debe revisar las explicaciones y ejercicios del equipo.
 
 ### Atlas y materiales anteriores
 
