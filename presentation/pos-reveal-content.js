@@ -51,7 +51,6 @@
         ],
         takeaway: 'Cada tecnología aparece después del problema que necesita resolver.',
         notes: [
-          'La cruceta de Reveal.js muestra las direcciones disponibles. Las flechas derecha e izquierda cambian de capítulo; arriba y abajo recorren las láminas y bloques resaltados del capítulo actual. Las teclas de flecha hacen lo mismo; cuando hay bloques resaltados pendientes, las flechas los recorren antes de salir de la lámina. Espacio recorre toda la presentación en orden; Av Pág y Re Pág pasan directamente entre láminas. En modo lectura, arriba y abajo desplazan el documento.',
           'Los laboratorios usan datos sintéticos y permiten recorrer pasos o fallos. No se conectan a bancos, servicios fiscales, colas ni sistemas corporativos.',
           'El recorrido se centra en las decisiones de la propuesta, sus responsabilidades y sus consecuencias. Los ejemplos permiten seguir el diseño y contrastar sus garantías.'
         ], source: proposal
@@ -151,9 +150,9 @@
         "takeaway": "Primero comprendemos la compra; después ponemos nombre a las piezas que la hacen posible.",
         "notes": [
           "Los filtros y el pago en efectivo son un ejemplo ficticio. La regla fiscal concreta depende del régimen y del documento homologados; registrar una venta no resuelve esa obligación por sí solo.",
-          "Dejar claro que el paso de otros sistemas puede quedar pendiente. No introducir todavía outbox, idempotencia ni broker; esos nombres aparecen cuando se explica el problema que resuelven.",
+          "La integración con otros sistemas puede quedar pendiente después de la confirmación local. Ese trabajo necesita persistencia, seguimiento y recuperación sin duplicar la operación.",
           "El backend calcula el importe definitivo aplicando las reglas de precios y conserva la venta confirmada en PostgreSQL. Cerrar la pantalla no elimina ese registro.",
-          "Este recorrido usa el perfil con LAN y servidor de sucursal disponibles. La autonomía frente a otros fallos se delimita más adelante."
+          "Este caso usa el perfil con LAN y servidor de sucursal disponibles. Si se pierde acceso al servidor, este perfil detiene nuevas ventas hasta recuperar la autoridad local."
         ],
         "source": {
           "label": "Propuesta del POS",
@@ -303,9 +302,9 @@
         },
         "takeaway": "La respuesta dice cuánto resulta la cotización. Todavía no afirma que existe una venta pagada.",
         "notes": [
-          "Leer el ejemplo en voz alta: el cliente solicita calcular dos unidades del producto; el servidor devuelve el identificador de cotización y el total calculado. Los datos y la ruta son educativos, no una API implementada.",
+          "El cliente solicita calcular dos unidades del producto; el servidor devuelve el identificador de cotización y el total calculado. Los datos y la ruta son educativos, no una API implementada.",
           "API significa interfaz de programación de aplicaciones. En este ejemplo se usa HTTP y un cuerpo JSON; una API también puede ser una interfaz de código sin red.",
-          "POST y /quotes indican operación y ruta; quantity es la cantidad solicitada. El importe de 18.000 CLP es ficticio y podría resultar de las reglas autorizadas que veremos después.",
+          "POST y /quotes indican operación y ruta; quantity es la cantidad solicitada. El importe de 18.000 CLP es ficticio; un cálculo real debe aplicar las reglas y la versión de precios autorizadas.",
           "El contrato real debe definir autenticación, campos obligatorios, errores, vigencia y moneda. La muestra los omite para enseñar la conversación, no para proponer una API sin seguridad.",
           "Una respuesta HTTP 200 solo tiene el significado de la operación que estamos realizando. Aquí acredita que se obtuvo una cotización, no que el banco cobró ni que se confirmó una venta."
         ],
@@ -342,7 +341,7 @@
         "notes": [
           "Una base de datos almacena información estructurada y ofrece operaciones para leerla y modificarla. La recomendación de este POS es PostgreSQL en sucursal, con acceso mediante el backend.",
           "Persistente significa que se espera conservar el dato más allá de la vida del proceso, bajo las garantías de configuración y almacenamiento. No significa que sea imposible perder un disco o todo el sitio.",
-          "Más adelante se explica commit: confirmar una transacción. Introducir ahora solamente la diferencia entre dato temporal y registro que la operación reconoce como guardado.",
+          "Commit significa confirmar una transacción. Un dato temporal en pantalla no equivale a un registro que la operación reconoce como guardado en la base.",
           "Si la pantalla se cierra antes de recibir la respuesta, el resultado puede requerir consulta. No asumir que cerrar la UI cancela una solicitud que el backend ya recibió."
         ],
         "source": {
@@ -385,7 +384,7 @@
         "takeaway": "Tres módulos pueden vivir en un proceso. Dos procesos pueden compartir un equipo.",
         "notes": [
           "Para esta propuesta, ventas, caja y precios pueden ser módulos del mismo backend. El sincronizador es un proceso supervisado separado de la interfaz.",
-          "Proceso, contenedor C4 y contenedor Docker no son equivalencias universales. Aquí solo fijamos vocabulario; la definición de contenedor C4 llega después.",
+          "Proceso, contenedor C4 y contenedor Docker no son equivalencias universales: distinguen ejecución, aplicaciones o almacenes del modelo, y aislamiento de despliegue.",
           "Un mismo proceso puede atender muchas conexiones y solicitudes. Un escritor de negocio no significa una sola conexión a PostgreSQL ni un único usuario.",
           "Separar procesos añade comunicación y operación; puede tener sentido por aislamiento o entrega, pero la cantidad de módulos no obliga a hacerlo."
         ],
@@ -550,7 +549,7 @@
         "takeaway": "Esta flecha no cuenta todos los pasos de la compra ni demuestra que la venta quedó guardada.",
         "notes": [
           "El origen solicita y el destino atiende en esta relación. No invertir la flecha solamente porque la respuesta vuelve al cliente: hay que nombrar el propósito representado.",
-          "Las vistas C4 de estructura describen relaciones. Un recorrido temporal necesita pasos o una secuencia, como los laboratorios de venta que aparecen después.",
+          "Las vistas C4 de estructura describen relaciones. Un recorrido temporal necesita pasos o una secuencia, como los casos de venta de los laboratorios.",
           "En el ejemplo se usa HTTPS como protocolo ilustrativo entre aplicaciones. Dentro del mismo proceso puede haber una llamada de código sin HTTP.",
           "Las etiquetas deben ayudar a entender qué intercambio ocurre. Evitar interpretar una línea con el texto usa como evidencia de persistencia, autorización o éxito de negocio."
         ],
@@ -584,7 +583,7 @@
         ],
         "takeaway": "Para la compra de dos filtros, explica quién opera y qué sistemas aportan capacidades.",
         "notes": [
-          "El C1 que sigue ubica a las personas, el POS y sus colaboradores. El diagrama de contexto privilegia personas y sistemas, no clases o infraestructura.",
+          "El C1 ubica a las personas, el POS y sus colaboradores. El diagrama de contexto privilegia personas y sistemas, no clases o infraestructura.",
           "En la propuesta, la cajera usa el POS; el POS utiliza datos y se relaciona con autoridades de pago, fiscalidad y sistemas empresariales. La fuente autorizada de cada maestro debe confirmarse por país.",
           "El pago en efectivo de nuestro ejemplo no requiere una autorización bancaria remota. La relación con pagos refleja las capacidades del producto, no que se invoquen todas en cada venta.",
           "Los sistemas empresariales AX, Gira y custom corresponden a países distintos. El C1 no afirma que una venta se registre en los tres."
@@ -689,7 +688,7 @@
         "notes": [
           "Una cola no tiene que ser RabbitMQ o BullMQ desde el primer día. La propuesta base utiliza registros durables y workers; se añaden herramientas cuando existe un motivo comprobado.",
           "Un worker es un proceso, no una persona ni una función del navegador. Supervisión significa que su estado y reinicio tienen un responsable operativo.",
-          "Este ejemplo todavía no detalla reintentos ni idempotencia. Esas reglas se observarán en los laboratorios después de entender el vocabulario.",
+          "La recuperación del trabajo requiere políticas de reintento e idempotencia; tener una cola y un worker no evita por sí solo efectos duplicados.",
           "Una tarea identificada: «Preparar el paquete de precios de esta sucursal». Guarda qué hacer, para quién, con qué parámetros y con qué identidad. No es el proceso que la ejecuta.",
           "Trabajo pendiente: Conserva tareas hasta que puedan ejecutarse. Permite absorber un pico sin exigir que todos los ejecutores trabajen a la vez. Debemos configurar y comprobar su recuperación.",
           "El proceso ejecutor: Toma una tarea, realiza el trabajo y registra el resultado. Puede vivir separado de la interfaz y seguir trabajando aunque el cajero cierre la ventana.",
@@ -732,7 +731,7 @@
         "notes": [
           "La transacción no engloba por magia a PostgreSQL, un banco y el ERP. Cada sistema tiene su propia confirmación; el flujo debe coordinar evidencias y estados.",
           "La propiedad todos o ninguno se refiere a cambios dentro de la transacción de esa base. Durabilidad, recuperación y configuración requieren validación operativa.",
-          "Un ACK del broker, uno del consumidor y uno de la API POS no acreditan lo mismo. Los laboratorios mostrarán quién emite cada uno y después de qué persistencia.",
+          "Un ACK del broker, uno del consumidor y uno de la API POS no acreditan lo mismo. La garantía depende de quién emite el acuse y de qué persistencia se completó antes de enviarlo.",
           "Cambios que van juntos: Agrupa venta, movimiento de caja y pendiente de envío. En esa base se confirman todos o ninguno; así no queda una venta confirmada sin su trabajo de entrega.",
           "La base confirma: PostgreSQL confirma esos cambios bajo su configuración de durabilidad. La venta ya existe localmente. Esto no confirma una escritura en otra base ni un cobro externo.",
           "El receptor avisa: Un acuse responde qué aceptó el receptor. En el protocolo propuesto, país responde después de su commit. Ese mensaje puede perderse aunque el commit haya ocurrido.",
@@ -851,7 +850,7 @@
         ],
         "takeaway": "Un evento de venta confirmada no dice que el ERP ya la contabilizó.",
         "notes": [
-          "Leer los nombres en voz alta: ConfirmarVenta pide una acción; VentaConfirmada describe algo pasado. La gramática ayuda a identificar el contrato.",
+          "ConfirmarVenta pide una acción; VentaConfirmada describe algo pasado. El nombre distingue la intención del hecho confirmado y ayuda a identificar el contrato.",
           "Un comando también puede viajar por una cola. Un evento puede entregarse por HTTP. La diferencia es el significado, no el transporte ni el formato JSON.",
           "Un consumidor de VentaConfirmada no vuelve a ejecutar el cobro: utiliza el hecho para su propia responsabilidad. La venta conserva la sucursal autora."
         ],
@@ -888,7 +887,7 @@
           "La numeración es una guía de lectura pedagógica, no una secuencia completa ni un flujo de pago homologado. En C2 observamos responsabilidades y comunicaciones.",
           "Conservar el mismo ejemplo de compra ayuda a relacionar vistas: no cambiamos de sistema al pasar de C1 a C2, mostramos su interior.",
           "Cerrar la interfaz termina esa ventana y su estado temporal. El backend y los datos de sucursal son independientes de ella y conservan las operaciones ya confirmadas.",
-          "El C2 no decide si hay Docker o cuántas máquinas habrá. Esa pregunta se trata en despliegue. El detalle de transacciones e integración aparece luego en los laboratorios."
+          "El C2 no decide si hay Docker o cuántas máquinas habrá: eso corresponde a despliegue. Las transacciones y los pasos de integración se detallan mediante secuencias de ejecución."
         ],
         "source": {
           "label": "C4 oficial · Contenedores",
@@ -1013,7 +1012,7 @@
         "lead": "Caso de venta: CLP 11.400. Observa qué se preparó, qué se confirmó y qué puede seguir pendiente.",
         "takeaway": "La confirmación local necesita evidencia durable; la WAN no es el commit de la venta.",
         "notes": [
-          "Recorrer primero el caso normal y después el fallo de WAN. El backend de sucursal y PostgreSQL siguen disponibles durante la simulación de desconexión.",
+          "El caso de fallo WAN conserva disponibles el backend de sucursal y PostgreSQL. La venta puede confirmarse localmente mientras la entrega a país permanece pendiente.",
           "La intención de venta y de pago conserva una identidad estable antes de llamar a un proveedor. El pago se resuelve según el contrato real del medio usado.",
           "El commit final conserva venta, referencias de pago, movimientos, auditoría y outbox. La emisión fiscal depende de su régimen; no se supone una transacción distribuida con el proveedor.",
           "Un fallo de impresión permite reimprimir el mismo documento. No debe crear otra venta ni volver a cobrar."
@@ -1183,7 +1182,7 @@
           "La analogía de la mesa de preparación no implica una segunda base obligatoria. Staging puede ser almacenamiento separado dentro de la misma sucursal.",
           "El avance recibido permite reanudar la descarga. El avance aplicado declara qué quedó publicado; no se debe adelantar por haber recibido un archivo.",
           "La activación comprueba que la base esperada siga vigente y no retrocede una versión ya aplicada. La descarga y validación pesada no mantienen abierta la transacción final.",
-          "Esta lámina prepara los términos visibles en ambos laboratorios de precios. Los fallos posteriores enseñan el detalle del protocolo, no una idea nueva de publicación.",
+          "El protocolo mantiene la misma regla ante descargas parciales, duplicados o huecos: solo publica una candidata completa y validada.",
           "Hasta aquí contiene la foto: El origen declara un corte consistente H. La foto incluye todos los cambios de su ámbito hasta H. Los posteriores deben recuperarse; una hora del PC no demuestra ese corte.",
           "La mesa de preparación: Un área aislada recibe archivos y guarda el avance. Allí se construye B, la candidata. Las ventas todavía no leen esa copia mientras faltan partes o comprobaciones.",
           "Comprobar el conjunto: Completar cambios posteriores a H y verificar cobertura, referencias, compatibilidad y vigencia. El checksum compara bytes con una huella esperada; por sí solo no valida las reglas comerciales.",
@@ -1251,7 +1250,7 @@
         takeaway: 'Los deltas también construyen una candidata; nunca parchean la versión activa.',
         notes: [
           'El origen debe publicar un contrato de identidad, orden y cobertura. No se presupone que los sistemas actuales ya generen todos los eventos necesarios.',
-          'Mostrar primero entrega ordenada, luego un duplicado y después un hueco. Guardar la recepción permite recuperar sin declarar que ese cambio ya está aplicado.',
+          'La entrega ordenada, un duplicado y un hueco requieren tratamientos distintos. Guardar la recepción permite recuperar sin declarar que ese cambio ya está aplicado.',
           'Una candidata se basa en la versión publicada y aplica deltas compatibles. La validación considera el conjunto resultante antes de activar.',
           'El mismo ID con payload distinto es un conflicto trazable, no un duplicado válido. Los errores de un ámbito deben aislarse sin bloquear todas las sucursales.'
         ], source: c4
@@ -1558,7 +1557,7 @@
         },
         "takeaway": "Importar una interface del POS es distinto de importar el cliente de un proveedor en cada caso de uso.",
         "notes": [
-          "Recorrer el código de arriba abajo: interface declara lo necesario; constructor recibe quien lo cumple; integrarVenta ofrece la entrada; registrar delega en la implementación.",
+          "La interface declara lo necesario; el constructor recibe quien lo cumple; integrarVenta ofrece la entrada; registrar delega en la implementación.",
           "VentaPos y ResultadoPos son tipos conceptuales propios del POS. No son tablas del ERP ni respuestas de una biblioteca HTTP.",
           "Se omiten persistencia de intención, autorización, selección de destino y recuperación para centrar la explicación. Deben existir en el flujo real antes de invocar efectos externos.",
           "Una interface desaparece en ejecución de TypeScript; la configuración o mecanismo de inyección necesita una referencia real para conectar la implementación."

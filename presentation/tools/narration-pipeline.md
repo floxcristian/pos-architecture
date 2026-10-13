@@ -6,6 +6,8 @@ La presentación reproduce MP3 precalculados, con una pista por lámina. El usua
 
 `../pos-reveal-narration-content.js` contiene el guion público, dividido en intervenciones con una identidad estable. Cada intervención puede señalar una parte visible de la lámina o un paso del laboratorio. Primero se revisa y congela ese guion; después se genera voz. La voz sintetizada se identifica en la interfaz como tal.
 
+La narración explica la propuesta: responsabilidades, decisiones, ejemplos y consecuencias. Las instrucciones para navegar, pausar, repetir o volver a otras láminas pertenecen a la ayuda de la interfaz. Las referencias visuales del guion deben identificar componentes, relaciones o estados concretos que aporten a la explicación.
+
 El generador envía únicamente el texto educativo público a Edge TTS, con la voz `es-CL-LorenzoNeural`. No envía documentos de la empresa, credenciales ni datos de usuarios. La dependencia está fijada en `narration-requirements.txt`. Es una herramienta de generación: la presentación publicada no se comunica con el proveedor de voz.
 
 Cada intervención se sintetiza por separado y se decodifica a PCM mono de 24 kHz. El generador mide sus muestras, intercala 350 ms de silencio y concatena las intervenciones antes de codificar el MP3 de la lámina. Los tiempos de las intervenciones se calculan a partir de muestras, no del número de palabras. El runtime sigue `audio.currentTime`; pausar, cambiar velocidad o buscar conserva la relación con el elemento visual.

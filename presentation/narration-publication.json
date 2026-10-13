@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "contentHash": "ab350491ac81e1fe6b53f272aa3aef87c1c8eba8f8981c0919fcdcb05ec5bcf7",
+  "contentHash": "b9ce4a45c3252654f4727c9bed1c406479c56a09cfe945c841b793b06dd44c37",
   "voice": "es-CL-LorenzoNeural",
   "language": "es-CL",
   "rate": "-5%",
   "slides": 79,
   "cues": 494,
-  "duration": 7184.184,
-  "scriptHash": "5f809919b135e4b386d1c00e076abb6596c73c58331a28ad233af177db5106e3",
-  "file": "pos-narration-ab350491ac81e1fe.zip",
-  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-narration-ab350491ac81e1fe/pos-narration-ab350491ac81e1fe.zip",
-  "bytes": 57502260,
-  "sha256": "958d801d6d257ce62a0653f19386fc8c2960f152b95bef32159cd5d16fc34698",
+  "duration": 7219.8,
+  "scriptHash": "8c228354fc9842cb7697a5cf5e138b3b0220f34cbc23e5dfe1e9633e15182c65",
+  "file": "pos-narration-b9ce4a45c3252654.zip",
+  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-narration-b9ce4a45c3252654/pos-narration-b9ce4a45c3252654.zip",
+  "bytes": 57787188,
+  "sha256": "aaaa45a16525d1a232df74666069a2cf33e3ea5d781d946878f13e90c327fd86",
   "files": [
     {
       "file": "acl-ejemplo-antes-despues.mp3",
@@ -35,8 +35,8 @@
     },
     {
       "file": "arbol-nx.mp3",
-      "bytes": 645548,
-      "sha256": "719d549a95672c37261fa73ca308298b04fbec444e4408bfef809d38103b4735"
+      "bytes": 650540,
+      "sha256": "9a6f0506d07e78a9548d141625f862d98633ead364ce1221f7b593ade1791f53"
     },
     {
       "file": "autoridades-del-dinero.mp3",
@@ -55,8 +55,8 @@
     },
     {
       "file": "c4-contenedor-no-es-docker.mp3",
-      "bytes": 449708,
-      "sha256": "01c1c0a10f73c6f24254185f6b99656b660872b47ba17fc4b4779a5a12d2bef3"
+      "bytes": 461804,
+      "sha256": "877ca1394f891a41ae2180295c0e3cb6b35ec7e003ad94013593b578dcb01084"
     },
     {
       "file": "cadena-de-verificacion.mp3",
@@ -95,8 +95,8 @@
     },
     {
       "file": "como-aprender-la-arquitectura.mp3",
-      "bytes": 623660,
-      "sha256": "7b90dab59a123e9425c3ee312aa3f674753f165b55a9b8446d068dc9c7ebe65d"
+      "bytes": 641516,
+      "sha256": "60dc7da71a224b0ccac126a2ccd71874967d6b288c1f3d53ef06744c513ab46a"
     },
     {
       "file": "compartir-configurar-extender.mp3",
@@ -105,18 +105,18 @@
     },
     {
       "file": "compra-hilo-conductor.mp3",
-      "bytes": 619244,
-      "sha256": "7340c48d5611214dcc1b5d7f4b8b5cc002da7b21e61992ffbbf6d77231608e24"
+      "bytes": 634412,
+      "sha256": "30043bedb5d445612d8dd57f03e9ffd3fc145ebd44c315f98ff0f4d7b5df1240"
     },
     {
       "file": "contenedores-del-pos.mp3",
-      "bytes": 929708,
-      "sha256": "f652afcda0d967545647d7101955298cec96990411c3a961dea2cf890083827c"
+      "bytes": 945260,
+      "sha256": "c6dbf3930a4b56d4f3bbb79ef4b24d452ae3215457929bd795fa3b455c5651c0"
     },
     {
       "file": "contexto-del-pos.mp3",
-      "bytes": 843308,
-      "sha256": "903d5a8997bec6548b3875d72dc47e5b0a8868b35601f0ba6f1cb31306a53424"
+      "bytes": 850988,
+      "sha256": "f80a5c6121b2c068bd41235434dd62d12b20a294c32373b3d07f42e00130044f"
     },
     {
       "file": "contrato-del-calculo.mp3",
@@ -165,8 +165,8 @@
     },
     {
       "file": "estructura-leer-responsabilidades.mp3",
-      "bytes": 561644,
-      "sha256": "467f592ae5b4cfbb2fea54acb17ced5a1bad48b1cb2e8e04db12f56ce6035de5"
+      "bytes": 556460,
+      "sha256": "8f4f6cb6db4cf1dc65fa6d30593d8dfbd90479586e3e9f355d3e02b0d7202940"
     },
     {
       "file": "estructura-piezas-del-repositorio.mp3",
@@ -180,13 +180,13 @@
     },
     {
       "file": "fachada-acl-adaptador.mp3",
-      "bytes": 567020,
-      "sha256": "79df2d5b1cb24373047c5b1ec2deae363acb8e464e24a1268b827fc6b7ab4e99"
+      "bytes": 570476,
+      "sha256": "564160febdcd5fbb2cdf1d17ca68acf808656e1b2cfacf8ab4d52744b25364aa"
     },
     {
       "file": "fachada-e-interfaz-en-codigo.mp3",
-      "bytes": 543788,
-      "sha256": "6be0059edb8f785307ad72552d918f5abc67e8558139f0343fce150ced8089db"
+      "bytes": 544940,
+      "sha256": "7138d79103392268434e980fa62cdca4ebdbe1fd62d8de460a8c97aaf50834c2"
     },
     {
       "file": "fachada-paso-a-paso.mp3",
@@ -195,8 +195,8 @@
     },
     {
       "file": "fallos-de-precios.mp3",
-      "bytes": 596012,
-      "sha256": "4119e028784fdc8369695a743327c4e801e8cec4339a3d2e30928f92f8c1384c"
+      "bytes": 610796,
+      "sha256": "c7d0ea6d0e2e8af49ba250f70d7ffcdb089727832f019257a76544b81d8018cb"
     },
     {
       "file": "frontend-y-backend.mp3",
@@ -205,13 +205,13 @@
     },
     {
       "file": "guia-lectura-contenedores-pos.mp3",
-      "bytes": 499628,
-      "sha256": "64c534513181ff729af8bf0d7745b42bc6f81662e52e73c22ad22e8fd0c8d36f"
+      "bytes": 508844,
+      "sha256": "9fe6ac7d13e096ec7355e5caba7bbd20ff8246838ef2072d364775a329367356"
     },
     {
       "file": "guia-lectura-contexto-pos.mp3",
-      "bytes": 555308,
-      "sha256": "8e2c56d371297e23d1fe12b80738f4f3d3487019161d76e920570aa757c995d8"
+      "bytes": 548588,
+      "sha256": "0e2718863233228a0b2cd1fd31138851d4171d30c75c2935bec5067c97a054cd"
     },
     {
       "file": "idempotencia-desde-cero.mp3",
@@ -225,8 +225,8 @@
     },
     {
       "file": "job-cola-worker-desde-cero.mp3",
-      "bytes": 587564,
-      "sha256": "cf2145beda052c78d424a7abcc7aa5e830f963b9ace8f7de96694cb4d4a3e5c5"
+      "bytes": 601196,
+      "sha256": "22b6449b68107765bb13ccafa0acb0d54a7d944368fed77d78230f610a544fa6"
     },
     {
       "file": "laboratorio-bullmq.mp3",
@@ -235,33 +235,33 @@
     },
     {
       "file": "laboratorio-entrega.mp3",
-      "bytes": 1709804,
-      "sha256": "f4c017ca6c7bd05723e1d075de5e2915b7a4d97d3efae40c842da39d2a0f5108"
+      "bytes": 1711724,
+      "sha256": "03da0ba73555bd7e1997a706f7dc5306443f55b5cfc3b9ea0e8c389f5c9f145d"
     },
     {
       "file": "laboratorio-eventos-precios.mp3",
-      "bytes": 2502572,
-      "sha256": "79d6ead26fb91e2f6f8ec047db475dc6bf06e5a2e28b8dadb81f4b3c22bc7fda"
+      "bytes": 2494700,
+      "sha256": "0bd6e9d08e2a6ef58fa5f2ea2662a1f5ad10677e7b0bfa9f2206cc757069bc34"
     },
     {
       "file": "laboratorio-frontera-erp.mp3",
-      "bytes": 2533676,
-      "sha256": "4327ad3893c70ec89ec3bc9e6969b4a91315d3555c265979143d801a87e37da9"
+      "bytes": 2537324,
+      "sha256": "5ee821a66c44dde2e91f75ac42da5f857902dff24f937b660cce2199cd2d46d1"
     },
     {
       "file": "laboratorio-rabbitmq.mp3",
-      "bytes": 1896428,
-      "sha256": "1bb51f93343821d17400ac8e43542e532d24084a3c11f266ba40966deabc360b"
+      "bytes": 1903340,
+      "sha256": "fbe350379c6a9a0d7455d88d5ebf59bea0cf1f80cefc36dfad9834f507131e92"
     },
     {
       "file": "laboratorio-snapshot-precios.mp3",
-      "bytes": 2642540,
-      "sha256": "5be95788043750cd0e2899775efc92c65ccaeb1ec3bc545ab463210a6098c6d0"
+      "bytes": 2656364,
+      "sha256": "b5553d01f768870de890cecf0e1c554cd0b956ed400702bbe3dddedd2c3871a4"
     },
     {
       "file": "laboratorio-venta.mp3",
-      "bytes": 2158892,
-      "sha256": "8d6f43a4c6abab6665b8cc3ba6985024d7752ba9a1a97520edcaa9fe1731ef75"
+      "bytes": 2162348,
+      "sha256": "fce90442388e4764333df32e33266e14f5edcb83d392d387c2cbc1bf841aa2a5"
     },
     {
       "file": "leer-c4.mp3",
@@ -270,13 +270,13 @@
     },
     {
       "file": "leer-flechas-c4.mp3",
-      "bytes": 454316,
-      "sha256": "c4d8d7c41ae23842c8c303a7d2feffd4b73a0b02c4d1b006c2f6ee88df319b45"
+      "bytes": 462572,
+      "sha256": "f174ad6e1557f50ac2cd94b5a5b037cba307388730dc02c75c5c8ba4b5f0963b"
     },
     {
       "file": "leer-limites-c4.mp3",
-      "bytes": 507116,
-      "sha256": "25217a7cf85cc5aeb9f5cd38594f4f54342bda7cfb473ea2ff5d7f15e079d188"
+      "bytes": 524780,
+      "sha256": "72eddaeb80c5fb30f944593b2a9cae0573d6c4a1a3b6a7c8cc3f7bff2c9776bd"
     },
     {
       "file": "limites-de-continuidad.mp3",
@@ -285,13 +285,13 @@
     },
     {
       "file": "limites-nx-en-ci.mp3",
-      "bytes": 511340,
-      "sha256": "da3d7d1051d04e573fb4878c54b4998d3021f6a1b02693efdda3206118625ab7"
+      "bytes": 529388,
+      "sha256": "6275e3f6f7c856657cb2ea06d2474a545aa3b0d7429b273069e66c4a17dc3efc"
     },
     {
       "file": "lugares-de-ejecucion.mp3",
-      "bytes": 744428,
-      "sha256": "3f9df22e9fddc1e2ac882d312c8d68441c06f629cf49940405a1575fd41f1216"
+      "bytes": 720812,
+      "sha256": "0c6f3d0d41fcac05fc96780253a62dbde65650f3cec105b4f6542cc199dca9bf"
     },
     {
       "file": "modulo-proceso-servidor.mp3",
@@ -335,8 +335,8 @@
     },
     {
       "file": "preparar-y-activar-desde-cero.mp3",
-      "bytes": 641900,
-      "sha256": "92215ed480df1d333b74ceb10d8dbb721daa80a1bb0d8f73913c1dc9c5785f72"
+      "bytes": 672812,
+      "sha256": "f80961906413cee75740bbacadf2fe508fb384292d048e32ef609cd76ec3be30"
     },
     {
       "file": "puerto-interfaz-adaptador-desde-cero.mp3",
@@ -375,8 +375,8 @@
     },
     {
       "file": "ruta-de-aprendizaje.mp3",
-      "bytes": 601196,
-      "sha256": "8df5371f976fa7416d84770684982bf2654472ccdb5d5b23bb661fa8a0690b53"
+      "bytes": 679148,
+      "sha256": "ab51d2a96f662eee0aa98e3aeac884920cc07ce4c3b6b8dc901bfcc5b8a200e3"
     },
     {
       "file": "significado-de-acuses.mp3",
@@ -385,8 +385,8 @@
     },
     {
       "file": "sincronizador-por-dentro.mp3",
-      "bytes": 791084,
-      "sha256": "ec48db5ba8ee062f6c810ac74889ff83c4265c5d7bc3191632629babb33dcf82"
+      "bytes": 814700,
+      "sha256": "4e4fa4ace6b87f0c91a7fb996b51907803be18d410cbd4a1f2ecbc8717a8d59c"
     },
     {
       "file": "snapshot-y-delta-desde-cero.mp3",
@@ -395,8 +395,8 @@
     },
     {
       "file": "un-producto-varios-paises.mp3",
-      "bytes": 593516,
-      "sha256": "f7697f301b40f6fc9385ec10f1743c30c1684963530ab515f5bd4f0694ef40f5"
+      "bytes": 600044,
+      "sha256": "dca4353a0b2433299f730093986f2369fe5348b5b559e1abb8e97a788d7d21bf"
     },
     {
       "file": "version-fijada.mp3",
