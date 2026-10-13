@@ -774,7 +774,7 @@
           { label: 'Propuesta y ADR', url: '../docs/propuesta-arquitectura.md' },
           { label: 'Diagramas editables', url: '../docs/diagramas-excalidraw/index.html' },
           { label: 'Pruebas del piloto', url: '../docs/validacion-y-decisiones.md' },
-          { label: 'POS Atlas', url: 'index.html' }
+          { label: 'POS Platform', url: 'index.html' }
         ],
         takeaway: 'Una plataforma que incorpora países sin rehacer el POS, con garantías que el equipo puede explicar y probar.',
         notes: [

@@ -19,7 +19,7 @@ Un **concentrador** reúne componentes centrales que reciben mensajes de las suc
 | PostgreSQL del concentrador | El almacenamiento central de mensajes, lotes y estados de procesamiento. |
 | `mountain-implementos/backend-concentrador` | La aplicación que permite consultar estados y solicitar reintentos. |
 
-Por ejemplo, el sincronizador de una sucursal envía una venta a la integración central. **Recibir el mensaje no confirma que AX haya registrado la venta**: el resultado del ERP corresponde a una etapa posterior. Las conexiones concretas y los límites del código revisado se detallan en las secciones siguientes. El concepto también está disponible en el glosario de POS Atlas, accesible con la tecla **G**.
+Por ejemplo, el sincronizador de una sucursal envía una venta a la integración central. **Recibir el mensaje no confirma que AX haya registrado la venta**: el resultado del ERP corresponde a una etapa posterior. Las conexiones concretas y los límites del código revisado se detallan en las secciones siguientes. El concepto también está disponible en el glosario de POS Platform, accesible con la tecla **G**.
 
 ## 2. Versión y límites de evidencia
 

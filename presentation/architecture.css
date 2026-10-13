@@ -1,4 +1,4 @@
-/* POS Atlas — a local, keyboard-first architecture deck. */
+/* POS Platform — a local, keyboard-first architecture deck. */
 :root {
   color-scheme: dark;
   --primary: #0545ba;
@@ -409,11 +409,11 @@ summary { min-height: 44px; align-content: center; cursor: pointer; }
 }
 @media (max-width: 767px) {
   :root { --page-space: 22px; }
-  .deck-header { min-height: 68px; gap: 10px; }
+  .deck-header { min-height: 68px; gap: 10px; flex-wrap: wrap; padding-block: 12px; }
   .header-divider { display: none; }
   .deck-brand { font-size: 16px; gap: 8px; }
   .brand-mark { width: 28px; height: 30px; font-size: 20px; }
-  .header-actions { margin-left: auto; gap: 0; }
+  .header-actions { flex-basis: 100%; flex-wrap: wrap; margin-left: 0; gap: 4px; }
   .header-actions button { padding-inline: 10px; }
   .header-actions kbd { display: none; }
   #fullscreen-button { display: none; }

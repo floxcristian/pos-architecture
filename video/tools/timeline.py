@@ -128,7 +128,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     (target / 'guion-es.md').write_text('\n'.join(transcript), encoding='utf-8')
     (target / 'capitulos.json').write_text(json.dumps(chapters, ensure_ascii=False, indent=2), encoding='utf-8')
     (target / 'capitulos.txt').write_text('\n'.join(f"{timestamp(c['start'], True)[:-4]} {c['title']}" for c in chapters), encoding='utf-8')
-    metadata = ';FFMETADATA1\ntitle=POS corporativo - propuesta explicada\nartist=POS Atlas\ncomment=Narracion sintetica en espanol; ejemplos didacticos.\n'
+    metadata = ';FFMETADATA1\ntitle=POS corporativo - propuesta explicada\nartist=POS Platform\ncomment=Narracion sintetica en espanol; ejemplos didacticos.\n'
     for c in chapters:
         title = c['title'].replace('=', '\\=').replace(';', '\\;').replace('#', '\\#')
         metadata += f"[CHAPTER]\nTIMEBASE=1/1000\nSTART={round(c['start']*1000)}\nEND={round(c['end']*1000)}\ntitle={title}\n"

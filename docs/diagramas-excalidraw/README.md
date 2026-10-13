@@ -1,4 +1,4 @@
-# POS Atlas · Diagramas editables de la arquitectura propuesta
+# POS Platform · Diagramas editables de la arquitectura propuesta
 
 Esta colección reúne **cinco vistas estructurales y dos dinámicas** del POS corporativo para Chile, Perú y España. Son documentos de diseño para revisar y evolucionar; no acreditan una implementación, un proveedor homologado ni una topología productiva.
 

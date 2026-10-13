@@ -92,7 +92,7 @@
     document.querySelector('.deck-progress').setAttribute('aria-valuemax',String(deck.slides.length));
     document.getElementById('previous').disabled=index===0;
     document.getElementById('next').disabled=index===deck.slides.length-1;
-    document.title=`${slide.title.replace('\n',' ')} · POS Atlas`;
+    document.title=`${slide.title.replace('\n',' ')} · POS Platform`;
     main.scrollTop=0;
     if(focus) slideRoot.focus({preventScroll:true});
   }

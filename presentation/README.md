@@ -1,4 +1,4 @@
-# POS Atlas: presentación web interactiva
+# POS Platform: presentación web interactiva
 
 Recorrido de ocho capítulos en español sobre la arquitectura actual de Chile y la propuesta de una plataforma POS corporativa reutilizable entre países. El núcleo común, la configuración, las extensiones y el gobierno permiten adaptarla; la continuidad offline es uno de sus requisitos.
 
@@ -62,7 +62,7 @@ El MP4 se conserva en una release pública de `floxcristian/pos-architecture`. D
 
 ### Presentación detallada de la propuesta
 
-Abre **[Arquitectura en movimiento](architecture.html)** para un recorrido de 19 diapositivas inspirado en la presentación detallada de Integration Platform. En Vercel también está disponible mediante `/arquitectura`; comparte la publicación de POS Atlas y no requiere otro proyecto.
+Abre **[Arquitectura en movimiento](architecture.html)** para un recorrido de 19 diapositivas inspirado en la presentación detallada de Integration Platform. En Vercel también está disponible mediante `/arquitectura`; comparte la publicación de POS Platform y no requiere otro proyecto.
 
 Incluye siete diagramas C4/dinámicos de Excalidraw con zoom y descarga editable, cinco laboratorios con 15 escenarios y 90 pasos, ejemplos breves de código resaltados por paso, índice y notas para exponer. Los casos cubren venta/outbox, ACK perdido, precios por eventos y lotes, BullMQ y RabbitMQ. Los brokers se presentan como opciones centrales; la propuesta base conserva PostgreSQL y entrega HTTPS. Todos los estados son sintéticos y el código mostrado es educativo e inerte.
 
