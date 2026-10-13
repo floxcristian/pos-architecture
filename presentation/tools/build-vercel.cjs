@@ -24,6 +24,7 @@ for (const entry of fs.readdirSync(path.join(root, 'presentation'), {withFileTyp
 collect('presentation/diagrams', file => file.endsWith('.mmd'));
 collect('presentation/architecture-diagrams', file => /^presentation\/architecture-diagrams\/[^/]+\.svg$/.test(file));
 collect('presentation/video-assets', file => /^presentation\/video-assets\/[^/]+\.(jpg|json|vtt|srt|md|txt)$/.test(file));
+collect('presentation/vendor/reveal', file => /\.(js|css)$/.test(file) || path.posix.basename(file) === 'LICENSE');
 files.push('README.md');
 for (const name of ['concentrador-ingress-evidence.json', 'concentrador-masters-evidence.json']) {
   files.push('tools/' + name);

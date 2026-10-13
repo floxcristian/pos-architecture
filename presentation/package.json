@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.cjs",
     "check": "node tools/check-presentation.cjs",
+    "check:reveal": "node tools/check-reveal.cjs",
+    "vendor:check": "node tools/vendor-reveal.cjs --check",
     "diagrams": "node tools/render-diagrams.cjs"
   }
 }

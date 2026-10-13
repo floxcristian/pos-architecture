@@ -1,0 +1,66 @@
+{
+  "name": "reveal.js",
+  "version": "5.1.0",
+  "repository": "https://github.com/hakimel/reveal.js",
+  "commit": "6b8c64ffa8fddd9ed4bcd92bcfd37b67ba410244",
+  "license": "MIT",
+  "bundledDependencies": [
+    {
+      "name": "highlight.js",
+      "version": "11.9.0",
+      "license": "BSD-3-Clause",
+      "repository": "https://github.com/highlightjs/highlight.js",
+      "commit": "15d3b627fa7c99cb98d7b6760a6fbdbfd519d1a0"
+    }
+  ],
+  "files": [
+    {
+      "path": "dist/reveal.js",
+      "source": "https://raw.githubusercontent.com/hakimel/reveal.js/6b8c64ffa8fddd9ed4bcd92bcfd37b67ba410244/dist/reveal.js",
+      "bytes": 107670,
+      "sha256": "9736bf3d8918e391e8c07c85c53773800d4004dc25f948916e319ca371ca881a"
+    },
+    {
+      "path": "dist/reveal.css",
+      "source": "https://raw.githubusercontent.com/hakimel/reveal.js/6b8c64ffa8fddd9ed4bcd92bcfd37b67ba410244/dist/reveal.css",
+      "bytes": 52279,
+      "sha256": "9cbc5082797d938f0ee780328790a131ae3d7bc5c09c176e77927c174f29e60a"
+    },
+    {
+      "path": "dist/reset.css",
+      "source": "https://raw.githubusercontent.com/hakimel/reveal.js/6b8c64ffa8fddd9ed4bcd92bcfd37b67ba410244/dist/reset.css",
+      "bytes": 871,
+      "sha256": "1aa8e84c9cabcbfe4d95b19879fe48b9c2c5e6d54574cbe679bc22edb9fe12b6"
+    },
+    {
+      "path": "plugin/highlight/highlight.js",
+      "source": "https://raw.githubusercontent.com/hakimel/reveal.js/6b8c64ffa8fddd9ed4bcd92bcfd37b67ba410244/plugin/highlight/highlight.js",
+      "bytes": 940009,
+      "sha256": "3d58fbfb3fb64e4c2c1c0288347ab4174847b281538fe93f056e90b9b5a608ca"
+    },
+    {
+      "path": "plugin/highlight/monokai.css",
+      "source": "https://raw.githubusercontent.com/hakimel/reveal.js/6b8c64ffa8fddd9ed4bcd92bcfd37b67ba410244/plugin/highlight/monokai.css",
+      "bytes": 940,
+      "sha256": "504e51314144f3f8327155dc69502ba10b1a4991ae4cc3fa70086cf155465999"
+    },
+    {
+      "path": "plugin/notes/notes.js",
+      "source": "https://raw.githubusercontent.com/hakimel/reveal.js/6b8c64ffa8fddd9ed4bcd92bcfd37b67ba410244/plugin/notes/notes.js",
+      "bytes": 68631,
+      "sha256": "288fe7cb27ff696a3e1c137b22b0cd117395a84dba2a703e2bfc3136e65612a8"
+    },
+    {
+      "path": "LICENSE",
+      "source": "https://raw.githubusercontent.com/hakimel/reveal.js/6b8c64ffa8fddd9ed4bcd92bcfd37b67ba410244/LICENSE",
+      "bytes": 1108,
+      "sha256": "34014800f4126ac2525e224166f099f26628612e95c41f76d70841b63138c989"
+    },
+    {
+      "path": "plugin/highlight/LICENSE",
+      "source": "https://raw.githubusercontent.com/highlightjs/highlight.js/15d3b627fa7c99cb98d7b6760a6fbdbfd519d1a0/LICENSE",
+      "bytes": 1514,
+      "sha256": "6c081431591d9df696c82dc598fe1423765b8a299b200ed00b281afd0f64c490"
+    }
+  ]
+}

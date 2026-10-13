@@ -4,6 +4,22 @@ Recorrido de ocho capítulos en español sobre la arquitectura actual de Chile y
 
 ## Abrir
 
+### Curso en Reveal.js
+
+Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En producción: **[presentación para desarrolladores](https://presentation-gamma-rust.vercel.app/reveal)**. Está pensada para enseñar la propuesta a juniors: 48 láminas, ocho capítulos, seis laboratorios, 15 escenarios, 81 pasos, tres preguntas y 28 términos de glosario. El bloque de precios desarrolla espejo local, cálculo versionado, eventos, snapshot con watermark, candidata aislada, validación, publicación atómica y vigencias.
+
+- **Navegación:** flechas horizontales entre capítulos, verticales dentro del capítulo; Espacio o Siguiente recorren las láminas y los grupos de código en orden. Índice (`O`) abre cualquier tema.
+- **Notas (`N`) y glosario (`G`):** explicaciones para quien presenta, límites, preguntas y fuentes. Se abren en la misma página, con navegación por teclado.
+- **Laboratorios:** elige escenario y usa Paso, Reproducir/Pausar o Reiniciar. La reproducción se detiene al cambiar de lámina, abrir un diálogo u ocultar la pestaña. Nunca conecta infraestructura ni ejecuta los snippets.
+- **Lectura:** el enlace Leer conserva la lámina actual y cambia a documento continuo. En pantallas menores de 700 px se activa por defecto; `?lectura=0` fuerza presentación y `?lectura=1` lectura. Los laboratorios funcionan en ambos modos. Las preferencias de movimiento reducido se respetan.
+- **Fuentes:** las vistas C4 simplifican las relaciones para enseñar; cada una permite descargar el Excalidraw completo. Los ejemplos de código se identifican como contratos o pseudocódigo educativo.
+
+Se inspiró en la organización por capítulos de [Integration Platform detallada](https://integration-presentations.vercel.app/architecture/enterprise-integration-platform-detailed.html#/), manteniendo las decisiones propias del POS. Reveal.js 5.1.0 y Highlight se distribuyen localmente en `vendor/reveal/`, con licencias, commits de origen y SHA-256. No se necesitan CDNs ni instalación para ver la presentación. `node presentation/tools/vendor-reveal.cjs --check` verifica los ocho archivos oficiales. La misma herramienta, sin `--check`, restaura únicamente esos archivos desde las fuentes fijadas.
+
+El contenido está en `pos-reveal-content.js`, los estados educativos en `pos-reveal-labs.js`, el render y los controles en `pos-reveal.js`, y el diseño en `pos-reveal.css`. Para verificar: `node presentation/tools/check-reveal.cjs`; admite una URL base como argumento para revisar el despliegue. Reutiliza Playwright de `video/node_modules` o `PLAYWRIGHT_MODULE_PATH`. Las evidencias se guardan en `presentation/qa/reveal/`, fuera de Git.
+
+### Atlas y materiales anteriores
+
 Abre **[index.html](index.html)** con Edge, Chrome o un navegador moderno. No requiere instalación, compilación, conexión a Internet ni servicios corporativos. Conserva esta carpeta junto a `../docs/` para que funcionen las fuentes.
 
 También puedes previsualizarla con Node.js:

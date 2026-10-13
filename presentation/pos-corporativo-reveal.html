@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080f1d">
+  <meta name="description" content="Una guía para desarrolladores junior: plataforma POS corporativa multipaís, precios offline, sincronización, diagramas C4, patrones y monorepo Nx. Presentación interactiva en Reveal.js.">
+  <title>POS Atlas · Del negocio al código</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%230545BA'/%3E%3Cpath d='M16 35V13h10a7 7 0 010 14H16' stroke='white' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="vendor/reveal/dist/reset.css">
+  <link rel="stylesheet" href="vendor/reveal/dist/reveal.css">
+  <link rel="stylesheet" href="vendor/reveal/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="pos-reveal.css">
+  <script defer src="vendor/reveal/dist/reveal.js"></script>
+  <script defer src="vendor/reveal/plugin/highlight/highlight.js"></script>
+  <script defer src="pos-reveal-content.js"></script>
+  <script defer src="pos-reveal-labs.js"></script>
+  <script defer src="pos-reveal.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#presentation">Saltar al contenido</a>
+  <header class="course-header">
+    <a class="course-brand" href="index.html"><span aria-hidden="true">P</span>POS <strong>Atlas</strong></a>
+    <span class="course-subtitle">DEL NEGOCIO AL CÓDIGO</span>
+    <nav aria-label="Herramientas">
+      <button type="button" data-ui="index">Índice <kbd>O</kbd></button>
+      <button type="button" data-ui="notes">Notas <kbd>N</kbd></button>
+      <button type="button" data-ui="glossary">Glosario</button>
+      <a id="reading-link" href="?lectura=1">Leer</a>
+      <button type="button" data-ui="fullscreen" aria-label="Activar pantalla completa">Pantalla completa</button>
+    </nav>
+  </header>
+  <main id="presentation" class="reveal" aria-label="Presentación POS corporativo" tabindex="-1"><div class="slides" id="course-slides"></div></main>
+  <footer class="course-footer">
+    <div><span id="chapter-label">POS corporativo</span><span id="slide-count"></span></div>
+    <nav aria-label="Navegación de diapositivas"><button type="button" data-ui="previous">← Anterior</button><button type="button" data-ui="next" class="primary">Siguiente →</button></nav>
+  </footer>
+  <dialog id="course-dialog" aria-labelledby="dialog-title"><header><div><p class="eyebrow" id="dialog-eyebrow">POS Atlas</p><h2 id="dialog-title"></h2></div><button type="button" data-ui="close" autofocus>Cerrar <kbd>Esc</kbd></button></header><div id="dialog-body"></div></dialog>
+  <div class="sr-only" id="course-announcement" role="status" aria-live="polite"></div>
+  <noscript><p>Esta presentación necesita JavaScript. Puedes consultar la <a href="../docs/propuesta-arquitectura.md">propuesta escrita</a> y los <a href="../docs/diagramas-excalidraw/index.html">diagramas editables</a>.</p></noscript>
+</body>
+</html>
