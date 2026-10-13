@@ -140,11 +140,24 @@ async function checkMotion(browser) {
 
 async function checkNavigation(page, slides) {
   const currentId = () => page.evaluate(() => Reveal.getCurrentSlide().id);
+  const checkDirections = async index => {
+    for (const [action, offset] of [['previous', -1], ['next', 1]]) {
+      const target = slides[index + offset];
+      const direction = target?.h === slides[index].h ? (offset > 0 ? 'down' : 'up') : (offset > 0 ? 'right' : 'left');
+      const button = page.locator(`[data-ui="${action}"]`);
+      assert.equal(await button.getAttribute('data-direction'), direction, `${action} must show the destination direction on ${slides[index].id}`);
+      assert.equal(await button.isDisabled(), !target);
+      assert.equal(await button.locator('svg.navigation-arrow').getAttribute('aria-hidden'), 'true');
+      assert.ok(await button.getAttribute('aria-label'), `${action} must expose its destination to screen readers`);
+    }
+  };
   await go(page, slides[0]);
+  await checkDirections(0);
   await page.locator('#presentation').focus();
   for (let index = 1; index < slides.length; index++) {
     await page.keyboard.press('ArrowRight');
     assert.equal(await currentId(), slides[index].id, `Right must advance exactly one slide at ${index}`);
+    await checkDirections(index);
   }
   await page.keyboard.press('ArrowRight');
   assert.equal(await currentId(), slides.at(-1).id, 'Right at the end must stay at the end');
@@ -170,6 +183,31 @@ async function checkNavigation(page, slides) {
   await page.keyboard.press('ArrowRight');
   assert.equal(await currentId(), slides[5].id, 'Right must still work when a link has focus');
 
+  await go(page, slides[1]);
+  await page.locator('[data-ui="next"]').focus();
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await currentId(), slides[2].id, 'Down must advance one slide inside the chapter after button focus');
+  await page.keyboard.press('ArrowUp');
+  assert.equal(await currentId(), slides[1].id, 'Up must return one slide inside the chapter after button focus');
+  await go(page, slides[4]);
+  await page.locator(`#${slides[4].id} .slide-source a`).focus();
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await currentId(), slides[5].id, 'Down must remain available when a link has focus');
+  await page.keyboard.press('ArrowUp');
+  assert.equal(await currentId(), slides[4].id);
+
+  for (let index = 0; index < slides.length; index++) {
+    const atStart = index === 0 || slides[index - 1].h !== slides[index].h;
+    const atEnd = index === slides.length - 1 || slides[index + 1].h !== slides[index].h;
+    if (!atStart && !atEnd) continue;
+    await go(page, slides[index]);
+    await page.locator('#presentation').focus();
+    for (const key of [...(atStart ? ['ArrowUp'] : []), ...(atEnd ? ['ArrowDown'] : [])]) {
+      await page.keyboard.press(key);
+      assert.equal(await currentId(), slides[index].id, `${key} must stop at the chapter boundary on ${slides[index].id}`);
+    }
+  }
+
   const fragmentId = await page.evaluate(() => Reveal.getSlides().find(slide => slide.querySelector('pre .fragment'))?.id);
   assert.ok(fragmentId, 'The course must retain a real code-highlight fragment example');
   const fragmentIndex = slides.findIndex(slide => slide.id === fragmentId);
@@ -186,11 +224,20 @@ async function checkNavigation(page, slides) {
   assert.equal(await currentId(), fragmentId);
   await page.locator('[data-ui="next"]').click();
   assert.equal(await currentId(), slides[fragmentIndex + 1].id, 'Next button shares the fragment-skipping navigation contract');
+  assert.equal(slides[fragmentIndex].h, slides[fragmentIndex + 1].h, 'The fragment fixture must have a following slide inside its chapter');
+  await go(page, slides[fragmentIndex]);
+  await page.locator('#presentation').focus();
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await currentId(), slides[fragmentIndex + 1].id, 'Down skips remaining fragments and advances one slide');
+  await page.keyboard.press('ArrowUp');
+  assert.equal(await currentId(), fragmentId, 'Up returns one complete slide');
 
   await page.locator('[data-ui="index"]').click();
   const beforeDialog = await currentId();
-  await page.keyboard.press('ArrowRight');
-  assert.equal(await currentId(), beforeDialog, 'Dialog focus must isolate deck navigation');
+  for (const key of ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp']) {
+    await page.keyboard.press(key);
+    assert.equal(await currentId(), beforeDialog, 'Dialog focus must isolate deck navigation');
+  }
   await page.keyboard.press('Escape');
   for (const widget of ['input', 'slider']) {
     await page.evaluate(kind => {
@@ -200,7 +247,7 @@ async function checkNavigation(page, slides) {
       if (kind === 'slider') { element.setAttribute('role', 'slider'); element.tabIndex = 0; }
       document.body.append(element); element.focus();
     }, widget);
-    for (const key of ['ArrowRight', 'ArrowLeft', 'PageDown', 'PageUp']) {
+    for (const key of ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp']) {
       await page.keyboard.press(key);
       assert.equal(await currentId(), beforeDialog, `${widget} must own ${key} without Reveal intercepting it`);
     }
@@ -208,8 +255,52 @@ async function checkNavigation(page, slides) {
   }
   assert.equal(await page.evaluate(() => Reveal.getConfig().transition), 'none');
   assert.ok(await page.evaluate(() => document.getAnimations().filter(animation => animation.effect?.target?.closest?.('.slides')).length === 0), 'Reduced motion must not create slide animations');
-  report.checks.push('87 exact Right advances + 87 exact Left returns; boundaries; Next/Right/Enter/Space; fragments; Page keys; link focus; dialog/input/slider isolation; reduced motion');
+  report.checks.push('87 exact Right advances + 87 exact Left returns; directional footer on all slides; Up/Down within chapters and all chapter boundaries; Next/Right/Enter/Space; fragments; Page keys; link focus; dialog/input/slider isolation; reduced motion');
   console.log('Navigation regression: all 174 exact slide moves, native controls, fragments and focus guards PASS.');
+}
+
+async function checkNavigationViewports(browser) {
+  const page = await browser.newPage({ reducedMotion: 'reduce' });
+  observe(page);
+  try {
+    for (const viewport of [{ width: 1440, height: 1000 }, { width: 768, height: 1024 }, { width: 375, height: 812 }]) {
+      await page.setViewportSize(viewport);
+      await ready(page, '?lectura=0');
+      await page.locator('[data-ui="next"]').click();
+      const layout = await page.locator('.course-footer').evaluate(footer => {
+        const toBox = element => { const { left, right, top, bottom, width, height } = element.getBoundingClientRect(); return { left, right, top, bottom, width, height }; };
+        return {
+          viewport: { width: innerWidth, height: innerHeight }, footer: toBox(footer),
+          info: toBox(footer.querySelector(':scope > div')), nav: toBox(footer.querySelector('nav')),
+          buttons: [...footer.querySelectorAll('button')].map(button => ({ ...toBox(button), icon: toBox(button.querySelector('svg.navigation-arrow')) }))
+        };
+      });
+      assert.ok(layout.info.right <= layout.nav.left + 1, `Footer text must not overlap navigation at ${viewport.width}: ${JSON.stringify(layout)}`);
+      for (const button of layout.buttons) {
+        assert.ok(button.left >= 0 && button.right <= viewport.width + 1 && button.top >= layout.footer.top && button.bottom <= viewport.height + 1, `Footer button outside viewport at ${viewport.width}`);
+        assert.ok(button.icon.width >= 16 && button.icon.height >= 16, `Navigation arrow must remain visible at ${viewport.width}`);
+      }
+      await page.screenshot({ path: path.join(output, `navigation-${viewport.width}.png`) });
+      if (viewport.width >= 1000) continue;
+      await ready(page, '?lectura=1');
+      const main = page.locator('#presentation');
+      await main.evaluate(element => { element.style.scrollBehavior = 'auto'; element.scrollTop = 300; });
+      await main.focus();
+      const before = await main.evaluate(element => element.scrollTop);
+      await page.keyboard.press('ArrowDown');
+      await page.waitForTimeout(250);
+      const afterDown = await main.evaluate(element => element.scrollTop);
+      assert.ok(afterDown > before && afterDown - before < 150, `Down must scroll natively without jumping slides in reading mode at ${viewport.width}: ${before} → ${afterDown}`);
+      await page.keyboard.press('ArrowUp');
+      await page.waitForTimeout(250);
+      const afterUp = await main.evaluate(element => element.scrollTop);
+      assert.ok(afterUp < afterDown && afterDown - afterUp < 150, `Up must scroll natively in reading mode at ${viewport.width}: ${afterDown} → ${afterUp}`);
+      assert.equal(await page.locator('[data-ui="next"]').getAttribute('data-direction'), 'down');
+      await page.screenshot({ path: path.join(output, `navigation-${viewport.width}-reading.png`) });
+    }
+    report.checks.push('Directional footer fits 1440/768/375; native Up/Down reading scroll preserved at 768/375');
+    console.log('Navigation layout: footer 1440/768/375 and native reading scroll 768/375 PASS.');
+  } finally { await page.close(); }
 }
 
 async function checkSlideTransitions(browser) {
@@ -294,6 +385,7 @@ async function run() {
     assert.deepEqual(data.slides.map(slide => slide.id), contentSlides.map(slide => slide.id), "Rendered chapters must preserve the declared learning sequence");
     await checkNavigation(page, data.slides);
     await checkSlideTransitions(browser);
+    await checkNavigationViewports(browser);
     if (navigationOnly) {
       report.slides = data.slides.length;
       assert.deepEqual(report.errors, []);
@@ -468,5 +560,5 @@ async function run() {
   }
 }
 
-module.exports = { checkMotion, checkNavigation, checkSlideTransitions };
+module.exports = { checkMotion, checkNavigation, checkNavigationViewports, checkSlideTransitions };
 if (require.main === module) run().catch(error => { console.error(error); process.exitCode = 1; });

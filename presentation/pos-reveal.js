@@ -152,8 +152,15 @@
     const slide=current(),index=C.slides.indexOf(slide),chapter=C.chapters.find(c=>c.id===slide.chapter);
     $('#chapter-label').textContent=chapter.title;
     $('#slide-count').textContent=`${String(index+1).padStart(2,'0')} / ${C.slides.length}`;
-    $('[data-ui=previous]').disabled=index===0;
-    $('[data-ui=next]').disabled=index===C.slides.length-1;
+    for(const direction of [-1,1]) {
+      const forward=direction===1,target=C.slides[index+direction];
+      const button=$(`[data-ui=${forward?'next':'previous'}]`);
+      const sameChapter=target?.chapter===slide.chapter;
+      button.disabled=!target;
+      button.dataset.direction=reading||sameChapter?(forward?'down':'up'):(forward?'right':'left');
+      const destination=!target?(forward?'fin de la presentación':'inicio de la presentación'):sameChapter?'lámina del mismo capítulo':forward?'primer tema del capítulo siguiente':'último tema del capítulo anterior';
+      button.setAttribute('aria-label',`${forward?'Siguiente':'Anterior'}: ${destination}`);
+    }
     const params=new URLSearchParams(location.search);params.set('lectura',reading?'0':'1');params.delete('print-pdf');
     $('#reading-link').href=`?${params}#/${id}`;
     $('#reading-link').textContent=reading?'Presentar':'Leer';
@@ -164,17 +171,18 @@
     if(reading){document.getElementById(id).scrollIntoView({behavior:reduced.matches?'instant':'smooth',block:'start'});history.replaceState(null,'',`#/${id}`);update(id);}
     else {const p=locations.get(id);Reveal.slide(p.h,p.v,-1);}
   }
-  function navigate(direction) {
-    stop();
+  function navigate(direction,withinChapter=false) {
     const target=C.slides[C.slides.indexOf(current())+direction];
-    if(target)goTo(target.id);
+    if(!target || (withinChapter && target.chapter!==current().chapter))return;
+    stop();
+    goTo(target.id);
   }
   function openDialog(kind,opener) {
     stop();dialogOpener=opener || document.activeElement;
     let title,content;
     if(kind==='index') {
       title='El recorrido, capítulo por capítulo';
-      content=`<p>→ o Siguiente: siguiente lámina. ← o Anterior: lámina anterior. Recorren toda la presentación en orden, también al cambiar de capítulo. Espacio avanza los bloques resaltados del código y luego la lámina; Mayús + Espacio retrocede. El índice permite saltar a cualquier tema. En móvil, el modo lectura conserva los laboratorios.</p><div class="index-chapters">${C.chapters.map((chapter,i)=>`<div class="index-chapter"><h3>${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
+      content=`<p>Siguiente y Anterior recorren todas las láminas en orden. Sus flechas muestran la dirección: ↓ / ↑ dentro del capítulo y → / ← al cambiar de capítulo.</p><p>Teclado: → / ← recorren toda la presentación; ↓ / ↑ recorren solo el capítulo actual. Espacio avanza los bloques resaltados del código y luego la lámina; Mayús + Espacio retrocede. En modo lectura, ↓ / ↑ desplazan el documento. El índice permite saltar a cualquier tema.</p><div class="index-chapters">${C.chapters.map(chapter=>`<div class="index-chapter"><h3>${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
     } else if(kind==='notes') {
       title=current().title;
       content=`<p>Notas para quien presenta. Los ejemplos son didácticos y usan datos simulados.</p><ol>${(current().notes || []).map(note=>`<li>${esc(note)}</li>`).join('')}</ol>${current().source?`<p><a href="${esc(current().source.url)}">${esc(current().source.label)}</a></p>`:''}`;
@@ -218,6 +226,8 @@
     // Navigation remains available after clicking a button or following an index link.
     const direction={ArrowRight:1,PageDown:1,ArrowLeft:-1,PageUp:-1}[event.key];
     if(direction){event.preventDefault();event.stopImmediatePropagation();navigate(direction);return;}
+    const vertical={ArrowDown:1,ArrowUp:-1}[event.key];
+    if(!reading && vertical){event.preventDefault();event.stopImmediatePropagation();navigate(vertical,true);return;}
     // Preserve native Space/Enter activation for focused controls.
     if(event.target.closest('button,a'))return;
     const action={o:'index',n:'notes',g:'glossary'}[event.key.toLowerCase()];

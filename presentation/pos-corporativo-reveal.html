@@ -33,7 +33,10 @@
   <main id="presentation" class="reveal" aria-label="Presentación POS corporativo" tabindex="-1"><div class="slides" id="course-slides"></div></main>
   <footer class="course-footer">
     <div><span id="chapter-label">POS corporativo</span><span id="slide-count"></span></div>
-    <nav aria-label="Navegación de diapositivas"><button type="button" data-ui="previous">← Anterior</button><button type="button" data-ui="next" class="primary">Siguiente →</button></nav>
+    <nav aria-label="Navegación de diapositivas">
+      <button type="button" data-ui="previous" data-direction="left"><svg class="navigation-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg><span>Anterior</span></button>
+      <button type="button" data-ui="next" data-direction="down" class="primary"><span>Siguiente</span><svg class="navigation-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+    </nav>
   </footer>
   <dialog id="course-dialog" aria-labelledby="dialog-title"><header><div><p class="eyebrow" id="dialog-eyebrow">POS Platform</p><h2 id="dialog-title"></h2></div><button type="button" data-ui="close" autofocus>Cerrar <kbd>Esc</kbd></button></header><div id="dialog-body"></div></dialog>
   <div class="sr-only" id="course-announcement" role="status" aria-live="polite"></div>
