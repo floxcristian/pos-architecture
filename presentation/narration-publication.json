@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "contentHash": "17bdb3703abf42c752e2a764d45f331015b0cadcc213163bd695929f113ecb73",
+  "contentHash": "ab350491ac81e1fe6b53f272aa3aef87c1c8eba8f8981c0919fcdcb05ec5bcf7",
   "voice": "es-CL-LorenzoNeural",
   "language": "es-CL",
   "rate": "-5%",
-  "slides": 88,
-  "cues": 539,
-  "duration": 7722.72,
-  "scriptHash": "0427fb1ec03ea8e22d2bdef6066af6eee2293b4dad89b5acf1adee91fcd6c28d",
-  "file": "pos-narration-17bdb3703abf42c7.zip",
-  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-narration-17bdb3703abf42c7/pos-narration-17bdb3703abf42c7.zip",
-  "bytes": 61813866,
-  "sha256": "4f4196fe48765609c94b2290bbd328ed93c3c82f63b59796c9cefeebd1ae7c70",
+  "slides": 79,
+  "cues": 494,
+  "duration": 7184.184,
+  "scriptHash": "5f809919b135e4b386d1c00e076abb6596c73c58331a28ad233af177db5106e3",
+  "file": "pos-narration-ab350491ac81e1fe.zip",
+  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-narration-ab350491ac81e1fe/pos-narration-ab350491ac81e1fe.zip",
+  "bytes": 57502260,
+  "sha256": "958d801d6d257ce62a0653f19386fc8c2960f152b95bef32159cd5d16fc34698",
   "files": [
     {
       "file": "acl-ejemplo-antes-despues.mp3",
@@ -95,8 +95,8 @@
     },
     {
       "file": "como-aprender-la-arquitectura.mp3",
-      "bytes": 571628,
-      "sha256": "d9d8ec2c2b1297913510c193665e0d37eef14e945e15e65cfeba9611579e5d3a"
+      "bytes": 623660,
+      "sha256": "7b90dab59a123e9425c3ee312aa3f674753f165b55a9b8446d068dc9c7ebe65d"
     },
     {
       "file": "compartir-configurar-extender.mp3",
@@ -105,8 +105,8 @@
     },
     {
       "file": "compra-hilo-conductor.mp3",
-      "bytes": 610028,
-      "sha256": "bc139c364ddaeb5ba7410eefddc6f5130fc1d09427e558d6953b1a4434a715cf"
+      "bytes": 619244,
+      "sha256": "7340c48d5611214dcc1b5d7f4b8b5cc002da7b21e61992ffbbf6d77231608e24"
     },
     {
       "file": "contenedores-del-pos.mp3",
@@ -130,23 +130,13 @@
     },
     {
       "file": "criterios-del-piloto.mp3",
-      "bytes": 538028,
-      "sha256": "aafa97d2412edca9a467c8ff6fda9033b21cb2333f2fd3a6eafba88f30165b9e"
+      "bytes": 554156,
+      "sha256": "044cbadde710835821551412a3331800d58564090e76e9d7b62e4c683204411c"
     },
     {
       "file": "ejecucion-manual-programada.mp3",
       "bytes": 626156,
       "sha256": "6abcfa09a9735c3388e82e11a63a7f3ea5f0a976fab59dc97b8a5ad93e0eaddd"
-    },
-    {
-      "file": "ejercicio-cerrar-interfaz.mp3",
-      "bytes": 551852,
-      "sha256": "838dbe13f26efcdf43e0871362be7fa12db55fca800bc8153869be3dfeac2c2f"
-    },
-    {
-      "file": "ejercicio-leer-relacion.mp3",
-      "bytes": 486572,
-      "sha256": "6068546b9cae1f78f9400637b02b7575830e170310c02122d070e8e2c6f61cdd"
     },
     {
       "file": "elegir-mensajeria.mp3",
@@ -169,11 +159,6 @@
       "sha256": "c74007c6102e78699533ab7ee1caa9ac38586cd525835a8d5b3b1b88b328a32d"
     },
     {
-      "file": "estructura-ejercicio-ubicar-cambio.mp3",
-      "bytes": 527084,
-      "sha256": "10493f43984acd9c95aa8444aa526dcff23d1af5be235d9b34dcce70c36bdba4"
-    },
-    {
       "file": "estructura-importar-no-es-llamar.mp3",
       "bytes": 526508,
       "sha256": "a8c1ba2c3685cfcf281ca7f618a9f84eeab8e4ab4f82783462db76319538b701"
@@ -190,8 +175,8 @@
     },
     {
       "file": "explicar-tu-diseno.mp3",
-      "bytes": 624428,
-      "sha256": "54c89d951044cd0907680aa96b7e846b61285aa8c860f77e5cf04980b3a8f6da"
+      "bytes": 742124,
+      "sha256": "3d23fd5f029003ba0a366f4092253ec8f99132f65ce5c05ac5caa6733755637a"
     },
     {
       "file": "fachada-acl-adaptador.mp3",
@@ -349,36 +334,6 @@
       "sha256": "8d8babb6c876c0ec9813b7d7dcb8d68115692109949d51db9e4caa022cb86e80"
     },
     {
-      "file": "pregunta-ack-perdido.mp3",
-      "bytes": 508460,
-      "sha256": "d4a0f300f67b9911186f68c54208bb3674385451c6b5ef41939c27912bb013e4"
-    },
-    {
-      "file": "pregunta-frontera-de-integracion.mp3",
-      "bytes": 507500,
-      "sha256": "2345c76ff96bedbc1cfb9a00cbbb4b8abb71ffbde5f83310fa69a21656ed76d8"
-    },
-    {
-      "file": "pregunta-guardar-y-avisar.mp3",
-      "bytes": 474860,
-      "sha256": "507433596a500991bac36ae52c536e3307a9d53cced1341022034c62b25d501f"
-    },
-    {
-      "file": "pregunta-hueco-de-precios.mp3",
-      "bytes": 470828,
-      "sha256": "70e1f896c6ce975ff223d3aa39dd18ab070fe66ecc27ebd1334a503f439618bb"
-    },
-    {
-      "file": "pregunta-pais-nuevo.mp3",
-      "bytes": 501164,
-      "sha256": "28af8b21c135ee9de7434aced60fd33ccff9fd32c4f1f6c9bf8b64c04e2308cf"
-    },
-    {
-      "file": "pregunta-precios.mp3",
-      "bytes": 488108,
-      "sha256": "2e0b3ccf635b6bfd0d09e133655e352b1316726724c66b7c33803c2ef0a6c5c1"
-    },
-    {
       "file": "preparar-y-activar-desde-cero.mp3",
       "bytes": 641900,
       "sha256": "92215ed480df1d333b74ceb10d8dbb721daa80a1bb0d8f73913c1dc9c5785f72"
@@ -390,8 +345,8 @@
     },
     {
       "file": "que-es-arquitectura.mp3",
-      "bytes": 596780,
-      "sha256": "3c1efd2063f7f9ebec62cce23a70adcf50c4e6a77e48fb0ef649d24366db7397"
+      "bytes": 610220,
+      "sha256": "1df2a1983f88f69b5b6ef43aaff5d2739c826b952d0377149d4811f505ce411b"
     },
     {
       "file": "recibido-versus-aplicado.mp3",
@@ -420,8 +375,8 @@
     },
     {
       "file": "ruta-de-aprendizaje.mp3",
-      "bytes": 603692,
-      "sha256": "0a54810a02014573544ac2c992774b2810b1239c2bdb8609dfe09970924b932b"
+      "bytes": 601196,
+      "sha256": "8df5371f976fa7416d84770684982bf2654472ccdb5d5b23bb661fa8a0690b53"
     },
     {
       "file": "significado-de-acuses.mp3",

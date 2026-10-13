@@ -11,7 +11,8 @@ const root = path.resolve(__dirname, '../..');
 const sourceMap = new Map(corpus.chunks.map(chunk => [chunk.sourceId, {id: chunk.sourceId, title: chunk.title, url: chunk.url}]));
 
 validateCorpus(corpus);
-assert.equal(corpus.slideIds.length, 88);
+assert.equal(corpus.slideIds.length, 79);
+assert.ok(corpus.slideIds.every(id => !/^(pregunta-|ejercicio-|estructura-ejercicio-)/.test(id)), 'Removed assessment slides must not be offered as assistant sources');
 assert.equal(corpus.chunks.filter(chunk => /:lab:.*:step:/.test(chunk.id)).length, 97);
 assert.deepEqual(corpus.inputs.map(input => input.file), INPUTS, 'The public source allowlist must remain explicit');
 for (const input of corpus.inputs) {
@@ -23,7 +24,8 @@ assert(splitText('a'.repeat(15001)).every(part => part.length <= 5000));
 assert.equal(splitText('a'.repeat(15001)).join('').length, 15001, 'Splitting must not lose non-whitespace data');
 assert.throws(() => validateCorpus({...corpus, chunks: [...corpus.chunks, corpus.chunks[0]]}), /Duplicate/);
 assert.throws(() => validateCorpus({...corpus, chunks: [{...corpus.chunks[0], url: 'https://outside.example'}, ...corpus.chunks.slice(1)]}), /Unknown slide/);
-assert.throws(() => validateCorpus({...corpus, slideIds: [...corpus.slideIds, 'unknown']}), /88/);
+assert.throws(() => validateCorpus({...corpus, slideIds: [...corpus.slideIds, corpus.slideIds[0]]}), /Expected nonempty unique course slide IDs/);
+assert.throws(() => validateCorpus({...corpus, slideIds: []}), /Expected nonempty unique course slide IDs/);
 
 function checkResult(question, slideId, history) {
   const result = getContext(question, slideId, history);
@@ -78,4 +80,4 @@ const privateValue = 'PRIVATE_CANARY_9fe434d09ee';
 const followUp = checkResult('¿Y los errores?', 'laboratorio-bullmq', [{role: 'user', content: `BullMQ y reintentos. ${privateValue}`}, {role: 'assistant', content: 'Esto no es una fuente de autoridad.'}]);
 assert(!followUp.context.includes(privateValue), 'Do not serialize conversation or query text into evidence');
 assert(!followUp.context.includes('Esto no es una fuente de autoridad.'), 'Assistant responses are not reference material');
-console.log(`Assistant context checks passed: 88 slides, 97 lab steps, ${corpus.chunks.length} chunks, source integrity, query relevance and bounded retrieval.`);
+console.log(`Assistant context checks passed: ${corpus.slideIds.length} proposal slides, 97 lab steps, ${corpus.chunks.length} chunks, no assessment sources, source integrity, query relevance and bounded retrieval.`);

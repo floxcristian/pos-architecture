@@ -48,7 +48,9 @@ function strings(value) {
 }
 
 function validateCorpus(corpus) {
-  if (corpus.version !== 1 || corpus.slideIds.length !== 88 || new Set(corpus.slideIds).size !== 88) throw new Error('Expected 88 unique course slides');
+  if (corpus.version !== 1 || !Array.isArray(corpus.slideIds) || !corpus.slideIds.length ||
+      corpus.slideIds.some(id => typeof id !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) ||
+      new Set(corpus.slideIds).size !== corpus.slideIds.length) throw new Error('Expected nonempty unique course slide IDs');
   const ids = new Set();
   const knownSlides = new Set(corpus.slideIds);
   const sources = new Map();
@@ -90,8 +92,7 @@ function buildAssistantContext(options = {}) {
 
   for (const slide of course.slides) {
     const source = {sourceId: slide.id, title: clean(slide.title), url: `${COURSE_URL}#/${slide.id}`, slideId: slide.id};
-    const answers = (slide.options || []).map(option => `Opción ${option.correct ? 'correcta' : 'incorrecta'}: ${option.label}\nExplicación: ${option.feedback || ''}`);
-    const parts = [slide.title, slide.lead, ...strings(slide.items), ...strings(slide.columns), ...strings(slide.steps), slide.question, ...answers, ...strings(slide.aside), ...strings(slide.code), slide.takeaway, ...(slide.notes || [])];
+    const parts = [slide.title, slide.lead, ...strings(slide.items), ...strings(slide.columns), ...strings(slide.steps), ...strings(slide.aside), ...strings(slide.code), slide.takeaway, ...(slide.notes || [])];
     add(`${slide.id}:slide`, source, parts.filter(Boolean).map(clean).join('\n\n'));
     if (!Array.isArray(narration[slide.id]) || !narration[slide.id].length) throw new Error(`Missing narration: ${slide.id}`);
     add(`${slide.id}:narration`, source, narration[slide.id].map(cue => cue.text).join('\n\n'));

@@ -12,7 +12,7 @@ const remote = process.argv.slice(2).find(argument => !argument.startsWith('--')
 const base = remote ? remote.replace(/\/$/, '') : `http://127.0.0.1:${port}`;
 const entry = `${base}/presentation/pos-corporativo-reveal.html`;
 const output = path.join(root, 'qa', 'reveal');
-const report = { slides: 0, chapters: 0, labs: 0, scenarios: 0, steps: 0, quizzes: 0, viewports: [], checks: [], errors: [], external: [], failedRequests: [] };
+const report = { slides: 0, chapters: 0, labs: 0, scenarios: 0, steps: 0, viewports: [], checks: [], errors: [], external: [], failedRequests: [] };
 
 function playwright() {
   for (const name of [process.env.PLAYWRIGHT_MODULE_PATH, path.resolve(root, '../video/node_modules/playwright'), 'playwright'].filter(Boolean)) {
@@ -270,8 +270,8 @@ async function checkNavigation(page, slides) {
   }
   assert.equal(await page.evaluate(() => Reveal.getConfig().transition), 'none');
   assert.ok(await page.evaluate(() => document.getAnimations().filter(animation => animation.effect?.target?.closest?.('.slides')).length === 0), 'Reduced motion must not create slide animations');
-  report.checks.push('Native Reveal four-arrow controls and route availability on all slides; spatial clicks/keys with link/button focus; all vertical boundaries; code fragments; 87 exact PageDown advances + 87 PageUp returns; Enter/Space activation; dialog/input/slider isolation; reduced motion');
-  console.log('Navigation regression: all 174 exact slide moves, native controls, fragments and focus guards PASS.');
+  report.checks.push(`Native Reveal four-arrow controls and route availability on all slides; spatial clicks/keys with link/button focus; all vertical boundaries; code fragments; ${slides.length - 1} exact PageDown advances + ${slides.length - 1} PageUp returns; Enter/Space activation; dialog/input/slider isolation; reduced motion`);
+  console.log(`Navigation regression: all ${(slides.length - 1) * 2} exact slide moves, native controls, fragments and focus guards PASS.`);
 }
 
 async function checkNavigationViewports(browser) {
@@ -346,7 +346,17 @@ async function checkNavigationViewports(browser) {
       assert.equal(await page.evaluate(() => POSCourse.getState().currentId), ids[1], 'Reading Left retains sequential navigation');
       await page.screenshot({ path: path.join(output, `navigation-${viewport.width}-reading.png`) });
     }
+    for (const reading of [false, true]) {
+      await ready(page, `?lectura=${reading ? '1' : '0'}#/pregunta-precios`);
+      const ids = await page.evaluate(() => POS_REVEAL_CONTENT.slides.map(slide => slide.id));
+      assert.equal(await page.evaluate(() => POSCourse.getState().currentId), ids[0], 'An old assessment hash must fall back to the first proposal slide');
+      assert.equal(await page.locator('#pregunta-precios').count(), 0, 'Removed assessments must not be restored for old links');
+      await page.locator('#presentation').focus();
+      await page.keyboard.press('PageDown');
+      assert.equal(await page.evaluate(() => POSCourse.getState().currentId), ids[1], 'The proposal must remain navigable after opening an old assessment link');
+    }
     report.checks.push('Native four-arrow cluster and compact reading buttons fit 1440/768/375 without overlap; native Up/Down reading scroll and Left/Right sequential reading navigation preserved');
+    report.checks.push('Removed assessment hash falls back to the proposal and remains navigable in presenting and reading modes');
     console.log('Navigation layout: native arrows and reading controls 1440/768/375 PASS.');
   } finally { await page.close(); }
 }
@@ -422,15 +432,19 @@ async function run() {
       chapters: document.querySelectorAll('.slides > section').length
     }));
     assert.deepEqual(data.config, { width: 1280, height: 780 });
-    assert.equal(data.slides.length, 88);
+    assert.equal(data.slides.length, 79);
     assert.equal(data.chapters, 8);
-    assert.equal(new Set(data.slides.map(slide => slide.id)).size, 88);
+    assert.equal(new Set(data.slides.map(slide => slide.id)).size, 79);
     assert.ok(data.slides.every(slide => slide.id && slide.title));
     assert.equal(Object.keys(data.labs).length, 7);
     report.chapters = data.chapters;
     const contentSlides = data.content.slides || data.content.chapters?.flatMap(chapter => chapter.slides) || [];
-    assert.equal(contentSlides.length, 88);
-    assert.deepEqual(data.slides.map(slide => slide.id), contentSlides.map(slide => slide.id), "Rendered chapters must preserve the declared learning sequence");
+    assert.equal(contentSlides.length, 79);
+    assert.deepEqual(data.slides.map(slide => slide.id), contentSlides.map(slide => slide.id), 'Rendered chapters must preserve the declared proposal sequence');
+    assert.ok(contentSlides.every(slide => slide.kind !== 'quiz' && !slide.options && !slide.question), 'The proposal must not contain assessment questions');
+    assert.equal(await page.locator('#course-slides [data-answer],#course-slides .quiz-options,#course-slides .quiz-feedback').count(), 0, 'Assessment controls must not be rendered');
+    assert.ok(contentSlides.every(slide => !/comprueba lo aprendido|comprueba tu|quiz|cuestionario/i.test(slide.title)), 'Assessment slides must not remain in the proposal index');
+    report.checks.push('The 79-slide proposal contains no quizzes, answer controls or assessment index entries');
     await checkNavigation(page, data.slides);
     await checkSlideTransitions(browser);
     await checkNavigationViewports(browser);
@@ -458,7 +472,7 @@ async function run() {
       report.slides++;
     }
     assert.deepEqual(layoutFailures, [], 'Desktop layout failures:\n' + layoutFailures.join('\n'));
-    console.log('All 88 slides: IDs, regions, readable heading sizes and 1280 × 780 bounds PASS.');
+    console.log(`All ${data.slides.length} slides: IDs, regions, readable heading sizes and 1280 × 780 bounds PASS.`);
 
     const labSlides = data.slides.filter(slide => slide.lab);
     assert.equal(labSlides.length, 7);
@@ -525,23 +539,6 @@ async function run() {
     assert.equal(await liveLab.locator('animateMotion').count(), 0);
     report.checks.push('Autoplay advance, pause, leave cleanup, reset and reduced-motion packets');
 
-    for (const slide of data.slides) {
-      await go(page, slide);
-      const answers = page.locator(`#${slide.id} .quiz-options button[data-answer]`);
-      if (!(await answers.count())) continue;
-      let success = false;
-      for (const answer of await answers.all()) {
-        await answer.click();
-        assert.equal(await answer.getAttribute('aria-pressed'), 'true');
-        assert.ok((await page.locator(`#${slide.id} .quiz-feedback`).innerText()).trim().length > 30);
-        success ||= (await page.locator(`#${slide.id} .quiz-feedback.success`).count()) === 1;
-        await noOverflow(page);
-      }
-      assert.ok(success, `Quiz has no successful answer: ${slide.id}`);
-      report.quizzes++;
-    }
-    assert.ok(report.quizzes > 0);
-
     await go(page, data.slides[7]);
     for (const [action, title] of [['index', /recorrido|Índice/i], ['notes', /.+/], ['glossary', /Términos|Glosario/i]]) {
       await page.locator(`[data-ui="${action}"]`).click();
@@ -567,7 +564,7 @@ async function run() {
     await page.waitForFunction(id => location.hash.endsWith('/' + id), data.slides[7].id);
     await page.goBack();
     await page.waitForFunction(id => Reveal.getCurrentSlide().id === id, data.slides[5].id);
-    report.checks.push('Quizzes, modal tools, focus restoration, hash reload, browser history and keyboard navigation');
+    report.checks.push('Modal tools, focus restoration, hash reload, browser history and keyboard navigation');
 
     const links = await page.locator('a[href]').evaluateAll(elements => [...new Set(elements.map(el => el.href).filter(href => /^https?:/.test(href)))]);
     for (const link of links.filter(link => new URL(link).origin === new URL(base).origin)) {

@@ -69,6 +69,8 @@ async function seek(page, index) {
 
 function validateManifest(data) {
   const expectedSlides = data.content.slides.map(slide => slide.id);
+  assert.equal(expectedSlides.length, 79, 'The narrator must follow the 79-slide proposal');
+  assert.ok(data.content.slides.every(slide => slide.kind !== 'quiz'), 'Narration must not include assessment slides');
   assert.deepEqual(Object.keys(data.narration).sort(), [...expectedSlides].sort(), 'Every slide must have one narration script');
   assert.deepEqual(Object.keys(data.audio).sort(), [...expectedSlides].sort(), 'Every slide must have recorded audio');
   const labStates = new Set();
@@ -255,7 +257,8 @@ async function checkPlayRejection(page) {
 }
 
 async function auditAllCues(page, data) {
-  const samples = smoke ? data.content.slides.filter((slide, index) => index === 0 || slide.kind === 'diagram' || slide.lab === 'architecture-patterns' || slide.id === 'fachada-e-interfaz-en-codigo') : data.content.slides;
+  const proposalNarration = new Set(['ruta-de-aprendizaje', 'como-aprender-la-arquitectura', 'explicar-tu-diseno']);
+  const samples = smoke ? data.content.slides.filter((slide, index) => index === 0 || slide.kind === 'diagram' || slide.lab === 'architecture-patterns' || slide.id === 'fachada-e-interfaz-en-codigo' || proposalNarration.has(slide.id)) : data.content.slides;
   for (const slide of samples) {
     await goto(page, slide.id);
     await mediaReady(page);
@@ -289,14 +292,6 @@ async function checkManualInteractions(page, data) {
   await paused(page);
   await page.screenshot({ path: path.join(output, 'desktop-lab.png') });
 
-  const quiz = data.content.slides.find(slide => slide.kind === 'quiz');
-  await goto(page, quiz.id); await mediaReady(page); await seek(page, 0);
-  await page.locator(action('play')).click();
-  await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
-  await page.locator(`#${quiz.id} [data-answer]`).first().click();
-  assert.equal((await state(page)).status, 'paused', 'Answering a quiz must pause the narrator');
-  assert.ok((await page.locator(`#${quiz.id} .quiz-feedback`).innerText()).trim().length > 10);
-
   const code = data.content.slides.find(slide => slide.code?.highlights);
   assert.ok(code, 'Keep a highlighted code example as a regression fixture');
   await goto(page, code.id); await mediaReady(page); await seek(page, 0);
@@ -306,7 +301,7 @@ async function checkManualInteractions(page, data) {
   await page.keyboard.press('Space');
   assert.equal(await page.evaluate(() => POSCourse.getState().currentId), code.id, 'Space must still advance a code fragment inside its slide');
   assert.equal((await state(page)).status, 'paused', 'Manual code-fragment navigation must pause narration');
-  report.checks.push('Manual laboratory, quiz and code-fragment interaction pause speech while preserving the lesson controls');
+  report.checks.push('Manual laboratory and code-fragment interaction pause speech while preserving the proposal controls');
 }
 
 async function mobile(browser, data) {

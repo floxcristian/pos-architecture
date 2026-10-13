@@ -53,34 +53,34 @@
         notes: [
           'La cruceta de Reveal.js muestra las direcciones disponibles. Las flechas derecha e izquierda cambian de capítulo; arriba y abajo recorren las láminas y bloques resaltados del capítulo actual. Las teclas de flecha hacen lo mismo; cuando hay bloques resaltados pendientes, las flechas los recorren antes de salir de la lámina. Espacio recorre toda la presentación en orden; Av Pág y Re Pág pasan directamente entre láminas. En modo lectura, arriba y abajo desplazan el documento.',
           'Los laboratorios usan datos sintéticos y permiten recorrer pasos o fallos. No se conectan a bancos, servicios fiscales, colas ni sistemas corporativos.',
-          'Conviene detenerse en las preguntas antes de mostrar la respuesta. El objetivo es justificar decisiones, no memorizar nombres de herramientas.'
+          'El recorrido se centra en las decisiones de la propuesta, sus responsabilidades y sus consecuencias. Los ejemplos permiten seguir el diseño y contrastar sus garantías.'
         ], source: proposal
       },
       {
         "id": "como-aprender-la-arquitectura",
         "chapter": "producto",
         "kind": "cards",
-        "title": "Entender el diseño, no memorizar siglas",
-        "lead": "Partimos de funciones, objetos y una compra. No necesitas experiencia previa con C4, patrones ni Nx.",
+        "title": "Tres criterios para revisar la propuesta",
+        "lead": "Seguiremos una venta para explicar responsabilidades, fronteras y cambios sin asumir experiencia previa con C4, patrones ni Nx.",
         "items": [
           {
             "title": "Primero: una responsabilidad",
-            "text": "Explica qué decisión toma cada parte: mostrar, calcular, guardar o comunicar."
+            "text": "Cada parte tiene decisiones propias: mostrar, calcular, guardar o comunicar."
           },
           {
             "title": "Después: una frontera",
-            "text": "Identifica quién llama a quién, qué datos cruzan y qué ocurre si falla."
+            "text": "Cada colaboración define quién llama a quién, qué datos cruzan y qué ocurre si falla."
           },
           {
             "title": "Finalmente: un cambio",
-            "text": "Ubica una nueva regla o un proveedor distinto sin modificar todo el sistema."
+            "text": "Una nueva regla o un proveedor distinto debe tener un lugar claro sin modificar todo el sistema."
           }
         ],
-        "takeaway": "Una explicación está comprendida cuando puedes aplicarla a un caso distinto y justificarla.",
+        "takeaway": "La propuesta debe hacer visibles las responsabilidades, los contratos y el impacto de cada cambio.",
         "notes": [
-          "Se asume que la persona reconoce una función, un objeto y un archivo de código. El curso explica frontend, backend, API, base de datos y arquitectura antes de usarlos para leer los diagramas.",
-          "Puede dividirse el taller en tres encuentros: producto y mapas; ventas, precios y sincronización; integración, estructura y operación. La duración depende de las preguntas y de los ejercicios.",
-          "Pide a cada participante que explique con sus palabras antes de mostrar las respuestas. Los ejercicios son señales de comprensión, no una certificación ni una garantía de que no quedarán dudas.",
+          "Se asume que la persona reconoce una función, un objeto y un archivo de código. La presentación explica frontend, backend, API, base de datos y arquitectura antes de usarlos para leer los diagramas.",
+          "La revisión puede organizarse en tres bloques: producto y mapas; ventas, precios y sincronización; integración, estructura y operación.",
+          "Las simulaciones ilustran decisiones de arquitectura y límites de las garantías. La validación del diseño requiere evidencia del piloto y revisión del equipo.",
           "Nx aparece únicamente para ubicar la herramienta dentro del repositorio. Su configuración y uso práctico quedan fuera del objetivo de esta presentación."
         ],
         "source": {
@@ -113,7 +113,7 @@
           "Presentar arquitectura mediante estas preguntas concretas, sin empezar por nombres de patrones. En esta propuesta la pantalla recibe la intención; el backend de sucursal valida y confirma; PostgreSQL conserva los registros.",
           "Las decisiones también incluyen consecuencias y alternativas. Confirmar ventas en sucursal facilita continuar sin Internet, pero exige recuperar el servidor si deja de estar disponible.",
           "Un contrato describe qué información recibe una parte, qué resultado ofrece y qué errores puede comunicar. No es una promesa de que nunca falle.",
-          "El ejercicio final debería pedir al participante que explique estas responsabilidades con sus propias palabras. Mostrar la definición no demuestra que ya pueda aplicarla."
+          "La revisión final reúne estas responsabilidades, el impacto de los cambios y el tratamiento de los fallos como decisiones que deben quedar acordadas antes de implementar."
         ],
         "source": {
           "label": "Propuesta del POS",
@@ -152,7 +152,7 @@
         "notes": [
           "Los filtros y el pago en efectivo son un ejemplo ficticio. La regla fiscal concreta depende del régimen y del documento homologados; registrar una venta no resuelve esa obligación por sí solo.",
           "Dejar claro que el paso de otros sistemas puede quedar pendiente. No introducir todavía outbox, idempotencia ni broker; esos nombres aparecen cuando se explica el problema que resuelven.",
-          "Preguntar quién debería calcular el importe definitivo y quién debe conservarlo si la pantalla se cierra. Recoger hipótesis sin exigir vocabulario técnico.",
+          "El backend calcula el importe definitivo aplicando las reglas de precios y conserva la venta confirmada en PostgreSQL. Cerrar la pantalla no elimina ese registro.",
           "Este recorrido usa el perfil con LAN y servidor de sucursal disponibles. La autonomía frente a otros fallos se delimita más adelante."
         ],
         "source": {
@@ -282,7 +282,7 @@
           "Frontend y backend son responsabilidades de software, no sinónimos de equipo del usuario y nube. El backend propuesto vive en el servidor de la sucursal y puede seguir disponible sin Internet.",
           "Una persona puede alterar una solicitud o usar una versión antigua de la UI. Por eso un botón oculto o un importe calculado en pantalla no constituyen autorización.",
           "Angular es la tecnología indicada para la interfaz. Tauri permite empaquetarla y acceder a capacidades nativas autorizadas; no reemplaza el backend de sucursal.",
-          "Evitar que el grupo confunda backend con ERP. Son aplicaciones con responsabilidades distintas; el backend POS puede confirmar el negocio local antes de su integración posterior."
+          "Backend POS y ERP son aplicaciones con responsabilidades distintas; el backend POS puede confirmar el negocio local antes de su integración posterior."
         ],
         "source": {
           "label": "Tecnologías y responsabilidades propuestas",
@@ -418,43 +418,8 @@
         "notes": [
           "Responsabilidad es el trabajo y las decisiones que una parte posee. Contrato es la entrada, el resultado, errores y condiciones de una colaboración.",
           "Un contrato no se reduce a los nombres y tipos de campos. Si una respuesta se llama aprobado, todos deben acordar qué hecho acredita y cuál no.",
-          "Usar la compra de dos filtros para identificar participantes: cajera, interfaz, cálculo y almacenamiento. Pedir una frase sobre el trabajo de cada uno.",
+          "La compra de dos filtros permite identificar a los participantes y su trabajo: cajera, interfaz, cálculo y almacenamiento.",
           "Este fundamento prepara la explicación de contratos entre países e integraciones. No introduce todavía ACL, fachadas ni reglas Nx, que tienen su propio bloque."
-        ],
-        "source": {
-          "label": "Propuesta del POS",
-          "url": "../docs/propuesta-arquitectura.md"
-        }
-      },
-      {
-        "id": "ejercicio-cerrar-interfaz",
-        "chapter": "arquitectura",
-        "kind": "quiz",
-        "title": "Ejercicio · Cerramos la ventana del POS",
-        "lead": "El backend ya confirmó la venta de dos filtros en PostgreSQL. El servidor de sucursal sigue funcionando.",
-        "question": "¿Qué debería ocurrir al volver a abrir la aplicación?",
-        "options": [
-          {
-            "label": "La venta confirmada continúa registrada y puede consultarse.",
-            "correct": true,
-            "feedback": "Correcto: el registro vive en PostgreSQL de sucursal. Cerrar la interfaz no borra una venta ya confirmada."
-          },
-          {
-            "label": "Hay que cobrar otra vez porque la pantalla perdió su memoria.",
-            "correct": false,
-            "feedback": "La memoria de la UI no es la autoridad de una venta confirmada. Volver a cobrar crearía otro efecto."
-          },
-          {
-            "label": "La venta solo existe si alcanzó a llegar al ERP.",
-            "correct": false,
-            "feedback": "La confirmación local y la integración ERP son etapas distintas. El ERP puede continuar pendiente."
-          }
-        ],
-        "takeaway": "Antes de responder, identifica dónde quedó el registro y qué aplicación sigue disponible.",
-        "notes": [
-          "Pedir primero una justificación oral. Una elección correcta por azar no demuestra que el participante distinga frontend, backend y base de datos.",
-          "El enunciado dice que el backend ya confirmó y que el servidor sigue funcionando. No extrapolar el resultado a un disco destruido o a un servidor inaccesible.",
-          "Variante de discusión: si la UI se cerró sin recibir respuesta, consultar la operación identificada antes de crear otra. La incertidumbre de red se desarrolla después."
         ],
         "source": {
           "label": "Propuesta del POS",
@@ -563,7 +528,7 @@
           "La notación debe explicar tipos, responsabilidades y fronteras. El color es una ayuda, no una propiedad universal de C4.",
           "Aplicación al POS: en contexto el POS es un sistema; en C2 se muestran sus aplicaciones; en C3 se amplía un backend. No son tres sistemas nuevos creados al hacer zoom.",
           "El mapa simplificado omite detalles. Un elemento no dibujado en una vista no deja de existir; consultar el alcance antes de sacar conclusiones sobre seguridad o ejecución.",
-          "Para comprobar lectura, pedir que el participante nombre el alcance del diagrama antes de identificar un módulo."
+          "El alcance del diagrama determina si sus elementos representan sistemas, aplicaciones, componentes o código; debe quedar explícito antes de interpretar sus relaciones."
         ],
         "source": {
           "label": "C4 oficial · Cómo leer la notación",
@@ -595,41 +560,6 @@
         }
       },
       {
-        "id": "ejercicio-leer-relacion",
-        "chapter": "arquitectura",
-        "kind": "quiz",
-        "title": "Ejercicio · ¿Qué demuestra esta relación?",
-        "lead": "Cliente POS → Backend de sucursal. Etiqueta: “Solicita cotización por HTTPS”.",
-        "question": "¿Cuál de estas afirmaciones está respaldada por el dibujo?",
-        "options": [
-          {
-            "label": "El cliente puede pedir una cotización al backend mediante ese protocolo.",
-            "correct": true,
-            "feedback": "La dirección y la etiqueta describen esa colaboración. El detalle del resultado pertenece al contrato."
-          },
-          {
-            "label": "La venta ya se guardó y el ERP recibió el pago.",
-            "correct": false,
-            "feedback": "La flecha de cotización no afirma confirmación, persistencia ni integración. Son responsabilidades diferentes."
-          },
-          {
-            "label": "El cliente y el backend se ejecutan obligatoriamente en el mismo equipo.",
-            "correct": false,
-            "feedback": "La relación no fija el equipo de ejecución. Esa información se explica en la vista de despliegue."
-          }
-        ],
-        "takeaway": "Leer un diagrama también consiste en reconocer qué información todavía no ofrece.",
-        "notes": [
-          "Pedir al participante que señale la palabra del dibujo que justifica su respuesta. Esto distingue una lectura fundada de una suposición.",
-          "La pregunta no requiere memorizar C4. Se resuelve leyendo origen, acción y destino y evitando inferir estados que el gráfico no representa.",
-          "Si el grupo duda, volver al ejemplo API: cotizar entrega un cálculo; no significa cobrar ni confirmar una venta."
-        ],
-        "source": {
-          "label": "Modelo C4 del POS",
-          "url": "../docs/c4-arquitectura-propuesta.md"
-        }
-      },
-      {
         "id": "guia-lectura-contexto-pos",
         "chapter": "arquitectura",
         "kind": "cards",
@@ -654,8 +584,8 @@
         ],
         "takeaway": "Para la compra de dos filtros, explica quién opera y qué sistemas aportan capacidades.",
         "notes": [
-          "Después de esta lámina pasar a C1 y dar tiempo para localizar las tres respuestas. El diagrama de contexto privilegia personas y sistemas, no clases o infraestructura.",
-          "Respuesta esperada aplicada a nuestra propuesta: la cajera usa el POS; el POS utiliza datos y se relaciona con autoridades de pago, fiscalidad y sistemas empresariales. La fuente autorizada de cada maestro debe confirmarse por país.",
+          "El C1 que sigue ubica a las personas, el POS y sus colaboradores. El diagrama de contexto privilegia personas y sistemas, no clases o infraestructura.",
+          "En la propuesta, la cajera usa el POS; el POS utiliza datos y se relaciona con autoridades de pago, fiscalidad y sistemas empresariales. La fuente autorizada de cada maestro debe confirmarse por país.",
           "El pago en efectivo de nuestro ejemplo no requiere una autorización bancaria remota. La relación con pagos refleja las capacidades del producto, no que se invoquen todas en cada venta.",
           "Los sistemas empresariales AX, Gira y custom corresponden a países distintos. El C1 no afirma que una venta se registre en los tres."
         ],
@@ -878,7 +808,7 @@
         ],
         "takeaway": "Asíncrono significa resultado posterior, no trabajo olvidado ni éxito automático.",
         "notes": [
-          "Pedir al equipo un ejemplo cotidiano: esperar el total para cobrar frente a enviar después un informe ya generado. La analogía explica coordinación, no garantías de persistencia.",
+          "Esperar el total antes de cobrar exige una respuesta en ese punto; enviar después un informe ya generado permite continuar mientras se completa la entrega. La comparación explica coordinación, no garantías de persistencia.",
           "No confundir esto con la palabra async de JavaScript. Una función async puede esperar una petición cuyo resultado el usuario necesita antes de continuar.",
           "La propuesta permite diferir integración ERP, pero no declarar autorizado un pago cuyo resultado se desconoce. El contrato de cada operación fija qué puede quedar pendiente."
         ],
@@ -957,7 +887,7 @@
         "notes": [
           "La numeración es una guía de lectura pedagógica, no una secuencia completa ni un flujo de pago homologado. En C2 observamos responsabilidades y comunicaciones.",
           "Conservar el mismo ejemplo de compra ayuda a relacionar vistas: no cambiamos de sistema al pasar de C1 a C2, mostramos su interior.",
-          "Preguntar qué parte se pierde al cerrar solo la interfaz y qué parte debe seguir viva. El backend y los datos de sucursal son independientes de esa ventana.",
+          "Cerrar la interfaz termina esa ventana y su estado temporal. El backend y los datos de sucursal son independientes de ella y conservan las operaciones ya confirmadas.",
           "El C2 no decide si hay Docker o cuántas máquinas habrá. Esa pregunta se trata en despliegue. El detalle de transacciones e integración aparece luego en los laboratorios."
         ],
         "source": {
@@ -1067,45 +997,11 @@
         "notes": [
           "La propiedad se define por frontera. Una inbox puede proteger el efecto local, pero no vuelve idempotente automáticamente un cobro o registro externo.",
           "Si el proveedor pudo aplicar el efecto y no devolvió respuesta, consultar o conciliar según su contrato antes de repetir.",
-          "Pedir un contraejemplo: reintentar con una identidad nueva evita la deduplicación, por lo que no es la solución al timeout."
+          "Reintentar con una identidad nueva impide reconocer el mismo intento y puede duplicar su efecto. La recuperación de un timeout conserva la identidad y consulta o concilia el resultado según el contrato."
         ],
         "source": {
           "label": "Propuesta y límites de confirmación",
           "url": "../docs/propuesta-arquitectura.md"
-        }
-      },
-      {
-        "id": "pregunta-guardar-y-avisar",
-        "chapter": "venta",
-        "kind": "quiz",
-        "title": "Primera comprobación: ¿qué sabemos?",
-        "lead": "País guardó el evento y confirmó su transacción. La respuesta se perdió antes de llegar a la sucursal.",
-        "question": "¿Qué puede concluir la sucursal cuando vence el tiempo de espera?",
-        "options": [
-          {
-            "label": "País no guardó nada; debo generar otro evento.",
-            "correct": false,
-            "feedback": "La ausencia de respuesta no permite saber si hubo commit. Otro ID impediría reconocer que se trata del mismo hecho."
-          },
-          {
-            "label": "No conozco el resultado; recupero con el mismo ID.",
-            "correct": true,
-            "feedback": "El receptor podrá reconocer el evento ya aplicado y devolver su resultado sin repetir el efecto local protegido."
-          },
-          {
-            "label": "El ERP ya contabilizó la venta porque hubo un envío.",
-            "correct": false,
-            "feedback": "Enviar no demuestra recepción, y recibir en país no demuestra contabilización ERP. Son estados distintos."
-          }
-        ],
-        "takeaway": "Timeout significa falta de respuesta concluyente; no significa rechazo ni éxito.",
-        "notes": [
-          "Pedir primero que separen tres hechos: el emisor envió, el receptor hizo commit y el emisor recibió el acuse. No son una sola acción.",
-          "En este ejemplo el receptor protege su efecto local con identidad y transacción. Una API externa sin esas capacidades necesita una estrategia de consulta o conciliación distinta."
-        ],
-        "source": {
-          "label": "Entrega y recuperación propuestas",
-          "url": "../docs/c4-arquitectura-propuesta.md"
         }
       },
       {
@@ -1299,40 +1195,6 @@
         }
       },
       {
-        "id": "pregunta-hueco-de-precios",
-        "chapter": "precios",
-        "kind": "quiz",
-        "title": "Antes de animarlo: falta un cambio",
-        "lead": "La tienda conserva A. Recibe C, pero C necesita los cambios de B y B no llegó.",
-        "question": "¿Qué hacemos con C mientras recuperamos B?",
-        "options": [
-          {
-            "label": "Publicarlo porque su nombre parece más nuevo.",
-            "correct": false,
-            "feedback": "Un nombre mayor no demuestra cobertura. Aplicar C sin su base puede dejar precios y ofertas que nunca fueron validados juntos."
-          },
-          {
-            "label": "Guardarlo en preparación y mantener A bajo su política.",
-            "correct": true,
-            "feedback": "Recuperamos la base o pedimos una foto completa nueva. A solo se usa mientras continúe autorizada; no recibe vigencia extra por el fallo."
-          },
-          {
-            "label": "Mezclar lo recibido con las filas activas.",
-            "correct": false,
-            "feedback": "Las ventas podrían leer medio cambio. La candidata debe completarse y validarse antes de activar el conjunto."
-          }
-        ],
-        "takeaway": "Esperar una base necesaria protege la coherencia; no convierte una versión vencida en utilizable.",
-        "notes": [
-          "Pedir que expliquen con las palabras recién aprendidas: C está recibida en staging, pero todavía no activa; A sigue activa solo dentro de su autorización.",
-          "Si el origen ya no conserva B, pedir una nueva carga consistente. No suponer que siempre existe un historial infinito."
-        ],
-        "source": {
-          "label": "Huecos y recuperación de precios",
-          "url": "../docs/operacion-caja-y-evolucion.md"
-        }
-      },
-      {
         id: 'espejo-de-precios', chapter: 'precios', kind: 'cards',
         title: 'Precio offline no es cachear un importe',
         lead: 'La sucursal necesita un conjunto coherente de datos y reglas para explicar cómo calculó el ticket.',
@@ -1476,23 +1338,6 @@
           'El worker que pierde su lease no puede confirmar trabajo que ya pertenece a otro. Usar escrituras condicionales y fencing cuando corresponda.',
           'Si la política permite una excepción manual a una ventana, necesita permiso y evidencia explícitos. La presentación no concede ese permiso por defecto.'
         ], source: resilience
-      },
-      {
-        id: 'pregunta-precios', chapter: 'precios', kind: 'quiz',
-        title: 'Comprueba el diseño de precios',
-        lead: 'Llegó el último archivo de la versión B, pero falla una referencia de promoción.',
-        question: '¿Qué debería quedar activo?',
-        options: [
-          { label: 'B, porque terminó la descarga.', correct: false, feedback: 'Descargar todos los archivos no acredita integridad semántica. Falta una candidata válida.' },
-          { label: 'A íntegra, aplicando sus límites de vigencia y operación.', correct: true, feedback: 'B no se publica. A sigue íntegra, pero sus reglas no pueden usarse fuera de los límites aprobados.' },
-          { label: 'Los precios de A y las promociones válidas de B.', correct: false, feedback: 'Mezclar conjuntos expone una versión que nunca se validó como unidad y rompe la trazabilidad.' }
-        ],
-        takeaway: 'La unidad de publicación es un conjunto coherente, no cada archivo o fila por separado.',
-        notes: [
-          'Pedir al equipo que identifique qué estado persiste: B recibida con fallo de validación, A aplicada y cursor aplicado sin avanzar.',
-          'Si A vence, debe entrar la política de restricción o recalculación aprobada. La respuesta no supone disponibilidad ilimitada.',
-          'La recuperación puede completar o reconstruir B, siempre preservando el manifiesto, las identidades y la evidencia del fallo.'
-        ], source: c4
       },
       {
         id: 'sincronizador-por-dentro', chapter: 'sincronizacion', kind: 'diagram', diagramKey: 'sync',
@@ -1793,41 +1638,6 @@
         }
       },
       {
-        "id": "pregunta-frontera-de-integracion",
-        "chapter": "integracion",
-        "kind": "quiz",
-        "title": "¿Dónde debe vivir esta diferencia?",
-        "lead": "El proveedor ficticio cambia el código QUEUED por RECEIVED. Ambos significan «recibido para procesar», sin confirmar contabilización.",
-        "question": "¿Qué cambio protege al resto del POS?",
-        "options": [
-          {
-            "label": "Modificar cada pantalla para reconocer ambos códigos.",
-            "correct": false,
-            "feedback": "Las pantallas quedarían ligadas al vocabulario del proveedor. Un cambio futuro volvería a repartirse por el producto."
-          },
-          {
-            "label": "Actualizar la traducción de la frontera y sus pruebas.",
-            "correct": true,
-            "feedback": "El POS sigue recibiendo su resultado «recibido». La ACL comprueba la equivalencia y el adaptador conserva el protocolo del destino."
-          },
-          {
-            "label": "Devolver «contabilizado» para ocultar la diferencia.",
-            "correct": false,
-            "feedback": "Eso inventaría un resultado no demostrado. Simplificar una interfaz no permite cambiar el significado del hecho externo."
-          }
-        ],
-        "takeaway": "Cambiar un código externo no debe cambiar el significado que el POS promete a sus usuarios.",
-        "notes": [
-          "Después de elegir, pedir que cada persona nombre una responsabilidad: la fachada ofrece la entrada; la ACL traduce; el adaptador conversa con el proveedor; el caso de uso decide negocio.",
-          "Si el nuevo código tuviera otro significado, no bastaría sustituir una cadena. Habría que revisar contrato y comportamiento, y quizá evolucionar el resultado del POS.",
-          "Ninguno de estos patrones garantiza entrega exactamente una vez ni atomicidad entre bases y proveedores externos."
-        ],
-        "source": {
-          "label": "Traducción y extensibilidad del POS",
-          "url": "../docs/extensibilidad-proveedores-dispositivos.md"
-        }
-      },
-      {
         id: 'contrato-pos-independiente', chapter: 'integracion', kind: 'cards',
         title: 'El contrato expresa el negocio del POS',
         lead: 'No copiamos las tablas ni los estados internos del ERP al resto del producto.',
@@ -1899,7 +1709,7 @@
         "notes": [
           "Todos los nombres de campos, IDs y estados del ERP de este ejemplo son inventados para enseñar. No describen el contrato de AX ni otro proveedor real.",
           "La venta ya está confirmada localmente y un worker integra su operación pendiente. No se llama al ERP desde la pantalla de cobro ni se vuelve a cobrar en este recorrido.",
-          "Antes de cada paso pregunta qué componente debería conocer ese dato. La aplicación conoce saleId; la ACL conoce la equivalencia customerId/account; el adaptador conoce URL y protocolo.",
+          "Cada paso muestra qué componente conoce cada dato. La aplicación conoce saleId; la ACL conoce la equivalencia customerId/account; el adaptador conoce URL y protocolo.",
           "RECEIVED se traduce como recibido (status: received); BOOKED como registrado (status: registered) bajo el contrato ficticio del ejemplo. Recibido todavía necesita seguimiento; un código desconocido no demuestra éxito.",
           "El ejemplo enfoca responsabilidades. No implementa almacenamiento, autenticación, consulta de resultados, deduplicación remota o recuperación productiva."
         ],
@@ -1953,7 +1763,7 @@
       {
         id: 'incorporar-pais', chapter: 'integracion', kind: 'compare',
         title: 'Ejemplo: incorporar un segundo perfil nacional',
-        lead: 'El ejercicio debe mostrar exactamente qué reutilizamos, qué configuramos y qué desarrollamos.',
+        lead: 'La incorporación debe mostrar exactamente qué reutilizamos, qué configuramos y qué desarrollamos.',
         columns: [
           { title: 'Reutilizar', items: ['Casos de uso de venta y caja', 'Outbox, auditoría e identidades', 'Pruebas del núcleo común'] },
           { title: 'Configurar', items: ['Entidad, moneda y formatos soportados', 'Módulos y permisos aprobados', 'Proveedores ya compatibles'] },
@@ -2121,40 +1931,6 @@
         }
       },
       {
-        "id": "estructura-ejercicio-ubicar-cambio",
-        "chapter": "monorepo",
-        "kind": "quiz",
-        "title": "Ejercicio · ¿Dónde harías cada cambio?",
-        "lead": "A: cambiar el descuento máximo. B: cambiar la URL de envío HTTP del ERP. ¿Dónde comienza cada modificación?",
-        "question": "¿Dónde ubicar una regla del negocio y una traducción de proveedor?",
-        "options": [
-          {
-            "label": "A en las reglas de precios; B en el adaptador HTTP del ERP.",
-            "correct": true,
-            "feedback": "La regla comercial pertenece a precios. La URL y el protocolo pertenecen al adaptador. Si cambia el significado de un estado externo, revisamos la ACL y sus pruebas."
-          },
-          {
-            "label": "Ambos cambios dentro de la pantalla de venta.",
-            "correct": false,
-            "feedback": "La pantalla presenta y recoge decisiones del usuario. Guardar allí reglas compartidas o traducciones del ERP las acopla a esa interfaz y dificulta reutilizarlas."
-          },
-          {
-            "label": "Ambos cambios en shared-kernel porque afectan a varias aplicaciones.",
-            "correct": false,
-            "feedback": "Compartir consumidores no convierte todo en un concepto común. Precios conserva sus reglas y la integración conserva detalles del proveedor; shared-kernel debe seguir siendo pequeño."
-          }
-        ],
-        "takeaway": "Ubicamos el cambio por la responsabilidad que representa, no por la primera carpeta que encontramos.",
-        "notes": [
-          "Un adaptador implementa la conexión técnica con un sistema externo. Mantener un contrato interno permite sustituir esa conexión sin dispersar su formato por todo el POS.",
-          "Pedir al equipo que nombre una prueba para cada cambio: límite del descuento y traducción del formato ERP. El ejemplo no llama a un ERP ni cambia precios reales."
-        ],
-        "source": {
-          "label": "Propuesta · Organización del producto",
-          "url": "../docs/opciones-tecnologicas.md"
-        }
-      },
-      {
         id: 'reglas-de-dependencia', chapter: 'monorepo', kind: 'compare',
         title: 'El dominio debe poder probarse sin el framework',
         lead: 'Las dependencias apuntan hacia contratos y reglas, no hacia detalles de un proveedor.',
@@ -2178,9 +1954,9 @@
         "lead": "El árbol de carpetas comunica una intención. Las reglas y las pruebas comprueban que el código la respeta.",
         "takeaway": "Nx ayuda a organizar y comprobar proyectos; no reemplaza el diseño ni las pruebas del producto.",
         "notes": [
-          "En este curso importa poder formular la regla antes de configurar una herramienta. La configuración detallada de Nx y ESLint pertenece a una sesión específica.",
+          "La propuesta define la regla de dependencias antes de elegir cómo automatizarla. La configuración detallada de Nx y ESLint pertenece a una sesión específica.",
           "Una regla de importaciones no controla por sí sola SQL, permisos de ejecución o contratos de red. Cada frontera necesita su mecanismo y su prueba.",
-          "Ejercicio oral: ¿por qué compilar correctamente no demostraría que el módulo de precios está aislado de un proveedor? Pedir una importación prohibida concreta y una prueba independiente."
+          "Compilar correctamente no demuestra aislamiento: precios podría importar el SDK de un proveedor y seguir compilando. Una regla de dependencias debe impedir esa importación; las pruebas del dominio deben ejecutarse sin el proveedor."
         ],
         "source": {
           "label": "Estructura y límites propuestos",
@@ -2307,70 +2083,36 @@
         ], source: resilience
       },
       {
-        id: 'pregunta-ack-perdido', chapter: 'operacion', kind: 'quiz',
-        title: 'Comprueba la entrega durable',
-        lead: 'País confirmó inbox, efecto y outbox, pero el ACK no llegó a sucursal.',
-        question: '¿Cómo debe reenviar la sucursal?',
-        options: [
-          { label: 'Con el mismo eventId y el mismo contenido.', correct: true, feedback: 'El receptor reconoce la identidad y devuelve un resultado equivalente sin repetir el efecto local.' },
-          { label: 'Con un ID nuevo para que la cola no lo rechace.', correct: false, feedback: 'Un ID nuevo oculta que es el mismo intento y puede producir un efecto duplicado.' },
-          { label: 'No reenvía: cualquier timeout equivale a confirmación.', correct: false, feedback: 'La sucursal todavía no tiene el acuse acordado. Debe recuperar el resultado mediante el protocolo.' }
-        ],
-        takeaway: 'La identidad sobrevive a los reintentos; la garantía depende del contrato y su retención.',
-        notes: [
-          'Preguntar además qué pasa si el mismo ID trae otro payload: se rechaza como conflicto, no se acepta como actualización.',
-          'El resultado equivalente aquí corresponde al efecto local del receptor. No acredita contabilización ERP ni liquidación de pago.',
-          'Completar el ejercicio con restore anterior al ACK: una deduplicación que retrocedió necesita reconstrucción y conciliación; no basta conservar filas mientras todo marcha bien.'
-        ], source: resilience
-      },
-      {
-        id: 'pregunta-pais-nuevo', chapter: 'operacion', kind: 'quiz',
-        title: 'Comprueba el objetivo corporativo',
-        lead: 'El siguiente país requiere un proveedor fiscal que todavía no soportamos.',
-        question: '¿Qué cambio respeta la propuesta?',
-        options: [
-          { label: 'Copiar el repositorio y mantener un POS por país.', correct: false, feedback: 'Crea forks que duplican reglas y pruebas. La meta es evolucionar un producto común.' },
-          { label: 'Agregar el nombre del proveedor al perfil y activarlo.', correct: false, feedback: 'Configuración no implementa un protocolo inexistente ni demuestra homologación.' },
-          { label: 'Implementar su extensión, validar contratos y homologar el perfil.', correct: true, feedback: 'Se conserva el núcleo donde aplica y se evoluciona lo necesario con pruebas de regresión y compatibilidad.' }
-        ],
-        takeaway: 'El producto común evoluciona: no ignora las diferencias ni promete resolverlas todas con parámetros.',
-        notes: [
-          'Si la nueva regla no cabe en el contrato vigente, se propone una evolución compatible del contrato y los módulos afectados. No esconderla dentro de un adaptador incorrecto.',
-          'La evidencia incluye qué código se compartió, qué configuración cambió, qué extensión se implementó y qué combinación quedó homologada.',
-          'La fiscalidad requiere validación del régimen y proveedor correspondientes. Esta pregunta enseña la organización del software, no una solución jurídica universal.'
-        ], source: proposal
-      },
-      {
         "id": "explicar-tu-diseno",
         "chapter": "operacion",
         "kind": "cards",
-        "title": "Antes de implementar: explica tu diseño",
-        "lead": "Trabaja en parejas. Usa una venta y un cambio de proveedor para demostrar qué entendiste.",
+        "title": "Antes de implementar: acordar el diseño",
+        "lead": "Cuatro acuerdos para el piloto: alcance, responsabilidades, cambios y recuperación.",
         "items": [
           {
-            "title": "Dibuja el contexto",
-            "text": "Ubica al cajero, el POS y el ERP. Explica el significado de cada flecha."
+            "title": "Alcance y contexto",
+            "text": "El cajero opera el POS; el POS integra operaciones con el ERP mediante contratos explícitos."
           },
           {
-            "title": "Amplía la sucursal",
-            "text": "Separa cliente, backend y base de datos. Explica qué sigue disponible sin Internet."
+            "title": "Funciones en sucursal",
+            "text": "Cliente, backend y PostgreSQL tienen funciones separadas. Operar sin Internet requiere LAN y servidor disponibles."
           },
           {
-            "title": "Ubica dos cambios",
-            "text": "Una regla de descuento y un estado nuevo del ERP. Indica módulos, contratos y pruebas afectados."
+            "title": "Impacto de los cambios",
+            "text": "Las reglas de descuento pertenecen a precios; la traducción de estados ERP, a la ACL. Cada cambio revisa contratos y pruebas."
           },
           {
-            "title": "Explica un fallo",
-            "text": "El ERP recibió la operación, pero se perdió la respuesta. Explica por qué no debes cobrar ni enviar con otro ID."
+            "title": "Resultados inciertos",
+            "text": "Si se pierde la respuesta del ERP, se conserva la identidad y se consulta o concilia el resultado antes de repetir el efecto."
           }
         ],
-        "takeaway": "Si no puedes justificar una flecha o una carpeta, vuelve a ese bloque antes de escribir código.",
+        "takeaway": "El piloto convierte estas decisiones en contratos, módulos y pruebas de aceptación verificables.",
         "notes": [
-          "Respuesta esperada C1: el cajero usa POS; POS integra operaciones con ERP. C2 agrega aplicaciones y almacenamiento sin confundirlos con carpetas o servidores físicos.",
+          "C1 delimita a las personas y sistemas: el cajero usa POS; POS integra operaciones con ERP. C2 agrega aplicaciones y almacenamiento sin confundirlos con carpetas o servidores físicos.",
           "La regla comercial pertenece al dominio de precios; el significado de un nuevo estado ERP pertenece a la ACL, con revisión del contrato y de la recuperación de resultados.",
           "El caso de fallo mantiene identidad y estado pendiente o desconocido. Debe consultar la referencia o conciliar según el contrato, sin asumir fracaso ni crear un nuevo efecto monetario.",
-          "Valora la explicación causal, no la repetición de nombres. Si el participante confunde módulo y proceso, revisa arquitectura; si interpreta RECEIVED como registrado, revisa patrones y el laboratorio.",
-          "Completar diapositivas o acertar preguntas no acredita competencia para operar dinero real. La siguiente evidencia es resolver un cambio pequeño con pruebas y revisión del equipo."
+          "El diseño distingue módulos de código y procesos en ejecución. También separa recepción, registro ERP y confirmación fiscal: cada estado necesita evidencia propia.",
+          "La siguiente evidencia es implementar el corte vertical, probar sus fallos y revisar sus resultados antes de operar dinero real."
         ],
         "source": {
           "label": "Propuesta y decisiones",

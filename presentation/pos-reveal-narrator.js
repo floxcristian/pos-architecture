@@ -259,7 +259,7 @@
   document.addEventListener('poscourse:interaction', event => {
     if (!state.open || internalNavigation) return;
     pause();
-    if (['laboratory', 'quiz', 'fragment'].includes(event.detail.kind)) {
+    if (['laboratory', 'fragment'].includes(event.detail.kind)) {
       window.POSCourse.clearNarrationCue(); needsVisual = true;
     }
     if (event.detail.kind === 'reading-scroll') needsVisual = true;

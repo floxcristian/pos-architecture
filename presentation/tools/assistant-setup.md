@@ -1,6 +1,6 @@
 # Asistente de la propuesta
 
-El botón **Asistente** permite preguntar por la arquitectura sin abandonar el curso. Recibe la lámina actual y recupera fragmentos de las 88 láminas, sus notas, el guion del narrador, los laboratorios, el glosario y la propuesta escrita. Las fuentes de cada respuesta abren las láminas, el glosario o el documento. Abrirlo pausa la narración; cerrarlo devuelve el foco al botón. **Leer / Presentar** son botones que conservan la lámina actual al cambiar de modo.
+El botón **Asistente** permite preguntar por la arquitectura sin abandonar la presentación. Recibe la lámina actual y recupera fragmentos de las 79 láminas, sus notas, el guion del narrador, los laboratorios, el glosario y la propuesta escrita. Las fuentes de cada respuesta abren las láminas, el glosario o el documento. Abrirlo pausa la narración; cerrarlo devuelve el foco al botón. **Leer / Presentar** son botones que conservan la lámina actual al cambiar de modo.
 
 La integración está preparada para OpenAI Responses. El modelo se elige en la configuración del servidor; no está fijado en el cliente. Sin configuración, el diálogo informa que el asistente todavía no está conectado y deshabilita el envío. No se simulan respuestas de un LLM.
 

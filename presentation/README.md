@@ -4,12 +4,12 @@ Recorrido de ocho capítulos en español sobre la arquitectura actual de Chile y
 
 ## Abrir
 
-### Curso en Reveal.js
+### Propuesta en Reveal.js
 
-Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En producción: **[presentación para desarrolladores](https://presentation-gamma-rust.vercel.app/reveal)**. Parte de funciones y objetos para enseñar arquitectura, responsabilidades, límites y estructura a juniors: 88 láminas, ocho capítulos, siete laboratorios, 17 escenarios, 97 pasos, nueve preguntas y 66 términos de glosario. El bloque de precios desarrolla espejo local, cálculo versionado, eventos, snapshot con watermark, candidata aislada, validación, publicación atómica y vigencias.
+Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En producción: **[presentación para desarrolladores](https://presentation-gamma-rust.vercel.app/reveal)**. Explica la propuesta de arquitectura, responsabilidades, límites y estructura con ejemplos accesibles para juniors: 79 láminas, ocho capítulos, siete laboratorios, 17 escenarios, 97 pasos y 66 términos de glosario. El recorrido se centra en las decisiones del diseño, sin cuestionarios ni evaluaciones. El bloque de precios desarrolla espejo local, cálculo versionado, eventos, snapshot con watermark, candidata aislada, validación, publicación atómica y vigencias.
 
 - **Navegación:** en modo Presentar se usa la cruceta nativa de Reveal.js, con las direcciones disponibles en cada lámina: ← / → cambian de capítulo; ↑ / ↓ recorren las láminas y fragmentos del capítulo actual. Las teclas de flecha siguen ese mismo comportamiento, incluso después de pulsar un control. En los ejemplos de código, las flechas recorren primero los bloques resaltados antes de salir de la lámina. Espacio recorre toda la presentación en orden, incluidos los bloques resaltados del código; Mayús + Espacio retrocede. Av Pág / Re Pág pasan directamente a la siguiente / anterior lámina sin detenerse en fragmentos. El pie reserva espacio para que las flechas no cubran contenido ni el narrador. En modo Leer, los botones Anterior / Siguiente y ← / → recorren las láminas del documento; ↑ / ↓ conservan su desplazamiento nativo. Índice (`O`) abre cualquier tema.
-- **Notas (`N`) y glosario (`G`):** explicaciones para quien presenta, límites, preguntas y fuentes. Se abren en la misma página, con navegación por teclado.
+- **Notas (`N`) y glosario (`G`):** explicaciones para quien presenta, decisiones, límites y fuentes. Se abren en la misma página, con navegación por teclado.
 - **Laboratorios:** elige escenario y usa Paso, Reproducir/Pausar o Reiniciar. La reproducción se detiene al cambiar de lámina, abrir un diálogo u ocultar la pestaña. Nunca conecta infraestructura ni ejecuta los snippets.
 - **Lectura:** el botón Leer / Presentar conserva la lámina actual y cambia a documento continuo. En pantallas menores de 700 px se activa por defecto; `?lectura=0` fuerza presentación y `?lectura=1` lectura. Los laboratorios funcionan en ambos modos. Las preferencias de movimiento reducido se respetan.
 - **Fuentes:** las vistas C4 simplifican las relaciones para enseñar; cada una permite descargar el Excalidraw completo. Los ejemplos de código se identifican como contratos o pseudocódigo educativo.
@@ -22,9 +22,9 @@ El botón **Asistente** abre una conversación sobre la lámina actual y la arqu
 
 En la presentación pública, pulsa **Narrador** para escuchar la explicación en español desde la lámina actual. La voz es sintética y sigue un guion docente por fragmentos, no una lectura automática del contenido de pantalla. Cada fragmento señala las tarjetas, componentes y relaciones explicados; los laboratorios cambian al escenario y paso correspondiente al relato.
 
-El guion cubre las 88 láminas con 539 fragmentos, incluidos los 97 estados de laboratorio. La grabación completa dura **2 h 08 min 43 s** a velocidad normal; se puede recorrer por capítulos o empezar desde cualquier lámina.
+El guion cubre las 79 láminas, incluidos los 97 estados de laboratorio. Se puede recorrer por capítulos o empezar desde cualquier lámina; el reproductor muestra la duración y el progreso de la explicación actual.
 
-Puedes pausar, repetir la lámina, saltar entre fragmentos, buscar un instante o cambiar la velocidad. El texto de lo que se está narrando aparece en el panel. **Avance automático** continúa a la siguiente lámina; desmárcalo para detenerte al terminar cada una. Cambiar manualmente de lámina carga su explicación en pausa. Abrir un diálogo, manipular un laboratorio, responder una pregunta u ocultar la pestaña también pausa la voz; para continuar hay que pulsar Reproducir. En modo lectura, desplazarte manualmente por el contenido pausa la narración. No se reproduce nada al abrir la página.
+Puedes pausar, repetir la lámina, saltar entre fragmentos, buscar un instante o cambiar la velocidad. El texto de lo que se está narrando aparece en el panel. **Avance automático** continúa a la siguiente lámina; desmárcalo para detenerte al terminar cada una. Cambiar manualmente de lámina carga su explicación en pausa. Abrir un diálogo, manipular un laboratorio u ocultar la pestaña también pausa la voz; para continuar hay que pulsar Reproducir. En modo lectura, desplazarte manualmente por el contenido pausa la narración. No se reproduce nada al abrir la página.
 
 La narración usa MP3 estáticos del mismo despliegue, sin cuentas, tokens ni llamadas a un servicio de voz desde el navegador. El guion está en `pos-reveal-narration-content.js`; las duraciones y marcas de audio, en `pos-reveal-narration-audio.js`; el reproductor, en `pos-reveal-narrator.js`. El build verifica el ZIP y cada MP3 antes de publicarlos. La guía [Generar y publicar narración](tools/narration-pipeline.md) explica cómo actualizar la voz cuando cambia el guion.
 
@@ -34,11 +34,11 @@ Se inspiró en la organización por capítulos de [Integration Platform detallad
 
 El contenido está en `pos-reveal-content.js`, los estados educativos en `pos-reveal-labs.js`, el render y los controles en `pos-reveal.js`, y el diseño en `pos-reveal.css`. Para verificar: `node presentation/tools/check-reveal.cjs`; admite una URL base como argumento para revisar el despliegue. Reutiliza Playwright de `video/node_modules` o `PLAYWRIGHT_MODULE_PATH`. Las evidencias se guardan en `presentation/qa/reveal/`, fuera de Git.
 
-### Enfoque de aprendizaje
+### Enfoque de la propuesta
 
-El recorrido introduce primero pantalla, backend, API, datos, módulo y proceso. Después enseña cómo leer C1–C4 y distinguirlos de despliegue. Fachada, ACL, adaptador y puerto se presentan mediante problemas concretos, ejemplos antes/después y un laboratorio con un ERP ficticio. Cada ejercicio explica por qué las alternativas son correctas o incorrectas.
+El recorrido introduce primero pantalla, backend, API, datos, módulo y proceso. Después explica cómo leer C1–C4 y distinguirlos de despliegue. Fachada, ACL, adaptador y puerto se presentan mediante problemas concretos, ejemplos antes/después y un laboratorio con un ERP ficticio. Las simulaciones muestran las decisiones, sus consecuencias y los límites de las garantías.
 
-El capítulo de código se centra en aplicaciones, bibliotecas, módulos, contratos y dependencias. Nx aparece solo como contexto; configuración, comandos, caché y uso operativo quedan fuera de este curso. Se puede dividir en tres encuentros: producto y mapas; venta, precios y sincronización; integración, estructura y operación. La actividad final pide dibujar, ubicar cambios y explicar fallos. Ver las láminas no garantiza comprensión: el facilitador debe revisar las explicaciones y ejercicios del equipo.
+El capítulo de código se centra en aplicaciones, bibliotecas, módulos, contratos y dependencias. Nx aparece solo como contexto; configuración, comandos, caché y uso operativo quedan fuera de esta presentación. La revisión se puede dividir en tres bloques: producto y mapas; venta, precios y sincronización; integración, estructura y operación. El cierre reúne las decisiones que deben acordarse para el piloto y la evidencia necesaria para validar el producto.
 
 ### Atlas y materiales anteriores
 

@@ -85,7 +85,6 @@
       case 'diagram':return diagram(slide.diagramKey,slide.id);
       case 'code':case 'tree':return code(slide);
       case 'lab':return labMarkup(slide);
-      case 'quiz':return `<div class="quiz" data-owner="${esc(slide.id)}"><div class="quiz-options" role="group" aria-label="${esc(slide.question || slide.title)}">${slide.options.map((option,i)=>`<button type="button" data-answer="${i}" aria-pressed="false"><span class="option-letter">${String.fromCharCode(65+i)}</span>${esc(option.label)}</button>`).join('')}</div><div class="quiz-feedback" aria-live="polite"></div></div>`;
       case 'closing':return `${cards(slide.items || [])}<div class="closing-links">${(slide.links || C.sources).map(link=>`<a href="${esc(link.url)}">${esc(link.label)} ↗</a>`).join('')}</div>`;
       default:throw new Error(`Unknown slide kind: ${slide.kind}`);
     }
@@ -251,9 +250,6 @@
       if(scenario||action)paintLab(root);
       return;
     }
-    const answer=event.target.closest('[data-answer]');
-    if(answer)notifyInteraction('quiz');
-    if(answer){const quiz=answer.closest('.quiz'),slide=slideById.get(quiz.dataset.owner),option=slide.options[Number(answer.dataset.answer)];$$('[data-answer]',quiz).forEach(button=>button.setAttribute('aria-pressed',String(button===answer)));const feedback=$('.quiz-feedback',quiz);feedback.className=`quiz-feedback ${option.correct?'success':'warning'}`;feedback.textContent=`${option.correct?'Correcto.':'Revisa este punto.'} ${option.feedback}`;}
   });
   document.addEventListener('keydown',event=>{
     if(document.querySelector('dialog[open]'))return;
