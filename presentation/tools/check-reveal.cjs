@@ -7,7 +7,8 @@ const { spawn } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
 const port = Number(process.env.POS_REVEAL_QA_PORT || 4198);
-const remote = process.argv[2];
+const navigationOnly = process.argv.includes('--navigation-only');
+const remote = process.argv.slice(2).find(argument => !argument.startsWith('--'));
 const base = remote ? remote.replace(/\/$/, '') : `http://127.0.0.1:${port}`;
 const entry = `${base}/presentation/pos-corporativo-reveal.html`;
 const output = path.join(root, 'qa', 'reveal');
@@ -137,6 +138,131 @@ async function checkMotion(browser) {
   } finally { await page.close(); }
 }
 
+async function checkNavigation(page, slides) {
+  const currentId = () => page.evaluate(() => Reveal.getCurrentSlide().id);
+  await go(page, slides[0]);
+  await page.locator('#presentation').focus();
+  for (let index = 1; index < slides.length; index++) {
+    await page.keyboard.press('ArrowRight');
+    assert.equal(await currentId(), slides[index].id, `Right must advance exactly one slide at ${index}`);
+  }
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await currentId(), slides.at(-1).id, 'Right at the end must stay at the end');
+  for (let index = slides.length - 2; index >= 0; index--) {
+    await page.keyboard.press('ArrowLeft');
+    assert.equal(await currentId(), slides[index].id, `Left must return exactly one slide at ${index}`);
+  }
+  await page.keyboard.press('ArrowLeft');
+  assert.equal(await currentId(), slides[0].id, 'Left at the start must stay at the start');
+  await page.locator('[data-ui="next"]').click();
+  assert.equal(await currentId(), slides[1].id);
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await currentId(), slides[2].id, 'Right must still work after a button receives focus');
+  await page.keyboard.press('Enter');
+  assert.equal(await currentId(), slides[3].id, 'Enter must activate the focused Next button once');
+  await page.keyboard.press('Space');
+  assert.equal(await currentId(), slides[4].id, 'Space must activate the focused Next button once');
+  await page.keyboard.press('PageDown');
+  assert.equal(await currentId(), slides[5].id);
+  await page.keyboard.press('PageUp');
+  assert.equal(await currentId(), slides[4].id);
+  await page.locator(`#${slides[4].id} .slide-source a`).focus();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await currentId(), slides[5].id, 'Right must still work when a link has focus');
+
+  const fragmentId = await page.evaluate(() => Reveal.getSlides().find(slide => slide.querySelector('pre .fragment'))?.id);
+  assert.ok(fragmentId, 'The course must retain a real code-highlight fragment example');
+  const fragmentIndex = slides.findIndex(slide => slide.id === fragmentId);
+  await go(page, slides[fragmentIndex]);
+  await page.locator('#presentation').focus();
+  const fragmentBefore = await page.evaluate(() => Reveal.getIndices().f ?? -1);
+  await page.keyboard.press('Space');
+  assert.equal(await currentId(), fragmentId, 'Space may reveal a code highlight without changing the slide');
+  assert.ok(await page.evaluate(before => (Reveal.getIndices().f ?? -1) > before, fragmentBefore));
+  await go(page, slides[fragmentIndex]);
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await currentId(), slides[fragmentIndex + 1].id, 'Right skips remaining fragments and advances one slide');
+  await page.keyboard.press('ArrowLeft');
+  assert.equal(await currentId(), fragmentId);
+  await page.locator('[data-ui="next"]').click();
+  assert.equal(await currentId(), slides[fragmentIndex + 1].id, 'Next button shares the fragment-skipping navigation contract');
+
+  await page.locator('[data-ui="index"]').click();
+  const beforeDialog = await currentId();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await currentId(), beforeDialog, 'Dialog focus must isolate deck navigation');
+  await page.keyboard.press('Escape');
+  for (const widget of ['input', 'slider']) {
+    await page.evaluate(kind => {
+      const element = document.createElement(kind === 'input' ? 'input' : 'div');
+      element.id = 'qa-navigation-widget';
+      element.style.cssText = 'position:fixed;top:0;left:0;z-index:9999';
+      if (kind === 'slider') { element.setAttribute('role', 'slider'); element.tabIndex = 0; }
+      document.body.append(element); element.focus();
+    }, widget);
+    for (const key of ['ArrowRight', 'ArrowLeft', 'PageDown', 'PageUp']) {
+      await page.keyboard.press(key);
+      assert.equal(await currentId(), beforeDialog, `${widget} must own ${key} without Reveal intercepting it`);
+    }
+    await page.locator('#qa-navigation-widget').evaluate(element => element.remove());
+  }
+  assert.equal(await page.evaluate(() => Reveal.getConfig().transition), 'none');
+  assert.ok(await page.evaluate(() => document.getAnimations().filter(animation => animation.effect?.target?.closest?.('.slides')).length === 0), 'Reduced motion must not create slide animations');
+  report.checks.push('47 exact Right advances + 47 exact Left returns; boundaries; Next/Right/Enter/Space; fragments; Page keys; link focus; dialog/input/slider isolation; reduced motion');
+  console.log('Navigation regression: all 94 exact slide moves, native controls, fragments and focus guards PASS.');
+}
+
+async function checkSlideTransitions(browser) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'no-preference' });
+  observe(page);
+  try {
+    await ready(page);
+    const slides = await page.evaluate(() => Reveal.getSlides().map(slide => ({ id: slide.id, ...Reveal.getIndices(slide) })));
+    const boundary = slides.findIndex((slide, index) => index > 0 && slide.h !== slides[index - 1].h);
+    assert.ok(boundary > 0);
+    const transitions = [];
+    for (const [label, from, to] of [
+      ['within-forward', slides[0], slides[1]], ['within-backward', slides[1], slides[0]],
+      ['chapter-forward', slides[boundary - 1], slides[boundary]], ['chapter-backward', slides[boundary], slides[boundary - 1]]
+    ]) {
+      await go(page, from);
+      await page.waitForTimeout(500);
+      const result = await page.evaluate(async ({ from, to }) => {
+        const sourceSlide = document.getElementById(from.id);
+        const motionElement = from.h === to.h ? sourceSlide : sourceSlide.parentElement;
+        const measure = () => ({ transform: getComputedStyle(motionElement).transform, display: getComputedStyle(sourceSlide).display });
+        const initial = measure();
+        const events = [];
+        let handler;
+        const ended = new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => { motionElement.removeEventListener('transitionend', handler); reject(new Error('No transform transitionend for ' + from.id + ' → ' + to.id)); }, 1800);
+          handler = event => {
+            if (event.target === motionElement && event.propertyName === 'transform') {
+              events.push({ property: event.propertyName, elapsed: event.elapsedTime });
+              clearTimeout(timeout); motionElement.removeEventListener('transitionend', handler); resolve();
+            }
+          };
+          motionElement.addEventListener('transitionend', handler);
+        });
+        Reveal.slide(to.h, to.v, -1);
+        await new Promise(resolve => setTimeout(resolve, 70));
+        const intermediate = measure();
+        await ended;
+        return { initial, intermediate, final: measure(), events, currentId: Reveal.getCurrentSlide().id };
+      }, { from, to });
+      assert.equal(result.currentId, to.id);
+      assert.notEqual(result.intermediate.display, 'none', `${label}: outgoing slide must survive its transition`);
+      assert.notEqual(result.intermediate.transform, result.initial.transform, `${label}: transform must move away from its start`);
+      assert.notEqual(result.intermediate.transform, result.final.transform, `${label}: sample must capture an intermediate transform`);
+      assert.ok(result.events.some(event => event.elapsed > 0));
+      transitions.push({ label, from: from.id, to: to.id, ...result });
+    }
+    await fs.writeFile(path.join(output, 'slide-transitions.json'), JSON.stringify(transitions, null, 2));
+    report.checks.push('Real slide transitions within/across chapters in both directions: outgoing layout preserved, intermediate transforms and transitionend');
+    console.log('Transition regression: intra-chapter and cross-chapter motion in both directions PASS.');
+  } finally { await page.close(); }
+}
+
 async function run() {
   await fs.mkdir(output, { recursive: true });
   const server = remote ? null : spawn(process.execPath, [path.join(root, 'server.cjs')], {
@@ -166,6 +292,16 @@ async function run() {
     const contentSlides = data.content.slides || data.content.chapters?.flatMap(chapter => chapter.slides) || [];
     assert.equal(contentSlides.length, 48);
     assert.deepEqual(new Set(data.slides.map(slide => slide.id)), new Set(contentSlides.map(slide => slide.id)));
+    await checkNavigation(page, data.slides);
+    await checkSlideTransitions(browser);
+    if (navigationOnly) {
+      report.slides = data.slides.length;
+      assert.deepEqual(report.errors, []);
+      assert.deepEqual(report.external, []);
+      assert.deepEqual(report.failedRequests, []);
+      console.log(JSON.stringify(report, null, 2));
+      return;
+    }
     const sample = new Set(data.slides.filter((slide, index) => index % 4 === 0).map(slide => slide.id));
     const layoutFailures = [];
     for (const slide of data.slides) {
@@ -325,11 +461,12 @@ async function run() {
     report.failure = error.stack;
     throw error;
   } finally {
-    await fs.writeFile(path.join(output, remote ? 'deployed-report.json' : 'report.json'), JSON.stringify(report, null, 2));
+    const reportName = navigationOnly ? `${remote ? 'deployed-' : ''}navigation-report.json` : remote ? 'deployed-report.json' : 'report.json';
+    await fs.writeFile(path.join(output, reportName), JSON.stringify(report, null, 2));
     await browser?.close();
     server?.kill();
   }
 }
 
-module.exports = { checkMotion };
+module.exports = { checkMotion, checkNavigation, checkSlideTransitions };
 if (require.main === module) run().catch(error => { console.error(error); process.exitCode = 1; });

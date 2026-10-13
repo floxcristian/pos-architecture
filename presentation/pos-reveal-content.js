@@ -45,7 +45,7 @@
         ],
         takeaway: 'Cada tecnología aparece después del problema que necesita resolver.',
         notes: [
-          'Las flechas horizontales cambian de capítulo; las verticales recorren el capítulo. Espacio permite seguir el recorrido completo. El índice ayuda a volver a una explicación.',
+          'Derecha e izquierda, igual que Siguiente y Anterior, recorren las láminas en orden. Espacio avanza por los bloques resaltados del código antes de cambiar de lámina. El índice permite saltar a un tema.',
           'Los laboratorios usan datos sintéticos y permiten recorrer pasos o fallos. No se conectan a bancos, servicios fiscales, colas ni sistemas corporativos.',
           'Conviene detenerse en las preguntas antes de mostrar la respuesta. El objetivo es justificar decisiones, no memorizar nombres de herramientas.'
         ], source: proposal

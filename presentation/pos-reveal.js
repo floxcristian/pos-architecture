@@ -8,6 +8,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const main = $('#presentation');
   const dialog = $('#course-dialog');
+  const navigationWidget = 'input,select,textarea,[contenteditable],[role=slider],[role=combobox],[role=listbox],[role=menu],[role=tablist],[role=radiogroup]';
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const query = new URLSearchParams(location.search);
   const reading = query.get('lectura') === '1' || (!query.has('lectura') && innerWidth < 700 && !query.has('print-pdf'));
@@ -165,15 +166,15 @@
   }
   function navigate(direction) {
     stop();
-    if(reading)goTo(C.slides[Math.max(0,Math.min(C.slides.length-1,C.slides.indexOf(current())+direction))].id);
-    else direction>0?Reveal.next():Reveal.prev();
+    const target=C.slides[C.slides.indexOf(current())+direction];
+    if(target)goTo(target.id);
   }
   function openDialog(kind,opener) {
     stop();dialogOpener=opener || document.activeElement;
     let title,content;
     if(kind==='index') {
       title='El recorrido, capítulo por capítulo';
-      content=`<p>Flechas ↑ ↓: profundizar en el capítulo. ← →: cambiar de capítulo. Espacio o Siguiente: recorrer todo en orden. En móvil, el modo lectura conserva los laboratorios.</p><div class="index-chapters">${C.chapters.map((chapter,i)=>`<div class="index-chapter"><h3>0${i+1} · ${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
+      content=`<p>→ o Siguiente: siguiente lámina. ← o Anterior: lámina anterior. Recorren toda la presentación en orden, también al cambiar de capítulo. Espacio avanza los bloques resaltados del código y luego la lámina; Mayús + Espacio retrocede. El índice permite saltar a cualquier tema. En móvil, el modo lectura conserva los laboratorios.</p><div class="index-chapters">${C.chapters.map((chapter,i)=>`<div class="index-chapter"><h3>0${i+1} · ${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
     } else if(kind==='notes') {
       title=current().title;
       content=`<p>Notas para quien presenta. Los ejemplos son didácticos y usan datos simulados.</p><ol>${(current().notes || []).map(note=>`<li>${esc(note)}</li>`).join('')}</ol>${current().source?`<p><a href="${esc(current().source.url)}">${esc(current().source.label)}</a></p>`:''}`;
@@ -213,10 +214,14 @@
   });
   document.addEventListener('keydown',event=>{
     if(dialog.open){event.stopPropagation();return;}
-    if(event.ctrlKey||event.metaKey||event.altKey||event.target.closest('input,select,textarea,button,a,[contenteditable]'))return;
+    if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||event.target.closest(navigationWidget))return;
+    // Navigation remains available after clicking a button or following an index link.
+    const direction={ArrowRight:1,PageDown:1,ArrowLeft:-1,PageUp:-1}[event.key];
+    if(direction){event.preventDefault();event.stopImmediatePropagation();navigate(direction);return;}
+    // Preserve native Space/Enter activation for focused controls.
+    if(event.target.closest('button,a'))return;
     const action={o:'index',n:'notes',g:'glossary'}[event.key.toLowerCase()];
     if(action){event.preventDefault();event.stopImmediatePropagation();openDialog(action);}
-    else if(reading && ['ArrowRight','ArrowLeft'].includes(event.key)){event.preventDefault();navigate(event.key==='ArrowRight'?1:-1);}
   },true);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
   reduced.addEventListener('change',()=>{stop();if(!reading)Reveal.configure({transition:reduced.matches?'none':'slide',autoAnimate:!reduced.matches});$$('.lab').forEach(paintLab);});
@@ -233,7 +238,7 @@
     } else {
       Reveal.on('slidechanged',event=>update(event.currentSlide.id));
       Reveal.on('overviewshown',stop);
-      await Reveal.initialize({width:1280,height:780,margin:.035,minScale:.2,maxScale:1.6,center:false,controls:false,progress:true,hash:true,hashOneBasedIndex:false,history:true,respondToHashChanges:true,transition:reduced.matches?'none':'slide',transitionSpeed:'fast',backgroundTransition:'none',autoAnimate:!reduced.matches,autoAnimateDuration:.45,autoSlide:0,loop:false,embedded:true,scrollActivationWidth:null,help:true,disableLayout:false,pdfSeparateFragments:false,plugins:[RevealHighlight],keyboardCondition:()=>!dialog.open&&!document.activeElement?.closest('button,a,input,select,textarea,[contenteditable]')});
+      await Reveal.initialize({width:1280,height:780,margin:.035,minScale:.2,maxScale:1.6,center:false,display:'flex',navigationMode:'linear',controls:false,progress:true,hash:true,hashOneBasedIndex:false,history:true,respondToHashChanges:true,transition:reduced.matches?'none':'slide',transitionSpeed:'fast',backgroundTransition:'none',autoAnimate:!reduced.matches,autoAnimateDuration:.45,autoSlide:0,loop:false,embedded:true,scrollActivationWidth:null,help:true,disableLayout:false,pdfSeparateFragments:false,plugins:[RevealHighlight],keyboardCondition:()=>!dialog.open&&!document.activeElement?.closest(`button,a,${navigationWidget}`)});
       update(Reveal.getCurrentSlide().id,false);
     }
     document.body.dataset.ready='true';
