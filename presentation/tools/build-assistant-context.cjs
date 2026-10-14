@@ -1,4 +1,4 @@
-/* Build a public, allowlisted teaching corpus. Never read research repos or credentials. */
+/* Build a public, allowlisted proposal corpus. Never read research repos or credentials. */
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
@@ -104,13 +104,13 @@ function buildAssistantContext(options = {}) {
       add(`${slide.id}:lab:${scenario.id}:overview`, source, `${prefix}\n\n${scenario.steps.map((step, index) => `${index + 1}. ${step.title}: ${step.text}`).join('\n')}`);
       for (const [stepIndex, step] of scenario.steps.entries()) {
         add(`${slide.id}:lab:${scenario.id}:step:${stepIndex + 1}`, source,
-          `${prefix}\nPaso ${stepIndex + 1} de ${scenario.steps.length}: ${step.title}\n\n${step.text}\n\n${strings(step.values).join(' · ')}${step.code ? `\n\nPseudocódigo educativo:\n${step.code}` : ''}${step.log ? `\n\nTraza sintética: ${step.log}` : ''}`);
+          `${prefix}\nPaso ${stepIndex + 1} de ${scenario.steps.length}: ${step.title}\n\n${step.text}\n\n${strings(step.values).join(' · ')}${step.code ? `\n\nCódigo de referencia de la propuesta:\n${step.code}` : ''}${step.log ? `\n\nTraza sintética: ${step.log}` : ''}`);
       }
     }
   }
   for (const [index, term] of course.glossary.entries()) add(`glosario:${index + 1}`, {sourceId: 'glosario', title: 'Glosario de arquitectura de POS Platform', url: COURSE_URL}, `${term.term}\n\n${term.meaning}`);
 
-  // The document is the decision authority; teaching slides and simulations summarize it.
+  // The document is the decision authority; slides and simulations develop the proposal.
   const sections = inputs['docs/propuesta-arquitectura.md'].split(/(?=^#{1,4} )/m).filter(section => section.trim());
   const proposalSource = {sourceId: 'propuesta-arquitectura', title: 'Propuesta de arquitectura vigente y decisiones', url: PROPOSAL_URL};
   sections.forEach((section, index) => add(`propuesta-arquitectura:section:${index + 1}`, proposalSource, section));

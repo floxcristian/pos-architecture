@@ -6,13 +6,13 @@ Recorrido de ocho capítulos en español sobre la arquitectura actual de Chile y
 
 ### Propuesta en Reveal.js
 
-Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En producción: **[presentación para desarrolladores](https://presentation-gamma-rust.vercel.app/reveal)**. Explica la propuesta de arquitectura, responsabilidades, límites y estructura con ejemplos accesibles para juniors: 79 láminas, ocho capítulos, siete laboratorios, 17 escenarios, 97 pasos y 66 términos de glosario. El recorrido se centra en las decisiones del diseño, sin cuestionarios ni evaluaciones. El bloque de precios desarrolla espejo local, cálculo versionado, eventos, snapshot con watermark, candidata aislada, validación, publicación atómica y vigencias.
+Entrada: **[pos-corporativo-reveal.html](pos-corporativo-reveal.html)**. En producción: **[propuesta de arquitectura POS Platform](https://presentation-gamma-rust.vercel.app/reveal)**. Presenta el producto multipaís, la arquitectura recomendada, los contratos y la operación mediante 51 láminas, ocho capítulos, siete simulaciones, 17 escenarios y 97 pasos. Las decisiones se acompañan de diagramas del POS, código aplicado y un glosario de consulta de 66 términos. El bloque de precios desarrolla espejo local, cálculo versionado, eventos, snapshot con watermark, candidata aislada, validación, publicación atómica y vigencias.
 
 - **Navegación:** en modo Presentar se usa la cruceta nativa de Reveal.js, con las direcciones disponibles en cada lámina: ← / → cambian de capítulo; ↑ / ↓ recorren las láminas y fragmentos del capítulo actual. Las teclas de flecha siguen ese mismo comportamiento, incluso después de pulsar un control. En los ejemplos de código, las flechas recorren primero los bloques resaltados antes de salir de la lámina. Espacio recorre toda la presentación en orden, incluidos los bloques resaltados del código; Mayús + Espacio retrocede. Av Pág / Re Pág pasan directamente a la siguiente / anterior lámina sin detenerse en fragmentos. El pie reserva espacio para que las flechas no cubran contenido ni el narrador. En modo Leer, los botones Anterior / Siguiente y ← / → recorren las láminas del documento; ↑ / ↓ conservan su desplazamiento nativo. Índice (`O`) abre cualquier tema.
 - **Notas (`N`) y glosario (`G`):** explicaciones para quien presenta, decisiones, límites y fuentes. Se abren en la misma página, con navegación por teclado.
 - **Laboratorios:** elige escenario y usa Paso, Reproducir/Pausar o Reiniciar. La reproducción se detiene al cambiar de lámina, abrir un diálogo u ocultar la pestaña. Nunca conecta infraestructura ni ejecuta los snippets.
 - **Lectura:** el botón Leer / Presentar conserva la lámina actual y cambia a documento continuo. En pantallas menores de 700 px se activa por defecto; `?lectura=0` fuerza presentación y `?lectura=1` lectura. Los laboratorios funcionan en ambos modos. Las preferencias de movimiento reducido se respetan.
-- **Fuentes:** las vistas C4 simplifican las relaciones para enseñar; cada una permite descargar el Excalidraw completo. Los ejemplos de código se identifican como contratos o pseudocódigo educativo.
+- **Fuentes:** las vistas C4 representan contexto, aplicaciones y componentes del POS propuesto; cada una permite descargar el Excalidraw completo. El código muestra contratos y pseudocódigo de los flujos propuestos, sin acreditar una implementación productiva.
 
 ### Asistente para preguntas
 
@@ -20,9 +20,9 @@ El botón **Asistente** abre una conversación sobre la lámina actual y la arqu
 
 ### Modo narrador
 
-En la presentación pública, pulsa **Narrador** para escuchar la explicación en español desde la lámina actual. La voz es sintética y sigue un guion docente por fragmentos, no una lectura automática del contenido de pantalla. Cada fragmento señala las tarjetas, componentes y relaciones explicados; los laboratorios cambian al escenario y paso correspondiente al relato.
+En la presentación pública, pulsa **Narrador** para escuchar la explicación en español desde la lámina actual. La voz es sintética y desarrolla las decisiones, el funcionamiento y los límites de la propuesta por fragmentos. Cada fragmento señala las tarjetas, componentes y relaciones explicados; las simulaciones cambian al escenario y paso correspondiente al relato.
 
-El guion cubre las 79 láminas, incluidos los 97 estados de laboratorio. Se puede recorrer por capítulos o empezar desde cualquier lámina; el reproductor muestra la duración y el progreso de la explicación actual.
+El guion cubre las 51 láminas, incluidos los 97 estados de simulación. El reproductor muestra la duración y el progreso de la explicación actual.
 
 Puedes pausar, repetir la lámina, saltar entre fragmentos, buscar un instante o cambiar la velocidad. El texto de lo que se está narrando aparece en el panel. **Avance automático** continúa a la siguiente lámina; desmárcalo para detenerte al terminar cada una. Cambiar manualmente de lámina carga su explicación en pausa. Abrir un diálogo, manipular un laboratorio u ocultar la pestaña también pausa la voz; para continuar hay que pulsar Reproducir. En modo lectura, desplazarte manualmente por el contenido pausa la narración. No se reproduce nada al abrir la página.
 
@@ -32,13 +32,13 @@ Para probar narración local, primero ejecuta `node presentation/tools/build-ver
 
 Se inspiró en la organización por capítulos de [Integration Platform detallada](https://integration-presentations.vercel.app/architecture/enterprise-integration-platform-detailed.html#/), manteniendo las decisiones propias del POS. Reveal.js 5.1.0 y Highlight se distribuyen localmente en `vendor/reveal/`, con licencias, commits de origen y SHA-256. No se necesitan CDNs ni instalación para ver la presentación. `node presentation/tools/vendor-reveal.cjs --check` verifica los ocho archivos oficiales. La misma herramienta, sin `--check`, restaura únicamente esos archivos desde las fuentes fijadas.
 
-El contenido está en `pos-reveal-content.js`, los estados educativos en `pos-reveal-labs.js`, el render y los controles en `pos-reveal.js`, y el diseño en `pos-reveal.css`. Para verificar: `node presentation/tools/check-reveal.cjs`; admite una URL base como argumento para revisar el despliegue. Reutiliza Playwright de `video/node_modules` o `PLAYWRIGHT_MODULE_PATH`. Las evidencias se guardan en `presentation/qa/reveal/`, fuera de Git.
+El contenido está en `pos-reveal-content.js`, los estados de simulación en `pos-reveal-labs.js`, el render y los controles en `pos-reveal.js`, y el diseño en `pos-reveal.css`. Para verificar: `node presentation/tools/check-reveal.cjs`; admite una URL base como argumento para revisar el despliegue. Reutiliza Playwright de `video/node_modules` o `PLAYWRIGHT_MODULE_PATH`. Las evidencias se guardan en `presentation/qa/reveal/`, fuera de Git.
 
 ### Enfoque de la propuesta
 
-El recorrido introduce primero pantalla, backend, API, datos, módulo y proceso. Después explica cómo leer C1–C4 y distinguirlos de despliegue. Fachada, ACL, adaptador y puerto se presentan mediante problemas concretos, ejemplos antes/después y un laboratorio con un ERP ficticio. Las simulaciones muestran las decisiones, sus consecuencias y los límites de las garantías.
+El recorrido presenta Angular + Tauri en el puesto, backend modular NestJS/Fastify y PostgreSQL en sucursal y país. Los diagramas describen el POS concreto; las simulaciones muestran confirmación de venta, precios por eventos y lotes, recuperación de entregas, opciones BullMQ/RabbitMQ e integración ERP. La fachada, la ACL y los adaptadores se explican mediante el contrato y los flujos propuestos para ese producto.
 
-El capítulo de código se centra en aplicaciones, bibliotecas, módulos, contratos y dependencias. Nx aparece solo como contexto; configuración, comandos, caché y uso operativo quedan fuera de esta presentación. La revisión se puede dividir en tres bloques: producto y mapas; venta, precios y sincronización; integración, estructura y operación. El cierre reúne las decisiones que deben acordarse para el piloto y la evidencia necesaria para validar el producto.
+El capítulo de código contiene el monorepo completo, sus dominios, dependencias permitidas, verificaciones y releases. Nx organiza ese repositorio; su instalación, comandos y uso operativo quedan fuera del alcance. El cierre reúne observabilidad, recuperación, capacidad y criterios de aceptación del piloto. La autoridad de decisiones es [Propuesta de arquitectura](../docs/propuesta-arquitectura.md); las recomendaciones de backend, topología y operación siguen sujetas a validación.
 
 ### Atlas y materiales anteriores
 
@@ -86,7 +86,7 @@ El MP4 se conserva en una release pública de `floxcristian/pos-architecture`. D
 
 Abre **[Arquitectura en movimiento](architecture.html)** para un recorrido de 19 diapositivas inspirado en la presentación detallada de Integration Platform. En Vercel también está disponible mediante `/arquitectura`; comparte la publicación de POS Platform y no requiere otro proyecto.
 
-Incluye siete diagramas C4/dinámicos de Excalidraw con zoom y descarga editable, cinco laboratorios con 15 escenarios y 90 pasos, ejemplos breves de código resaltados por paso, índice y notas para exponer. Los casos cubren venta/outbox, ACK perdido, precios por eventos y lotes, BullMQ y RabbitMQ. Los brokers se presentan como opciones centrales; la propuesta base conserva PostgreSQL y entrega HTTPS. Todos los estados son sintéticos y el código mostrado es educativo e inerte.
+Incluye siete diagramas C4/dinámicos de Excalidraw con zoom y descarga editable, cinco laboratorios con 15 escenarios y 90 pasos, ejemplos breves de código resaltados por paso, índice y notas para exponer. Los casos cubren venta/outbox, ACK perdido, precios por eventos y lotes, BullMQ y RabbitMQ. Los brokers se presentan como opciones centrales; la propuesta base conserva PostgreSQL y entrega HTTPS. Todos los estados son sintéticos y el código mostrado es conceptual e inerte.
 
 Usa Anterior/Siguiente o las flechas para cambiar de diapositiva; `O` abre el índice y `N` las notas. Cada laboratorio permite elegir escenario, avanzar, retroceder, reproducir, pausar y reiniciar. El hash conserva enlaces a diapositiva, caso y paso. No hay reproducción automática al abrir una página; al salir del laboratorio o esconder la pestaña se pausa. Se respeta movimiento reducido y se conserva el relato textual.
 

@@ -1,4 +1,4 @@
-/* Reveal course: render trusted educational data; simulations never call infrastructure. */
+/* Reveal proposal: render trusted content; simulations never call infrastructure. */
 (() => {
   'use strict';
   const C = window.POS_REVEAL_CONTENT;
@@ -21,7 +21,7 @@
   const notifyInteraction = kind => document.dispatchEvent(new CustomEvent('poscourse:interaction',{detail:{kind}}));
 
   const diagramModels = {
-    context: {file:'01-contexto',caption:'C1 · Personas y sistemas. Las flechas nombran relaciones; no representan orden de ejecución.',nodes:[
+    context: {file:'01-contexto',caption:'C1 · El POS corporativo integra las fuentes de maestros, los proveedores y los sistemas de cada país.',nodes:[
       ['operator',55,35,250,95,'Personas de tienda','Cajero · supervisor'],['platform',55,270,250,95,'Equipo corporativo','Configura y opera'],
       ['pos',470,150,280,115,'POS corporativo','Un producto multipaís','main'],['master',925,25,290,90,'Maestros / precios','Autoridad por dato y país'],
       ['provider',925,190,290,90,'Pago y fiscalidad','Contratos homologados'],['erp',925,355,290,90,'Sistemas empresariales','AX · Gira · custom']],edges:[
@@ -68,18 +68,18 @@
   function code(slide) {
     const block = slide.code || {};
     const aside = (slide.items || []).map(item=>`<article><h3>${esc(item.title)}</h3><p>${esc(item.text)}</p></article>`).join('');
-    return `<div class="code-layout ${aside?'':'solo'}"><div><div class="code-label">${esc(block.label || (slide.kind==='tree'?'Estructura ilustrativa del producto':'Fragmento educativo'))}</div><pre data-id="${esc(slide.autoAnimate || slide.id)}"><code class="language-${esc(block.language || 'plaintext')}" ${!reading && block.highlights?`data-line-numbers="${esc(block.highlights)}"`:''}>${esc(block.source)}</code></pre><p class="code-caption">${slide.kind==='tree'?'Carpetas orientativas: responsabilidades, no servidores.':'Ejemplo conceptual: sigue entradas, llamada y resultado.'}</p></div>${aside?`<div class="code-aside">${aside}</div>`:''}</div>`;
+    return `<div class="code-layout ${aside?'':'solo'}"><div><div class="code-label">${esc(block.label || (slide.kind==='tree'?'Estructura propuesta del producto':'Código de referencia de la propuesta'))}</div><pre data-id="${esc(slide.autoAnimate || slide.id)}"><code class="language-${esc(block.language || 'plaintext')}" ${!reading && block.highlights?`data-line-numbers="${esc(block.highlights)}"`:''}>${esc(block.source)}</code></pre><p class="code-caption">${slide.kind==='tree'?'Distribución propuesta de aplicaciones y bibliotecas.':'Contrato de referencia; requiere implementación y validación.'}</p></div>${aside?`<div class="code-aside">${aside}</div>`:''}</div>`;
   }
   function labMarkup(slide) {
     const lab=L[slide.lab];
     if (!lab) throw new Error(`Unknown lab ${slide.lab}`);
     states.set(slide.id,{scenario:0,step:0});
-    return `<div class="lab" data-lab="${esc(slide.lab)}" data-owner="${esc(slide.id)}"><div class="lab-scenarios" role="group" aria-label="Escenario del laboratorio"><span>ESCENARIO</span>${lab.scenarios.map((s,i)=>`<button type="button" data-scenario="${i}" aria-pressed="${i===0}">${esc(s.label)}</button>`).join('')}</div><div class="lab-flow" style="--nodes:${lab.nodes.length}">${lab.nodes.map(node=>`<div class="lab-node" data-node="${esc(node.id)}"><h3>${esc(node.label)}</h3><p>${esc(node.detail)}</p></div>`).join('')}</div><div class="lab-route" aria-hidden="true"></div><div class="lab-split"><div><div class="lab-explanation" aria-live="polite" aria-atomic="true"><h3 class="lab-step-title"></h3><p class="lab-step-text"></p></div><div class="lab-values"></div></div><div class="lab-console"><p class="console-label">Evidencia simulada · no ejecuta servicios</p><div class="lab-log"></div><pre class="lab-code"></pre></div></div><div class="lab-controls"><output aria-label="Paso del escenario"></output><button type="button" data-lab-action="prev" aria-label="Paso anterior del laboratorio">← Paso</button><button type="button" data-lab-action="next">Paso →</button><button type="button" data-lab-action="play" class="primary">Reproducir</button><button type="button" data-lab-action="reset">Reiniciar</button></div></div>`;
+    return `<div class="lab" data-lab="${esc(slide.lab)}" data-owner="${esc(slide.id)}"><div class="lab-scenarios" role="group" aria-label="Escenario de la simulación"><span>ESCENARIO</span>${lab.scenarios.map((s,i)=>`<button type="button" data-scenario="${i}" aria-pressed="${i===0}">${esc(s.label)}</button>`).join('')}</div><div class="lab-flow" style="--nodes:${lab.nodes.length}">${lab.nodes.map(node=>`<div class="lab-node" data-node="${esc(node.id)}"><h3>${esc(node.label)}</h3><p>${esc(node.detail)}</p></div>`).join('')}</div><div class="lab-route" aria-hidden="true"></div><div class="lab-split"><div><div class="lab-explanation" aria-live="polite" aria-atomic="true"><h3 class="lab-step-title"></h3><p class="lab-step-text"></p></div><div class="lab-values"></div></div><div class="lab-console"><p class="console-label">Evidencia simulada · no ejecuta servicios</p><div class="lab-log"></div><pre class="lab-code"></pre></div></div><div class="lab-controls"><output aria-label="Paso del escenario"></output><button type="button" data-lab-action="prev" aria-label="Paso anterior de la simulación">← Paso</button><button type="button" data-lab-action="next">Paso →</button><button type="button" data-lab-action="play" class="primary">Reproducir</button><button type="button" data-lab-action="reset">Reiniciar</button></div></div>`;
   }
   function body(slide) {
     switch(slide.kind) {
       case 'cover':return `<div class="cover-system"><div class="cover-unit" data-id="common-core"><div class="unit-number">01 / REUTILIZAR</div><h3>Núcleo compartido</h3><p>Ventas, caja, precios y reglas comunes.</p></div><div class="cover-arrow" aria-hidden="true">→</div><div class="cover-unit"><div class="unit-number">02 / CONFIGURAR</div><h3>Perfiles por país</h3><p>Capacidades aprobadas y versiones compatibles.</p></div><div class="cover-arrow" aria-hidden="true">→</div><div class="cover-unit"><div class="unit-number">03 / EXTENDER</div><h3>Contratos propios</h3><p>Fiscalidad, pagos, ERP y dispositivos.</p></div></div>`;
-      case 'outline':return `<div class="route-grid">${C.chapters.map((chapter,i)=>`<div class="route-entry"><span>0${i+1}</span><h3><a href="#/${esc(C.slides.find(s=>s.chapter===chapter.id).id)}" data-jump="${esc(C.slides.find(s=>s.chapter===chapter.id).id)}">${esc(chapter.title)}</a></h3></div>`).join('')}</div>`;
+      case 'outline':return `<div class="route-grid">${C.chapters.map((chapter,i)=>`<div class="route-entry"><span>0${i+1}</span><h3><a href="#/${esc(C.slides.find(s=>s.chapter===chapter.id).id)}" data-jump="${esc(C.slides.find(s=>s.chapter===chapter.id).id)}">${esc(chapter.title.replace(/^\d+\s*·\s*/,''))}</a></h3></div>`).join('')}</div>`;
       case 'cards':return cards(slide.items);
       case 'compare':return `<div class="compare-grid" style="--cols:${slide.columns.length}">${slide.columns.map(column=>`<article class="compare-column"><h3>${esc(column.title)}</h3><ul>${column.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></article>`).join('')}</div>`;
       case 'diagram':return diagram(slide.diagramKey,slide.id);
@@ -93,7 +93,7 @@
   $('#course-slides').innerHTML=C.chapters.map((chapter,h)=>`<section class="chapter-stack" aria-label="${esc(chapter.title)}">${C.slides.filter(slide=>slide.chapter===chapter.id).map((slide,v)=>{
     locations.set(slide.id,{h,v});
     const title=slide.kind==='cover'?'h1':'h2';
-    return `<section id="${esc(slide.id)}" class="course-slide kind-${slide.kind} ${slide.kind==='cover'?'cover':''}" data-chapter="${esc(chapter.id)}" ${slide.autoAnimate?`data-auto-animate data-auto-animate-id="${esc(slide.autoAnimate)}"`:''} aria-labelledby="title-${esc(slide.id)}"><div class="slide-head"><p class="eyebrow">${esc(chapter.title)}</p><${title} id="title-${esc(slide.id)}">${esc(slide.title)}</${title}>${slide.lead?`<p class="slide-lead">${esc(slide.lead)}</p>`:''}</div><div class="slide-body">${body(slide)}</div>${slide.takeaway?`<div class="takeaway">${esc(slide.takeaway)}</div>`:''}${slide.source?`<div class="slide-source">Profundizar: <a href="${esc(slide.source.url)}">${esc(slide.source.label)}</a></div>`:''}<aside class="notes">${(slide.notes || []).map(note=>`<p>${esc(note)}</p>`).join('')}</aside></section>`;
+    return `<section id="${esc(slide.id)}" class="course-slide kind-${slide.kind} ${slide.kind==='cover'?'cover':''}" data-chapter="${esc(chapter.id)}" ${slide.autoAnimate?`data-auto-animate data-auto-animate-id="${esc(slide.autoAnimate)}"`:''} aria-labelledby="title-${esc(slide.id)}"><div class="slide-head"><p class="eyebrow">${esc(chapter.title)}</p><${title} id="title-${esc(slide.id)}">${esc(slide.title)}</${title}>${slide.lead?`<p class="slide-lead">${esc(slide.lead)}</p>`:''}</div><div class="slide-body">${body(slide)}</div>${slide.takeaway?`<div class="takeaway">${esc(slide.takeaway)}</div>`:''}${slide.source?`<div class="slide-source">Documento: <a href="${esc(slide.source.url)}">${esc(slide.source.label)}</a></div>`:''}<aside class="notes">${(slide.notes || []).map(note=>`<p>${esc(note)}</p>`).join('')}</aside></section>`;
   }).join('')}</section>`).join('');
 
   function stateOf(root) { return states.get(root.dataset.owner); }
@@ -213,10 +213,10 @@
       content=`<p>La cruceta de Reveal.js muestra las direcciones disponibles: ← / → cambian de capítulo; ↑ / ↓ recorren las láminas del capítulo actual. Las teclas de flecha hacen lo mismo. En las láminas de código, las flechas recorren primero los bloques resaltados antes de salir de la lámina.</p><p>Espacio recorre toda la presentación en orden, incluidos los bloques resaltados; Mayús + Espacio retrocede. Av Pág / Re Pág pasan directamente a la siguiente o anterior lámina. En modo lectura, ↑ / ↓ desplazan el documento; Anterior / Siguiente y ← / → recorren sus láminas. El índice permite saltar a cualquier tema.</p><div class="index-chapters">${C.chapters.map(chapter=>`<div class="index-chapter"><h3>${esc(chapter.title)}</h3><ol>${C.slides.filter(slide=>slide.chapter===chapter.id).map(slide=>`<li><a href="#/${slide.id}" data-jump="${slide.id}">${esc(slide.title)}</a></li>`).join('')}</ol></div>`).join('')}</div>`;
     } else if(kind==='notes') {
       title=current().title;
-      content=`<p>Notas para quien presenta. Los ejemplos son didácticos y usan datos simulados.</p><ol>${(current().notes || []).map(note=>`<li>${esc(note)}</li>`).join('')}</ol>${current().source?`<p><a href="${esc(current().source.url)}">${esc(current().source.label)}</a></p>`:''}`;
+      content=`<p>Alcance, supuestos y decisiones de esta parte de la propuesta.</p><ol>${(current().notes || []).map(note=>`<li>${esc(note)}</li>`).join('')}</ol>${current().source?`<p><a href="${esc(current().source.url)}">${esc(current().source.label)}</a></p>`:''}`;
     } else {title='Términos, en lenguaje directo';content=`<dl class="glossary-grid">${C.glossary.map(item=>`<div><dt>${esc(item.term)}</dt><dd>${esc(item.meaning)}</dd></div>`).join('')}</dl>`;}
     $('#dialog-title').textContent=title;
-    $('#dialog-eyebrow').textContent=kind==='notes'?'Notas del presentador':kind==='index'?'8 capítulos · una plataforma':'Glosario de arquitectura';
+    $('#dialog-eyebrow').textContent=kind==='notes'?'Detalle de la propuesta':kind==='index'?'8 capítulos · una plataforma':'Glosario de arquitectura';
     $('#dialog-body').innerHTML=content;
     dialog.showModal();
   }

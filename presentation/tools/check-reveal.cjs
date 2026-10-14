@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const vm = require('node:vm');
 const { spawn } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
@@ -38,6 +39,19 @@ async function ready(page, suffix = '') {
   assert.match(response.headers()['content-security-policy'] || '', /connect-src 'self'/);
   await page.waitForFunction(() => document.body.dataset.ready === 'true' && window.POS_REVEAL_CONTENT && window.POS_REVEAL_LABS);
   assert.equal(await page.evaluate(() => Reveal.VERSION), '5.1.0');
+  const header = await page.locator('.course-header').evaluate(element => {
+    const bounds = element.getBoundingClientRect();
+    const items = [...element.querySelectorAll('.course-brand,.course-subtitle,nav > button')].map(item => ({ element: item, rect: item.getBoundingClientRect() })).filter(({ rect }) => rect.width > 0 && rect.height > 0);
+    const clipped = items.filter(({ element: item, rect }) => rect.left < 0 || rect.right > innerWidth + 1 || rect.top < bounds.top - 1 || rect.bottom > bounds.bottom + 1 || item.scrollWidth > item.clientWidth + 2).map(({ element: item }) => item.textContent.trim());
+    const overlaps = [];
+    for (let i = 0; i < items.length; i++) for (const other of items.slice(i + 1)) {
+      const current = items[i];
+      if (Math.min(current.rect.right, other.rect.right) - Math.max(current.rect.left, other.rect.left) > 1 && Math.min(current.rect.bottom, other.rect.bottom) - Math.max(current.rect.top, other.rect.top) > 1) overlaps.push([current.element.textContent.trim(), other.element.textContent.trim()]);
+    }
+    return { width: innerWidth, clipped, overlaps };
+  });
+  assert.deepEqual(header.clipped, [], `Header labels must fit: ${JSON.stringify(header)}`);
+  assert.deepEqual(header.overlaps, [], `Header controls must not overlap: ${JSON.stringify(header)}`);
 }
 
 async function go(page, slide) {
@@ -278,7 +292,7 @@ async function checkNavigationViewports(browser) {
   const page = await browser.newPage({ reducedMotion: 'reduce' });
   observe(page);
   try {
-    for (const viewport of [{ width: 1440, height: 1000 }, { width: 768, height: 1024 }, { width: 375, height: 812 }]) {
+    for (const viewport of [{ width: 1440, height: 1000 }, { width: 1100, height: 850 }, { width: 768, height: 1024 }, { width: 375, height: 812 }]) {
       await page.setViewportSize(viewport);
       await ready(page, '?lectura=0');
       await page.evaluate(() => {
@@ -355,9 +369,9 @@ async function checkNavigationViewports(browser) {
       await page.keyboard.press('PageDown');
       assert.equal(await page.evaluate(() => POSCourse.getState().currentId), ids[1], 'The proposal must remain navigable after opening an old assessment link');
     }
-    report.checks.push('Native four-arrow cluster and compact reading buttons fit 1440/768/375 without overlap; native Up/Down reading scroll and Left/Right sequential reading navigation preserved');
+    report.checks.push('Proposal header, native four-arrow cluster and compact reading buttons fit 1440/1100/768/375 without overlap; native Up/Down reading scroll and Left/Right sequential reading navigation preserved');
     report.checks.push('Removed assessment hash falls back to the proposal and remains navigable in presenting and reading modes');
-    console.log('Navigation layout: native arrows and reading controls 1440/768/375 PASS.');
+    console.log('Navigation layout: header, native arrows and reading controls 1440/1100/768/375 PASS.');
   } finally { await page.close(); }
 }
 
@@ -431,20 +445,26 @@ async function run() {
       slides: Reveal.getSlides().map(slide => ({ id: slide.id, ...Reveal.getIndices(slide), title: slide.querySelector('h1,h2')?.textContent, lab: slide.querySelector('.lab')?.dataset.lab })),
       chapters: document.querySelectorAll('.slides > section').length
     }));
+    const sourceContext = { window: {} };
+    vm.runInNewContext(await fs.readFile(path.join(root, 'pos-reveal-content.js'), 'utf8'), sourceContext, { timeout: 1500 });
+    const expectedIds = Array.from(sourceContext.window.POS_REVEAL_CONTENT.slides, slide => slide.id);
+    const requiredIds = ['un-producto-varios-paises', 'contexto-del-pos', 'contenedores-del-pos', 'lugares-de-ejecucion', 'backend-modular', 'laboratorio-venta', 'espejo-de-precios', 'laboratorio-eventos-precios', 'laboratorio-snapshot-precios', 'sincronizador-por-dentro', 'laboratorio-entrega', 'laboratorio-bullmq', 'laboratorio-rabbitmq', 'laboratorio-frontera-erp', 'incorporar-pais', 'arbol-nx', 'criterios-del-piloto'];
+    for (const id of requiredIds) assert.ok(expectedIds.includes(id), `Retain the proposal's architecture, use cases and implementation evidence: ${id}`);
     assert.deepEqual(data.config, { width: 1280, height: 780 });
-    assert.equal(data.slides.length, 79);
+    assert.deepEqual(data.slides.map(slide => slide.id), expectedIds, 'The served proposal must match the current source, including removed slides');
     assert.equal(data.chapters, 8);
-    assert.equal(new Set(data.slides.map(slide => slide.id)).size, 79);
+    assert.equal(new Set(data.slides.map(slide => slide.id)).size, expectedIds.length);
     assert.ok(data.slides.every(slide => slide.id && slide.title));
     assert.equal(Object.keys(data.labs).length, 7);
     report.chapters = data.chapters;
     const contentSlides = data.content.slides || data.content.chapters?.flatMap(chapter => chapter.slides) || [];
-    assert.equal(contentSlides.length, 79);
+    assert.equal(contentSlides.length, expectedIds.length);
     assert.deepEqual(data.slides.map(slide => slide.id), contentSlides.map(slide => slide.id), 'Rendered chapters must preserve the declared proposal sequence');
     assert.ok(contentSlides.every(slide => slide.kind !== 'quiz' && !slide.options && !slide.question), 'The proposal must not contain assessment questions');
     assert.equal(await page.locator('#course-slides [data-answer],#course-slides .quiz-options,#course-slides .quiz-feedback').count(), 0, 'Assessment controls must not be rendered');
-    assert.ok(contentSlides.every(slide => !/comprueba lo aprendido|comprueba tu|quiz|cuestionario/i.test(slide.title)), 'Assessment slides must not remain in the proposal index');
-    report.checks.push('The 79-slide proposal contains no quizzes, answer controls or assessment index entries');
+    assert.ok(contentSlides.every(slide => !/comprueba lo aprendido|comprueba tu|quiz|cuestionario|desde cero|cómo aprender|qué es arquitectura/i.test(slide.title)), 'The proposal index must not include assessments or introductory lessons');
+    assert.ok(contentSlides.every(slide => !['como-aprender-la-arquitectura', 'que-es-arquitectura', 'leer-c4', 'frontend-y-backend', 'explicar-tu-diseno'].includes(slide.id)), 'Removed classroom content must not return as presentation slides');
+    report.checks.push(`The ${contentSlides.length}-slide proposal matches source and retains architecture/use cases without quizzes or introductory lessons`);
     await checkNavigation(page, data.slides);
     await checkSlideTransitions(browser);
     await checkNavigationViewports(browser);
@@ -516,6 +536,8 @@ async function run() {
       report.labs++;
     }
     assert.deepEqual(labLayoutFailures, [], 'Lab layout failures:\n' + labLayoutFailures.join('\n'));
+    assert.equal(report.scenarios, 17, 'Retain all proposal simulation scenarios');
+    assert.equal(report.steps, 97, 'Retain every explicit simulation state');
     console.log(`Labs: ${report.scenarios} scenarios / ${report.steps} explicit states PASS.`);
 
     const firstLab = labSlides[0];

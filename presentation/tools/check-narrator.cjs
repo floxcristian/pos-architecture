@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const vm = require('node:vm');
 const { spawn } = require('node:child_process');
 const { createHash } = require('node:crypto');
 
@@ -69,7 +70,7 @@ async function seek(page, index) {
 
 function validateManifest(data) {
   const expectedSlides = data.content.slides.map(slide => slide.id);
-  assert.equal(expectedSlides.length, 79, 'The narrator must follow the 79-slide proposal');
+  assert.ok(expectedSlides.length > 0 && new Set(expectedSlides).size === expectedSlides.length, 'The proposal must contain unique slides');
   assert.ok(data.content.slides.every(slide => slide.kind !== 'quiz'), 'Narration must not include assessment slides');
   assert.deepEqual(Object.keys(data.narration).sort(), [...expectedSlides].sort(), 'Every slide must have one narration script');
   assert.deepEqual(Object.keys(data.audio).sort(), [...expectedSlides].sort(), 'Every slide must have recorded audio');
@@ -102,6 +103,7 @@ function validateManifest(data) {
     report.audioSeconds += audio.duration;
   }
   const expectedLabs = new Set(data.content.slides.filter(slide => slide.lab).flatMap(slide => data.labs[slide.lab].scenarios.flatMap((scenario, s) => scenario.steps.map((_, n) => `${slide.id}/${s}/${n}`))));
+  assert.equal(expectedLabs.size, 97, 'Retain all proposal simulation states');
   assert.deepEqual(labStates, expectedLabs, 'Narration must cover every scenario and every explicit laboratory state');
   report.labSteps = labStates.size;
   report.slides = expectedSlides.length;
@@ -257,7 +259,7 @@ async function checkPlayRejection(page) {
 }
 
 async function auditAllCues(page, data) {
-  const proposalNarration = new Set(['ruta-de-aprendizaje', 'como-aprender-la-arquitectura', 'explicar-tu-diseno']);
+  const proposalNarration = new Set(['ruta-de-aprendizaje', 'estado-de-las-decisiones', 'espejo-de-precios', 'incorporar-pais', 'arbol-nx', 'criterios-del-piloto']);
   const samples = smoke ? data.content.slides.filter((slide, index) => index === 0 || slide.kind === 'diagram' || slide.lab === 'architecture-patterns' || slide.id === 'fachada-e-interfaz-en-codigo' || proposalNarration.has(slide.id)) : data.content.slides;
   for (const slide of samples) {
     await goto(page, slide.id);
@@ -292,9 +294,11 @@ async function checkManualInteractions(page, data) {
   await paused(page);
   await page.screenshot({ path: path.join(output, 'desktop-lab.png') });
 
-  const code = data.content.slides.find(slide => slide.code?.highlights);
-  assert.ok(code, 'Keep a highlighted code example as a regression fixture');
+  const codeId = await page.locator('.course-slide').evaluateAll(slides => slides.find(slide => slide.querySelector('pre .fragment'))?.id);
+  const code = data.content.slides.find(slide => slide.id === codeId);
+  assert.ok(code, 'Keep a code example with real Reveal fragments as a regression fixture');
   await goto(page, code.id); await mediaReady(page); await seek(page, 0);
+  assert.equal(await page.evaluate(() => Reveal.availableFragments().next), true, 'The narration fixture must have a pending code fragment');
   await page.locator(action('play')).click();
   await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
   await page.locator('#presentation').focus();
@@ -420,6 +424,9 @@ async function run() {
     observe(page);
     await ready(page);
     const data = await page.evaluate(() => ({ content: POS_REVEAL_CONTENT, labs: POS_REVEAL_LABS, narration: POS_REVEAL_NARRATION_CONTENT, audio: POS_REVEAL_NARRATION_AUDIO }));
+    const sourceContext = { window: {} };
+    vm.runInNewContext(await fs.readFile(path.join(root, 'pos-reveal-content.js'), 'utf8'), sourceContext, { timeout: 1500 });
+    assert.deepEqual(data.content.slides.map(slide => slide.id), Array.from(sourceContext.window.POS_REVEAL_CONTENT.slides, slide => slide.id), 'Narrated presentation must match the current proposal source');
     validateManifest(data);
     const audioURL = new URL(Object.values(data.audio)[0].src, entry).href;
     const range = await page.request.get(audioURL, { headers: { Range: 'bytes=0-127' } });

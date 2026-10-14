@@ -503,7 +503,7 @@ window.POS_REVEAL_LABS = {
           },
           {
             title: 'El publicador encola con identidad estable',
-            text: 'Se añade el job con una política acotada de intentos y backoff. Los números del ejemplo son didácticos; la política real se acuerda por trabajo.',
+            text: 'Se añade el job con intentos y espera entre reintentos acotados. Los valores simulados ilustran la propuesta; la política se acuerda por trabajo.',
             active: ['scheduler', 'queue'], links: [['scheduler', 'queue']],
             values: [{ label: 'Job ID', value: 'Estable' }, { label: 'Intentos', value: 'Acotados' }, { label: 'Backoff', value: 'Con espera' }],
             log: 'job.enqueued job=snapshot-CL-A-100',
@@ -932,7 +932,7 @@ window.POS_REVEAL_LABS['architecture-patterns'] = {
         },
         {
           "title": "La fachada devuelve un resultado del POS",
-          "text": "Quien llamó recibe un estado del contrato POS. No debe aprender los códigos del proveedor ni tratarlos como si fueran una regla de venta.",
+          "text": "El módulo que solicitó la integración recibe un estado del contrato POS. Los códigos del proveedor quedan dentro de la ACL y no condicionan las reglas de venta.",
           "active": [
             "acl",
             "facade"
@@ -1178,7 +1178,7 @@ window.POS_REVEAL_LABS['architecture-patterns'] = {
         },
         {
           "title": "La fachada devuelve un resultado del POS",
-          "text": "Quien llamó recibe un estado del contrato POS. No debe aprender los códigos del proveedor ni tratarlos como si fueran una regla de venta.",
+          "text": "El módulo que solicitó la integración recibe un estado del contrato POS. Los códigos del proveedor quedan dentro de la ACL y no condicionan las reglas de venta.",
           "active": [
             "acl",
             "facade"

@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const vm = require('node:vm');
 const {validateCorpus, splitText, INPUTS} = require('./build-assistant-context.cjs');
 const corpus = require('../../server/assistant/corpus.json');
 const {getContext, hasSlide} = require('../../server/assistant/context.cjs');
@@ -11,8 +12,11 @@ const root = path.resolve(__dirname, '../..');
 const sourceMap = new Map(corpus.chunks.map(chunk => [chunk.sourceId, {id: chunk.sourceId, title: chunk.title, url: chunk.url}]));
 
 validateCorpus(corpus);
-assert.equal(corpus.slideIds.length, 79);
+const sourceContext = {window: {}};
+vm.runInNewContext(fs.readFileSync(path.join(root, 'presentation/pos-reveal-content.js'), 'utf8'), sourceContext, {timeout: 1500});
+assert.deepEqual(corpus.slideIds, Array.from(sourceContext.window.POS_REVEAL_CONTENT.slides, slide => slide.id), 'Assistant sources must match the current proposal exactly');
 assert.ok(corpus.slideIds.every(id => !/^(pregunta-|ejercicio-|estructura-ejercicio-)/.test(id)), 'Removed assessment slides must not be offered as assistant sources');
+assert.ok(corpus.slideIds.every(id => !['como-aprender-la-arquitectura', 'que-es-arquitectura', 'leer-c4', 'frontend-y-backend', 'explicar-tu-diseno'].includes(id)), 'Generic lessons must not remain as assistant sources');
 assert.equal(corpus.chunks.filter(chunk => /:lab:.*:step:/.test(chunk.id)).length, 97);
 assert.deepEqual(corpus.inputs.map(input => input.file), INPUTS, 'The public source allowlist must remain explicit');
 for (const input of corpus.inputs) {
@@ -49,8 +53,11 @@ function checkResult(question, slideId, history) {
 const current = 'un-producto-varios-paises';
 const acl = checkResult('¿Para qué sirve ACL?', current);
 assert(acl.sources.some(source => source.id === 'acl-traduce-significado'));
-assert.match(acl.context, /anticorrupci[oó]n/i);
-assert.match(acl.context, /significados?|sem[aá]ntica/i);
+assert.match(acl.context, /traduce|traducir|traducci[oó]n/i);
+assert.match(acl.context, /modelo POS|contrato (?:com[uú]n del |propio del )?POS/i);
+assert.match(acl.context, /proveedor|ERP/i);
+assert.match(acl.context, /dinero|moneda|unidad/i);
+assert.match(acl.context, /recibido[\s\S]*contabilizado/i);
 
 const messaging = checkResult('BullMQ vs RabbitMQ', current);
 assert(messaging.sources.some(source => source.id === 'elegir-mensajeria'));
