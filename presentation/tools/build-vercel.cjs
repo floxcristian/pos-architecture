@@ -2,6 +2,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const {spawnSync} = require('node:child_process');
 const {publishVideo} = require('./video-publication.cjs');
 const {publishNarration} = require('./narration-publication.cjs');
 const {buildAssistantContext} = require('./build-assistant-context.cjs');
@@ -9,6 +10,9 @@ const root = path.resolve(__dirname, '../..');
 const output = path.resolve(root, 'public');
 const files = [];
 buildAssistantContext({root});
+const documentation = spawnSync(process.execPath, [path.join(root, 'docs-site/scripts/build.mjs')], {cwd: root, stdio: 'inherit', windowsHide: true});
+if (documentation.error) throw documentation.error;
+if (documentation.status !== 0) throw new Error(`Documentation build failed (${documentation.status})`);
 
 function collect(directory, accept) {
   for (const entry of fs.readdirSync(path.join(root, directory), {withFileTypes:true})) {
@@ -53,7 +57,28 @@ for (const file of files) {
   fs.copyFileSync(source, destination);
 }
 console.log(`Static output: ${files.length} files in public/ (presentation, documents and linked evidence).`);
-Promise.all([publishVideo(root, output), publishNarration(root, output)]).catch(error => {
+const docsOutput = path.join(root, 'docs-site/dist');
+if (!fs.existsSync(path.join(docsOutput, '.pos-docs-build'))) throw new Error('Missing documentation build marker');
+fs.cpSync(docsOutput, path.join(output, 'guide'), {recursive: true});
+async function connectDocumentation() {
+  const {resolveDocLink} = await import('../../docs-site/scripts/prepare-content.mjs');
+  let count = 0;
+  for (const name of fs.readdirSync(path.join(output, 'presentation'))) {
+    if (!/\.(html|js)$/.test(name)) continue;
+    const file = path.join(output, 'presentation', name);
+    const source = fs.readFileSync(file, 'utf8');
+    const transformed = source.replace(/(['"])(\.\.\/docs\/[^'"\s]+\.md(?:#[^'"\s]*)?)\1/g, (match, quote, url) => {
+      const [document, fragment] = url.slice(3).split('#');
+      const destination = resolveDocLink(document, fragment ? '#' + fragment : '');
+      if (!destination) return match;
+      count++;
+      return quote + destination + quote;
+    });
+    if (source !== transformed) fs.writeFileSync(file, transformed);
+  }
+  console.log(`Connected ${count} presentation references to their documentation pages.`);
+}
+Promise.all([publishVideo(root, output), publishNarration(root, output), connectDocumentation()]).catch(error => {
   console.error(`Media publication failed: ${error.message}`);
   process.exitCode = 1;
 });

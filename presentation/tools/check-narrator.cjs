@@ -34,6 +34,60 @@ function observe(page) {
 }
 
 const state = page => page.evaluate(() => POSNarrator.getState());
+async function details(page, open) {
+  const shown = await page.locator('#narrator-details').evaluate(element => element.matches(':popover-open'));
+  if (shown !== open) await page.locator(action('details')).click();
+  await page.waitForFunction(open => document.querySelector('#narrator-details').matches(':popover-open') === open && document.querySelector('[data-narrator-action="details"]').getAttribute('aria-expanded') === String(open), open);
+  assert.equal(await page.locator('#narrator-details').isVisible(), open, 'Details visibility must match the native popover state');
+}
+
+const measureLayout = page => page.evaluate(() => {
+  const box = element => {
+    const { left, right, top, bottom, width, height } = element.getBoundingClientRect();
+    return { left, right, top, bottom, width, height };
+  };
+  const visible = element => {
+    const rect = element.getBoundingClientRect();
+    return element.getClientRects().length > 0 && rect.width > 0 && rect.height > 0 && getComputedStyle(element).visibility !== 'hidden';
+  };
+  const bounds = elements => {
+    const boxes = [...elements].filter(visible).map(box);
+    return boxes.length ? { left: Math.min(...boxes.map(rect => rect.left)), right: Math.max(...boxes.map(rect => rect.right)), top: Math.min(...boxes.map(rect => rect.top)), bottom: Math.max(...boxes.map(rect => rect.bottom)) } : null;
+  };
+  const controls = [...document.querySelectorAll('#narrator-panel button,#narrator-panel select,#narrator-panel input')].filter(visible).map(element => ({ label: element.getAttribute('aria-label') || element.textContent, ...box(element) }));
+  return {
+    presentation: box(document.querySelector('#presentation')),
+    scale: window.Reveal?.isReady() ? Reveal.getScale() : null,
+    panel: box(document.querySelector('#narrator-panel')),
+    footer: box(document.querySelector('.course-footer')),
+    details: document.querySelector('#narrator-details').matches(':popover-open') ? box(document.querySelector('#narrator-details')) : null,
+    navigation: bounds(document.querySelectorAll('.controls button:enabled,.reading-navigation button')),
+    controls,
+    width: innerWidth, height: innerHeight, documentWidth: document.documentElement.scrollWidth
+  };
+});
+
+function unchangedPresentation(before, after, description) {
+  for (const key of ['left', 'right', 'top', 'bottom', 'width', 'height']) {
+    assert.ok(Math.abs(before.presentation[key] - after.presentation[key]) <= 1, `${description}: presentation ${key} changed from ${before.presentation[key]} to ${after.presentation[key]}`);
+  }
+  if (before.scale !== null) assert.ok(Math.abs(before.scale - after.scale) < .000001, `${description}: Reveal scale must not change`);
+}
+
+function compactLayout(layout) {
+  assert.ok(layout.documentWidth <= layout.width + 1, 'Narrator must not create horizontal overflow');
+  assert.ok(layout.panel.left >= -1 && layout.panel.right <= layout.width + 1, 'Compact player must fit horizontally');
+  assert.ok(layout.panel.top >= layout.footer.top - 1 && layout.panel.bottom <= layout.footer.bottom + 1, 'Compact player must use the existing footer height');
+  assert.ok(layout.presentation.bottom <= layout.footer.top + 2, 'Player must not cover the presentation');
+  assert.ok(layout.navigation, 'Slide navigation must remain available with the narrator open');
+  assert.ok(layout.navigation.top >= layout.footer.top - 1 && layout.navigation.bottom <= layout.height + 1, 'Slide navigation must remain inside the footer');
+  assert.ok(layout.panel.right <= layout.navigation.left + 1, 'Compact player must not overlap slide navigation');
+  for (const control of layout.controls) assert.ok(control.left >= -1 && control.right <= layout.width + 1 && control.top >= -1 && control.bottom <= layout.height + 1, `Narrator control outside viewport: ${JSON.stringify(control)}`);
+  if (layout.details) {
+    assert.ok(layout.details.left >= -1 && layout.details.right <= layout.width + 1 && layout.details.top >= -1 && layout.details.bottom <= layout.footer.top + 2, 'Details popover must fit above the footer without covering navigation');
+  }
+}
+
 async function ready(page, suffix = '') {
   const response = await page.goto(entry + suffix);
   assert.equal(response.status(), 200);
@@ -113,7 +167,7 @@ function validateManifest(data) {
 
 async function checkCue(page, slide, cue, index, data) {
   await seek(page, index);
-  assert.equal((await page.locator('#narrator-caption').innerText()).trim(), cue.text.trim(), `${slide.id}/${cue.id}: caption`);
+  assert.equal((await page.locator('#narrator-caption').textContent()).trim(), cue.text.trim(), `${slide.id}/${cue.id}: caption`);
   const result = await page.evaluate(({ id, cue }) => {
     const section = document.getElementById(id);
     const isFocused = element => element.classList.contains('narrator-focus') || !!element.closest('.narrator-focus');
@@ -150,11 +204,28 @@ async function checkCue(page, slide, cue, index, data) {
 async function controls(page, data) {
   assert.equal((await state(page)).open, false, 'Narration must not open or play on page load');
   assert.equal(await page.locator('#narrator-audio').evaluateAll(elements => elements.every(audio => audio.paused)), true);
+  const closedLayout = await measureLayout(page);
   await page.locator('[data-narrator-toggle]').click();
   await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
   await mediaReady(page);
   assert.equal((await state(page)).open, true);
+  unchangedPresentation(closedLayout, await measureLayout(page), 'Opening narrator');
+  assert.equal(await page.locator('#narrator-details').evaluate(element => element.matches(':popover-open')), false, 'Options and transcript must initially remain collapsed');
+  assert.equal(await page.locator('#narrator-details').isVisible(), false, 'Closed details must not be rendered by presentation reset styles');
   await page.waitForFunction(() => POSNarrator.getState().currentTime > .15);
+  await page.evaluate(() => { window.__detailsAudio = document.querySelector('#narrator-audio'); });
+  const beforeDetails = await state(page);
+  await details(page, true);
+  unchangedPresentation(closedLayout, await measureLayout(page), 'Opening narrator details');
+  await page.waitForFunction(time => POSNarrator.getState().currentTime > time + .1, beforeDetails.currentTime);
+  assert.equal((await state(page)).status, 'playing', 'Opening details must not pause narration');
+  await details(page, false);
+  const afterDetails = await state(page);
+  assert.equal(afterDetails.status, 'playing', 'Closing details must not pause narration');
+  assert.ok(afterDetails.currentTime >= beforeDetails.currentTime, 'Toggling details must not restart the recording');
+  assert.equal(await page.evaluate(() => document.querySelector('#narrator-audio') === window.__detailsAudio), true, 'Toggling details must retain the audio element');
+  await page.evaluate(() => { delete window.__detailsAudio; });
+  unchangedPresentation(closedLayout, await measureLayout(page), 'Closing narrator details');
   await page.locator(action('play')).click();
   const before = await state(page);
   assert.equal(before.status, 'paused');
@@ -163,6 +234,7 @@ async function controls(page, data) {
   await page.locator(action('play')).click();
   await page.waitForFunction(time => POSNarrator.getState().currentTime > time + .12, before.currentTime);
   await paused(page);
+  await details(page, true);
   const rate = await page.locator('#narrator-rate').evaluate(select => [...select.options].map(option => option.value).find(value => Number(value) > 1));
   assert.ok(rate, 'Narrator must provide a faster playback option');
   await page.locator('#narrator-rate').selectOption(rate);
@@ -179,7 +251,9 @@ async function controls(page, data) {
   await paused(page);
   assert.equal((await state(page)).cueIndex, 0);
   assert.ok((await state(page)).currentTime < .4);
+  await details(page, false);
   report.checks.push('Real audio starts only after gesture; pause/resume preserves position; rate, cue navigation and restart work');
+  report.checks.push('Details and transcript are optional; opening/closing them preserves playback position, audio identity and presentation size/scale');
 
   await page.evaluate(() => { window.__oldNarratorAudio = document.querySelector('#narrator-audio'); });
   await goto(page, data.content.slides[1].id);
@@ -214,19 +288,25 @@ async function checkAdvance(page, data) {
   const first = data.content.slides[0], second = data.content.slides[1];
   await goto(page, first.id);
   await mediaReady(page);
+  await details(page, true);
   await page.locator('#narrator-auto').uncheck();
+  await details(page, false);
   assert.equal((await state(page)).autoAdvance, false);
   await page.evaluate(() => { const audio = document.querySelector('#narrator-audio'); audio.currentTime = audio.duration - .25; });
   await page.locator(action('play')).click();
   await page.waitForFunction(() => POSNarrator.getState().status === 'ended', null, { timeout: 10000 });
   assert.equal((await state(page)).slideId, first.id);
+  await details(page, true);
   await page.locator('#narrator-auto').check();
+  await details(page, false);
   await seek(page, data.narration[first.id].length - 1);
   await page.evaluate(() => { const audio = document.querySelector('#narrator-audio'); audio.currentTime = audio.duration - .25; });
   await page.locator(action('play')).click();
   await page.waitForFunction(id => POSNarrator.getState().slideId === id && POSNarrator.getState().status === 'playing', second.id, { timeout: 15000 });
   await paused(page);
+  await details(page, true);
   await page.locator('#narrator-auto').uncheck();
+  await details(page, false);
   report.checks.push('Natural media end respects the auto-advance preference; enabled mode advances to exactly the next slide');
 }
 
@@ -243,7 +323,8 @@ async function checkPlayRejection(page) {
     await page.locator(action('play')).click();
     await page.waitForFunction(() => POSNarrator.getState().status === 'error');
     assert.equal(await page.locator('#narrator-audio').evaluate(audio => audio.paused), true);
-    assert.equal(await page.locator(action('play')).innerText(), 'Reintentar');
+    assert.equal((await page.locator(`${action('play')} .narrator-play-label`).textContent()).trim(), 'Reintentar');
+    assert.equal(await page.locator(action('play')).getAttribute('aria-label'), 'Reintentar narración');
     await page.locator(action('play')).click();
     await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
     await mediaReady(page);
@@ -313,14 +394,27 @@ async function mobile(browser, data) {
   observe(page);
   try {
     await ready(page, '?lectura=1');
+    const closedLayout = await measureLayout(page);
     await page.locator('[data-narrator-toggle]').click();
     await mediaReady(page);
     await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
+    unchangedPresentation(closedLayout, await measureLayout(page), 'Mobile opening narrator');
+    compactLayout(await measureLayout(page));
+    await details(page, true);
+    unchangedPresentation(closedLayout, await measureLayout(page), 'Mobile opening transcript');
+    compactLayout(await measureLayout(page));
     await page.locator('#narrator-caption').focus();
     const captionSlide = await page.evaluate(() => POSCourse.getState().currentId);
     await page.keyboard.press('ArrowDown');
     assert.equal((await state(page)).status, 'playing', 'Scrolling the transcript must not pause narration');
     assert.equal(await page.evaluate(() => POSCourse.getState().currentId), captionSlide, 'Transcript keys must not navigate Reveal slides');
+    await page.keyboard.press('Escape');
+    // Native popover toggle events update aria-expanded in a subsequent task.
+    await page.waitForFunction(() => !document.querySelector('#narrator-details').matches(':popover-open') && document.querySelector('[data-narrator-action="details"]').getAttribute('aria-expanded') === 'false');
+    assert.equal((await state(page)).status, 'playing', 'Closing the transcript with Escape must retain playback');
+    assert.equal((await state(page)).open, true, 'First Escape must close only the details');
+    assert.equal(await page.locator(action('details')).getAttribute('aria-expanded'), 'false');
+    assert.equal(await page.locator(action('details')).evaluate(button => button === document.activeElement), true, 'Closing details must restore focus to their toggle');
     await page.locator('#presentation').focus();
     await page.keyboard.press('Home');
     assert.equal((await state(page)).status, 'paused', 'Manual reading-mode scrolling must pause narration');
@@ -332,34 +426,39 @@ async function mobile(browser, data) {
       let cueIndex = data.narration[slide.id].findIndex(cue => cue.focus?.edges?.length || cue.lab?.step > 0);
       if (cueIndex < 0) cueIndex = data.narration[slide.id].findIndex(cue => cue.focus || cue.lab);
       if (cueIndex >= 0) await seek(page, cueIndex);
-      const bounds = await page.evaluate(() => {
-        const panel = document.querySelector('#narrator-panel').getBoundingClientRect();
+      const bounds = await measureLayout(page);
+      const focusVisible = await page.evaluate(() => {
         const presentation = document.querySelector('#presentation').getBoundingClientRect();
-        const controls = [...document.querySelectorAll('#narrator-panel button,#narrator-panel select,#narrator-panel input')].filter(element => !element.hidden && getComputedStyle(element).display !== 'none').map(element => {
-          const rect = element.getBoundingClientRect();
-          return { label: element.getAttribute('aria-label') || element.textContent, left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
-        });
         const slide = document.getElementById(POSCourse.getState().currentId);
         const targets = [...slide.querySelectorAll('.narrator-focus')].filter(element => element.getClientRects().length);
         if (!targets.length && slide.querySelector('.lab-step-title')) targets.push(slide.querySelector('.lab-step-title'));
-        const focusVisible = targets.some(element => { const rect = element.getBoundingClientRect(); return rect.bottom > presentation.top && rect.top < presentation.bottom; });
-        return { width: innerWidth, height: innerHeight, documentWidth: document.documentElement.scrollWidth, panel: { top: panel.top, bottom: panel.bottom, left: panel.left, right: panel.right }, presentationBottom: presentation.bottom, focusVisible, controls };
+        return targets.some(element => { const rect = element.getBoundingClientRect(); return rect.bottom > presentation.top && rect.top < presentation.bottom; });
       });
-      assert.ok(bounds.documentWidth <= bounds.width + 1, 'Mobile narrator must not create horizontal scrolling');
-      assert.ok(bounds.panel.left >= -1 && bounds.panel.right <= bounds.width + 1 && bounds.panel.bottom <= bounds.height + 1, 'Mobile narrator must fit the viewport');
-      assert.ok(bounds.presentationBottom <= bounds.panel.top + 2, 'Narrator panel must reserve space instead of covering lesson content');
-      assert.ok(bounds.focusVisible, 'Narrated reading-mode diagram relationship or laboratory step must scroll into view');
-      for (const control of bounds.controls) assert.ok(control.left >= -1 && control.right <= bounds.width + 1 && control.top >= -1 && control.bottom <= bounds.height + 1, `Mobile control outside viewport: ${JSON.stringify(control)}`);
-      results.push({ slide: slide.id, ...bounds });
+      unchangedPresentation(closedLayout, bounds, 'Mobile narrated slide');
+      compactLayout(bounds);
+      assert.ok(focusVisible, 'Narrated reading-mode diagram relationship or laboratory step must scroll into view');
+      results.push({ slide: slide.id, ...bounds, focusVisible });
       await page.screenshot({ path: path.join(output, `mobile-${slide.id}.png`) });
     }
+    const manualSlide = await page.evaluate(() => POSCourse.getState().currentId);
+    await page.locator(action('play')).click();
+    await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
+    await page.locator('.reading-navigation [data-ui="next"]').click();
+    await page.waitForFunction(id => POSCourse.getState().currentId !== id, manualSlide);
+    assert.equal((await state(page)).status, 'paused', 'Reading navigation must remain available and pause narration after a manual slide change');
+    await details(page, true);
     await page.locator('#narrator-caption').focus();
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.querySelector('#narrator-details').matches(':popover-open') && document.querySelector('[data-narrator-action="details"]').getAttribute('aria-expanded') === 'false');
+    assert.equal((await state(page)).open, true, 'Closing the transcript must not close the player');
+    assert.equal(await page.locator(action('details')).evaluate(button => button === document.activeElement), true);
     await page.keyboard.press('Escape');
     assert.equal((await state(page)).open, false);
     assert.equal(await page.locator('[data-narrator-toggle]').evaluate(button => button === document.activeElement), true, 'Escape must restore focus to the narrator toggle');
     assert.equal(await page.locator('#narrator-audio').evaluateAll(elements => elements.every(audio => audio.paused)), true);
+    unchangedPresentation(closedLayout, await measureLayout(page), 'Mobile closing narrator');
     report.viewports.push({ width: 375, height: 812, reading: true, samples: results });
-    report.checks.push('375px reading mode: all narrator controls fit, panel reserves content space, close stops audio');
+    report.checks.push('375px reading mode: compact footer, optional transcript fits, slide area unchanged, reading navigation remains available, layered Escape restores focus and stops audio only on narrator close');
   } finally { await page.close(); }
 }
 
@@ -375,37 +474,44 @@ async function nativeNavigationLayout(browser) {
         POSCourse.goTo(slide.id);
       });
       assert.equal(await page.locator('.controls button:enabled').count(), 4, 'Narration layout must exercise the full native arrow cluster');
+      const closedLayout = await measureLayout(page);
       await page.locator('[data-narrator-toggle]').click();
       await mediaReady(page);
       await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
       await paused(page);
-      const measure = () => page.evaluate(() => {
-        const box = selector => { const { left, right, top, bottom } = document.querySelector(selector).getBoundingClientRect(); return { left, right, top, bottom }; };
-        const buttons = [...document.querySelectorAll('.controls button:enabled')].map(element => element.getBoundingClientRect());
-        const controls = { left: Math.min(...buttons.map(button => button.left)), right: Math.max(...buttons.map(button => button.right)), top: Math.min(...buttons.map(button => button.top)), bottom: Math.max(...buttons.map(button => button.bottom)) };
-        return { presentation: box('#presentation'), panel: box('#narrator-panel'), footer: box('.course-footer'), info: box('.course-footer > div'), controls, width: innerWidth, height: innerHeight, documentWidth: document.documentElement.scrollWidth };
-      });
-      const layout = await measure();
-      assert.ok(layout.documentWidth <= layout.width + 1, 'Native navigation and narrator must not create horizontal overflow');
-      assert.ok(layout.presentation.bottom <= layout.panel.top + 2, 'Narrator must reserve space above the navigation footer');
-      assert.ok(layout.panel.bottom <= layout.footer.top + 2, 'Narrator must end above the footer at every presentation viewport');
-      assert.ok(layout.controls.top >= layout.footer.top && layout.controls.bottom <= layout.height + 1, `Native Reveal arrows must remain in the footer below the narrator: ${JSON.stringify(layout)}`);
-      assert.ok(layout.controls.left >= 0 && layout.controls.right <= layout.width + 1, 'Native arrows stay inside the viewport with narration open');
-      assert.ok(layout.info.right <= layout.controls.left + 1, 'Footer text must not overlap any of the four native arrow hit areas');
+      const layout = await measureLayout(page);
+      unchangedPresentation(closedLayout, layout, 'Presentation opening narrator');
+      compactLayout(layout);
       await page.screenshot({ path: path.join(output, `native-navigation-${viewport.width}.png`) });
+      await details(page, true);
+      const expanded = await measureLayout(page);
+      unchangedPresentation(closedLayout, expanded, 'Presentation opening narrator details');
+      compactLayout(expanded);
+      await page.screenshot({ path: path.join(output, `narrator-details-${viewport.width}.png`) });
+      const focusedSlide = await page.evaluate(() => POSCourse.getState().currentId);
+      await page.locator(action('restart')).focus();
+      await page.keyboard.press('ArrowRight');
+      await page.locator('#narrator-caption').focus();
+      await page.keyboard.press('ArrowDown');
+      assert.equal(await page.evaluate(() => POSCourse.getState().currentId), focusedSlide, 'Keys in narrator controls and transcript must not navigate slides');
+      await details(page, false);
+      unchangedPresentation(closedLayout, await measureLayout(page), 'Presentation closing narrator details');
       const before = await page.evaluate(() => POSCourse.getState().currentId);
       await page.locator(action('play')).click();
       await page.waitForFunction(() => POSNarrator.getState().status === 'playing');
       await page.locator('.controls .navigate-down').click();
       await page.waitForFunction(id => POSCourse.getState().currentId !== id, before);
       assert.equal((await state(page)).status, 'paused', 'Native arrows must pause narration on manual slide changes');
-      assert.ok((await measure()).panel.bottom <= layout.footer.top + 2, 'Narration layout must remain stable after clicking a native arrow');
+      const navigated = await measureLayout(page);
+      unchangedPresentation(closedLayout, navigated, 'Presentation navigation with narrator');
+      compactLayout(navigated);
       await page.locator(action('close')).click();
-      const closed = await measure();
+      const closed = await measureLayout(page);
+      unchangedPresentation(closedLayout, closed, 'Presentation closing narrator');
       assert.ok(closed.presentation.bottom <= closed.footer.top + 2, 'Closing the narrator must preserve the reserved arrow footer');
       report.viewports.push({ ...viewport, reading: false, nativeNavigation: layout });
     }
-    report.checks.push('Native Reveal arrows with actual narrator media at 1440/768/375: no content/panel/footer overlap; manual arrow pauses audio; close restores reserved slide space');
+    report.checks.push('Native Reveal arrows with actual narrator media at 1440/768/375: player shares existing footer without overlapping arrows; details fit above navigation; slide height and scale remain identical; manual arrows pause audio');
   } finally { await page.close(); }
 }
 

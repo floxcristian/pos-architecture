@@ -154,10 +154,10 @@
         "kind": "diagram",
         "diagramKey": "context",
         "title": "C1 · El POS y sus fronteras",
-        "lead": "El POS atiende cajas y supervisores e integra maestros, pagos, fiscalidad y ERP mediante contratos por país.",
+        "lead": "Arquitectura propuesta: operación de caja, supervisión e integración con maestros, pagos, fiscalidad y ERP por país.",
         "takeaway": "Un núcleo común conserva sus reglas; cada proveedor mantiene su autoridad y su evidencia de resultado.",
         "notes": [
-          "El cajero opera, el supervisor autoriza y revisa, y el equipo de plataforma supervisa entregas y recuperaciones. Son necesidades diferentes, no un único permiso administrador.",
+          "Cajero, supervisor y equipo de plataforma representan responsabilidades propuestas. No son un inventario de los perfiles activos del legacy; las aprobaciones integradas deben acordarse con negocio.",
           "La autoridad de catálogo y precios se confirma por atributo y país. No se adjudica automáticamente al ERP ni a la sucursal que guarda el espejo.",
           "Chile integra Dynamics AX on-premise; España, Gira; Perú, un sistema custom, según los antecedentes. Interfaces y capacidades de los destinos requieren validación.",
           "El documento fiscal, la liquidación del pago y el asiento contable no quedan demostrados por el ACK del POS central."
@@ -265,9 +265,10 @@
         "diagramKey": "backend",
         "title": "C3 · Módulos del backend de sucursal",
         "lead": "Acceso, precios, ventas, caja, pagos y fiscalidad colaboran con una unidad de trabajo local.",
-        "takeaway": "Cada módulo controla sus datos; la unidad de trabajo confirma conjuntamente los cambios locales acordados.",
+        "takeaway": "Base legacy: login, perfiles y accesos a pantallas. Evolución propuesta: permisos por operación y ámbito, con aprobaciones auditables.",
         "notes": [
-          "Acceso valida identidad, puesto, sucursal y capacidad real. Ocultar una opción en la UI no reemplaza la autorización del backend.",
+          "Mountain ya tiene login con correo/contraseña, JWT, perfiles y asignación de módulos/submódulos. El grupo principal de rutas del backend exige autenticación; eso no acredita autorización granular uniforme por operación.",
+          "La migración conserva y mapea usuarios, perfiles y accesos vigentes. Se propone validar operación, puesto y sucursal en el backend; la matriz de capacidades, las aprobaciones y la autorización offline requieren diseño y validación con negocio.",
           "Precios evalúa una versión local validada. Pagos y fiscalidad mantienen sus intentos, referencias y resultados. Caja posee turnos y movimientos.",
           "La unidad de trabajo confirma los cambios locales que deben ser atómicos junto con auditoría y outbox. No se mantiene la transacción SQL abierta esperando a un banco o al ERP.",
           "Extraer un microservicio requiere una necesidad comprobada de escala, aislamiento, seguridad o ciclo de entrega; no basta tener muchas carpetas."

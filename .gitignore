@@ -6,6 +6,13 @@
 /presentation/architecture-diagrams/qa/
 /presentation/tools/excalidraw-runtime/generator.js
 /public/
+/docs-site/dist/
+/docs-site/.astro/
+/docs-site/src/content/docs/proposal/
+/docs-site/src/content/docs/architecture/
+/docs-site/src/content/docs/operations/
+/docs-site/src/content/docs/evidence/
+/docs-site/src/content/docs/reference/
 /video/.venv/
 /video/work/
 /video/output/

@@ -4,13 +4,30 @@
   "private": true,
   "description": "POS Platform presentation and grounded question assistant",
   "engines": {
-    "node": "22.x"
+    "node": ">=22.19.0 <23"
   },
   "scripts": {
     "build": "node presentation/tools/build-vercel.cjs",
+    "docs:build": "node docs-site/scripts/build.mjs",
+    "docs:dev": "node docs-site/scripts/prepare-content.mjs && astro dev --root docs-site",
+    "docs:check": "node docs-site/scripts/check.cjs",
+    "preview": "node presentation/tools/serve-public.cjs",
     "check:assistant-api": "node --test presentation/tools/check-assistant-api.cjs"
   },
   "dependencies": {
     "@vercel/firewall": "1.2.6"
+  },
+  "overrides": {
+    "postcss-nested": {
+      "postcss-selector-parser": "7.1.6"
+    }
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@astrojs/markdown-remark": "7.3.0",
+    "@astrojs/starlight": "0.42.6",
+    "astro": "7.3.8",
+    "mermaid": "12.2.0",
+    "typescript": "5.9.3"
   }
 }

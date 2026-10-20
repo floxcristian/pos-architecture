@@ -1,4 +1,8 @@
-# POS enterprise para Chile, Perú y España
+# POS Platform para Chile, Perú y España
+
+La **[guía de arquitectura en Starlight](https://presentation-gamma-rust.vercel.app/guide/)** organiza la propuesta por tema, enlaza las decisiones con la evidencia del legacy y reúne diagramas ampliables y recorridos interactivos. Es la entrada del sitio publicado. La [presentación Reveal](presentation/pos-corporativo-reveal.html) conserva su recorrido y narrador.
+
+Las páginas temáticas se generan desde los documentos originales, sin mantener copias editoriales. La [guía de mantenimiento](docs-site/README.md) explica el mapa de contenidos, los componentes y la verificación del sitio. Para compilar la documentación: `npm run docs:build`; para ensamblar todo el sitio de Vercel: `npm run build`.
 
 El objetivo es una **plataforma POS corporativa reutilizable en múltiples países**, con un núcleo común de negocio, módulos y contratos versionados, configuración por país/entidad/sucursal y adaptadores fiscales, de pago, ERP y periféricos. La operación offline es uno de sus requisitos, junto con integridad, seguridad, experiencia común, reportes y evolución gobernada. Expandirse debe reutilizar el producto sin mantener un POS independiente por país; las reglas y protocolos nuevos siguen requiriendo desarrollo, pruebas y homologación.
 

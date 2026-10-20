@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "contentHash": "e82a003c628158ef70c4546806d0ad095ede38f19b3e225e5928c8ad0c9edb68",
+  "contentHash": "ad186603119a6142bf53a679cddc7b5b75f004347a1c0967c5ba7e729c1a6f74",
   "voice": "es-CL-LorenzoNeural",
   "language": "es-CL",
   "rate": "-5%",
   "slides": 51,
   "cues": 350,
-  "duration": 5391.912,
-  "scriptHash": "ed42d40571fa6c8ac14ad3573c0decf3e6807e9e34b31aee8733a44a0cb89955",
-  "file": "pos-narration-e82a003c628158ef.zip",
-  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-narration-e82a003c628158ef/pos-narration-e82a003c628158ef.zip",
-  "bytes": 43153764,
-  "sha256": "6c47eb4d1cafcc1ba4b088138f2297104178ad6a9b694249675f8236cb977685",
+  "duration": 5405.76,
+  "scriptHash": "f4e2f553b4beda377c509c81c371b5a654d45e8d96d1689d077b1d8cf3756e5f",
+  "file": "pos-narration-ad186603119a6142.zip",
+  "url": "https://github.com/floxcristian/pos-architecture/releases/download/pos-narration-ad186603119a6142/pos-narration-ad186603119a6142.zip",
+  "bytes": 43264548,
+  "sha256": "a09f9d67ce003caf229bd361c077e60a7960b2037115967b74f51a9890ed7d96",
   "files": [
     {
       "file": "acl-ejemplo-antes-despues.mp3",
@@ -40,8 +40,8 @@
     },
     {
       "file": "backend-modular.mp3",
-      "bytes": 717356,
-      "sha256": "e5ee1ec3e46de6711faf5b8b4109725434a5bda5162f75f0415beb776f3f3b5f"
+      "bytes": 825644,
+      "sha256": "ccda524480bb938535e2dc7f8a7ec5f113b6e83c3c3a4fc3006add76b849c2a7"
     },
     {
       "file": "cadena-de-verificacion.mp3",
@@ -80,8 +80,8 @@
     },
     {
       "file": "contexto-del-pos.mp3",
-      "bytes": 860972,
-      "sha256": "0d7999d7f19846fdf9f462cf0aa9beaea34c69400d752c91b13695e8f0112d3f"
+      "bytes": 863468,
+      "sha256": "48f7fd541a2e4c093da24bdec3f4424d052e3f0e76673ee1ecc5decf7eaff17e"
     },
     {
       "file": "contrato-del-calculo.mp3",

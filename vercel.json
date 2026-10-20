@@ -15,8 +15,9 @@
     { "source": "/video", "destination": "/presentation/video.html" }
   ],
   "redirects": [
+    { "source": "/guide", "destination": "/guide/", "permanent": false },
     { "source": "/reveal", "destination": "/presentation/pos-corporativo-reveal.html", "permanent": false },
-    { "source": "/", "destination": "/presentation/index.html", "permanent": false },
+    { "source": "/", "destination": "/guide/", "permanent": false },
     { "source": "/arquitectura", "destination": "/presentation/architecture.html", "permanent": false },
     { "source": "/presentation", "destination": "/presentation/index.html", "permanent": false }
   ],
@@ -27,6 +28,12 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" }
+      ]
+    },
+    {
+      "source": "/guide/(.*)",
+      "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" }
       ]
     }
   ]

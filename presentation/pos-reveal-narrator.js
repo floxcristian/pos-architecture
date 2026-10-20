@@ -8,6 +8,7 @@
   const button = action => $(`[data-narrator-action="${action}"]`);
   const progress = $('#narrator-progress');
   const caption = $('#narrator-caption');
+  const details = $('#narrator-details');
   const scripts = window.POS_REVEAL_NARRATION_CONTENT;
   const recordings = window.POS_REVEAL_NARRATION_AUDIO;
   const slides = window.POS_REVEAL_CONTENT.slides;
@@ -27,17 +28,22 @@
     return index;
   }
 
-  function layout() {
-    if (state.open) document.body.style.setProperty('--narrator-height', `${Math.ceil(panel.getBoundingClientRect().height)}px`);
-    else document.body.style.removeProperty('--narrator-height');
-    if (window.Reveal?.isReady()) window.Reveal.layout();
+  function hideDetails(restoreFocus = false) {
+    if (details.matches(':popover-open')) details.hidePopover();
+    if (restoreFocus) button('details').focus({ preventScroll: true });
   }
-  new ResizeObserver(layout).observe(panel);
+
+  details.addEventListener('toggle', () => {
+    button('details').setAttribute('aria-expanded', String(details.matches(':popover-open')));
+  });
 
   function render() {
     const active = state.status === 'playing' || state.status === 'loading';
-    button('play').textContent = active ? 'Pausar' : state.status === 'error' ? 'Reintentar' : state.status === 'ended' ? 'Repetir' : 'Reproducir';
-    button('play').setAttribute('aria-label', `${button('play').textContent} narración`);
+    const playLabel = active ? 'Pausar' : state.status === 'error' ? 'Reintentar' : state.status === 'ended' ? 'Repetir' : 'Reproducir';
+    button('play').querySelector('.narrator-play-label').textContent = playLabel;
+    button('play').dataset.playing = String(active);
+    button('play').setAttribute('aria-label', `${playLabel} narración`);
+    button('play').title = `${playLabel} narración`;
     button('previous').disabled = state.cueIndex === 0 || !cues.length;
     button('next').disabled = state.cueIndex >= cues.length - 1;
     button('restart').disabled = !cues.length;
@@ -202,7 +208,6 @@
     panel.hidden = false;
     toggle.setAttribute('aria-pressed', 'true');
     document.body.classList.add('narrator-open');
-    layout();
     prepareSlide(window.POSCourse.getState().currentId);
     button('play').focus({ preventScroll: true });
     play();
@@ -210,6 +215,7 @@
 
   function close() {
     if (!state.open) return;
+    hideDetails();
     releaseAudio();
     window.POSCourse.clearNarrationCue();
     state.open = false;
@@ -218,13 +224,16 @@
     panel.hidden = true;
     toggle.setAttribute('aria-pressed', 'false');
     document.body.classList.remove('narrator-open');
-    layout();
     toggle.focus({ preventScroll: true });
   }
 
   toggle.addEventListener('click', () => state.open ? close() : open());
   panel.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); }
+    if (event.key === 'Escape') {
+      event.preventDefault(); event.stopPropagation();
+      if (details.matches(':popover-open')) hideDetails(true);
+      else close();
+    }
   });
   panel.addEventListener('click', event => {
     const action = event.target.closest('[data-narrator-action]')?.dataset.narratorAction;
@@ -233,6 +242,7 @@
     if (action === 'next') seekCue(state.cueIndex + 1);
     if (action === 'restart') { seekCue(0); play(); }
     if (action === 'close') close();
+    if (action === 'details-close') hideDetails(true);
   });
   $('#narrator-rate').addEventListener('change', event => {
     state.rate = Number(event.target.value);

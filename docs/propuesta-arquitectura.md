@@ -416,7 +416,11 @@ Las referencias fiscales se revisaron el 1 de octubre de 2026. Orientan las rest
 
 ## Seguridad y operación
 
-Cada dispositivo tiene identidad propia, credenciales rotables y permisos limitados a sus tiendas y entidades. El enrolamiento requiere conexión y control administrativo. El acceso offline usa una autorización firmada, vinculada al dispositivo y al operador, con funciones, importe y vigencia limitados. No se resuelve ampliando indefinidamente la duración de un token de acceso central.
+**Base existente en Chile:** `mountain-implementos` ya implementa login con correo/contraseña, JWT y renovación de sesión, perfiles y asignación de módulos/submódulos. Angular comprueba accesos y el grupo principal de rutas del backend exige autenticación. Los perfiles de sus seeds no acreditan la configuración productiva. La [evidencia por archivo y commit](analisis-repositorios/mountain-implementos.md#login-perfiles-y-alcance-de-los-permisos) distingue estos controles de las mejoras siguientes.
+
+**Evolución propuesta:** conservar y mapear usuarios, perfiles y accesos vigentes a permisos por operación y ámbito de empresa/sucursal/caja, comprobados en el backend. La matriz de capacidades, los límites de descuento y los flujos de aprobación requieren inventario y acuerdo con negocio; no se presentan como capacidades ya verificadas del legacy. Por ejemplo, la pantalla revisada de devolución solicita autorización por correo, lo que no acredita una aprobación integrada. «Supervisor», soporte y auditor describen responsabilidades propuestas, no nombres de perfiles productivos confirmados.
+
+Se propone que cada dispositivo tenga identidad propia, credenciales rotables y permisos limitados a sus tiendas y entidades. El enrolamiento requiere conexión y control administrativo. Para acceso offline se propone una autorización firmada, vinculada al dispositivo y al operador, con funciones, importe y vigencia limitados; su diseño y validación están pendientes. No se resuelve ampliando indefinidamente la duración de un token de acceso central.
 
 La revocación remota no llega a una caja aislada: se acepta una ventana acotada y se restringen funciones sensibles. Se controla retroceso de reloj mediante la última referencia confiable y tiempo monotónico cuando esté disponible; reinicios sin tiempo verificable activan una política conservadora. Un PIN local requiere protección contra fuerza bruta y bloqueo según política.
 

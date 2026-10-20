@@ -39,7 +39,7 @@ El visor local muestra C2 inicialmente a 100 %, permite desplazar y ampliar el m
 
 ## C1: límites del sistema
 
-El POS permite al cajero operar, al supervisor autorizar/revisar y a operación de plataforma supervisar recuperaciones. Los sistemas externos son la fuente autorizada de maestros/precios, el sistema financiero de cada país y los proveedores de pago/fiscalidad. El contexto no confunde esos sistemas con módulos internos ni con una base única de todos los países. [Propósito del contexto C4](https://c4model.com/diagrams/system-context).
+En la propuesta, el POS permite al cajero operar, al supervisor autorizar/revisar y a operación de plataforma supervisar recuperaciones. Esas personas representan responsabilidades objetivo, no un inventario de los perfiles activos del legacy. Los sistemas externos son la fuente autorizada de maestros/precios, el sistema financiero de cada país y los proveedores de pago/fiscalidad. El contexto no confunde esos sistemas con módulos internos ni con una base única de todos los países. [Propósito del contexto C4](https://c4model.com/diagrams/system-context).
 
 **ERP por país.** Chile: Dynamics AX on-premise. España: Gira, según antecedente confirmado; interfaces y capacidades por validar. Perú: sistema custom, con contrato por relevar. El nodo representa el sistema que corresponda al país observado; no tres ERP dentro de un único proceso ni un adaptador común ya productivo. La migración a un ERP futuro exige preservar destino y versión de operaciones pendientes.
 
@@ -70,13 +70,15 @@ Las flechas hacia proveedores son contratos lógicos: una integración con API r
 ## C3 del backend: módulos de un único proceso
 
 1. **API de comandos** valida entrada e identidad y entrega el contexto a acceso/permisos.
-2. **Acceso y permisos** comprueba usuario, puesto, sucursal, vigencia y capacidad operativa; no se limita a ocultar opciones del menú.
+2. **Acceso y permisos** propone comprobar usuario, puesto, sucursal, vigencia y capacidad operativa en el backend. Evoluciona el login, los perfiles y los accesos a módulos/submódulos existentes; la matriz por operación, las aprobaciones y las autorizaciones offline requieren diseño y validación.
 3. **Ventas/devoluciones** coordina el caso de uso; **turnos/caja** controla apertura, movimientos y cierre.
 4. **Precios/ofertas** calcula desde una versión PostgreSQL local completa, validada e inmutable. Snapshot y deltas construyen candidatas aisladas; no se parchea la activa. La versión aplicada queda asociada a la cotización/venta.
 5. **Pagos** y **fiscalidad** gestionan sus propios intentos, referencias y resultados. Su protocolo de recuperación depende de capacidades acreditadas.
 6. **Persistencia transaccional** confirma cambios locales, auditoría y outbox juntos. Las llamadas externas no quedan dentro de una transacción SQL abierta.
 
 La separación es de responsabilidades y contratos de código. No se despliega un proceso HTTP por cada bloque. El backend no consulta obligatoriamente el ERP ni un precio remoto al confirmar una venta habilitada para operar sin WAN.
+
+El bloque de acceso no representa una capacidad completamente nueva ni acredita permisos granulares ya implementados. La migración debe conservar y mapear usuarios, perfiles y accesos vigentes; el [análisis del legacy](analisis-repositorios/mountain-implementos.md#login-perfiles-y-alcance-de-los-permisos) documenta login/JWT, controles de menú y autenticación de rutas, además de una autorización de devolución solicitada por correo.
 
 ## C3 de sincronización: entrega y activación de precios
 

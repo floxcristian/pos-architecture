@@ -26,7 +26,7 @@
 <body>
   <a class="skip-link" href="#presentation">Saltar al contenido</a>
   <header class="course-header">
-    <a class="course-brand" href="index.html"><span aria-hidden="true">P</span>POS <strong>Platform</strong></a>
+    <a class="course-brand" href="/guide/" aria-label="POS Platform: documentación de la propuesta"><span aria-hidden="true">P</span>POS <strong>Platform</strong></a>
     <span class="course-subtitle">PROPUESTA DE ARQUITECTURA</span>
     <nav aria-label="Herramientas">
       <button type="button" data-narrator-toggle aria-pressed="false" aria-controls="narrator-panel">Narrador</button>
@@ -41,27 +41,31 @@
   <main id="presentation" class="reveal" aria-label="Presentación POS corporativo" tabindex="-1"><div class="slides" id="course-slides"></div></main>
   <footer class="course-footer">
     <div><span id="chapter-label">POS corporativo</span><span id="slide-count"></span></div>
-    <p class="course-navigation-help">← → Capítulos · ↑ ↓ Láminas<br><kbd>Espacio</kbd> Recorrer en orden</p>
     <nav class="reading-navigation" aria-label="Navegación del documento">
       <button type="button" data-ui="previous" data-direction="left"><svg class="navigation-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg><span>Anterior</span></button>
       <button type="button" data-ui="next" data-direction="down" class="primary"><span>Siguiente</span><svg class="navigation-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
     </nav>
   </footer>
   <section id="narrator-panel" class="narrator-panel" aria-label="Narración de la presentación" hidden>
-    <div class="narrator-toolbar">
-      <div class="narrator-heading"><strong>Narrador · voz sintética</strong><span id="narrator-status" role="status" aria-live="polite">Listo para explicar esta lámina</span></div>
-      <div class="narrator-playback" role="group" aria-label="Controles de la narración">
-        <button type="button" data-narrator-action="previous" aria-label="Fragmento anterior" title="Fragmento anterior">↶</button>
-        <button type="button" data-narrator-action="play" class="primary">Reproducir</button>
-        <button type="button" data-narrator-action="next" aria-label="Fragmento siguiente" title="Fragmento siguiente">↷</button>
+    <div class="narrator-heading"><strong>Narrador · voz sintética</strong><span id="narrator-status" role="status" aria-live="polite">Listo para explicar esta lámina</span></div>
+    <button type="button" data-narrator-action="play" class="primary" data-playing="false" aria-label="Reproducir narración" title="Reproducir narración"><svg class="narrator-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="narrator-play-symbol" d="m9 5 11 7-11 7Z"/><path class="narrator-pause-symbol" d="M8 5v14M16 5v14"/></svg><span class="narrator-play-label">Reproducir</span></button>
+    <div class="narrator-timeline"><input type="range" id="narrator-progress" min="0" max="1" value="0" step="0.1" aria-label="Posición de la narración en esta lámina"><span id="narrator-time">0:00 / 0:00</span></div>
+    <button type="button" data-narrator-action="details" popovertarget="narrator-details" aria-expanded="false" aria-controls="narrator-details" aria-label="Texto y opciones del narrador" title="Texto y opciones del narrador"><svg class="narrator-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h14M5 12h14M5 17h8"/></svg><span class="narrator-details-label">Texto y opciones</span></button>
+    <button type="button" data-narrator-action="close" aria-label="Cerrar narrador" title="Cerrar narrador"><svg class="narrator-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <section id="narrator-details" class="narrator-details" popover="auto" aria-label="Texto y opciones del narrador">
+      <header><strong>Narrador · voz sintética</strong><button type="button" data-narrator-action="details-close" popovertarget="narrator-details" popovertargetaction="hide" aria-label="Ocultar texto y opciones" title="Ocultar texto y opciones" autofocus><svg class="narrator-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
+      <span id="narrator-position">Fragmento 1</span>
+      <p id="narrator-caption" tabindex="0" aria-label="Texto de la narración"></p>
+      <div class="narrator-playback" role="group" aria-label="Controles de fragmentos">
+        <button type="button" data-narrator-action="previous" aria-label="Fragmento anterior" title="Fragmento anterior"><svg class="narrator-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 5v14m14-14L8 12l11 7Z"/></svg></button>
+        <button type="button" data-narrator-action="next" aria-label="Fragmento siguiente" title="Fragmento siguiente"><svg class="narrator-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 5v14M5 5l11 7-11 7Z"/></svg></button>
         <button type="button" data-narrator-action="restart">Repetir lámina</button>
       </div>
-      <label class="narrator-speed">Velocidad <select id="narrator-rate"><option value="0.85">0,85×</option><option value="1" selected>1×</option><option value="1.15">1,15×</option><option value="1.3">1,3×</option><option value="1.5">1,5×</option></select></label>
-      <label class="narrator-auto"><input type="checkbox" id="narrator-auto" checked>Avance automático</label>
-      <button type="button" data-narrator-action="close" aria-label="Cerrar narrador" title="Cerrar narrador">Cerrar</button>
-    </div>
-    <div class="narrator-timeline"><span id="narrator-position">Fragmento 1</span><input type="range" id="narrator-progress" min="0" max="1" value="0" step="0.1" aria-label="Posición de la narración en esta lámina"><span id="narrator-time">0:00 / 0:00</span></div>
-    <p id="narrator-caption" tabindex="0" aria-label="Texto de la narración"></p>
+      <div class="narrator-options">
+        <label class="narrator-speed">Velocidad <select id="narrator-rate"><option value="0.85">0,85×</option><option value="1" selected>1×</option><option value="1.15">1,15×</option><option value="1.3">1,3×</option><option value="1.5">1,5×</option></select></label>
+        <label class="narrator-auto"><input type="checkbox" id="narrator-auto" checked>Avance automático</label>
+      </div>
+    </section>
   </section>
   <dialog id="course-dialog" aria-labelledby="dialog-title"><header><div><p class="eyebrow" id="dialog-eyebrow">POS Platform</p><h2 id="dialog-title"></h2></div><button type="button" data-ui="close" autofocus>Cerrar <kbd>Esc</kbd></button></header><div id="dialog-body"></div></dialog>
   <div class="sr-only" id="course-announcement" role="status" aria-live="polite"></div>

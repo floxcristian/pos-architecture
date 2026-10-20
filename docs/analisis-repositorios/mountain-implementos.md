@@ -26,6 +26,18 @@ En este repositorio no se identificaron los proyectos fuente Java/WSO2, la API d
 
 ## 2. Recorridos relevantes
 
+El catálogo de [endpoints del backend de sucursal](/guide/api/mountain/) y el de [endpoints del monitor concentrador](/guide/api/mountain-concentrator/) describen cada ruta, sus efectos observados y el método que la implementa. Incluyen búsqueda, agrupación por funcionalidad y referencias al mismo commit analizado; señalan métodos ausentes o vacíos y operaciones que modifican datos mediante `GET`.
+
+### Login, perfiles y alcance de los permisos
+
+El sistema revisado tiene **login con correo y contraseña**, comprobación de credenciales y emisión de JWT con renovación de sesión. No es una caja de acceso directo sin autenticación. [Login][mi-login], [renovación][mi-refresh].
+
+Los datos iniciales incluyen los perfiles Administrador, Cajero, Bodeguero, Desarrollador y `monitor_lectura`. Son **seeds**, no evidencia de los perfiles activos en producción. La administración permite consultar y asignar submódulos a perfiles; Angular comprueba esos accesos y redirige al login cuando no encuentra un usuario guardado. [Seeds de perfiles][mi-perfiles-seed], [asignación de accesos][mi-perfiles-accesos], [guard de navegación][mi-auth-guard].
+
+El grupo principal de rutas del backend exige `auth`; esto prueba autenticación, pero no acredita por sí solo autorización granular para cada operación. La revisión no confirmó un mecanismo uniforme de permisos por acción, ámbito de sucursal y aprobación de supervisor. La pantalla de devolución pide solicitar autorización por correo: evidencia un paso externo al sistema, sin demostrar que toda devolución siga ese procedimiento en producción. Las excepciones de rutas se describen en MI-03. [Rutas autenticadas][mi-auth-routes], [autorización por correo][mi-devolucion-autorizacion].
+
+**Consecuencia para la propuesta:** conservar y mapear los usuarios, perfiles y accesos existentes. Los permisos detallados para descuentos, devoluciones o cierres, sus ámbitos y las autorizaciones offline son una evolución por diseñar y validar con negocio. El actor «supervisor» de los diagramas representa una responsabilidad propuesta, no un perfil legacy confirmado. La configuración productiva y los controles adicionales no observados siguen pendientes de inventario.
+
 ### Consulta de precio y promociones
 
 ```mermaid
@@ -146,6 +158,7 @@ El controlador hace commit antes de invocar facturación. Existe una comprobaci�
 ## 4. Elementos que conviene aprovechar
 
 - Persistencia local con transacciones para el guardado principal de venta y pagos.
+- Login, perfiles y asignaciones de acceso existentes: conservar sus identidades y mapearlos al modelo de autorización objetivo después de inventariar su uso real.
 - Separación existente en servicios de precios, promociones y facturación: son puntos donde introducir contratos y pruebas antes de reemplazar componentes.
 - Selección de proveedor de facturación entre Acepta e Ingydev, ya encapsulada por un servicio. [Selección][mi-fiscal-provider].
 - Controles para no facturar de nuevo un DTE localmente aprobado y para detectar un comprobante ya finalizado.
@@ -168,6 +181,15 @@ La configuración admite varios drivers de plantilla y selecciona la conexión p
 4. Mantener identificadores históricos y compatibilidad con consumidores de tablas actuales durante la adopción de naming.
 5. Validar versión y permisos de ofertas en una sucursal real. El código permite reducir trabajo de administración, pero no demuestra que el motor offline ya exista.
 6. Preparar una prueba de venta persistida con DTE fallido y respuesta incierta, seguida de reintento y conciliación, conservando el mismo ID de negocio.
+7. Inventariar perfiles y accesos productivos; distinguir autenticación, acceso a pantallas y autorización por operación antes de definir la migración y las aprobaciones objetivo.
+
+[mi-login]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Controllers/Http/LoginController.js#L52-L119
+[mi-refresh]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Controllers/Http/LoginController.js#L345-L350
+[mi-perfiles-seed]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/database/seeds/PerfileSeeder.js#L10-L68
+[mi-perfiles-accesos]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/app/Controllers/Http/PerfileController.js#L112-L180
+[mi-auth-guard]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/shared/security/auth.guard.ts#L28-L79
+[mi-auth-routes]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/start/routes.js#L15-L473
+[mi-devolucion-autorizacion]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/src/app/modules/pos/pages/devolucion-pago/devolucion-pago-nota-credito.component.html#L307-L308
 
 [mi-frontend]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/frontend/package.json#L1-L103
 [mi-backend]: https://github.com/developer-implementos/mountain-implementos/blob/711f97fd7948c696bf45c992c5b121683bdbacd7/backend/package.json#L1-L63

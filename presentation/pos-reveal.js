@@ -253,7 +253,7 @@
   });
   document.addEventListener('keydown',event=>{
     if(document.querySelector('dialog[open]'))return;
-    if(event.target.closest('#narrator-caption'))return;
+    if(event.target.closest('#narrator-panel'))return;
     if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||event.target.closest(navigationWidget))return;
     // Match the native directional controls, including their fragment behavior.
     // Capture arrows so they still navigate after a button or link receives focus.
