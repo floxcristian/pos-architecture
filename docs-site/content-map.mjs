@@ -3,6 +3,32 @@ export const siteBase = '/guide/';
 export const generatedDirectories = ['proposal', 'architecture', 'operations', 'evidence', 'reference'];
 export const sourceRouteAliases = { 'docs/referencias': 'evidence/background' };
 
+// Reader-facing status is shared by every generated page, not inferred from its title.
+export const documentKinds = {
+  proposal: { label: 'Propuesta de producto', detail: 'Diseño objetivo. El registro de decisiones distingue las direcciones indicadas de las recomendaciones pendientes.', link: 'proposal/decisions' },
+  design: { label: 'Diseño de implementación', detail: 'Contratos y estructura propuestos; su presencia aquí no acredita funcionamiento productivo.', link: 'proposal/decisions' },
+  research: { label: 'Análisis de alternativas', detail: 'Fundamentos y condiciones de evaluación. La recomendación vigente está en el registro de decisiones.', link: 'proposal/decisions' },
+  evidence: { label: 'Evidencia del sistema actual', detail: 'Lectura de fuentes y snapshots identificados. La versión desplegada y las garantías operativas requieren confirmación.', link: 'evidence/audit' },
+  reference: { label: 'Referencia y mantenimiento', detail: 'Material de consulta. No introduce decisiones de producto ni acredita su implementación.', link: 'contents' },
+  historical: { label: 'Antecedente del explorador', detail: 'Describe el explorador y sus revisiones anteriores. La propuesta en Reveal y la guía actual tienen alcances propios.', link: 'reference/presentation' },
+};
+
+// A bounded route through the proposal; reference material is consulted on demand.
+export const readingPath = [
+  { route: 'overview', title: 'Visión general de la solución' },
+  { route: 'proposal/product', title: 'Producto, alcance y países' },
+  { route: 'proposal/architecture', title: 'Aplicaciones, datos y responsabilidades' },
+  { route: 'architecture/monorepo', title: 'Monorepo y límites de módulos' },
+  { route: 'proposal/continuity', title: 'Venta y continuidad operativa' },
+  { route: 'proposal/pricing-promotions', title: 'Precios y ofertas locales' },
+  { route: 'proposal/synchronization', title: 'Sincronización y propiedad de datos' },
+  { route: 'proposal/contracts', title: 'Contratos, fachada y ACL' },
+  { route: 'proposal/access-operations', title: 'Acceso, permisos y operación' },
+  { route: 'proposal/fiscal-compliance', title: 'Fiscalidad y documentos' },
+  { route: 'proposal/decisions', title: 'Registro de decisiones' },
+  { route: 'operations/validation', title: 'Validación y criterios del piloto' },
+];
+
 const proposalSource = 'docs/propuesta-arquitectura.md';
 const proposal = (route, title, description, from, to, extra = {}) => ({
   route: `proposal/${route}`, title, description, source: proposalSource,
@@ -57,14 +83,15 @@ export const generatedPages = [
   reference('evidence/devops', 'docs/analisis-repositorios/devops-platform.md', 'DevOps Platform', 'Acciones y flujos corporativos de construcción y despliegue revisados.', 'evidence'),
   reference('evidence/corporate-reuse', 'docs/analisis-repositorios/aportes-plataforma-corporativa.md', 'Inventario de reutilización corporativa', 'Candidatos concretos para reutilizar, adaptar o construir y su evidencia.', 'evidence'),
   reference('reference/corporate-review', 'docs/revision-arquitectura-corporativa.md', 'Revisión y alternativas corporativas', 'Motivos, alternativas y límites que sustentan la recomendación vigente.', 'research'),
-  reference('reference/coverage', 'docs/cobertura-documentacion-presentacion.md', 'Cobertura de fuentes y presentación', 'Relación entre fuentes, documentación de consulta y presentación.', 'reference'),
+  reference('reference/coverage', 'docs/cobertura-documentacion-presentacion.md', 'Cobertura del explorador y antecedentes', 'Registro de cobertura del explorador anterior y relación con las fuentes; no es una auditoría de Reveal.', 'historical'),
   reference('reference/explorer', 'docs/visor-interacciones-componentes.md', 'Visor de aplicaciones y recorridos', 'Accesos a las vistas de componentes, datos y simulaciones de la presentación.', 'reference'),
   reference('reference/editable-diagrams', 'docs/diagramas-excalidraw/README.md', 'Edición y fuentes de diagramas', 'Archivos editables, alcance y mantenimiento de los diagramas de Excalidraw.', 'reference'),
   reference('reference/integration-presentations', 'docs/analisis-repositorios/integration-presentations.md', 'Referencia de Integration Platform', 'Alcance del material de presentación utilizado como referencia.', 'reference'),
   reference('reference/repository', 'README.md', 'Repositorio y antecedentes del proyecto', 'Contexto del repositorio de análisis, fuentes recibidas y entradas al material.', 'reference'),
   reference('reference/presentation', 'presentation/README.md', 'Presentación y publicación', 'Accesos a Reveal, narración, despliegue y mantenimiento del material.', 'reference'),
-  reference('reference/editorial-notes', 'presentation/CONTENT_NOTES.md', 'Notas editoriales de la presentación', 'Trazabilidad y criterios de mantenimiento del contenido interactivo.', 'reference'),
+  reference('reference/editorial-notes', 'presentation/CONTENT_NOTES.md', 'Notas editoriales del explorador', 'Criterios y revisiones del explorador original, con alcance diferenciado de la propuesta Reveal.', 'historical'),
   reference('reference/maintenance', 'docs-site/README.md', 'Mantenimiento de la documentación', 'Fuentes, generación, diagramas, búsqueda y publicación de esta guía Starlight.', 'reference'),
+  reference('reference/documentation-audit', 'docs/auditoria-documentacion.md', 'Auditoría de consistencia documental', 'Hallazgos, correcciones, fuentes canónicas, controles de calidad y validación pendiente con el equipo.', 'reference'),
   { ...reference('reference/narration-pipeline', 'presentation/tools/narration-pipeline.md', 'Narrador: audio y sincronización', 'Guion, voz sintetizada, sincronización visual y publicación reproducible del modo narrador.', 'reference'), sourceDownload: false },
   { ...reference('reference/video-publication', 'video/README.md', 'Video: producción y publicación', 'Materiales, herramientas y verificación de la producción del video y su reproducción pública.', 'reference'), sourceDownload: false },
 ];
@@ -82,12 +109,15 @@ export const labLinks = {
 const item = (route, label) => ({ label: label || generatedPages.find(page => page.route === route)?.title || route, link: '/' + route + '/' });
 export const sidebar = [
   { label: 'Inicio', link: '/' },
+  { label: 'Visión general de la solución', link: '/overview/' },
   { label: 'Mapa de contenidos', link: '/contents/' },
-  { label: 'Propuesta', items: ['product', 'evolution', 'architecture', 'continuity', 'synchronization', 'pricing-promotions', 'integration', 'contracts', 'erp-migration', 'fiscal-compliance', 'access-operations', 'technology', 'corporate-reuse', 'ai', 'decisions'].map(route => item(`proposal/${route}`)) },
-  { label: 'Diseño y estructura', collapsed: true, items: [{ label: 'Diagramas C4', link: '/diagrams/' }, ...['c4-model', 'monorepo', 'technologies', 'providers', 'messaging', 'ai', 'rfid'].map(route => item(`architecture/${route}`))] },
-  { label: 'Operación y validación', collapsed: true, items: ['cash-management', 'resilience', 'validation', 'open-items'].map(route => item(`operations/${route}`)) },
-  { label: 'APIs del legacy', collapsed: true, items: [{ label: 'Mountain: backend de sucursal', link: '/api/mountain/' }, { label: 'Mountain: monitor concentrador', link: '/api/mountain-concentrator/' }] },
+  { label: 'Glosario del POS', link: '/glossary/' },
+  { label: 'Producto y alcance', collapsed: true, items: ['product', 'evolution', 'corporate-reuse'].map(route => item(`proposal/${route}`)) },
+  { label: 'Arquitectura y estructura', collapsed: true, items: [item('proposal/architecture'), item('architecture/monorepo'), { label: 'Diagramas C4', link: '/diagrams/' }, item('architecture/c4-model'), item('proposal/contracts'), item('proposal/technology'), item('architecture/technologies'), item('architecture/providers'), item('architecture/messaging')] },
+  { label: 'Flujos del producto', collapsed: true, items: ['continuity', 'pricing-promotions', 'synchronization', 'integration', 'erp-migration', 'fiscal-compliance', 'access-operations'].map(route => item(`proposal/${route}`)).concat([item('operations/cash-management')]) },
+  { label: 'Decisiones y validación', collapsed: true, items: [item('proposal/decisions'), ...['validation', 'resilience', 'open-items'].map(route => item(`operations/${route}`))] },
+  { label: 'Extensiones opcionales', collapsed: true, items: [item('proposal/ai'), item('architecture/ai'), item('architecture/rfid')] },
+  { label: 'APIs y configuración del legacy', collapsed: true, items: [{ label: 'Mountain: backend de sucursal', link: '/api/mountain/' }, { label: 'Mountain: monitor concentrador', link: '/api/mountain-concentrator/' }, { label: 'Mountain: variables de entorno', link: '/api/mountain-configuration/' }] },
   { label: 'Sistema actual y evidencia', collapsed: true, items: ['audit', 'repositories', 'integration-catalog', 'data-flows', 'current-state', 'chile-operations', 'background', 'branches'].map(route => item(`evidence/${route}`)).concat([{ label: 'Informes por repositorio', collapsed: true, items: ['mountain', 'branch-synchronizer', 'central-hub', 'central-ingestion', 'master-data-distribution', 'apis', 'payments', 'printing', 'core', 'devops', 'corporate-reuse'].map(route => item(`evidence/${route}`)) }]) },
   { label: 'Referencias y mantenimiento', collapsed: true, items: generatedPages.filter(page => page.route.startsWith('reference/')).map(page => item(page.route)) },
-  { label: 'Glosario del POS', link: '/glossary/' },
 ];

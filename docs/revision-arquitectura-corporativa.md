@@ -84,7 +84,7 @@ Este diagrama reemplaza como vista principal el perfil por terminal del borrador
 ```mermaid
 flowchart TB
   subgraph Tienda["Sucursal · una autoridad transaccional"]
-    UI["Puestos de caja\nAngular; Tauri candidato"]
+    UI["Puestos de caja\nAngular + Tauri; homologación pendiente"]
     Local["Núcleo modular local\nventas, caja, precios y ofertas"]
     DB[("PostgreSQL local\nnegocio + outbox en un commit")]
     Pub["Publicador y descarga de maestros\nlotes, acuses y recuperación"]

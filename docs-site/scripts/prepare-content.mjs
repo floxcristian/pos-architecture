@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { generatedPages, generatedDirectories, labLinks, siteBase, sourceRouteAliases } from '../content-map.mjs';
+import { generatedPages, generatedDirectories, labLinks, siteBase, sourceRouteAliases, documentKinds, readingPath } from '../content-map.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const output = path.join(root, 'docs-site/src/content/docs');
@@ -80,14 +80,18 @@ export function resolveDocLink(source, fragment = '') {
   return `${siteBase}${targetRoute}/${rawFragment ? `#${rawFragment}` : ''}`;
 }
 
-// No proposal paragraph may disappear or be duplicated when a section is moved.
-const proposalPages = generatedPages.filter(page => page.source === 'docs/propuesta-arquitectura.md');
-const coverage = new Uint8Array(readSource('docs/propuesta-arquitectura.md').lines.length);
-for (const page of proposalPages) {
-  const { start, end } = bounds(page);
-  for (let index = start; index < end; index += 1) coverage[index] += 1;
+// Every split source is partitioned exactly once: no lost or duplicated paragraphs.
+for (const source of new Set(generatedPages.map(page => page.source))) {
+  const pages = generatedPages.filter(page => page.source === source);
+  if (pages.length < 2) continue;
+  const coverage = new Uint8Array(readSource(source).lines.length);
+  for (const page of pages) {
+    const {start, end} = bounds(page);
+    if (end <= start) throw new Error(`Empty or reversed source range: ${page.route}`);
+    for (let index = start; index < end; index += 1) coverage[index] += 1;
+  }
+  if (coverage.some(count => count !== 1)) throw new Error(`Source ranges must cover each line exactly once: ${source}`);
 }
-if (coverage.some(count => count !== 1)) throw new Error('Proposal ranges must cover each source line exactly once.');
 
 function rewriteTarget(rawTarget, source) {
   const target = rawTarget.replace(/^<|>$/g, '');
@@ -132,6 +136,46 @@ function rewriteLinks(text, source) {
   }).join('\n');
 }
 
+// Splitting a section into its own page must not leave H1 → H3/H4 jumps.
+// Heading text and therefore public fragments stay unchanged.
+export function normalizeHeadings(text) {
+  let fence = null;
+  const headings = [];
+  const lines = text.split('\n');
+  lines.forEach((line, index) => {
+    const marker = line.match(/^\s*(`{3,}|~{3,})/);
+    if (marker) { fence = fence === marker[1][0] ? null : fence || marker[1][0]; return; }
+    if (fence) return;
+    const match = line.match(/^(#{2,6})\s+/);
+    if (match) headings.push({index, level: match[1].length});
+  });
+  if (!headings.length) return text;
+  const ancestors = [];
+  for (const {index, level} of headings) {
+    while (ancestors.length && ancestors.at(-1) >= level) ancestors.pop();
+    lines[index] = lines[index].replace(/^#{2,6}/, '#'.repeat(ancestors.length + 2));
+    ancestors.push(level);
+  }
+  return lines.join('\n');
+}
+
+const escapeHtml = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+
+function pageContext(page) {
+  const kind = documentKinds[page.kind];
+  if (!kind) throw new Error(`Unknown document kind: ${page.route}: ${page.kind}`);
+  return `<aside class="doc-context" aria-label="Alcance de esta página" data-document-kind="${page.kind}">\n<p class="doc-context-label">${escapeHtml(kind.label)}</p>\n<p>${escapeHtml(page.description)}</p>\n<details data-pagefind-ignore><summary>Estado y alcance</summary><p>${escapeHtml(kind.detail)} <a href="${siteBase}${kind.link}/">Consultar referencia</a>.</p></details>\n</aside>\n\n`;
+}
+
+function pagination(page) {
+  const index = readingPath.findIndex(entry => entry.route === page.route);
+  const target = offset => {
+    const entry = index < 0 ? undefined : readingPath[index + offset];
+    return entry ? {label: entry.title, link: `${siteBase}${entry.route}/`} : false;
+  };
+  return `prev: ${JSON.stringify(target(-1))}\nnext: ${JSON.stringify(target(1))}\n`;
+}
+
 export function prepareContent() {
   const generatedFiles = new Set();
   for (const page of generatedPages) {
@@ -141,7 +185,7 @@ export function prepareContent() {
     // The page title belongs to Starlight. Retain the source anchor without another H1.
     const firstHeading = source.headings.find(heading => heading.index === start);
     if (firstHeading) body = body.replace(/^#{1,6}\s+[^\n]+\n?/, `<span id="${firstHeading.id}"></span>\n`);
-    body = rewriteLinks(body, page.source);
+    body = normalizeHeadings(rewriteLinks(body, page.source));
     const extension = page.flow ? '.mdx' : '.md';
     const sourceLabel = page.kind === 'evidence' ? 'Evidencia y alcance de la revisión' : page.kind === 'research' ? 'Análisis que sustenta la propuesta' : 'Fuente del contenido';
     let imports = '';
@@ -152,12 +196,12 @@ export function prepareContent() {
       enhanced = `<FlowPlayer scenario="${page.flow}" title="${title}" />\n\n`;
     }
     const labs = page.labs?.length ? '\n\n## Escenarios interactivos\n\n' + page.labs.map(id => `- [${labLinks[id]}](/presentation/pos-corporativo-reveal.html?lectura=0#/${id})`).join('\n') + '\n\nLas simulaciones ilustran el diseño propuesto; no ejecutan operaciones ni demuestran garantías del producto.\n' : '';
-    const frontmatter = `---\ntitle: ${JSON.stringify(page.title)}\ndescription: ${JSON.stringify(page.description)}\neditUrl: false\n---\n\n`;
+    const frontmatter = `---\ntitle: ${JSON.stringify(page.title)}\ndescription: ${JSON.stringify(page.description)}\neditUrl: false\n${pagination(page)}---\n\n`;
     const sourceReference = page.sourceDownload === false || page.source.startsWith('docs-site/') ? `\`${page.source}\`` : `[${page.source}](/${page.source})`;
     const footer = `\n\n---\n\n${sourceLabel}: ${sourceReference}${page.range?.from ? ` · sección «${page.range.from}»` : ''}.\n`;
     const destination = path.join(output, page.route + extension);
     fs.mkdirSync(path.dirname(destination), { recursive: true });
-    fs.writeFileSync(destination, frontmatter + imports + enhanced + body + labs + footer, 'utf8');
+    fs.writeFileSync(destination, frontmatter + imports + pageContext(page) + enhanced + body + labs + footer, 'utf8');
     generatedFiles.add(destination);
   }
 
@@ -185,6 +229,7 @@ export function prepareContent() {
   console.log(`Starlight content: ${generatedFiles.size} pages, ${allDocs.length}/${allDocs.length} source documents indexed, proposal lines covered exactly once.`);
   for (const warning of warnings) console.warn(`[content] ${warning}`);
   console.log(`Original source link warnings: ${warnings.size}`);
+  if (warnings.size) throw new Error('Source references must resolve before publishing documentation.');
   return { pages: generatedFiles.size, sources: allDocs.length, warnings: [...warnings] };
 }
 

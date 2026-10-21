@@ -18,7 +18,7 @@ Estado: propuesta inicial del 1 de octubre de 2026, precisada el 6 de octubre de
 
 Nivel de definición: arquitectura de referencia. Este repositorio `pos-enterprise` contiene análisis y presentación; la maqueta funcional separada `corporate-pos` usa datos sintéticos y no acredita el backend, PostgreSQL o la sincronización objetivo. El diseño de implementación, la topología definitiva, el dimensionamiento y los compromisos operativos se cerrarán con las decisiones y evidencias de la [solicitud al equipo](solicitud-informacion-equipo.md). Las correcciones al sistema vigente son un frente de estabilización; la arquitectura objetivo y el plan para llegar a ella deben tener entregables y criterios propios.
 
-Actualizada con el [análisis estático de cinco repositorios](analisis-repositorios/README.md). Los commits y las ramas están registrados; su correspondencia con producción no está confirmada. La revisión agrega evidencia del sistema chileno y no valida todavía los sistemas de Perú o España.
+Actualizada con el [análisis estático de nueve repositorios](analisis-repositorios/README.md): seis del ecosistema POS chileno, dos plataformas corporativas y una referencia de presentación. Los commits y las ramas están registrados; su correspondencia con producción no está confirmada. La revisión agrega evidencia del sistema chileno y no valida todavía los sistemas de Perú o España.
 
 Las [vistas técnicas](vistas-arquitectura-y-flujos.md) separan despliegue y secuencias actuales de actividades/estados propuestos. El [catálogo de integraciones](catalogo-integraciones-actuales.md) conserva rutas y repositorios por SHA; la [matriz de cobertura](cobertura-documentacion-presentacion.md) indica qué se explica en la presentación y qué permanece en documentación de consulta.
 
@@ -219,6 +219,8 @@ Un pago aprobado seguido de un fallo de escritura local se recupera desde la int
 
 Se propone entrega **al menos una vez** con efectos idempotentes. La venta y su outbox se escriben en la misma transacción. El receptor registra el identificador en una inbox y aplica el efecto en su propia transacción; los eventos posteriores salen por otra outbox. Un broker por sí solo no garantiza una única contabilización.
 
+En el ingreso al país, el **efecto local** es el registro operativo o proyección que el contrato exige conservar junto con la identidad del evento y el trabajo de integración. No es la llamada al ERP ni todas las proyecciones analíticas futuras. El equipo de integración debe especificar ese efecto por tipo de evento antes de implementar el endpoint. El worker ejecuta después las integraciones externas y conserva sus resultados independientes.
+
 ```mermaid
 sequenceDiagram
     participant P as Escritor y publicador local
@@ -243,6 +245,17 @@ sequenceDiagram
 ```
 
 En el perfil WAN, el servidor de sucursal escribe y publica. En el perfil por terminal, el runtime de caja escribe y el nodo de tienda puede retransmitir su evento; cualquier ruta directa usa la misma identidad. El origen conserva los pendientes hasta el acuse central durable y después aplica una retención de recuperación, no una eliminación inmediata. La política debe permitir reconstruir el registro central si un restore retrocede a antes de un ACK. El acuse central no acredita aceptación fiscal, asiento contable ni pago liquidado.
+
+**El acuse debe nombrar qué se confirmó.** Los contratos y la interfaz distinguen estas fronteras; «recibido» no sustituye a «aplicado»:
+
+| Acuse | Qué debe estar confirmado antes de responder | Qué permanece pendiente |
+| --- | --- | --- |
+| Operación aceptada por la plataforma de país | Inbox, efecto local pactado y siguiente outbox/trabajo durable en una misma transacción | Integración ERP, otros consumidores y resultados externos |
+| Paquete de maestros recibido en sucursal | Inbox de recepción, porciones descargadas y progreso de descarga persistidos | Validación y activación del catálogo; el cursor aplicado no avanza |
+| Versión de maestros aplicada en sucursal | Inbox aplicada, puntero de versión y cursor aplicado en un commit corto | Operaciones externas ajenas a esa publicación |
+| Comando recibido por la aplicación de periféricos | Identidad, contenido y recepción conservados en su registro durable de comandos | Ejecución física y observación del resultado; no autoriza otro cobro |
+
+Un ACK de broker solo acredita su tramo de transporte configurado. Estas distinciones permiten descargar un paquete grande por partes sin afirmar que ya está disponible para vender. Los contratos deben conservar por separado el cursor recibido y el aplicado, y ensayar pérdida de respuesta en cada frontera. El detalle de [mensajería](investigacion-mensajeria-pos.md#cuatro-confirmaciones-con-significados-diferentes) y los [comandos de periféricos](extensibilidad-proveedores-dispositivos.md#5-contratos-conceptuales-y-resultado-durable) aplican estos mismos significados.
 
 Cada evento incluye `eventId`, `schemaVersion`, entidad legal, país, tienda, caja, época de instalación, secuencia local, agregado, versión del agregado y correlación. El identificador de venta es independiente del número fiscal, del intento de pago y del asiento ERP. Las claves de deduplicación se verifican contra la identidad autenticada del dispositivo. El mismo ID con contenido distinto se rechaza y genera una alerta.
 
@@ -282,6 +295,28 @@ El requisito local de ofertas documentado en el proyecto se aborda con un motor 
 La propuesta inicial permite evaluar y aplicar ofertas sin consultar un servicio central. La creación o modificación local de campañas queda pendiente de confirmación. Si se requiere, deberá incluir ámbito, autorización, auditoría y resolución de conflictos explícita; una desconexión no concede permiso para publicar campañas globales. Cupones de uso único y presupuestos compartidos necesitan cupos exclusivos o conexión, y una regla vencida no se prolonga silenciosamente.
 
 El código de Mountain ya contiene alta/edición de ofertas, aunque su habilitación productiva no está acreditada; esa administración no elimina la dependencia remota de cálculo. Antes de extraer el motor, identificar el endpoint efectivo y levantar los datos de MongoDB/AX que usa: grupos de cliente, descuentos de vendedor, cantidades, históricos, mínimos y vigencias. Construir casos de referencia y comparar precio, descuento, regla aplicada y redondeo; no evaluar solo la igualdad del precio final. Los paquetes locales deben activarse completos y preservar la versión anterior ante descargas parciales. [Mountain, MI-01 y MI-06](analisis-repositorios/mountain-implementos.md), [APIs, API-H08](analisis-repositorios/apis-implementos.md).
+
+#### Publicación y activación de versiones comerciales
+
+El contrato propuesto combina **eventos incrementales**, **carga masiva programada** y **recuperación manual controlada** sobre el mismo proceso de validación. La fuente comercial publica una versión y un punto de corte consistente (*watermark*); ese punto identifica qué cambios contiene la carga. Su disponibilidad en las fuentes actuales sigue pendiente de verificar. Una fecha del reloj de la caja no sustituye este contrato.
+
+| Etapa | Comportamiento propuesto | Si se interrumpe |
+| --- | --- | --- |
+| Recibir | Guardar las porciones y el progreso en una zona de preparación aislada (*staging*), junto con su identidad y versión | Reanudar desde el progreso recibido; no exponer datos incompletos |
+| Construir candidata | Partir de la carga completa o de una versión publicada compatible y aplicar los deltas hasta el corte objetivo, incluidas bajas explícitas | Mantener la candidata sin activar; un hueco de secuencia requiere recuperar datos |
+| Validar | Comprobar integridad, cobertura, referencias, compatibilidad y vigencia del conjunto completo | Rechazar la candidata y registrar la causa; no saltar la validación con una carga manual |
+| Activar | Revalidar precondiciones y confirmar, en una transacción corta, inbox aplicada, puntero a la versión y cursor aplicado | Conservar íntegramente la versión anterior o la nueva; nunca una mezcla parcial |
+| Retener | Conservar versiones referenciadas por cotizaciones, ventas y recuperación durante el plazo acordado | No borrar una versión que todavía permite explicar un importe histórico |
+
+La descarga y la validación pesada ocurren fuera de la transacción final. Los deltas construyen una **candidata aislada**: no parchean filas de la versión activa mientras otra caja calcula una venta. Una nueva venta toma la versión activa; una venta iniciada conserva la versión utilizada para explicar su cálculo.
+
+**Ejemplo de actualización:** la sucursal vende con la versión `v40`. Una carga y sus deltas completan `v41` en preparación. Aunque ya se haya descargado la mitad, las cajas siguen leyendo `v40`. Solo después de validar el conjunto se cambia el puntero a `v41`; la descarga interrumpida no deja parte de los productos con cada precio. Los identificadores del ejemplo son ilustrativos, no un formato de contrato aprobado.
+
+#### Vigencia de la cotización y comienzo del pago
+
+Fijar una versión **no prolonga su vigencia ni garantiza un precio indefinidamente**. Antes de iniciar el pago, el backend revalida la cotización, las reglas temporales y las capacidades requeridas. La duración admitida de la cotización, los cambios que obligan a recalcular y el tratamiento de una promoción que vence durante la atención deben acordarse entre comercial, fiscalidad e ingeniería; esta propuesta no fija un plazo ni concede una excepción comercial automática.
+
+Si corresponde recalcular antes de cobrar, la interfaz muestra el importe revisado y requiere su confirmación conforme al flujo aprobado. Si un pago ya empezó o tiene resultado incierto, se conserva su importe, identidad y referencia mientras se resuelve: una publicación de precios no modifica ese intento ni justifica otro cargo. La versión anterior solo permite nuevas operaciones mientras su vigencia y política lo autoricen.
 
 ## Integración de los sistemas actuales
 
@@ -394,7 +429,7 @@ Venta comercial, autorización del pago, documento fiscal y entrega de su repres
 
 El formato oficial de boleta electrónica incorpora timbre, CAF y firma. Se propone reservar folios de forma exclusiva, custodiar material fiscal y generar los documentos mediante un componente validado para la operación. Una caja restaurada o reemplazada no puede reutilizar folios de la anterior. La distribución de rangos por caja debe verificarse con el emisor y la solución fiscal. [Formato oficial de boletas del SII](https://www.sii.cl/factura_electronica/factura_mercado/formato_boletas_elec_202412.pdf).
 
-El SII publica una contingencia específica para cortes eléctricos o situaciones esporádicas que impiden emitir boletas. Esa respuesta no establece una autorización general para cualquier desconexión prolongada. Debe validarse el procedimiento para boletas, facturas y otros documentos concretos, incluyendo envío, representación y regularización. El objetivo técnico de 72 horas no define ese permiso. [Contingencia publicada por el SII](https://www.sii.cl/preguntas_frecuentes/factura_electronica/001_003_7837.htm).
+El SII publica una contingencia específica para cortes eléctricos o situaciones esporádicas que impiden emitir boletas. Esa respuesta no establece una autorización general para cualquier desconexión prolongada. Debe validarse el procedimiento para boletas, facturas y otros documentos concretos, incluyendo envío, representación y regularización. El horizonte técnico de autonomía que se acuerde no define ese permiso. [Contingencia publicada por el SII](https://www.sii.cl/preguntas_frecuentes/factura_electronica/001_003_7837.htm).
 
 ### Perú
 

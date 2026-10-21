@@ -14,6 +14,7 @@ function run(file, args = []) {
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(`Documentation command failed (${result.status}): ${file}`);
 }
+run(path.join(root, 'docs-site/scripts/validate-content.mjs'));
 run(path.join(root, 'docs-site/scripts/prepare-content.mjs'));
 run(path.resolve(path.dirname(astroPackage), typeof astro.bin === 'string' ? astro.bin : astro.bin.astro), ['build', '--root', 'docs-site']);
 

@@ -127,7 +127,7 @@ No hay cobro ni asiento ERP causado únicamente por una lectura. El catálogo de
 
 ## 8. Offline, custodia y observaciones de inventario
 
-**Pérdida WAN:** la captura para caja puede funcionar con lector, LAN, escritor y mapeo/perfil locales vigentes. La venta se persiste en sucursal y sincroniza por el protocolo existente; esto no autoriza pagos o emisión fiscal offline que sus contratos no permitan. Pérdida del servidor o LAN no habilita una caja autónoma por instalar RFID.
+**Pérdida WAN:** la captura para caja puede funcionar con lector, LAN, escritor y mapeo/perfil locales vigentes. La venta se persiste en sucursal y sincroniza por el protocolo propuesto para POS Platform; esto no autoriza pagos o emisión fiscal offline que sus contratos no permitan. Pérdida del servidor o LAN no habilita una caja autónoma por instalar RFID.
 
 Conservar las propuestas aceptadas y su relación con la venta de forma durable. El agente mantiene la evidencia necesaria hasta el acuse del servidor posterior a su persistencia, con retención para reentrega/restauración; comprobar reinicio y ACK perdido. Las lecturas de radio de alta frecuencia requieren buffers acotados y una política propia de retención: no inundar la outbox financiera ni llenar el disco de ventas con cada observación cruda.
 

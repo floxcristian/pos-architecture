@@ -57,7 +57,7 @@ pos-flow-player { display: block; margin-block: 1.5rem; }
 .pos-flow { border: 1px solid var(--sl-color-hairline-light); border-radius: .9rem; overflow: hidden; background: var(--sl-color-bg); }
 .pos-flow__header { padding: 1.25rem 1.25rem 1rem; }
 .pos-flow__eyebrow { color: var(--sl-color-accent-high); font-weight: 600; font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; }
-.pos-flow__header h3 { margin: .4rem 0 .5rem; font-size: 1.25rem; }
+.pos-flow__header h2 { margin: .4rem 0 .5rem; padding: 0; font-size: 1.25rem; }
 .pos-flow__header p { margin: 0; color: var(--sl-color-gray-2); font-size: .9rem; line-height: 1.65; }
 .pos-flow .pos-flow__nodes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; list-style: none; padding: 0 1.25rem; margin: 0; }
 .pos-flow__node { position: relative; display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: .8rem; margin: 0 !important; border: 1px solid var(--sl-color-gray-4); border-radius: .65rem; background: var(--sl-color-bg-nav); transition: background-color .25s, border-color .25s; }
@@ -78,7 +78,7 @@ pos-flow-player[data-playing='true'] .pos-flow__route[data-moving='true']::after
 .pos-flow__step { padding: 1.25rem; }
 .pos-flow__step-heading { display: grid; gap: .4rem; }
 .pos-flow__counter { font-size: .75rem; font-weight: 600; color: var(--sl-color-accent-high); font-variant-numeric: tabular-nums; }
-.pos-flow__step h4 { margin: 0; font-size: 1.08rem; line-height: 1.45; }
+.pos-flow__step h3 { margin: 0; font-size: 1.08rem; line-height: 1.45; }
 .pos-flow__step > p { margin: .65rem 0 1rem; line-height: 1.7; font-size: .9rem; }
 .pos-flow__outcomes { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
 .pos-flow .pos-flow__outcomes > * { margin: 0; }

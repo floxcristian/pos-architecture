@@ -24,7 +24,7 @@ export default defineConfig({
     social: [{ icon: 'github', label: 'Repositorio de la propuesta', href: 'https://github.com/floxcristian/pos-architecture' }],
     tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 3 },
     expressiveCode: { themes: ['github-light', 'github-dark'] },
-    pagination: true,
+    pagination: false,
     credits: false,
     favicon: '/favicon.svg',
   })],

@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {servePublic} = require('../../presentation/tools/serve-public.cjs');
-const {chromium} = require('../../video/node_modules/playwright');
+const {chromium} = require('playwright');
 const root = path.resolve(__dirname, '../..');
 const output = path.join(root, 'public');
 const qa = path.join(root, 'presentation/qa/starlight');
@@ -36,10 +36,18 @@ async function run() {
       const dom = await page.evaluate(html => {
         const document = new DOMParser().parseFromString(html, 'text/html');
         return {ids: [...document.querySelectorAll('[id]')].map(e => e.id),
+          pagination: Object.fromEntries(['prev', 'next'].map(direction => [direction, document.querySelector(`.pagination-links a[rel="${direction}"]`)?.getAttribute('href') ?? null])),
+          headings: [...document.querySelectorAll('.sl-markdown-content h1,.sl-markdown-content h2,.sl-markdown-content h3,.sl-markdown-content h4,.sl-markdown-content h5,.sl-markdown-content h6')].filter(e => !e.closest('dialog')).map(e => ({level: Number(e.tagName.slice(1)), title: e.textContent})),
           links: [...document.querySelectorAll('a[href],img[src],script[src],link[rel="stylesheet"][href]')].map(e => e.getAttribute('href') || e.getAttribute('src')),
           inline: [...document.querySelectorAll('script:not([src])')].filter(e => e.textContent.trim() && !/application\/(?:ld\+)?json/.test(e.type)).length};
       }, content);
       assert.equal(dom.inline, 0, `Inline executable script conflicts with CSP: ${file}`);
+      assert.equal(new Set(dom.ids).size, dom.ids.length, `Duplicate anchor in ${file}`);
+      let previousLevel = 1;
+      for (const heading of dom.headings) {
+        assert.ok(heading.level <= previousLevel + 1 && heading.level > 1, `Heading hierarchy in ${file}: ${heading.title}`);
+        previousLevel = heading.level;
+      }
       snapshot.set(file, dom);
     }
     const linkErrors = new Set();
@@ -89,12 +97,37 @@ async function run() {
       await search.fill('sin-coincidencias-987654');
       assert.equal(await catalog.locator('[data-endpoint-entry]:visible').count(), 0);
       assert.equal(await catalog.locator('[data-endpoint-empty]').isVisible(), true);
+      await catalog.locator('.endpoint-overview summary').click();
+      await catalog.locator('.endpoint-overview a').first().click();
+      assert.equal(await catalog.locator('[data-endpoint-entry]:visible').count(), count, 'Capability index must clear filters before navigating');
       await search.fill('');
       await catalog.locator('[data-endpoint-method]').selectOption('');
       await catalog.locator('[data-endpoint-group]').selectOption('');
       assert.equal(await catalog.locator('[data-endpoint-entry]:visible').count(), count);
     }
     report.checks.push('Every legacy route has a description; route, method and capability filters work, including no results');
+    await page.goto(origin + '/guide/api/mountain-configuration/');
+    assert.equal(await page.locator('.configuration-entry').count(), 62);
+    assert.equal(await page.locator('.configuration-entry h4 code').filter({hasText: /^URL_API_PAGO$/}).count(), 0);
+    assert.equal(await page.locator('.configuration-entry h4 code').filter({hasText: /^URL_API_PAGO_[12]$/}).count(), 2);
+    assert.match(await page.locator('main').innerText(), /Referencias en código comentado/);
+    report.checks.push('48 backend and 14 monitor variables; commented-only references are not presented as active configuration');
+    const {readingPath, generatedPages} = await import('../content-map.mjs');
+    for (const entry of readingPath) {
+      const routeFile = path.join(output, 'guide', entry.route, 'index.html');
+      const dom = snapshot.get(routeFile);
+      assert.ok(dom, `Missing proposal page: ${entry.route}`);
+      const index = readingPath.indexOf(entry);
+      for (const [direction, offset] of [['prev', -1], ['next', 1]]) {
+        const target = readingPath[index + offset];
+        assert.equal(dom.pagination[direction], target ? '/guide/' + target.route + '/' : null, `Wrong ${direction} page in proposal path: ${entry.route}`);
+      }
+    }
+    for (const entry of generatedPages) {
+      const html = fs.readFileSync(path.join(output, 'guide', entry.route, 'index.html'), 'utf8');
+      assert.ok(html.includes(`data-document-kind="${entry.kind}"`), `Missing page scope: ${entry.route}`);
+    }
+    report.checks.push('Heading hierarchy, unique anchors, proposal reading path and page status are consistent');
     await page.goto(origin + '/guide/diagrams/');
     const preview = page.locator('[data-diagram-open]').first();
     await preview.click();
@@ -138,7 +171,7 @@ async function run() {
     }
     for (const width of [1440, 768, 375, 320]) {
       await page.setViewportSize({width, height: 950});
-      for (const route of ['', 'diagrams/', 'proposal/pricing-promotions/', 'api/mountain/']) {
+      for (const route of ['', 'overview/', 'contents/', 'diagrams/', 'proposal/pricing-promotions/', 'api/mountain/', 'api/mountain-configuration/']) {
         await page.goto(origin + '/guide/' + route);
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Horizontal overflow at ${width}: ${route}`);
         await page.screenshot({path: path.join(qa, `${width}-${route ? route.split('/').filter(Boolean).at(-1) : 'inicio'}.png`)});

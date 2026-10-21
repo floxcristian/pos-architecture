@@ -62,12 +62,12 @@ Para requisitos de continuidad, acompañar la matriz con escenarios concretos: �
 
 ## 4. Paquete técnico complementario
 
-No es necesario volver a entregar los ocho repositorios ya analizados: cinco del POS y tres de plataforma/documentación corporativa. Sí necesitamos vincularlos a lo desplegado y completar las piezas siguientes, con ejemplos sintéticos o anonimizados y configuración sin secretos. El usuario confirmó Gira como sistema de España; Q05 solicita sus capacidades, versión e interfaces, sin volver a pedir confirmación del nombre.
+No es necesario volver a entregar los nueve repositorios ya analizados: seis del POS, dos plataformas corporativas y una referencia editorial. Sí necesitamos vincularlos a lo desplegado y completar las piezas siguientes, con ejemplos sintéticos o anonimizados y configuración sin secretos. El usuario confirmó Gira como sistema de España; Q05 solicita sus capacidades, versión e interfaces, sin volver a pedir confirmación del nombre.
 
 | ID | Material solicitado | Contenido mínimo y motivo |
 | --- | --- | --- |
 | E01 | Inventario de producción y topología | Versiones exactas de aplicaciones, runtimes y bases; procesos por equipo, puertos y flujos, balanceadores, proxies, redundancia, horario/TZ y responsables. Evidencia de artefactos instalados si no se conserva el SHA. |
-| E02 | Integración central faltante | Repositorios/configuración de WSO2/Synapse/Java, API de lectura y procesador central; broker, colas, persistencia, acuses, retención, reintentos, mensajes fallidos y reoferta de maestros. La presentación no demuestra estas garantías. |
+| E02 | Integración central desplegada y garantías | Contrastar el código ya recibido de WSO2/Synapse/Java, API de lectura y procesador con artefactos y configuración instalados; acreditar broker, colas, persistencia, acuses, retención, reintentos, mensajes fallidos y reoferta de maestros. El snapshot y la presentación no demuestran esas garantías en producción. |
 | E03 | Implementación de negocio en AX y contratos de otros sistemas | X++ y procedimientos relevantes o documentación verificable del equipo responsable; transacciones, claves únicas, consulta por ID externo y respuestas parciales. Para Perú/España: contratos, ejemplos y entornos de prueba. |
 | E04 | Contratos y trazas de operaciones | Una venta exitosa y otra con fallo/reintento desde caja hasta DTE, pago y ERP; ejemplos de payload, IDs, timestamps, estados y responsables. Añadir pago con NC entre sucursales, cancelación y devolución. Evitar datos personales reales. |
 | E05 | Modelo de datos efectivo | DDL sin datos, índices/restricciones, schemas, colecciones/índices Mongo, migraciones aplicadas, retención y consumidores directos de SQL/reportes. Necesario para normalizar naming sin romper compatibilidad. |
@@ -128,9 +128,9 @@ Para demostrar la **aptitud de la implementación** se necesitan después result
 
 La propuesta puede avanzar por etapas. No hace falta esperar a que se seleccione el ERP futuro para acordar el dominio POS, IDs, contratos, reglas offline y fronteras de integración; su selección sí condicionará el mapeo definitivo, las capacidades y el corte.
 
-**Alternativas planteadas después de este cuestionario:** NestJS/Fastify, `nestjs-pino`, Sentry y Tauri se detallan en [Opciones tecnológicas](opciones-tecnologicas.md). Para Q08–Q10, añadir hardware/SO mínimo de cajas, WebView2, drivers/SDK, administración de flota, permisos de instalación, experiencia NestJS/Rust y restricciones de telemetría. Estas alternativas aún no están aprobadas ni implementadas.
+**Estado técnico actualizado:** la dirección de cliente Angular + Tauri y el uso de Nx fueron indicados por el usuario. La base local revisada incluye scaffolding técnico; el [catálogo de aplicaciones y estado](opciones-tecnologicas.md#estado-de-las-aplicaciones) precisa su alcance. NestJS/Fastify, `nestjs-pino` y Sentry requieren completar integración, homologación y operación; su presencia en la base técnica no demuestra el producto funcionando. Para Q08–Q10, añadir hardware/SO mínimo de cajas, WebView2, drivers/SDK, administración de flota, permisos de instalación, experiencia NestJS/Rust y restricciones de telemetría.
 
-El usuario también propone evaluar **monorepo Nx y monolito modular**. Para decidir, completar responsables y propiedad de módulos, permisos sobre código, toolchains, CI Windows, versiones de contratos y necesidades justificadas de despliegue independiente. El repositorio compartido no obliga a actualizar todas las cajas y servicios simultáneamente.
+Nx organiza el monorepo; el **monolito modular de sucursal** sigue siendo la recomendación de despliegue. Falta completar responsables y propiedad de módulos, permisos sobre código, toolchains, CI Windows, versiones de contratos y necesidades justificadas de despliegue independiente. El repositorio compartido no obliga a actualizar todas las cajas y servicios simultáneamente.
 
 ## Actualización: evidencia pendiente del concentrador
 

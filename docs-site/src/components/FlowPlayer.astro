@@ -7,14 +7,14 @@ interface Props {
 const { scenario, title } = Astro.props;
 const flow = flows[scenario];
 const first = flow.steps[0];
-const labelId = `flow-${crypto.randomUUID()}`;
+const labelId = `flow-${scenario}`;
 ---
 
 <pos-flow-player data-flow={JSON.stringify(flow)}>
   <section class="pos-flow" aria-labelledby={labelId}>
     <header class="pos-flow__header">
       <span class="pos-flow__eyebrow">Recorrido de la propuesta</span>
-      <h3 id={labelId}>{title ?? flow.title}</h3>
+      <h2 id={labelId}>{title ?? flow.title}</h2>
       <p>{flow.description}</p>
     </header>
     <ol class="pos-flow__nodes" aria-label="Participantes y estado actual">
@@ -34,7 +34,7 @@ const labelId = `flow-${crypto.randomUUID()}`;
     <div class="pos-flow__step" aria-live="polite" aria-atomic="true">
       <div class="pos-flow__step-heading">
         <span class="pos-flow__counter" data-flow-counter>Paso 1 de {flow.steps.length}</span>
-        <h4 data-flow-title>{first.title}</h4>
+        <h3 data-flow-title>{first.title}</h3>
       </div>
       <p data-flow-description>{first.description}</p>
       <div class="pos-flow__outcomes">

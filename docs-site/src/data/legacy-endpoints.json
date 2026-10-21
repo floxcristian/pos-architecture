@@ -3830,5 +3830,110 @@
         "notes": ""
       }
     ]
-  }
+  },
+  "groupDescriptions": {
+    "Autenticación, usuarios y accesos": "Inicio/renovación de sesión y administración de usuarios, perfiles y accesos a módulos.",
+    "Ventas y comprobantes": "Creación y consulta de comprobantes, carros, entregas y estados de venta.",
+    "Caja y turnos": "Apertura, movimientos, saldos, validación y cierre de la caja del usuario.",
+    "Productos, impuestos y maestros": "Consulta de productos, escalas de precio y catálogos que usa la venta.",
+    "Clientes, contactos y direcciones": "Consulta y actualización de clientes y sus datos de contacto o despacho.",
+    "Pagos, bancos y cheques": "Medios, registros y estados de pago; bancos, comprobantes y validación de cheques.",
+    "Cobranzas, abonos y cuenta corriente": "Cobro de deuda, abonos, acuerdos y consulta de saldos del cliente.",
+    "Devoluciones y notas de crédito": "Devoluciones y consultas/validaciones relacionadas con notas de crédito.",
+    "Facturación y documentos fiscales": "Emisión, reintento, consulta y entrega de documentos fiscales.",
+    "Precios, ofertas y cupones": "Administración/consulta de ofertas y consultas remotas de promociones y cupones.",
+    "Notas de venta de AX": "Consulta de notas de venta del ERP utilizadas en los recorridos de caja.",
+    "Reportes e indicadores": "Consultas agregadas de ventas, caja, productos e indicadores.",
+    "Configuración": "Consulta y actualización de valores de configuración de la aplicación.",
+    "Impresión": "Preparación o consulta de datos usados en la impresión de documentos.",
+    "Mantenimiento y operaciones auxiliares": "Actualizaciones, correcciones y tareas auxiliares declaradas por el backend.",
+    "Vistas auxiliares": "Páginas renderizadas por Adonis, separadas de las rutas a controladores del catálogo.",
+    "Consultas y catálogos de integración": "Registro de consultas y tipos de entidad o mensaje usados por el monitor.",
+    "Entidades y conexiones": "Inventario de entidades y datos de su última conexión registrada.",
+    "Mensajes y errores de entrega": "Consulta de mensajes, destinatarios y errores de integración.",
+    "Monitor y reintentos": "Tablero de integración, detalle de entidades e invocación de reintentos manuales.",
+    "Administración de errores": "Listado, consulta, creación y edición de registros de error del sincronizador.",
+    "Limpieza y mantenimiento": "Operaciones de limpieza de mensajes y estados del monitor."
+  },
+  "responsibilities": [
+    {
+      "name": "Login, sesión y accesos",
+      "groups": [
+        "Autenticación, usuarios y accesos"
+      ]
+    },
+    {
+      "name": "Venta y comprobantes",
+      "groups": [
+        "Ventas y comprobantes",
+        "Notas de venta de AX"
+      ]
+    },
+    {
+      "name": "Apertura y cierre de caja",
+      "groups": [
+        "Caja y turnos"
+      ]
+    },
+    {
+      "name": "Productos y precios",
+      "groups": [
+        "Productos, impuestos y maestros",
+        "Precios, ofertas y cupones"
+      ]
+    },
+    {
+      "name": "Clientes y cuenta corriente",
+      "groups": [
+        "Clientes, contactos y direcciones",
+        "Cobranzas, abonos y cuenta corriente"
+      ]
+    },
+    {
+      "name": "Ofertas y promociones",
+      "groups": [
+        "Precios, ofertas y cupones"
+      ]
+    },
+    {
+      "name": "Pagos y cheques",
+      "groups": [
+        "Pagos, bancos y cheques"
+      ]
+    },
+    {
+      "name": "Cobranzas y abonos",
+      "groups": [
+        "Cobranzas, abonos y cuenta corriente"
+      ]
+    },
+    {
+      "name": "Devoluciones y notas de crédito",
+      "groups": [
+        "Devoluciones y notas de crédito"
+      ]
+    },
+    {
+      "name": "Facturación y documentos fiscales",
+      "groups": [
+        "Facturación y documentos fiscales"
+      ]
+    },
+    {
+      "name": "Reportes y dashboard",
+      "groups": [
+        "Reportes e indicadores"
+      ]
+    },
+    {
+      "name": "Administración",
+      "groups": [
+        "Autenticación, usuarios y accesos",
+        "Productos, impuestos y maestros",
+        "Pagos, bancos y cheques",
+        "Configuración",
+        "Mantenimiento y operaciones auxiliares"
+      ]
+    }
+  ]
 }

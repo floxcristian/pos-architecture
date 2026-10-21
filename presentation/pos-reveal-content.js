@@ -897,10 +897,10 @@
         "id": "arbol-nx",
         "chapter": "monorepo",
         "kind": "tree",
-        "title": "Monorepo POS: aplicaciones y dominios propuestos",
-        "lead": "Apps desplegables y dominios reutilizables, con dependencias y responsables explícitos.",
+        "title": "POS Platform: aplicaciones y contextos",
+        "lead": "Seis apps, contextos de negocio y contratos comunes. El backend comercial sigue pendiente.",
         "code": {
-          "source": "apps/\n  pos-desktop/     pos-runtime/     pos-sync-worker/\n  country-api/     erp-worker/      backoffice/\nlibs/\n  sales/          cash/            pricing/\n  payments/       returns/         fiscal/\n  erp/            sync/\n  contracts/      shared-kernel/   ui/\n# Dentro de un dominio, cuando aporte un límite real:\nlibs/pricing/{domain, application, infrastructure}/"
+          "source": /* monorepo:compact:start */ "apps/\n  pos-web/                pos-desktop/\n  pos-runtime/            pos-sync-worker/\n  country-api/            erp-worker/\nlibs/\n  backend/          # 13 contextos de negocio\n  contracts/              shared-kernel/\n  country-policies/       platform/backend/\n  domain/                 data-access/\n  ui/                     features/" /* monorepo:compact:end */
         },
         "items": [
           {
@@ -908,8 +908,8 @@
             "text": "Componen dependencias y producen ejecutables o despliegues."
           },
           {
-            "title": "Dominios",
-            "text": "Poseen reglas, contratos públicos, datos y pruebas."
+            "title": "Contextos",
+            "text": "Agrupan reglas, contratos y datos de una capacidad."
           },
           {
             "title": "Capas internas",
@@ -918,8 +918,8 @@
         ],
         "takeaway": "Cada módulo conserva su responsabilidad y su interfaz; una carpeta no garantiza ese límite.",
         "notes": [
-          "Este árbol es una organización propuesta del producto futuro. No afirma que todos estos procesos existan ya en la maqueta.",
-          "pos-desktop incorpora Angular y el proyecto Tauri; pos-runtime es el backend de sucursal del perfil WAN. Los workers se supervisan independientemente de la UI.",
+          "Los nombres corresponden al workspace revisado el 21 de octubre de 2026. La base backend y el scaffolding todavía tenían archivos locales sin commit; el árbol no acredita su publicación ni su operación productiva.",
+          "pos-web contiene Angular; pos-desktop aloja su interfaz compilada en Tauri. pos-runtime es la base HTTP de sucursal. Los workers tienen entradas propias, pero sus jobs e integraciones comerciales están pendientes.",
           "Las bibliotecas se organizan por responsabilidad e interfaz verificable. Cada dominio mantiene sus reglas y pruebas sin imponer un proyecto por clase ni un despliegue por biblioteca.",
           "shared-kernel conserva tipos mínimos como dinero e identidad. Los modelos ORM y detalles privados permanecen en el módulo propietario."
         ],

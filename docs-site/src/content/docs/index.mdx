@@ -10,8 +10,8 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 Una plataforma POS corporativa para **Chile, Perú y España**, con módulos de negocio compartidos y adaptadores para las diferencias de cada país. Esta guía organiza la arquitectura propuesta, sus decisiones y la evidencia del sistema actual.
 
 <CardGrid>
-  <LinkCard title="Producto y alcance" description="Qué propone POS Platform, qué se comparte y qué cambia por país." href="/guide/proposal/product/" />
-  <LinkCard title="Arquitectura y estructura" description="Aplicaciones, procesos, datos y responsabilidades de sucursal y país." href="/guide/proposal/architecture/" />
+  <LinkCard title="Visión general de la solución" description="Producto compartido, responsabilidades por zona y recorrido completo de una venta." href="/guide/overview/" />
+  <LinkCard title="Estructura del código" description="Apps, bibliotecas y correspondencia con el legacy; qué existe y qué falta implementar." href="/guide/architecture/monorepo/" />
   <LinkCard title="Diagramas C4" description="Contexto, contenedores, componentes, despliegue y recorridos editables." href="/guide/diagrams/" />
   <LinkCard title="Decisiones y validación" description="Estado de las decisiones, alternativas y evidencia que requiere el piloto." href="/guide/proposal/decisions/" />
 </CardGrid>
@@ -35,10 +35,12 @@ Una plataforma POS corporativa para **Chile, Perú y España**, con módulos de 
 | **Sistema actual y evidencia** | Comportamientos observados en fuentes y snapshots de repositorios. Su correspondencia con producción debe confirmarse. |
 | **Operación y validación** | Escenarios de recuperación, condiciones de aceptación y datos pendientes para cerrar el diseño. |
 
-Mountain **ya tiene login, perfiles y acceso a módulos**. Los permisos por operación, ámbito y aprobaciones auditables se describen como evolución propuesta en [Acceso, permisos y operación](/guide/proposal/access-operations/).
+Cada página identifica su alcance. El [estado de implementación y las decisiones pendientes](/guide/overview/#estado-de-la-propuesta) distinguen la maqueta, el scaffolding local y el producto objetivo. IA y RFID se consultan como **extensiones opcionales**.
 
 ## Fuentes y presentación
 
 La [propuesta y sus decisiones](/guide/proposal/decisions/) gobiernan el diseño. Las páginas se generan por tema desde esas fuentes; la evidencia y las revisiones conservan sus límites y enlaces al código. El [mapa de contenidos](/guide/contents/) reúne todos los temas y el [glosario del POS](/guide/glossary/) conecta los términos con su aplicación en la propuesta.
+
+La [auditoría de consistencia documental](/guide/reference/documentation-audit/) registra las correcciones, los controles de calidad y la validación pendiente con el equipo.
 
 [Abrir presentación con narrador](/presentation/pos-corporativo-reveal.html?lectura=0) · [Consultar el visor de aplicaciones y recorridos](/presentation/index.html#mapa?vista=general)

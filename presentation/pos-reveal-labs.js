@@ -56,7 +56,7 @@ window.POS_REVEAL_LABS = {
           },
           {
             title: 'Las ventas conservan su explicación',
-            text: 'Una cotización nueva usa v42. Una abierta conserva su versión y revalida al confirmar; un cambio de precio requiere la aceptación prevista.',
+            text: 'Una cotización nueva usa v42. Una abierta conserva su referencia y revalida antes de iniciar el pago; un cambio de precio requiere la aceptación prevista.',
             active: ['active'], links: [],
             values: [{ label: 'Cotización abierta', value: 'v41' }, { label: 'Cotización nueva', value: 'v42' }, { label: 'Venta confirmada', value: 'No se reescribe' }],
             log: 'quote.created pricing_version=v42 currency=CLP'
@@ -193,7 +193,7 @@ window.POS_REVEAL_LABS = {
           },
           {
             title: 'Mantener las versiones referenciadas',
-            text: 'Las nuevas cotizaciones usan v102. Las abiertas mantienen su versión y se revalidan al confirmar; la retención contempla esas referencias y la recuperación.',
+            text: 'Las nuevas cotizaciones usan v102. Las abiertas mantienen su referencia y se revalidan antes de iniciar el pago; la retención contempla esas referencias y la recuperación.',
             active: ['active'], links: [],
             values: [{ label: 'Nueva venta', value: 'v102' }, { label: 'Venta abierta', value: 'Versión fijada' }, { label: 'Resultado', value: 'Auditable', tone: 'success' }],
             log: 'snapshot.completed version=v102 previous_retained=true'

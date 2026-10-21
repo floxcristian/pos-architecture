@@ -47,6 +47,12 @@ h1 { letter-spacing: -.035em; line-height: 1.14; text-wrap: balance; }
 .sl-markdown-content img { border-radius: .65rem; }
 .sl-link-card { box-shadow: none; border-radius: .65rem; }
 .sl-link-card:hover { border-color: var(--sl-color-accent); background: var(--sl-color-accent-low); }
+.doc-context { margin-block: 1rem 2rem; padding: 1rem 1.25rem; border-inline-start: 3px solid var(--sl-color-accent); background: var(--sl-color-gray-6); border-radius: 0 .45rem .45rem 0; }
+.sl-markdown-content .doc-context p { margin-block: 0 .5rem; }
+.doc-context-label { color: var(--sl-color-text-accent); font-weight: 700; font-size: .875rem; }
+.doc-context details { font-size: .875rem; }
+.doc-context summary { cursor: pointer; padding-block: .4rem; font-weight: 600; }
+.doc-context details p { padding-block-start: .5rem; }
 .sidebar-content a[aria-current='page'] { border-radius: .4rem; font-weight: 700; }
 .docs-connections { display: flex; flex-wrap: wrap; gap: .7rem 1.4rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--sl-color-gray-5); font-size: .825rem; color: var(--sl-color-gray-2); }
 .docs-connections a { font-weight: 600; text-underline-offset: .2em; }

@@ -8,24 +8,24 @@ La propuesta distingue autonomía por sucursal ante pérdida de WAN y autonomía
 
 La [revisión corporativa por rondas](revision-arquitectura-corporativa.md) toma el perfil WAN como vista preferente y agrega decisiones de mensajería, horarios, datos y migración. La [matriz ampliada de resiliencia](revision-resiliencia-datos-pos.md) contiene 28 casos límite; los [gates de mensajería](investigacion-mensajeria-pos.md#5-matriz-de-decisión-provisional-por-carga-de-trabajo) deben superarse antes de adoptar RabbitMQ, BullMQ, Pub/Sub o workers PostgreSQL. Son pruebas pendientes.
 
-**Prioridad del dimensionamiento:** los valores de la tabla siguiente se conservan como hipótesis del borrador, no como selección preferente. El horizonte debe derivarse de pausas programadas, desconexión, reparación, vigencias y capacidad por destino. No adoptar automáticamente 72 horas, 3× ni un percentil/SLA por aparecer aquí. Las 46 entradas públicas de tiendas no determinan carga ni cantidad de cajas.
+**Estado de los objetivos:** sus valores están pendientes de acuerdo y medición. Las cifras exploratorias del borrador no se usan como valores predeterminados. El horizonte debe derivarse de pausas programadas, desconexión, reparación, vigencias y capacidad por destino. El inventario público de tiendas no determina carga ni cantidad de cajas.
 
 ## Objetivos medibles propuestos
 
-| Objetivo | Valor inicial para validar | Condiciones y medición |
+| Objetivo | Definición pendiente y responsable sugerido | Condiciones y medición |
 | --- | --- | --- |
-| Autonomía técnica | 72 horas, hipótesis previa a contrastar | Captura local con carga representativa. La venta real queda limitada por permisos, fiscalidad, pagos y vigencia de maestros; inventario solo si se incorpora al alcance |
-| Confirmación de persistencia local | p95 menor a 300 ms y p99 menor a 1 s | Medir desde solicitud de commit hasta respuesta durable en el hardware homologado; excluye interacción humana, impresión y autorización externa |
-| Disponibilidad de API del país | 99,9 % mensual | Objetivo provisional para solicitudes válidas dentro de carga acordada, incluyendo mantenimiento; no acredita por sí solo disponibilidad de caja, pago o fiscalidad |
-| Frescura de recepción central | p95 menor a 60 s | Desde commit local hasta acuse central, con conectividad estable y carga de diseño; medir offline por separado |
-| Recuperación de backlog | Caudal efectivo al menos 3 veces la tasa de llegada habitual | Medido en ensayo de reconexión; regular el caudal por destino y preservar ventas nuevas |
-| Reinicio de aplicación de caja en perfil ampliado | RTO menor a 5 minutos | Equipo, almacenamiento y material fiscal íntegros; recuperar transacciones e intentos inciertos |
-| Reinicio y sustitución del servidor de sucursal en perfil WAN | RTO y RPO por acordar por escenario | El servidor es el escritor de todas sus cajas; medir reinicio con disco sano y pérdida completa como incidentes distintos |
-| Recuperación de plataforma de país | RTO menor a 60 minutos y RPO menor o igual a 5 minutos | Objetivo de desastre para la plataforma; requiere réplica, backups y ensayo. No se extrapola a la tienda aislada |
+| Autonomía técnica | Horizonte y operaciones admitidas: producto, operaciones y responsables fiscales/pagos | Captura local con carga representativa. La venta real queda limitada por permisos, fiscalidad, pagos y vigencia de maestros; inventario solo si se incorpora al alcance |
+| Confirmación de persistencia local | Umbrales p95/p99 y carga: ingeniería POS y operaciones | Medir desde solicitud de commit hasta respuesta durable en el hardware homologado; excluye interacción humana, impresión y autorización externa |
+| Disponibilidad de API del país | Porcentaje, ventana y exclusiones: plataforma y negocio | Solicitudes válidas dentro de carga acordada, con tratamiento explícito del mantenimiento; medir caja, pagos y fiscalidad por separado |
+| Frescura de recepción central | Percentiles y demora máxima: integración y operaciones | Desde commit local hasta acuse central, con conectividad estable y carga de diseño; medir desconexiones y ventanas cerradas por separado |
+| Recuperación de backlog | Plazo de vaciado y capacidad segura por destino: integración y dueños de ERP/proveedores | Medir reconexión con tráfico nuevo; el consumo útil debe superar la llegada sin saturar destinos ni impedir ventas nuevas |
+| Reinicio de aplicación de caja en perfil ampliado | RTO por escenario, solo si ese perfil se aprueba: plataforma y operaciones | Equipo, almacenamiento y material fiscal íntegros; recuperar transacciones e intentos inciertos |
+| Reinicio y sustitución del servidor de sucursal en perfil WAN | RTO y RPO por escenario: plataforma, DBA y operaciones | El servidor es el escritor de todas sus cajas; medir reinicio con disco sano y pérdida completa como incidentes distintos |
+| Recuperación de plataforma de país | RTO y RPO ante desastre: plataforma, DBA e integración | Requiere réplica, backups, archivo de reconstrucción y ensayo. No se extrapola a la tienda aislada |
 
-RTO es el tiempo objetivo para recuperar una capacidad; RPO, la pérdida máxima de datos objetivo en un escenario definido. Ninguna cifra anterior es todavía un compromiso de servicio.
+RTO es el tiempo objetivo para recuperar una capacidad; RPO, la pérdida máxima de datos objetivo en un escenario definido. p95 y p99 son los tiempos bajo los que debe caer el 95 % y el 99 % de las mediciones del conjunto acordado. Antes de ejecutar el piloto, cada objetivo debe registrar valor aprobado, escenario, carga, versión, hardware, responsable y criterio de aceptación. Sin esa ficha, una medición sirve para explorar capacidad, no para declarar cumplido un compromiso de servicio.
 
-Para reinicios con almacenamiento sano, se busca no perder ventas cuyo commit local fue confirmado. Si la caja se destruye cuando contiene la única copia, la pérdida puede abarcar toda la desconexión desde la última réplica. Una segunda copia en la tienda no protege frente a la destrucción completa del local durante una caída WAN.
+Para reinicios con almacenamiento sano, se busca no perder ventas cuyo commit local fue confirmado. En el perfil ampliado por terminal, si la caja se destruye cuando contiene la única copia, la pérdida puede abarcar toda la desconexión desde la última réplica. Una segunda copia en la tienda no protege frente a la destrucción completa del local durante una caída WAN.
 
 En el perfil ampliado se propone replicación asíncrona al nodo de tienda y visibilidad del tramo aún sin replicar. Exigir una segunda copia síncrona antes de confirmar reduce el riesgo de pérdida del equipo, pero obliga a detener esa modalidad si el nodo deja de responder. Negocio debe elegir esa garantía o mantener las ventas habilitadas en modo degradado.
 
@@ -70,6 +70,9 @@ La [extensibilidad de proveedores y dispositivos](extensibilidad-proveedores-dis
 | Falla el refresco remoto del cliente al seleccionarlo/cargarlo | Se distingue ficha local vigente, datos vencidos y cliente no conocido; la política autorizada conserva la venta en curso. Probar los recorridos de interfaz y no asumir fallback por la existencia de una copia local; MI-09 |
 | Lote atrasado después de refresco individual por RUT o de edición local pendiente | Versión y propiedad por atributo evitan sobrescrituras indebidas; direcciones/contactos y cambios pendientes conservan trazabilidad |
 | Oferta local con reglas solapadas o vencidas | Resultados deterministas, prioridades y redondeo aprobados; versión registrada y ausencia de consultas centrales obligatorias |
+| Carga comercial parcial, delta con hueco o activación concurrente | La versión activa permanece íntegra; recepción y aplicación tienen cursores distintos. Solo una candidata completa y validada cambia el puntero mediante commit corto; no se publica por completar únicamente la descarga |
+| Promoción vence entre cotización e inicio del pago | La política comercial/fiscal acordada decide la vigencia y la recotización antes de cobrar; fijar versión no prolonga el plazo. Importe revisado visible, sin sustitución silenciosa |
+| Nueva versión de precios llega con un pago en curso o incierto | El intento conserva importe, identidad y referencia mientras se resuelve. No se recalcula el cargo iniciado ni se crea otro cobro para aplicar la nueva versión |
 | Cupón o presupuesto de oferta compartido offline | Respeto de cupos exclusivos o bloqueo; no se promete impedir doble uso sin coordinación |
 | Dos cajas venden la última unidad aisladas, solo si se asigna al POS control de disponibilidad | Se cumplen cupos exclusivos o política explícita de sobreventa; no se presenta stock global como garantizado. La caja actual no maneja stock según el usuario |
 | Dos cajas intentan devolver el mismo ticket offline | Se bloquea o se consume una autorización exclusiva; la copia del ticket no concede saldo duplicable |

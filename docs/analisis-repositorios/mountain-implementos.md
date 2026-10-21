@@ -5,7 +5,7 @@
 - Repositorio: [developer-implementos/mountain-implementos](https://github.com/developer-implementos/mountain-implementos).
 - Rama analizada: `master`, predeterminada. No existe `main` entre las referencias consultadas; también existe `desarrollo`.
 - Commit: `711f97fd7948c696bf45c992c5b121683bdbacd7`, 14 de septiembre de 2026.
-- Revisión: 1 de octubre de 2026. El usuario identifica `main` como producción probable; el despliegue efectivo de este repositorio sigue sin confirmar.
+- Revisión inicial: 1 de octubre de 2026. Ampliada con el catálogo de rutas el 14 de octubre y con configuración y organización documental el 21 de octubre, sobre el mismo commit. El usuario identifica `main` como producción probable; el despliegue efectivo de este repositorio sigue sin confirmar.
 - Método: análisis estático de manifiestos, rutas, controladores, servicios, modelos, migraciones y pruebas. No se arrancaron aplicaciones ni se consultaron bases o servicios operativos.
 
 Los hallazgos se refieren al commit indicado. Las prioridades reflejan impacto potencial y necesidad de validación, no incidentes comprobados. Se omiten valores de credenciales y direcciones internas.
@@ -173,7 +173,11 @@ No se ejecutó el script: requiere dependencias locales del frontend y backend. 
 
 La configuración admite varios drivers de plantilla y selecciona la conexión por entorno. La dependencia `pg` y el relato operativo respaldan PostgreSQL como base usada, pero no se deduce la infraestructura real solamente del valor predeterminado del archivo de configuración.
 
+El [inventario de configuración](/guide/api/mountain-configuration/) describe 48 nombres leídos en código activo de `backend` y 14 de `backend-concentrador`, con propósito, condiciones, valores predeterminados declarados y referencias al código. `URL_API_PAGO` figura aparte porque sus referencias están comentadas. El inventario conserva solo nombres y metadatos; no reproduce credenciales ni direcciones de despliegue. Las variables de proveedores opcionales no son requisitos universales de arranque.
+
 ## 6. Consecuencias para la propuesta
+
+La [correspondencia del legacy con POS Platform](/guide/architecture/monorepo/#correspondencia-del-legacy-con-pos-platform) relaciona frontend, backend y monitor con las aplicaciones y bibliotecas objetivo. Es una asignación de responsabilidades propuesta; el scaffolding no significa que estos procesos ya estén migrados.
 
 1. Separar un contrato local de precios/promociones de la API corporativa actual, con equivalencia comprobable de reglas y vigencias.
 2. Priorizar aislamiento de identidad en caché, confirmaciones y transacciones antes de una campaña de renombrado.

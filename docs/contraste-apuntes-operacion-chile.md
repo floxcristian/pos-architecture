@@ -149,7 +149,7 @@ La [revisión de resiliencia](revision-resiliencia-datos-pos.md) detalla el mant
 | --- | --- |
 | DDL e inventario lógico de MPOS; jobs o productores de cambios de AX, sin datos ni credenciales | Confirmar nombre, función, ubicación y cómo llegan altas, cambios y bajas. |
 | Cadencia de cada etapa por entidad, con hora/zona, última ejecución y volumen | Separar el recuerdo del proceso diario del polling central y del cron de sucursal. |
-| Artefactos WSO2/SQL/API de lectura y generador de lotes | Verificar el tramo faltante, las garantías de retención, los checkpoints y la recuperación después de acuses. |
+| Artefactos WSO2/SQL/API de lectura y generador de lotes | Contrastar el código localizado con los artefactos desplegados y verificar retención, checkpoints y recuperación después de acuses. |
 | Componente que atiende la API de clientes y contrato desplegado | Determinar origen efectivo, campos refrescados, controles de acceso y comportamiento ante error. |
 | Reglas de convivencia entre lotes, refresco por RUT y cambios locales pendientes | Evitar que un dato atrasado reemplace uno nuevo o borre una modificación pendiente; definir versión y dueño por atributo. |
 | Proceso que crea/consume/libera la reserva de inventario | Aclarar el desfase reserva/deuda sin atribuir inventario a la caja. |

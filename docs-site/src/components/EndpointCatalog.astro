@@ -7,6 +7,7 @@ const entries = catalog.applications[app];
 const groups = [...new Set(entries.map(entry => entry.group))];
 const methods = [...new Set(entries.map(entry => entry.method))];
 const sourceBase = `${catalog.repository}/blob/${catalog.commit}/`;
+const groupId = (group: string) => 'capability-' + group.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '');
 const statusLabels: Record<string, string> = {
   implemented: 'Método presente · no ejecutado',
   empty: 'Método vacío',
@@ -16,6 +17,7 @@ const statusLabels: Record<string, string> = {
 ---
 
 <pos-endpoint-catalog>
+  <h2>Buscar una operación</h2>
   <div class="endpoint-filters" data-pagefind-ignore hidden>
     <label>Buscar endpoint
       <input type="search" data-endpoint-query placeholder="Ruta, descripción o controlador" autocomplete="off" />
@@ -35,9 +37,30 @@ const statusLabels: Record<string, string> = {
   </div>
   <p class="endpoint-counter" role="status" aria-live="polite" aria-atomic="true" data-endpoint-count data-pagefind-ignore>{entries.length} rutas documentadas</p>
   <p data-endpoint-empty hidden>No hay coincidencias. Prueba con otra palabra o selecciona todos los métodos y funcionalidades.</p>
+  <details class="endpoint-overview">
+    <summary>Áreas funcionales y responsabilidades ({groups.length})</summary>
+    <p>Estas áreas agrupan las rutas para encontrarlas; no representan servicios desplegados ni módulos independientes. Los conteos incluyen las vistas auxiliares, identificadas por separado.</p>
+    <table>
+      <thead><tr><th>Área</th><th>Responsabilidad</th><th>Rutas</th></tr></thead>
+      <tbody>{groups.map(group => <tr>
+        <td><a href={`#${groupId(group)}`}>{group}</a></td>
+        <td>{catalog.groupDescriptions[group as keyof typeof catalog.groupDescriptions]}</td>
+        <td>{entries.filter(entry => entry.group === group).length}</td>
+      </tr>)}</tbody>
+    </table>
+  </details>
+  {app === 'backend' && <details class="endpoint-responsibilities">
+    <summary>Correspondencia con el resumen de responsabilidades</summary>
+    <p>El resumen funcional y este catálogo describen la misma API. Una responsabilidad puede abarcar más de un área; las rutas completas aparecen una sola vez debajo.</p>
+    <table><thead><tr><th>Responsabilidad</th><th>Áreas del catálogo</th></tr></thead><tbody>
+      {catalog.responsibilities.map(responsibility => <tr><td>{responsibility.name}</td><td>
+        {responsibility.groups.map((group, index) => <>{index > 0 && ' · '}<a href={`#${groupId(group)}`}>{group}</a></>)}
+      </td></tr>)}
+    </tbody></table>
+  </details>}
   {groups.map(group => (
     <section class="endpoint-group" data-endpoint-section>
-      <h2>{group}</h2>
+      <h2 id={groupId(group)}>{group}</h2>
       {entries.filter(entry => entry.group === group).map(entry => (
         <article class="endpoint-entry" id={entry.id} data-endpoint-entry data-method={entry.method} data-group={group}>
           <h3>
@@ -97,6 +120,9 @@ const statusLabels: Record<string, string> = {
       query.addEventListener('input', filter);
       method.addEventListener('change', filter);
       group.addEventListener('change', filter);
+      this.querySelectorAll<HTMLAnchorElement>('a[href^="#capability-"]').forEach(link => link.addEventListener('click', () => {
+        query.value = ''; method.value = ''; group.value = ''; filter();
+      }));
     }
   }
   if (!customElements.get('pos-endpoint-catalog')) customElements.define('pos-endpoint-catalog', EndpointCatalog);

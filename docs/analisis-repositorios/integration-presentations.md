@@ -32,7 +32,7 @@ El aporte principal es un **lenguaje arquitectónico y un conjunto de mecanismos
 | `project-metrics`, `infrastructure-gcp` | SLI/SLO, carga, aislamiento de entornos, servicios gestionados y costos comparativos. | Cifras y costos no tienen evidencia adjunta suficiente para dimensionar o contratar el POS. |
 | Manifiestos del propio repositorio | Build estático con Reveal, publicación prevista en Vercel y generación SVG. | Ese pipeline publica documentación; no es el pipeline de la plataforma de integración. |
 
-Fuentes: [IP01]–[IP13]. Los cinco repositorios legacy ya auditados siguen siendo la evidencia del POS chileno recibido. Estas presentaciones no reemplazan la descripción de sucursal/backend/PostgreSQL/sincronizador/AX ni prueban que la plataforma nueva ya los haya sustituido.
+Fuentes: [IP01]–[IP13]. La evidencia del POS chileno procede de los repositorios del sistema actual, cuyo [inventario vigente](README.md) incluye seis tras incorporar `mountain-concentrador`. Estas presentaciones no reemplazan la descripción de sucursal/backend/PostgreSQL/sincronizador/AX ni prueban que la plataforma nueva ya los haya sustituido.
 
 ### Modelo de arquitectura que declara la fuente
 

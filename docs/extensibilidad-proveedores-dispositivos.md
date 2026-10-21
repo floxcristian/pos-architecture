@@ -152,7 +152,7 @@ Si varias cajas comparten un periférico, asignar una única aplicación local a
 
 Las credenciales se aprovisionan y rotan mediante mecanismos administrativos protegidos; el manifiesto contiene referencias, no valores secretos. El control de acceso local debe funcionar durante la desconexión autorizada, con vigencia y límites. La aplicación local usa los privilegios mínimos compatibles con su driver/SDK.
 
-Si se selecciona Tauri, sus binarios externos por plataforma son una opción de empaquetado, no una obligación de reescribir el SDK. La aplicación local de periféricos y la recuperación de intentos no deben depender de que la ventana del POS permanezca abierta: elegir servicio supervisado o ciclo de vida independiente según la capacidad. [Binarios externos en Tauri](https://v2.tauri.app/develop/sidecar/).
+Angular + Tauri es la dirección de cliente indicada; su homologación con el hardware sigue pendiente. Los binarios externos de Tauri por plataforma son una opción de empaquetado, no una obligación de reescribir el SDK. La aplicación local de periféricos y la recuperación de intentos no deben depender de que la ventana del POS permanezca abierta: elegir servicio supervisado o ciclo de vida independiente según la capacidad. [Binarios externos en Tauri](https://v2.tauri.app/develop/sidecar/).
 
 Los adaptadores se distribuyen como paquetes aprobados y firmados, con dueño, contrato, compatibilidad, pruebas y procedencia. **No se descargan ni ejecutan plugins JavaScript remotos arbitrarios por cambiar una configuración.** Cambiar un manifiesto selecciona componentes ya instalados/aprobados o programa su instalación verificada; no convierte configuración en código ejecutable.
 

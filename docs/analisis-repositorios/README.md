@@ -1,8 +1,8 @@
 # Análisis de los repositorios del POS
 
-Revisión del 1 de octubre de 2026. Complementa los [antecedentes](../../README.md), la [presentación de Chile](../antecedentes-presentacion-chile.md) y la [propuesta de arquitectura](../propuesta-arquitectura.md). Cada informe incluye evidencias con ruta, líneas y commit. Los hallazgos corresponden al código revisado; la correspondencia con producción sigue pendiente.
+Revisión iniciada el 1 de octubre de 2026 y ampliada con el concentrador el 2 de octubre. El inventario vigente incluye **nueve repositorios**: seis del ecosistema POS chileno, `core`, `devops-platform` e `integration-presentations` como referencia editorial. Complementa los [antecedentes](../../README.md), la [presentación de Chile](../antecedentes-presentacion-chile.md) y la [propuesta de arquitectura](../propuesta-arquitectura.md). Cada informe incluye evidencias con ruta, líneas y commit. Los hallazgos corresponden al código revisado; la correspondencia con producción sigue pendiente.
 
-**Ampliación corporativa:** además de los cinco repositorios del POS, se revisaron `core`, `devops-platform` e `integration-presentations`. El [informe transversal de aportes](aportes-plataforma-corporativa.md) explica qué reutilizar, qué adaptar y qué falta para offline. Las secciones 1–8 siguientes conservan el análisis del sistema chileno; la ampliación no sustituye ni invalida esos hallazgos.
+**Primera ampliación corporativa:** a los cinco repositorios POS recibidos inicialmente se añadieron `core`, `devops-platform` e `integration-presentations`. Después se incorporó `mountain-concentrador`, sexto repositorio del ecosistema actual. El [informe transversal de aportes](aportes-plataforma-corporativa.md) explica qué reutilizar, qué adaptar y qué requiere construir el producto nuevo. Las secciones 1–8 siguientes conservan el análisis del sistema chileno y sus ampliaciones.
 
 **Apuntes de operación contrastados posteriormente:** [stock, MPOS SQL, cadencias, refresco de cliente por RUT y verificación de cheques](../contraste-apuntes-operacion-chile.md). El contraste confirma el refresco individual además de la sincronización masiva y añade MI-09: el flujo principal puede limpiar la venta ante fallo de la API de clientes aunque exista una ficha local. Los lectores MPOS están ahora comprobados en mountain-concentrador; el productor AX→MPOS, el job central diario y su ubicación siguen pendientes; la caja sin gestión de stock se registra como antecedente del usuario. El usuario confirmó el 2026-10-02 que Orsan continúa vigente e Instacheck está retirado.
 
@@ -188,7 +188,7 @@ Las [pruebas propuestas](../validacion-y-decisiones.md) incluyen escenarios deri
 - **Pagos y fiscalidad:** agente Transbank, contratos de adquirentes/facturadores, estados inciertos y contingencias autorizadas. `api-pagos-caja` no sustituye esa evidencia.
 - **Datos y operación:** DDL efectivo, índices/restricciones, volúmenes, casos de conciliación, métricas, backups, restauración, CI/CD y gestión de credenciales. Los esquemas deducidos de código no certifican la base desplegada.
 - **Reglas comerciales:** motor de precios realmente usado, permisos de ofertas, reserva de inventario, crédito y NC entre sucursales; datos de referencia sin información personal para pruebas.
-- **Perú y España:** repositorios, topología, sistemas financieros reales y particularidades. Estos cinco repositorios profundizan Chile; no validan la operación de los otros países.
+- **Perú y España:** repositorios, topología, sistemas financieros reales y particularidades. Los seis repositorios del ecosistema POS revisado profundizan Chile; no validan la operación de los otros países.
 
 ## 9. Informes detallados
 

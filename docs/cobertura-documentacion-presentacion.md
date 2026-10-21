@@ -1,5 +1,7 @@
 # Cobertura entre fuentes, documentación y presentación web
 
+**Alcance histórico:** esta matriz describe el explorador `presentation/index.html` y sus ampliaciones. Las menciones a ejercicios, capítulos y navegación corresponden a ese material, no a la presentación vigente en Reveal ni al recorrido de Starlight. La [auditoría documental del 21 de octubre](auditoria-documentacion.md) registra la organización y las correcciones actuales; la [guía de presentación](../presentation/README.md#propuesta-en-revealjs) explica Reveal.
+
 Revisión iniciada el **1 de octubre de 2026**, con actualización técnica y auditoría editorial del **2 de octubre** y reorganización de la navegación del **3 de octubre**. Este documento explica dónde encontrar cada tema y registra las diferencias de profundidad. **La presentación web resume los recorridos principales y permite explorar fichas; no reproduce todo el contenido técnico de los documentos ni acredita la arquitectura desplegada.** Tener un enlace a un informe tampoco significa que sus hallazgos estén explicados dentro de la presentación.
 
 ## 1. Método y alcance de esta revisión

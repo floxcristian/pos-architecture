@@ -68,7 +68,7 @@ BullMQ permite `attempts`, backoff y jitter. Nuestra política debe distinguir e
 
 ### PostgreSQL + worker + HTTPS: una alternativa inicial deliberadamente acotada
 
-**Diseño propuesto:** transacción de negocio y outbox en la base local; proceso de envío que adquiere trabajo pendiente; endpoint central que persiste inbox, identidad y estado antes de responder; worker central que avanza la integración; resultados descargables de forma durable con checkpoint. No necesita una conexión WAN permanente ni otro motor de almacenamiento en la sucursal. HTTPS transporta la petición; la durabilidad la aportan la persistencia y el protocolo.
+**Diseño propuesto:** transacción de negocio y outbox en la base local; proceso de envío que adquiere trabajo pendiente; endpoint central que confirma inbox, efecto local pactado y siguiente outbox/trabajo durable en una transacción antes de responder; worker central que avanza la integración externa; resultados descargables con checkpoint. El efecto local es el registro operativo/proyección exigido por el contrato del evento, no la llamada al ERP ni todas las proyecciones posteriores. La [propuesta define los acuses por frontera](propuesta-arquitectura.md#sincronización-y-consistencia). No necesita una conexión WAN permanente ni otro motor de almacenamiento en la sucursal. HTTPS transporta la petición; la durabilidad la aportan la persistencia y el protocolo.
 
 PostgreSQL admite `FOR UPDATE SKIP LOCKED` para reducir contención entre consumidores de una tabla similar a una cola. No es una solución completa: omite filas bloqueadas y no garantiza orden causal del negocio. [SELECT y locking](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE).
 
@@ -145,7 +145,7 @@ La inserción de inbox y la creación del trabajo central deben tener una fronte
 | Hito | Significado propuesto | Lo que no demuestra |
 | --- | --- | --- |
 | Commit local | El POS conservó negocio y pendiente conforme a su política de durabilidad | Que central conozca la operación. |
-| Acuse durable central | Central conservó la identidad y trabajo para continuar | Que se haya ejecutado o aceptado en el ERP. |
+| Acuse durable central | Central confirmó inbox, efecto local pactado y siguiente outbox/trabajo durable juntos | Que se haya ejecutado o aceptado en el ERP. |
 | Confirm/ACK del broker | Transferencia de custodia en el tramo configurado | Pago, DTE o contabilización ERP confirmados. |
 | Resultado de negocio | El adaptador conservó evidencia del resultado por operación | Conciliación global completa si faltan otros efectos. |
 
