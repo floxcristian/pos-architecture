@@ -2,7 +2,9 @@
 
 Producción reproducible del video educativo: 56 escenas y 14 capítulos, voz sintética en español de Chile, diagramas C4/Excalidraw, animación de mensajes y código breve. El objetivo es un producto corporativo reutilizable entre países. La explicación conecta núcleo común, perfiles, adaptadores y gobierno con integridad, continuidad y recuperación.
 
-El video explica una propuesta. Los ejemplos de BullMQ y RabbitMQ son extensiones centrales opcionales; no ejecutan colas, pagos ni infraestructura real. Las fuentes del modelo siguen en `docs/`; `content/sources.json` registra la documentación utilizada. El renderer reutiliza los SVG del repositorio y acerca regiones reales, sin cambiar sus relaciones.
+El video explica una propuesta. Los ejemplos de BullMQ y RabbitMQ son extensiones centrales opcionales; no ejecutan colas, pagos ni infraestructura real. Las fuentes canónicas del modelo y los diagramas pertenecen a [pos-platform](https://pos-platform-tau.vercel.app/guide/), junto al código del producto. `content/sources.json` registra la documentación utilizada para esta revisión audiovisual; el renderer utiliza los SVG de su revisión y acerca regiones reales, sin cambiar sus relaciones.
+
+El video publicado es una entrega fijada por hash. Mover o actualizar Starlight no cambia automáticamente esa entrega ni su guion. La presentación consume `presentation/documentation.snapshot.json` desde una revisión limpia del producto; el [procedimiento de actualización](../README.md#actualizar-la-referencia-técnica) describe cómo refrescar esa referencia. Antes de producir otra revisión audiovisual, contrastar escenas, diagramas y narración con las decisiones canónicas y actualizar su trazabilidad. No editar una copia local de la documentación como fuente alternativa.
 
 ## Entrega
 

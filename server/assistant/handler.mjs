@@ -92,7 +92,7 @@ function validateContext(value) {
       || typeof source.url !== 'string' || !source.url.startsWith('/') || source.url.startsWith('//')
       || /[\\\r\n]/.test(source.url)) throw unavailable();
     const url = new URL(source.url, 'https://sources.invalid');
-    if (url.origin !== 'https://sources.invalid' || !/^\/(presentation|docs)\//.test(url.pathname)) throw unavailable();
+    if (url.origin !== 'https://sources.invalid' || !(/^\/(presentation|docs)\//.test(url.pathname) || url.pathname === '/guide/proposal/product/')) throw unavailable();
     ids.add(source.id);
   }
   return value;

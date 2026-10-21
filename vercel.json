@@ -15,9 +15,13 @@
     { "source": "/video", "destination": "/presentation/video.html" }
   ],
   "redirects": [
-    { "source": "/guide", "destination": "/guide/", "permanent": false },
+    { "source": "/presentation/tools/concentrador-ingress-evidence.json", "destination": "https://pos-platform-tau.vercel.app/docs/evidence-data/concentrador-ingress-evidence.json", "permanent": true },
+    { "source": "/presentation/tools/concentrador-masters-evidence.json", "destination": "https://pos-platform-tau.vercel.app/docs/evidence-data/concentrador-masters-evidence.json", "permanent": true },
+    { "source": "/guide", "destination": "https://pos-platform-tau.vercel.app/guide/", "permanent": true },
+    { "source": "/guide/:path*", "destination": "https://pos-platform-tau.vercel.app/guide/:path*", "permanent": true },
+    { "source": "/docs/:path*", "destination": "https://pos-platform-tau.vercel.app/docs/:path*", "permanent": true },
     { "source": "/reveal", "destination": "/presentation/pos-corporativo-reveal.html", "permanent": false },
-    { "source": "/", "destination": "/guide/", "permanent": false },
+    { "source": "/", "destination": "/reveal", "permanent": false },
     { "source": "/arquitectura", "destination": "/presentation/architecture.html", "permanent": false },
     { "source": "/presentation", "destination": "/presentation/index.html", "permanent": false }
   ],
@@ -28,12 +32,6 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" }
-      ]
-    },
-    {
-      "source": "/guide/(.*)",
-      "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" }
       ]
     }
   ]

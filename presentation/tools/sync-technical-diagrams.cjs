@@ -3,7 +3,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'../..');
-const source=fs.readFileSync(path.join(root,'docs/vistas-arquitectura-y-flujos.md'),'utf8');
+const source=require('./documentation.cjs').loadDocumentation(root).files['docs/vistas-arquitectura-y-flujos.md'].content;
 const blocks=[...source.matchAll(/```mermaid\s*\r?\n([\s\S]*?)```/g)].map(m=>m[1].trim()+'\n');
 const names=['technical-deployment','technical-sale','technical-sync','technical-continuity','technical-erp-state'];
 if(blocks.length!==6)throw new Error('Expected exactly six documented views V01–V06; review the extraction before copying.');

@@ -1,6 +1,6 @@
 # Criterios editoriales de la presentación interactiva
 
-**Alcance:** este registro documenta principalmente el explorador `presentation/index.html` y sus revisiones desde el 1 de octubre. Las referencias a ejercicios y capítulos de ese explorador son antecedentes; no describen la propuesta vigente en Reveal. Para esa presentación, consultar [enfoque actual](README.md#enfoque-de-la-propuesta); para la organización de Starlight, [mantenimiento de la guía](../docs-site/README.md).
+**Alcance:** este registro documenta principalmente el explorador `presentation/index.html` y sus revisiones desde el 1 de octubre. Las referencias a ejercicios y capítulos de ese explorador son antecedentes; no describen la propuesta vigente en Reveal. Para esa presentación, consultar [enfoque actual](README.md#enfoque-de-la-propuesta); para la organización de Starlight, [mantenimiento de la guía](https://pos-platform-tau.vercel.app/guide/reference/maintenance/).
 
 Contenido preparado el 1 de octubre de 2026 a partir de la documentación del proyecto. `content.js` publica `window.POS_CONTENT` sin dependencias ni llamadas externas. El contenido usa identificadores y ejemplos sintéticos; no incluye datos personales, credenciales ni direcciones de infraestructura.
 

@@ -8,30 +8,15 @@
   },
   "scripts": {
     "build": "node presentation/tools/build-vercel.cjs",
-    "docs:build": "node docs-site/scripts/build.mjs",
-    "docs:dev": "node docs-site/scripts/prepare-content.mjs && astro dev --root docs-site",
-    "docs:check": "node docs-site/scripts/check.cjs",
-    "docs:validate": "node docs-site/scripts/validate-content.mjs",
-    "docs:typecheck": "node docs-site/scripts/prepare-content.mjs && astro check --root docs-site",
-    "docs:sync-catalog": "node tools/sync-monorepo-catalog.mjs",
+    "documentation:check": "node tools/sync-documentation.cjs --check",
+    "documentation:sync": "node tools/sync-documentation.cjs",
     "preview": "node presentation/tools/serve-public.cjs",
     "check:assistant-api": "node --test presentation/tools/check-assistant-api.cjs"
   },
   "dependencies": {
     "@vercel/firewall": "1.2.6"
   },
-  "overrides": {
-    "postcss-nested": {
-      "postcss-selector-parser": "7.1.6"
-    }
-  },
   "devDependencies": {
-    "@astrojs/check": "0.9.10",
-    "@astrojs/markdown-remark": "7.3.0",
-    "@astrojs/starlight": "0.42.6",
-    "astro": "7.3.8",
-    "mermaid": "12.2.0",
-    "playwright": "1.59.1",
-    "typescript": "5.9.3"
+    "playwright": "1.59.1"
   }
 }

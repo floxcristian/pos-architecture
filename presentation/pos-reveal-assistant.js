@@ -125,7 +125,7 @@
       let entry;
       if (slideById.has(source?.id)) entry = { kind: 'slide', id: source.id, title: slideById.get(source.id).title, key: `slide:${source.id}` };
       else if (source?.id === 'glosario' && source.url === '/presentation/pos-corporativo-reveal.html') entry = { kind: 'glossary', title: 'Glosario de arquitectura', key: 'glossary' };
-      else if (typeof source?.url === 'string' && /^\/docs\/propuesta-arquitectura\.md(?:#[a-z0-9][a-z0-9-]{0,119})?$/.test(source.url)) {
+      else if (typeof source?.url === 'string' && (source.url === '/guide/proposal/product/' || /^\/docs\/propuesta-arquitectura\.md(?:#[a-z0-9][a-z0-9-]{0,119})?$/.test(source.url))) {
         entry = { kind: 'document', url: source.url, title: 'Propuesta de arquitectura', key: `document:${source.url}` };
       }
       if (entry && !seen.has(entry.key) && valid.length < 6) { seen.add(entry.key); valid.push(entry); }

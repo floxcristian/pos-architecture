@@ -2,6 +2,8 @@
 
 Recorrido de ocho capítulos en español sobre la arquitectura actual de Chile y la propuesta de una plataforma POS corporativa reutilizable entre países. El núcleo común, la configuración, las extensiones y el gobierno permiten adaptarla; la continuidad offline es uno de sus requisitos.
 
+La [documentación Starlight](https://pos-platform-tau.vercel.app/guide/) y los modelos técnicos pertenecen a **pos-platform**. Este repositorio mantiene las diapositivas, las simulaciones, los guiones y sus controles. `documentation.snapshot.json` es un derivado de una revisión limpia del producto, con hashes y mapa de enlaces; permite construir la presentación sin compilar Starlight ni acceder a otro checkout. El [procedimiento de actualización](../README.md#actualizar-la-referencia-técnica) explica cómo importar otra revisión y revisar sus síntesis.
+
 ## Abrir
 
 ### Propuesta en Reveal.js
@@ -38,25 +40,26 @@ El contenido está en `pos-reveal-content.js`, los estados de simulación en `po
 
 El recorrido presenta Angular + Tauri en el puesto, backend modular NestJS/Fastify y PostgreSQL en sucursal y país. Los diagramas describen el POS concreto; las simulaciones muestran confirmación de venta, precios por eventos y lotes, recuperación de entregas, opciones BullMQ/RabbitMQ e integración ERP. La fachada, la ACL y los adaptadores se explican mediante el contrato y los flujos propuestos para ese producto.
 
-El capítulo de código contiene el monorepo completo, sus dominios, dependencias permitidas, verificaciones y releases. Nx organiza ese repositorio; su instalación, comandos y uso operativo quedan fuera del alcance. El cierre reúne observabilidad, recuperación, capacidad y criterios de aceptación del piloto. La autoridad de decisiones es [Propuesta de arquitectura](../docs/propuesta-arquitectura.md); las recomendaciones de backend, topología y operación siguen sujetas a validación.
+El capítulo de código contiene el monorepo completo, sus dominios, dependencias permitidas, verificaciones y releases. Nx organiza ese repositorio; su instalación, comandos y uso operativo quedan fuera del alcance. El cierre reúne observabilidad, recuperación, capacidad y criterios de aceptación del piloto. La autoridad de decisiones es [Propuesta de arquitectura](https://pos-platform-tau.vercel.app/guide/proposal/product/); las recomendaciones de backend, topología y operación siguen sujetas a validación.
 
 ### Atlas y materiales anteriores
 
-Abre **[index.html](index.html)** con Edge, Chrome o un navegador moderno. No requiere instalación, compilación, conexión a Internet ni servicios corporativos. Conserva esta carpeta junto a `../docs/` para que funcionen las fuentes.
+Abre **[index.html](index.html)** con Edge, Chrome o un navegador moderno. Sus vistas y simulaciones son estáticas; los enlaces de documentación apuntan al sitio canónico del producto y necesitan conexión para consultarse. El explorador no ejecuta servicios corporativos.
 
 También puedes previsualizarla con Node.js:
 
 ```powershell
-node presentation/server.cjs
+npm run build
+npm run preview
 ```
 
-Abre `http://127.0.0.1:4173`. El servidor escucha solo en loopback y expone la presentación y `docs/`; no sirve los clones de la empresa. Para otro puerto, configura `POS_ATLAS_PORT`.
+Abre `http://127.0.0.1:4199/presentation/index.html`. El preview escucha solo en loopback y sirve el artefacto `public/`, con redirecciones de documentación equivalentes a Vercel. Para otro puerto, configura `POS_PUBLIC_PORT`.
 
-Para compartir, entrega `dist/pos-atlas.zip`, extráelo y abre `pos-atlas/presentation/index.html`. Incluye las fuentes documentales; no incluye los clones corporativos ni las capturas de QA. Se regenera con Python 3: `python presentation/tools/package-presentation.py` desde la raíz del proyecto.
+Para compartir la revisión publicada, utiliza el enlace de la presentación. Los ZIP de atlas anteriores corresponden a sus revisiones históricas; sus documentos incluidos no sustituyen las fuentes vigentes del producto.
 
 ## Desplegar en Vercel
 
-La configuración está en [`vercel.json`](https://github.com/floxcristian/pos-architecture/blob/main/vercel.json). Importa `floxcristian/pos-architecture` desde GitHub en **Add New → Project** y conserva la **raíz del repositorio (`./`)**. No elijas `presentation/` como raíz: también se necesitan los documentos de `docs/`.
+La configuración está en [`vercel.json`](https://github.com/floxcristian/pos-architecture/blob/main/vercel.json). Importa `floxcristian/pos-architecture` desde GitHub y conserva la **raíz del repositorio (`./`)**: allí están el manifiesto de dependencias, el snapshot y las herramientas que ensamblan la presentación y los medios.
 
 | Ajuste | Valor |
 | --- | --- |
@@ -65,12 +68,12 @@ La configuración está en [`vercel.json`](https://github.com/floxcristian/pos-a
 | Production Branch | `main` |
 | Build Command | `node presentation/tools/build-vercel.cjs` |
 | Output Directory | `public` |
-| Install Command | `npm ci` (dependencia del límite de solicitudes del asistente) |
+| Install Command | `npm ci` |
 | Variables de entorno | Ninguna para ver o narrar; el asistente requiere [configuración del servidor](tools/assistant-setup.md#activar-en-vercel) |
 
-`vercel.json` define framework, comandos y salida. El build prepara los archivos estáticos, documentos originales y JSON de evidencia enlazados. No publica los clones, QA, herramientas ejecutables ni el servidor local. Además de los archivos estáticos, Vercel crea la función `/api/assistant`; el corpus de consulta queda en su paquete de servidor, fuera de `public/`. `/` redirige a `/presentation/index.html`, conservando las rutas relativas y los capítulos por hash. Los documentos Markdown se sirven como archivos de texto, igual que en la previsualización local; no se transforman en páginas HTML.
+`vercel.json` define framework, comandos y salida. El build prepara la presentación, sus derivados y los medios verificados; comprueba que correspondan al snapshot fijado. No compila ni publica otra copia de Starlight. Además de los archivos estáticos, Vercel crea la función `/api/assistant`; el corpus de consulta queda en su paquete de servidor, fuera de `public/`. `/` redirige a `/reveal`. Las rutas anteriores `/guide/…` y `/docs/…` redirigen permanentemente al sitio del producto y conservan sus parámetros.
 
-Tras **Deploy**, Vercel asigna una URL al proyecto; un dominio propio es opcional. La conexión Git permite desplegar nuevas versiones al actualizar `main`. Para uso corporativo, utiliza un plan que admita ese uso: Hobby está limitado a uso personal no comercial. Referencias oficiales: [configuración de build](https://vercel.com/docs/builds/configure-a-build), [integración Git](https://vercel.com/docs/git) y [alcance de Hobby](https://vercel.com/docs/plans/hobby).
+La conexión Git permite desplegar las revisiones publicadas en `main`. La publicación de Starlight y del POS pertenece a la configuración de [pos-platform](https://pos-platform-tau.vercel.app/guide/implementation/deployment/).
 
 Para comprobar la salida localmente: `node presentation/tools/build-vercel.cjs`. `public/` es una carpeta generada e ignorada por Git; el build solo la reemplaza cuando tiene su marcador de generación. El despliegue real y su URL se verifican después de importar el repositorio en la cuenta de Vercel.
 
@@ -90,7 +93,7 @@ Incluye siete diagramas C4/dinámicos de Excalidraw con zoom y descarga editable
 
 Usa Anterior/Siguiente o las flechas para cambiar de diapositiva; `O` abre el índice y `N` las notas. Cada laboratorio permite elegir escenario, avanzar, retroceder, reproducir, pausar y reiniciar. El hash conserva enlaces a diapositiva, caso y paso. No hay reproducción automática al abrir una página; al salir del laboratorio o esconder la pestaña se pausa. Se respeta movimiento reducido y se conserva el relato textual.
 
-El código está en `architecture.html`, `architecture.css`, `architecture.js`, `architecture-content.js` y `architecture-labs.js`. Los pósteres y editables proceden de `docs/diagramas-excalidraw/`. Las vistas previas de `architecture-diagrams/` recortan únicamente el viewport del SVG según los elementos del modelo, sin alterar el original; se regeneran con `node presentation/tools/generate-architecture-previews.cjs --verify`. No necesita CDN. Verificación: `node presentation/tools/check-architecture.cjs`. La CSP permite `connect-src 'self'` para el asistente de Reveal; las simulaciones siguen sin ejecutar solicitudes a infraestructura.
+El código está en `architecture.html`, `architecture.css`, `architecture.js`, `architecture-content.js` y `architecture-labs.js`. Los pósteres y editables proceden de la [colección canónica del producto](https://pos-platform-tau.vercel.app/guide/diagrams/). Las vistas previas de `architecture-diagrams/` se importan del snapshot mediante `npm run documentation:sync -- --artifact <archivo>`; sus modelos y recortes se generan en pos-platform. No necesita CDN. Verificación: `node presentation/tools/check-architecture.cjs`. La CSP permite `connect-src 'self'` para el asistente de Reveal; las simulaciones siguen sin ejecutar solicitudes a infraestructura.
 
 ### Atlas de la situación actual y evolución
 
@@ -108,25 +111,25 @@ El código está en `architecture.html`, `architecture.css`, `architecture.js`, 
 | [IA](index.html#ia) | Casos candidatos, alternativas y laboratorio de asistencia con abstención. |
 | [Repaso](index.html#repaso) | Veinte situaciones de comprensión, con explicación por respuesta y posibilidad de reintentar; después, decisiones para conversar con el equipo. |
 
-La **[guía del visor](../docs/visor-interacciones-componentes.md)** es la referencia de controles, modos, conexiones, teclado, zoom y límites. El mapa muestra aplicaciones y datos; «Implementación y código» conserva clases y servicios internos en las fichas. La [matriz de cobertura](../docs/cobertura-documentacion-presentacion.md) detalla qué se explica y qué requiere abrir un informe.
+La **[guía del visor](https://pos-platform-tau.vercel.app/guide/reference/explorer/)** es la referencia de controles, modos, conexiones, teclado, zoom y límites. El mapa muestra aplicaciones y datos; «Implementación y código» conserva clases y servicios internos en las fichas. La [matriz de cobertura](https://pos-platform-tau.vercel.app/guide/reference/coverage/) detalla qué se explica y qué requiere abrir un informe.
 
 ## Alcance de la evidencia
 
 El tutorial utiliza datos estáticos y ejemplos sintéticos: **no ejecuta un POS, consulta bases ni valida pagos, fiscalidad, radio RFID o garantías productivas**. Las fichas distinguen código, antecedentes, propuesta y pendientes. Algunas fuentes externas requieren Internet y acceso al repositorio; la presentación local no los necesita.
 
-Las capacidades de [proveedores y dispositivos](../docs/extensibilidad-proveedores-dispositivos.md), [IA](../docs/servicios-ia-pos.md) y [RFID](../docs/evolucion-rfid-autoservicio.md) siguen sujetas a sus contratos y pilotos. Una simulación no acredita homologación, un cobro ni un ajuste de inventario. Los [informes por commit](../docs/analisis-repositorios/README.md) conservan la evidencia; [CONTENT_NOTES.md](CONTENT_NOTES.md) concentra las reglas editoriales.
+Las capacidades de [proveedores y dispositivos](https://pos-platform-tau.vercel.app/guide/architecture/providers/), [IA](https://pos-platform-tau.vercel.app/guide/architecture/ai/) y [RFID](https://pos-platform-tau.vercel.app/guide/architecture/rfid/) siguen sujetas a sus contratos y pilotos. Una simulación no acredita homologación, un cobro ni un ajuste de inventario. Los [informes por commit](https://pos-platform-tau.vercel.app/guide/evidence/audit/) conservan la evidencia; [CONTENT_NOTES.md](CONTENT_NOTES.md) concentra las reglas editoriales.
 
 ## Profundizar sin repetir el recorrido
 
 En Ecosistema, [Vista general](index.html#mapa?vista=general) explica las responsabilidades; [Repositorios](index.html#mapa?vista=repositorios) ubica el código; [Peticiones](index.html#mapa?vista=peticiones) muestra los seis recorridos actuales, sin un acordeón previo; y [Evidencia](index.html#mapa?vista=evidencia) reúne **Rutas**, **Despliegue** y **Fuentes y pendientes**. El inventario completo de componentes se abre bajo demanda en este último modo. En todos los capítulos con pestañas se conservan las selecciones al alternar dentro del capítulo; cada selector pertenece a su vista y no filtra automáticamente las demás.
 
-V01 tiene un único acceso en Evidencia → Despliegue. V02–V06 se consultan en [vistas técnicas](../docs/vistas-arquitectura-y-flujos.md), sin repetir otra biblioteca de diagramas en pantalla. Los filtros y contadores describen el catálogo seleccionado, no un inventario completo de producción. Los enlaces anteriores `#mapa?flujo=…` siguen abriendo el recorrido solicitado en Peticiones. Las pestañas de cada capítulo admiten `?vista=…`; la guía del visor reúne sus accesos directos y la navegación por teclado.
+V01 tiene un único acceso en Evidencia → Despliegue. V02–V06 se consultan en [vistas técnicas](https://pos-platform-tau.vercel.app/guide/evidence/current-state/), sin repetir otra biblioteca de diagramas en pantalla. Los filtros y contadores describen el catálogo seleccionado, no un inventario completo de producción. Los enlaces anteriores `#mapa?flujo=…` siguen abriendo el recorrido solicitado en Peticiones. Las pestañas de cada capítulo admiten `?vista=…`; la guía del visor reúne sus accesos directos y la navegación por teclado.
 
-En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos, esquema y fuentes. D03/D04 integran el contexto de lotes y cliente; D02/D03 incluyen el horario de sincronización. No se repiten en otro resumen. Los cinco diagramas proceden de [recorridos de datos](../docs/recorridos-datos-tablas.md). Los casos de sesión/impresión, precio y actualización están en Venta → Apertura, cierre e impresión; Propuesta → Precios y ofertas; y Evolución → Despliegue. Su evidencia está en [operación y evolución](../docs/operacion-caja-y-evolucion.md).
+En Datos, una tabla o aplicación abre su ficha con lecturas/escrituras, campos, esquema y fuentes. D03/D04 integran el contexto de lotes y cliente; D02/D03 incluyen el horario de sincronización. No se repiten en otro resumen. Los cinco diagramas proceden de [recorridos de datos](https://pos-platform-tau.vercel.app/guide/evidence/data-flows/). Los casos de sesión/impresión, precio y actualización están en Venta → Apertura, cierre e impresión; Propuesta → Precios y ofertas; y Evolución → Despliegue. Su evidencia está en [operación y evolución](https://pos-platform-tau.vercel.app/guide/operations/cash-management/).
 
 ## Arquitectura C4 de la propuesta
 
-En **Propuesta → Arquitectura** se consultan cinco vistas del mismo modelo: contexto (C1), aplicaciones y bases (C2), componentes del backend de sucursal (C3), componentes del worker de sincronización (C3) y despliegue complementario. El selector mantiene una vista a la vez, con zoom y fichas de responsabilidades, tecnología y datos. La [explicación C4](../docs/c4-arquitectura-propuesta.md) desarrolla los límites y la [comparación tecnológica](../docs/opciones-tecnologicas.md) explica PostgreSQL frente a MongoDB.
+En **Propuesta → Arquitectura** se consultan cinco vistas del mismo modelo: contexto (C1), aplicaciones y bases (C2), componentes del backend de sucursal (C3), componentes del worker de sincronización (C3) y despliegue complementario. El selector mantiene una vista a la vez, con zoom y fichas de responsabilidades, tecnología y datos. La [explicación C4](https://pos-platform-tau.vercel.app/guide/architecture/c4-model/) desarrolla los límites y la [comparación tecnológica](https://pos-platform-tau.vercel.app/guide/architecture/technologies/) explica PostgreSQL frente a MongoDB.
 
 El backend local reside en la sucursal y atiende las cajas por LAN. PostgreSQL conserva las operaciones y el espejo de lectura de precios/ofertas; eventos y cargas masivas programadas o manuales actualizan ese espejo. La pestaña **Precios y ofertas** explica validación, conciliación y activación. Es una propuesta de implementación, no una descripción de servicios ya desplegados.
 
@@ -144,29 +147,32 @@ El backend local reside en la sucursal y atiende las cajas por LAN. PostgreSQL c
 - `interactions-ui.js`: renderer nativo HTML/SVG, vistas de componentes/secuencia, selección de pasos y conexiones, zoom, fichas y visor ampliado.
 - `interactions.css`: estilos y adaptación del visor de interacciones. Los tres archivos de datos alimentan las mismas vistas; no necesitan regeneración Mermaid.
 - `app.js`: capítulos, pasos narrativos y comportamiento de la simulación.
-- `c4-data.js`: vistas, nodos, relaciones y contratos de los cinco diagramas C4. `c4-ui.js` y `c4.css` implementan su visor y fichas; `diagrams/c4-*.mmd` conserva sus fuentes gráficas.
+- `c4-data.js` y `diagrams/c4-*.mmd`: derivados de los modelos canónicos de pos-platform, importados desde el snapshot. No se editan aquí. `c4-ui.js` y `c4.css` implementan el visor y sus fichas.
 - `style.css`: diseño, adaptación a pantallas y accesibilidad visual.
-- `diagrams/*.mmd`: fuentes conceptuales y copias documentales; las familias generadas se editan en su documento de origen, indicado abajo.
+- `diagrams/*.mmd`: fuentes conceptuales y derivados documentales. Las familias C4 se sincronizan desde el producto; las demás conservan la revisión histórica del explorador.
 - `diagrams.js`: SVG previamente generados; la presentación no carga Mermaid en ejecución. La interfaz muestra los diagramas y sus fichas, sin botones para ver o descargar su código; las fuentes `.mmd` se conservan para mantenimiento.
 
-Para regenerar diagramas, se necesita Playwright con Chromium instalado. Configura `PLAYWRIGHT_MODULE_PATH` si no está disponible como módulo local:
+Para actualizar el modelo C4, importar un artefacto de documentación generado desde una revisión limpia del producto:
 
 ```powershell
-node presentation/tools/render-diagrams.cjs
+npm run documentation:sync -- --artifact <ruta-al-documentation.snapshot.json>
+npm run documentation:check
 ```
 
-Se conserva Mermaid 11.12.0 y su licencia MIT en `tools/vendor/`. El generador utiliza ese archivo local, sin CDN. El runtime de la presentación usa HTML, CSS y JavaScript sin dependencias externas.
+La autoría y el render de los modelos están en [tools/diagrams del producto](https://github.com/floxcristian/pos-platform/tree/main/tools/diagrams). El runtime de la presentación muestra SVG locales; no carga Mermaid ni necesita CDN.
 
-Las cinco fuentes `diagrams/technical-*.mmd` proceden de V01–V05 en `docs/vistas-arquitectura-y-flujos.md`. El documento contiene seis bloques; `tools/sync-technical-diagrams.cjs` comprueba esa estructura al regenerar. La navegación expone V01 en Despliegue y enlaza V02–V06 al documento; conservar un recurso generado no implica otra vista en pantalla.
+Los cinco derivados históricos `diagrams/technical-*.mmd` proceden de V01–V05 de las [vistas técnicas](https://pos-platform-tau.vercel.app/guide/evidence/current-state/). La navegación expone V01 en Despliegue y enlaza V02–V06 al documento; conservar un recurso generado no implica otra vista en pantalla. Un cambio semántico se revisa primero en la fuente canónica y después en el recorrido que lo sintetiza.
 
-Los cinco `diagrams/dataflow-*.mmd` se copian de D01–D05 en `docs/recorridos-datos-tablas.md`. Edita ese documento para cambiar sus diagramas; `tools/sync-dataflow-diagrams.cjs` comprueba que conserve exactamente cinco bloques. El generador también ejecuta esta importación. Los IDs de nodos deben coincidir con `dataflows-data.js`.
+Los cinco `diagrams/dataflow-*.mmd` conservan D01–D05 de los [recorridos de datos](https://pos-platform-tau.vercel.app/guide/evidence/data-flows/). Sus IDs deben corresponder con `dataflows-data.js`. Son representaciones de la evidencia revisada, no nuevas fuentes de arquitectura.
 
 ## Verificar
 
 Las comprobaciones se ejecutan sobre el tutorial local. Guardan los resultados y capturas de la ejecución en `qa/`; documentar un comando no significa que esa versión haya pasado.
 
 ```powershell
-node presentation/tools/check-documents.cjs
+npm run documentation:check
+npm run check:assistant-api
+npm run build
 node presentation/tools/check-presentation.cjs
 node presentation/tools/check-c4.cjs
 node presentation/tools/check-interactions.cjs
@@ -174,9 +180,9 @@ node presentation/tools/check-operations.cjs
 node presentation/tools/check-repositories.cjs
 ```
 
-Cubren enlaces, Mermaid, referencias de datos, interacciones, teclado, tamaños de pantalla y apertura `file://` según cada script. La [guía del visor](../docs/visor-interacciones-componentes.md#criterios-de-verificación-del-visor) desarrolla sus criterios; la [matriz de cobertura](../docs/cobertura-documentacion-presentacion.md) conserva el alcance editorial. Los servidores temporales de QA usan loopback; no se conectan a servicios corporativos. Estas pruebas no sustituyen una auditoría formal de accesibilidad ni pruebas del POS real.
+Cubren enlaces, Mermaid, referencias de datos, interacciones, teclado, tamaños de pantalla y apertura `file://` según cada script. La [guía del visor](https://pos-platform-tau.vercel.app/guide/reference/explorer/#criterios-de-verificación-del-visor) desarrolla sus criterios; la [matriz de cobertura](https://pos-platform-tau.vercel.app/guide/reference/coverage/) conserva el alcance editorial. Los servidores temporales de QA usan loopback; no se conectan a servicios corporativos. Estas pruebas no sustituyen una auditoría formal de accesibilidad ni pruebas del POS real.
 
-`operations-data.js` conserva casos y evidencia; `operations-ui.js` los presenta. Sus ocho diagramas `operation-*.mmd` se extraen de [operación y evolución](../docs/operacion-caja-y-evolucion.md) mediante `tools/sync-operation-diagrams.cjs`, en orden O01–O04, actual/propuesto. No editar las copias generadas.
+`operations-data.js` conserva casos y evidencia; `operations-ui.js` los presenta. Sus ocho derivados históricos `operation-*.mmd` representan [operación y evolución](https://pos-platform-tau.vercel.app/guide/operations/cash-management/), en orden O01–O04, actual/propuesto. La fuente canónica se edita en el producto; no se mantienen contratos alternativos en esos derivados.
 
 ## Decisiones de diseño
 
@@ -188,4 +194,4 @@ Referencias de herramientas: [Mermaid: uso y renderizado](https://mermaid.js.org
 
 ## Mapa de repositorios
 
-La pestaña Repositorios de Ecosistema muestra seis repositorios del POS actual y diez relaciones seleccionadas. Se ajusta automáticamente al ancho disponible, sin control de zoom manual. Propuesta → Tecnología concentra las fichas de core/devops-platform y la evidencia de su relación de CI/CD; estas tarjetas no aparecen en Ecosistema ni se repiten en Evolución. Sus relaciones no acreditan tráfico productivo ni despliegues. [Mapa documental y fuentes](../docs/mapa-repositorios-y-conexiones.md). `repositories-data.js` conserva los ocho repositorios de software y las once relaciones; `repositories-ui.js` y `repositories.css` los presentan en el capítulo correspondiente.
+La pestaña Repositorios de Ecosistema muestra seis repositorios del POS actual y diez relaciones seleccionadas. Se ajusta automáticamente al ancho disponible, sin control de zoom manual. Propuesta → Tecnología concentra las fichas de core/devops-platform y la evidencia de su relación de CI/CD; estas tarjetas no aparecen en Ecosistema ni se repiten en Evolución. Sus relaciones no acreditan tráfico productivo ni despliegues. [Mapa documental y fuentes](https://pos-platform-tau.vercel.app/guide/evidence/repositories/). `repositories-data.js` conserva los ocho repositorios de software y las once relaciones; `repositories-ui.js` y `repositories.css` los presentan en el capítulo correspondiente.

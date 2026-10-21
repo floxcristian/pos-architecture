@@ -2,17 +2,16 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const {spawnSync} = require('node:child_process');
 const {publishVideo} = require('./video-publication.cjs');
 const {publishNarration} = require('./narration-publication.cjs');
 const {buildAssistantContext} = require('./build-assistant-context.cjs');
+const {loadDocumentation, resolveDocumentationLink, synchronizeDerivatives, ORIGIN} = require('./documentation.cjs');
 const root = path.resolve(__dirname, '../..');
 const output = path.resolve(root, 'public');
 const files = [];
 buildAssistantContext({root});
-const documentation = spawnSync(process.execPath, [path.join(root, 'docs-site/scripts/build.mjs')], {cwd: root, stdio: 'inherit', windowsHide: true});
-if (documentation.error) throw documentation.error;
-if (documentation.status !== 0) throw new Error(`Documentation build failed (${documentation.status})`);
+const documentation = loadDocumentation(root);
+synchronizeDerivatives({root, check: true, snapshot: documentation});
 
 function collect(directory, accept) {
   for (const entry of fs.readdirSync(path.join(root, directory), {withFileTypes:true})) {
@@ -23,8 +22,7 @@ function collect(directory, accept) {
   }
 }
 
-// Keep the original directory layout so ../docs and ../presentation links work.
-collect('docs', file => /\.(md|png|jpe?g|svg|webp|pdf|pptx)$/i.test(file) || (file.startsWith('docs/diagramas-excalidraw/') && /\.(html|excalidraw|zip)$/.test(file)));
+// Preserve presentation asset paths; technical documentation is hosted by pos-platform.
 for (const entry of fs.readdirSync(path.join(root, 'presentation'), {withFileTypes:true})) {
   if (entry.isFile() && /\.(html|css|js|md)$/.test(entry.name)) files.push('presentation/' + entry.name);
 }
@@ -34,9 +32,6 @@ collect('presentation/video-assets', file => /^presentation\/video-assets\/[^/]+
 collect('presentation/vendor/reveal', file => /\.(js|css)$/.test(file) || path.posix.basename(file) === 'LICENSE');
 files.push('README.md');
 files.push('presentation/tools/assistant-setup.md');
-for (const name of ['concentrador-ingress-evidence.json', 'concentrador-masters-evidence.json']) {
-  files.push('tools/' + name);
-}
 
 // Verify the exact disposable output before any recursive cleanup.
 if (path.dirname(output) !== root || path.basename(output) !== 'public') throw new Error('Invalid output directory');
@@ -56,12 +51,8 @@ for (const file of files) {
   fs.mkdirSync(path.dirname(destination), {recursive:true});
   fs.copyFileSync(source, destination);
 }
-console.log(`Static output: ${files.length} files in public/ (presentation, documents and linked evidence).`);
-const docsOutput = path.join(root, 'docs-site/dist');
-if (!fs.existsSync(path.join(docsOutput, '.pos-docs-build'))) throw new Error('Missing documentation build marker');
-fs.cpSync(docsOutput, path.join(output, 'guide'), {recursive: true});
+console.log(`Static output: ${files.length} presentation files in public/.`);
 async function connectDocumentation() {
-  const {resolveDocLink} = await import('../../docs-site/scripts/prepare-content.mjs');
   let count = 0;
   for (const name of fs.readdirSync(path.join(output, 'presentation'))) {
     if (!/\.(html|js)$/.test(name)) continue;
@@ -69,11 +60,11 @@ async function connectDocumentation() {
     const source = fs.readFileSync(file, 'utf8');
     const transformed = source.replace(/(['"])(\.\.\/docs\/[^'"\s]+\.md(?:#[^'"\s]*)?)\1/g, (match, quote, url) => {
       const [document, fragment] = url.slice(3).split('#');
-      const destination = resolveDocLink(document, fragment ? '#' + fragment : '');
+      const destination = resolveDocumentationLink(document, fragment ? '#' + fragment : '', documentation);
       if (!destination) return match;
       count++;
       return quote + destination + quote;
-    });
+    }).replace(/(href=["'])(\/guide\/[^"'\s<]*)/g, (_, attribute, url) => attribute + ORIGIN + url);
     if (source !== transformed) fs.writeFileSync(file, transformed);
   }
   console.log(`Connected ${count} presentation references to their documentation pages.`);

@@ -1,3 +1,4 @@
+%% Generated from pos-platform 8934ba3e1a0fed562d0de04db5a9737894450330; edit the canonical diagram there.
 flowchart TB
     accTitle: C3 · Sincronizador — Entrega durable y precios locales
     accDescr: Un solo contenedor: worker de sincronización de sucursal. La API/DB de país y PostgreSQL local son colaboradores externos al proceso. Deltas y cargas completas comparten validación. Snapshot + watermark + staging + checksum + activación atómica; las ventas abiertas mantienen su versión.

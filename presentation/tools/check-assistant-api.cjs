@@ -196,6 +196,17 @@ test('unsafe citation URLs in a broken corpus fail before the provider', async (
   assert.equal(calls.provider.length, 0);
 });
 
+test('the migrated proposal citation is retained in a successful answer', async () => {
+  const documentationSources = [{id: 'propuesta-arquitectura', title: 'Propuesta', url: '/guide/proposal/product/'}];
+  const {handler} = await fixture({
+    getContext: () => ({context: 'La sucursal confirma su operación local.', sources: documentationSources}),
+    fetchImpl: async () => Response.json(output({answer: 'Consulta la propuesta.', sourceIds: ['propuesta-arquitectura']}))
+  });
+  const response = await handler(request());
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).sources, documentationSources);
+});
+
 test('timeout aborts the provider request and returns an honest timeout', async () => {
   let providerSignal;
   const {handler} = await fixture({timeoutMs: 5, fetchImpl: async (_, init) => {

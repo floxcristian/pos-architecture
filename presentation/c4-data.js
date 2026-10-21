@@ -1,3 +1,4 @@
+/* Generated from pos-platform 8934ba3e1a0fed562d0de04db5a9737894450330. Update with tools/sync-documentation.cjs; do not edit this copy. */
 /* Proposed C4 model. Local explanatory data: no credentials, SDK calls or requests. */
 (() => {
   'use strict';

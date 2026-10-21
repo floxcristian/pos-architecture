@@ -23,8 +23,24 @@ function servePublic(port = Number(process.env.POS_PUBLIC_PORT || 4199)) {
     }
     if (pathname === '/api/assistant') { void serveAssistant(request, response); return; }
     if (!['GET','HEAD'].includes(request.method)) { response.writeHead(405); return response.end(); }
-    const redirect = configuration.redirects?.find(item => item.source === pathname);
-    if (redirect) { response.writeHead(307, {Location:redirect.destination}); return response.end(); }
+    for (const redirect of configuration.redirects || []) {
+      const wildcard = redirect.source.endsWith('/:path*');
+      const prefix = wildcard ? redirect.source.slice(0, -':path*'.length) : null;
+      if (redirect.source !== pathname && !(wildcard && pathname.startsWith(prefix))) continue;
+      const suffix = wildcard ? pathname.slice(prefix.length).split('/').map(encodeURIComponent).join('/') : '';
+      const destination = redirect.destination.replace(':path*', suffix);
+      const target = new URL(destination, requestUrl.origin);
+      if (!target.search) target.search = requestUrl.search;
+      else {
+        const destinationKeys = new Set(target.searchParams.keys());
+        for (const [key, value] of requestUrl.searchParams) {
+          if (!destinationKeys.has(key)) target.searchParams.append(key, value);
+        }
+      }
+      const location = /^[a-z][a-z\d+.-]*:/i.test(destination) ? target.href : target.pathname + target.search + target.hash;
+      response.writeHead(redirect.permanent ? 308 : 307, {Location: location});
+      return response.end();
+    }
     pathname = configuration.rewrites?.find(item => item.source === pathname)?.destination || pathname;
     let file = path.resolve(output, '.' + pathname);
     const relative = path.relative(output, file);
@@ -66,5 +82,5 @@ function servePublic(port = Number(process.env.POS_PUBLIC_PORT || 4199)) {
   return new Promise(resolve => server.listen(port, '127.0.0.1', () => resolve(server)));
 }
 
-if (require.main === module) servePublic().then(server => console.log(`Public output: http://127.0.0.1:${server.address().port}/video`));
+if (require.main === module) servePublic().then(server => console.log(`Public output: http://127.0.0.1:${server.address().port}/reveal`));
 module.exports = {servePublic};

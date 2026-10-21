@@ -63,10 +63,7 @@ function loadPlaywright() {
 }
 
 async function main() {
-  // One node contract drives the C4 selector, details, diagrams and validation.
-  const c4Context = {window:{}};
-  require('node:vm').runInNewContext(await fs.readFile(path.join(presentationDir, 'c4-data.js'), 'utf8'), c4Context);
-  for (const view of c4Context.window.POS_C4.views) diagrams[view.key] = view.nodeIds;
+  // C4 is imported from the pinned pos-platform snapshot after rendering the historical diagrams.
   const { chromium } = loadPlaywright();
   const browser = await chromium.launch({ headless: true });
   const output = {};
@@ -227,6 +224,8 @@ async function main() {
 
     const generated = '/* Generated from diagrams/*.mmd by tools/render-diagrams.cjs. Mermaid 11.12.0; offline SVG, no runtime dependency. */\nwindow.POS_DIAGRAMS = ' + JSON.stringify(output, null, 2) + ';\n';
     await fs.writeFile(path.join(presentationDir, 'diagrams.js'), generated, 'utf8');
+    // C4 belongs to pos-platform; restore its pinned derivatives after rendering historical diagrams.
+    require('./documentation.cjs').synchronizeDerivatives({check: false});
     console.log('Wrote presentation/diagrams.js');
   } finally {
     await browser.close();

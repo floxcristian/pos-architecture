@@ -3,7 +3,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'../..');
-const source=fs.readFileSync(path.join(root,'docs/operacion-caja-y-evolucion.md'),'utf8');
+const source=require('./documentation.cjs').loadDocumentation(root).files['docs/operacion-caja-y-evolucion.md'].content;
 const blocks=[...source.matchAll(/```mermaid\s*\r?\n([\s\S]*?)```/g)].map(m=>m[1].trim()+'\n');
 const names=['session','price','print','delivery'].flatMap(name=>['current','proposed'].map(mode=>`operation-${name}-${mode}`));
 if(blocks.length!==names.length)throw new Error('Expected eight operational diagrams O01–O04, current then proposed.');

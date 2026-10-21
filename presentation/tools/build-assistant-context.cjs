@@ -4,15 +4,16 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const crypto = require('node:crypto');
+const {SNAPSHOT, loadDocumentation} = require('./documentation.cjs');
 
 const INPUTS = Object.freeze([
   'presentation/pos-reveal-content.js',
   'presentation/pos-reveal-narration-content.js',
   'presentation/pos-reveal-labs.js',
-  'docs/propuesta-arquitectura.md'
+  SNAPSHOT
 ]);
 const COURSE_URL = '/presentation/pos-corporativo-reveal.html';
-const PROPOSAL_URL = '/docs/propuesta-arquitectura.md';
+const PROPOSAL_URL = '/guide/proposal/product/';
 const MAX_CHUNK = 5000;
 
 function clean(value) {
@@ -111,7 +112,8 @@ function buildAssistantContext(options = {}) {
   for (const [index, term] of course.glossary.entries()) add(`glosario:${index + 1}`, {sourceId: 'glosario', title: 'Glosario de arquitectura de POS Platform', url: COURSE_URL}, `${term.term}\n\n${term.meaning}`);
 
   // The document is the decision authority; slides and simulations develop the proposal.
-  const sections = inputs['docs/propuesta-arquitectura.md'].split(/(?=^#{1,4} )/m).filter(section => section.trim());
+  const snapshot = loadDocumentation(root);
+  const sections = snapshot.files['docs/propuesta-arquitectura.md'].content.split(/(?=^#{1,4} )/m).filter(section => section.trim());
   const proposalSource = {sourceId: 'propuesta-arquitectura', title: 'Propuesta de arquitectura vigente y decisiones', url: PROPOSAL_URL};
   sections.forEach((section, index) => add(`propuesta-arquitectura:section:${index + 1}`, proposalSource, section));
   const corpus = validateCorpus({
